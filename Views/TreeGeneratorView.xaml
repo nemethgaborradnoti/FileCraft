@@ -37,8 +37,8 @@
         <Label Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2" Content="Folders to exclude (separated by ';' semicolons):" FontWeight="SemiBold"/>
         <TextBox x:Name="excludeFoldersTextBox" Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,5,0,0" ToolTip="For example: .git;node_modules;bin;obj"/>
 
-        <!-- Action and Status Display -->
+        <!-- Action Button -->
         <Button x:Name="generateButton" Grid.Row="8" Grid.Column="0" Content="Generate Structure (.txt)" Padding="10,5" HorizontalAlignment="Left" VerticalAlignment="Bottom" FontWeight="Bold" Click="GenerateButton_Click"/>
-        <TextBlock x:Name="statusTextBlock" Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,0,10" Opacity="0.7"/>
+
     </Grid>
 </UserControl>

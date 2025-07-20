@@ -47,24 +47,22 @@ namespace FileCraft.Views
 
             if (string.IsNullOrWhiteSpace(sourceDirectory) || string.IsNullOrWhiteSpace(destinationDirectory))
             {
-                statusTextBlock.Text = "Error: Both source and destination folders must be selected!";
+                _dialogService.ShowNotification("Validation Error", "Both source and destination folders must be selected.");
                 return;
             }
 
             if (!Directory.Exists(sourceDirectory))
             {
-                statusTextBlock.Text = "Error: The source folder does not exist!";
+                _dialogService.ShowNotification("Path Error", "The selected source folder does not exist.");
                 return;
             }
-
-            statusTextBlock.Text = "Processing...";
 
             try
             {
                 var excludedFolders = new HashSet<string>(
                     excludeFoldersTextBox.Text.Split(';')
-                                         .Select(f => f.Trim())
-                                         .Where(f => !string.IsNullOrWhiteSpace(f)),
+                                             .Select(f => f.Trim())
+                                             .Where(f => !string.IsNullOrWhiteSpace(f)),
                     StringComparer.OrdinalIgnoreCase);
 
                 StringBuilder treeBuilder = new StringBuilder();
@@ -72,16 +70,18 @@ namespace FileCraft.Views
 
                 BuildTree(sourceDirectory, "", treeBuilder, excludedFolders);
 
-                string outputFileName = $"treestructure{DateTime.Now:yyyyMMdd_HHmmss}.txt";
+                string outputFileName = $"treestructure_{DateTime.Now:yyyyMMdd_HHmmss}.txt";
                 string outputFilePath = Path.Combine(destinationDirectory, outputFileName);
 
                 File.WriteAllText(outputFilePath, treeBuilder.ToString());
 
-                statusTextBlock.Text = $"Done! Saved to: {outputFilePath}";
+                // Show success notification
+                _dialogService.ShowNotification("Success", $"Tree structure file was created successfully!\n\nSaved to: {outputFilePath}");
             }
             catch (Exception ex)
             {
-                statusTextBlock.Text = $"An error occurred: {ex.Message}";
+                // Show error notification
+                _dialogService.ShowNotification("Error", $"An unexpected error occurred:\n\n{ex.Message}");
             }
         }
 

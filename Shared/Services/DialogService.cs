@@ -1,4 +1,6 @@
-﻿namespace FileCraft.Services
+﻿using FileCraft.Views.Shared;
+
+namespace FileCraft.Services
 {
     public class DialogService : IDialogService
     {
@@ -15,6 +17,12 @@
             }
 
             return null;
+        }
+
+        public void ShowNotification(string title, string message)
+        {
+            var notificationWindow = new NotificationWindow(title, message);
+            notificationWindow.ShowDialog();
         }
     }
 }
