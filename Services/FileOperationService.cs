@@ -100,5 +100,50 @@ namespace FileCraft.Services
                 builder.AppendLine($"{indent}└── [Access Denied]");
             }
         }
+
+        public Task<string> ExportSelectedFileContentsAsync(string destinationPath, IEnumerable<string> selectedFilePaths)
+        {
+            return Task.Run(() =>
+            {
+                Guard.AgainstNull(selectedFilePaths, nameof(selectedFilePaths));
+                Guard.AgainstNullOrWhiteSpace(destinationPath, nameof(destinationPath));
+
+                if (!selectedFilePaths.Any())
+                {
+                    throw new InvalidOperationException("No files were selected for export.");
+                }
+
+                var contentBuilder = new StringBuilder();
+
+                foreach (var filePath in selectedFilePaths)
+                {
+                    try
+                    {
+                        var fileInfo = new FileInfo(filePath);
+                        string fileContent = File.ReadAllText(filePath);
+
+                        contentBuilder.AppendLine($"===== {fileInfo.Name} file contains:");
+                        contentBuilder.AppendLine();
+                        contentBuilder.AppendLine(fileContent);
+                        contentBuilder.AppendLine();
+                        contentBuilder.AppendLine();
+                        contentBuilder.AppendLine("===============");
+                    }
+                    catch (Exception ex)
+                    {
+                        contentBuilder.AppendLine($"--- Could not read file: {Path.GetFileName(filePath)}. Error: {ex.Message} ---");
+                        contentBuilder.AppendLine();
+                        contentBuilder.AppendLine();
+                        contentBuilder.AppendLine();
+                    }
+                }
+
+                string outputFileName = $"FileContentsExport_{DateTime.Now:yyyyMMdd_HHmmss}.txt";
+                string outputFilePath = Path.Combine(destinationPath, outputFileName);
+                File.WriteAllText(outputFilePath, contentBuilder.ToString());
+
+                return outputFilePath;
+            });
+        }
     }
 }
