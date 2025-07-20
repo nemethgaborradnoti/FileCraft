@@ -1,4 +1,5 @@
 ﻿using FileCraft.Services;
+using FileCraft.Services.Interfaces;
 using FileCraft.ViewModels;
 using System.Windows;
 
@@ -13,8 +14,12 @@ namespace FileCraft
         {
             InitializeComponent();
 
-            _viewModel = new MainViewModel();
-            _dialogService = new DialogService();
+            IDialogService dialogService = new DialogService();
+            IFileOperationService fileOperationService = new FileOperationService();
+
+            _viewModel = new MainViewModel(fileOperationService, dialogService);
+
+            _dialogService = dialogService;
 
             this.DataContext = _viewModel;
         }

@@ -35,20 +35,20 @@
 
             <!-- Source Folder Selection -->
             <Label Grid.Row="0" Grid.Column="0" Content="Source Folder:" FontWeight="SemiBold"/>
-            <!-- The TextBox text is now bound to the SourcePath property in the ViewModel. -->
+            <!-- The TextBox text is bound to the SourcePath property in the ViewModel. -->
             <TextBox Grid.Row="1" Grid.Column="0" Margin="0,0,10,0" IsReadOnly="True" Background="#eee"
                      Text="{Binding SourcePath, Mode=OneWay}"/>
             <Button x:Name="sourceBrowseButton" Grid.Row="1" Grid.Column="1" Content="Browse..." Padding="10,2" Click="SourceBrowseButton_Click"/>
 
             <!-- Destination Folder Selection -->
             <Label Grid.Row="3" Grid.Column="0" Content="Destination Folder:" FontWeight="SemiBold"/>
-            <!-- The TextBox text is now bound to the DestinationPath property in the ViewModel. -->
+            <!-- The TextBox text is bound to the DestinationPath property in the ViewModel. -->
             <TextBox Grid.Row="4" Grid.Column="0" Margin="0,0,10,0" IsReadOnly="True" Background="#eee"
                      Text="{Binding DestinationPath, Mode=OneWay}"/>
             <Button x:Name="destinationBrowseButton" Grid.Row="4" Grid.Column="1" Content="Browse..." Padding="10,2" Click="DestinationBrowseButton_Click"/>
         </Grid>
 
-        <!-- The TabControl is now in the second row -->
+        <!-- The TabControl is in the second row -->
         <TabControl Grid.Row="1" Margin="5">
             <TabItem Header="Tree Generator">
                 <views:TreeGeneratorView/>
