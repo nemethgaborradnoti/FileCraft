@@ -5,12 +5,56 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:FileCraft"
         xmlns:views="clr-namespace:FileCraft.Views"
+        xmlns:viewModels="clr-namespace:FileCraft.ViewModels"
         mc:Ignorable="d"
-        Title="FileCraft" Height="550" Width="800">
-    <Grid>
-        <TabControl Margin="5">
+        Title="FileCraft" Height="550" Width="800"
+        d:DataContext="{d:DesignInstance Type=viewModels:MainViewModel}">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <!-- Row for Shared UI -->
+            <RowDefinition Height="*"/>
+            <!-- Row for TabControl -->
+        </Grid.RowDefinitions>
+
+        <!-- ======================= -->
+        <!--  Shared Folder Selection UI  -->
+        <!-- ======================= -->
+        <Grid Grid.Row="0" Margin="5,0,5,10">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="10" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <!-- Source Folder Selection -->
+            <Label Grid.Row="0" Grid.Column="0" Content="Source Folder:" FontWeight="SemiBold"/>
+            <!-- The TextBox text is now bound to the SourcePath property in the ViewModel. -->
+            <TextBox Grid.Row="1" Grid.Column="0" Margin="0,0,10,0" IsReadOnly="True" Background="#eee"
+                     Text="{Binding SourcePath, Mode=OneWay}"/>
+            <Button x:Name="sourceBrowseButton" Grid.Row="1" Grid.Column="1" Content="Browse..." Padding="10,2" Click="SourceBrowseButton_Click"/>
+
+            <!-- Destination Folder Selection -->
+            <Label Grid.Row="3" Grid.Column="0" Content="Destination Folder:" FontWeight="SemiBold"/>
+            <!-- The TextBox text is now bound to the DestinationPath property in the ViewModel. -->
+            <TextBox Grid.Row="4" Grid.Column="0" Margin="0,0,10,0" IsReadOnly="True" Background="#eee"
+                     Text="{Binding DestinationPath, Mode=OneWay}"/>
+            <Button x:Name="destinationBrowseButton" Grid.Row="4" Grid.Column="1" Content="Browse..." Padding="10,2" Click="DestinationBrowseButton_Click"/>
+        </Grid>
+
+        <!-- The TabControl is now in the second row -->
+        <TabControl Grid.Row="1" Margin="5">
             <TabItem Header="Tree Generator">
                 <views:TreeGeneratorView/>
+            </TabItem>
+            <TabItem Header="Export Folder Contents">
+                <views:ExportFolderContentsView/>
             </TabItem>
             <TabItem Header="File Renamer">
                 <views:FileRenamerView/>

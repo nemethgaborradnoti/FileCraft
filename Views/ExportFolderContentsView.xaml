@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="FileCraft.Views.TreeGeneratorView"
+﻿<UserControl x:Class="FileCraft.Views.ExportFolderContentsView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -9,19 +9,17 @@
     <Grid Margin="15">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
-        <!-- Exclude Folders -->
-        <Label Grid.Row="0" Grid.Column="0" Content="Folders to exclude (separated by ';' semicolons):" FontWeight="SemiBold"/>
-        <TextBox x:Name="excludeFoldersTextBox" Grid.Row="1" Grid.Column="0" Margin="0,5,0,0" ToolTip="For example: .git;node_modules;bin;obj"/>
+        <!-- Options -->
+        <CheckBox x:Name="includeSubfoldersCheckBox" Grid.Row="0" Grid.Column="0" Content="Include files in subfolders" IsChecked="False" Margin="0,5,0,0"/>
 
         <!-- Action Button -->
-        <Button x:Name="generateButton" Grid.Row="2" Grid.Column="0" Content="Generate Structure (.txt)" Padding="10,5" HorizontalAlignment="Left" VerticalAlignment="Bottom" FontWeight="Bold" Click="GenerateButton_Click"/>
+        <Button x:Name="exportButton" Grid.Row="1" Grid.Column="0" Content="Export Contents (.txt)" Padding="10,5" HorizontalAlignment="Left" VerticalAlignment="Bottom" FontWeight="Bold" Click="ExportButton_Click"/>
 
     </Grid>
 </UserControl>
