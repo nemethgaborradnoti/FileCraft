@@ -2,7 +2,6 @@
 using FileCraft.Services;
 using FileCraft.Services.Interfaces;
 using FileCraft.Shared.Commands;
-using FileCraft.Shared.Validation;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
@@ -20,11 +19,6 @@ namespace FileCraft.ViewModels
         private readonly IDialogService _dialogService;
         private readonly ISettingsService _settingsService;
 
-        private string _fileExtensions = ".cs;.html;.css;.js;.txt";
-        private bool _showLoadFilesButton;
-        private bool _contentExport_IncludeSubfolders;
-        private string _contentExport_ExcludeFoldersText = "obj;bin;.git;.vs;node_modules";
-
         public event PropertyChangedEventHandler? PropertyChanged;
 
         public string SourcePath
@@ -36,7 +30,7 @@ namespace FileCraft.ViewModels
                 {
                     _sourcePath = value;
                     OnPropertyChanged();
-                    OnSourcePathOrOptionsChanged();
+                    OnSourcePathChanged();
                     SaveSettings();
                 }
             }
@@ -63,53 +57,20 @@ namespace FileCraft.ViewModels
         }
 
         public ObservableCollection<SelectableFile> SelectableFiles { get; } = new ObservableCollection<SelectableFile>();
-
-        public string FileExtensions
-        {
-            get => _fileExtensions;
-            set
-            {
-                _fileExtensions = value;
-                OnPropertyChanged();
-                OnSourcePathOrOptionsChanged();
-            }
-        }
-
-        public bool ShowLoadFilesButton
-        {
-            get => _showLoadFilesButton;
-            set { _showLoadFilesButton = value; OnPropertyChanged(); }
-        }
-
-        public bool ContentExport_IncludeSubfolders
-        {
-            get => _contentExport_IncludeSubfolders;
-            set
-            {
-                _contentExport_IncludeSubfolders = value;
-                OnPropertyChanged();
-                OnSourcePathOrOptionsChanged();
-            }
-        }
-
-        public string ContentExport_ExcludeFoldersText
-        {
-            get => _contentExport_ExcludeFoldersText;
-            set
-            {
-                _contentExport_ExcludeFoldersText = value;
-                OnPropertyChanged();
-                OnSourcePathOrOptionsChanged();
-            }
-        }
+        public ObservableCollection<SelectableItemViewModel> AvailableExtensions { get; } = new ObservableCollection<SelectableItemViewModel>();
+        public ObservableCollection<FolderViewModel> RootFolders { get; } = new ObservableCollection<FolderViewModel>();
 
         public ICommand ClearPathsCommand { get; }
-        public ICommand ExportFolderContentsCommand { get; }
-        public ICommand GenerateTreeStructureCommand { get; }
-        public ICommand LoadFilesCommand { get; }
         public ICommand ExportFileContentCommand { get; }
         public ICommand SelectAllFilesCommand { get; }
         public ICommand DeselectAllFilesCommand { get; }
+        public ICommand SelectAllFoldersCommand { get; }
+        public ICommand DeselectAllFoldersCommand { get; }
+        public ICommand SelectAllExtensionsCommand { get; }
+        public ICommand DeselectAllExtensionsCommand { get; }
+
+        public ICommand ExportFolderContentsCommand { get; }
+        public ICommand GenerateTreeStructureCommand { get; }
 
 
         public MainViewModel(IFileOperationService fileOperationService, IDialogService dialogService)
@@ -118,17 +79,20 @@ namespace FileCraft.ViewModels
             _dialogService = dialogService;
             _settingsService = new SettingsService();
 
-            ClearPathsCommand = new RelayCommand(
-                _ => ClearPaths(),
-                _ => !string.IsNullOrEmpty(SourcePath) || !string.IsNullOrEmpty(DestinationPath)
-            );
+            ClearPathsCommand = new RelayCommand(_ => ClearPaths(), _ => !string.IsNullOrEmpty(SourcePath) || !string.IsNullOrEmpty(DestinationPath));
+            ExportFileContentCommand = new RelayCommand(async (_) => await ExportFileContentAsync(), (_) => CanExecuteOperation(_) && SelectableFiles.Any(f => f.IsSelected));
+
+            SelectAllFilesCommand = new RelayCommand(SelectAllFiles, (_) => SelectableFiles.Any());
+            DeselectAllFilesCommand = new RelayCommand(DeselectAllFiles, (_) => SelectableFiles.Any());
+
+            SelectAllFoldersCommand = new RelayCommand(SelectAllFolders, _ => RootFolders.Any());
+            DeselectAllFoldersCommand = new RelayCommand(DeselectAllFolders, _ => RootFolders.Any());
+
+            SelectAllExtensionsCommand = new RelayCommand(SelectAllExtensions, _ => AvailableExtensions.Any());
+            DeselectAllExtensionsCommand = new RelayCommand(DeselectAllExtensions, _ => AvailableExtensions.Any());
 
             ExportFolderContentsCommand = new RelayCommand(async (p) => await ExportFolderContents(p), CanExecuteOperation);
-            GenerateTreeStructureCommand = new RelayCommand(async (p) => await GenerateTreeStructure(p), CanExecuteOperation);
-            LoadFilesCommand = new RelayCommand(async (p) => await LoadFilesAsync(), (p) => !string.IsNullOrWhiteSpace(SourcePath) && !IsBusy);
-            ExportFileContentCommand = new RelayCommand(async (p) => await ExportFileContentAsync(), (p) => CanExecuteOperation(p) && SelectableFiles.Any(f => f.IsSelected));
-            SelectAllFilesCommand = new RelayCommand(SelectAllFiles, (p) => SelectableFiles.Any());
-            DeselectAllFilesCommand = new RelayCommand(DeselectAllFiles, (p) => SelectableFiles.Any());
+            GenerateTreeStructureCommand = new RelayCommand(async (_) => await GenerateTreeStructure(), CanExecuteOperation);
 
             LoadSettings();
         }
@@ -146,167 +110,150 @@ namespace FileCraft.ViewModels
             _destinationPath = settings.DestinationPath;
             OnPropertyChanged(nameof(SourcePath));
             OnPropertyChanged(nameof(DestinationPath));
+            OnSourcePathChanged();
         }
 
         private void SaveSettings()
         {
-            var settings = new Settings
-            {
-                SourcePath = this.SourcePath,
-                DestinationPath = this.DestinationPath
-            };
+            var settings = new Settings { SourcePath = this.SourcePath, DestinationPath = this.DestinationPath };
             _settingsService.SaveSettings(settings);
         }
 
-        private bool CanExecuteOperation(object parameter)
+        private bool CanExecuteOperation(object? parameter)
         {
-            return !string.IsNullOrWhiteSpace(SourcePath) &&
-                   !string.IsNullOrWhiteSpace(DestinationPath) &&
-                   !IsBusy;
+            return !string.IsNullOrWhiteSpace(SourcePath) && !string.IsNullOrWhiteSpace(DestinationPath) && !IsBusy;
         }
 
-        private async Task ExportFolderContents(object parameter)
+        private void OnSourcePathChanged()
         {
-            IsBusy = true;
-            try
-            {
-                var options = parameter as Dictionary<string, object>;
-                Guard.AgainstNull(options, nameof(options), "Internal application error: Command parameter is missing.");
-
-                bool includeSubfolders = (bool)options["IncludeSubfolders"];
-
-                string outputFilePath = await _fileOperationService.ExportFolderContentsAsync(SourcePath, DestinationPath, includeSubfolders);
-                var fileInfo = new FileInfo(outputFilePath);
-                var fileCount = File.ReadLines(fileInfo.FullName).Count() - 1;
-                _dialogService.ShowNotification("Success", $"Folder contents exported successfully!\n\n{fileCount} files were processed.\nSaved to: {outputFilePath}");
-            }
-            catch (Exception ex)
-            {
-                _dialogService.ShowNotification("Error", $"An unexpected error occurred:\n\n{ex.Message}");
-            }
-            finally
-            {
-                IsBusy = false;
-            }
-        }
-
-        private async Task GenerateTreeStructure(object parameter)
-        {
-            IsBusy = true;
-            try
-            {
-                var options = parameter as Dictionary<string, object>;
-                Guard.AgainstNull(options, nameof(options), "Internal application error: Command parameter is missing.");
-
-                string excludeFoldersText = (string)options["ExcludeFoldersText"];
-                var excludedFolders = new HashSet<string>(
-                    excludeFoldersText.Split(';').Select(f => f.Trim()).Where(f => !string.IsNullOrWhiteSpace(f)),
-                    StringComparer.OrdinalIgnoreCase);
-
-                string outputFilePath = await _fileOperationService.GenerateTreeStructureAsync(SourcePath, DestinationPath, excludedFolders);
-                _dialogService.ShowNotification("Success", $"Tree structure file was created successfully!\n\nSaved to: {outputFilePath}");
-            }
-            catch (Exception ex)
-            {
-                _dialogService.ShowNotification("Error", $"An unexpected error occurred:\n\n{ex.Message}");
-            }
-            finally
-            {
-                IsBusy = false;
-            }
-        }
-
-        private void OnSourcePathOrOptionsChanged()
-        {
-            SelectableFiles.Clear();
-            ShowLoadFilesButton = false;
-
             if (string.IsNullOrWhiteSpace(SourcePath) || !Directory.Exists(SourcePath))
             {
+                RootFolders.Clear();
+                AvailableExtensions.Clear();
+                SelectableFiles.Clear();
                 return;
             }
 
+            IsBusy = true;
             try
             {
-                var files = FindFiles();
-                if (files.Count > 100)
-                {
-                    ShowLoadFilesButton = true;
-                    _dialogService.ShowNotification("Information", $"{files.Count} files found. Please click 'Load Files' to populate the list.");
-                }
-                else if (files.Any())
-                {
-                    LoadFiles(files);
-                }
+                BuildFolderTree();
+                OnFolderSelectionChanged();
             }
             catch (Exception ex)
             {
-                _dialogService.ShowNotification("Error", $"Could not access the folder or read files:\n\n{ex.Message}");
+                _dialogService.ShowNotification("Error", $"Could not access or process the source directory:\n\n{ex.Message}");
+            }
+            finally
+            {
+                IsBusy = false;
             }
         }
 
-        private async Task LoadFilesAsync()
+        private void OnFolderSelectionChanged()
         {
-            IsBusy = true;
-            ShowLoadFilesButton = false;
-            await Task.Run(() =>
-            {
-                try
-                {
-                    var files = FindFiles();
-                    LoadFiles(files);
-                }
-                catch (Exception ex)
-                {
-                    _dialogService.ShowNotification("Error", $"Could not load files:\n\n{ex.Message}");
-                }
-            });
-            IsBusy = false;
+            UpdateAvailableExtensions();
+            UpdateSelectableFiles();
         }
 
-        private List<string> FindFiles()
-        {
-            var extensions = GetParsedExtensions();
-            if (!extensions.Any()) return new List<string>();
 
-            var excludedFolders = GetParsedExcludedFolders();
-            var searchOption = ContentExport_IncludeSubfolders ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
-
-            return Directory.EnumerateFiles(SourcePath, "*.*", searchOption)
-                .Where(filePath =>
-                {
-                    bool hasValidExtension = extensions.Contains(Path.GetExtension(filePath).ToLowerInvariant());
-                    if (!hasValidExtension) return false;
-
-                    if (!ContentExport_IncludeSubfolders) return true;
-
-                    bool isInExcludedFolder = excludedFolders.Any(exFolder =>
-                    {
-                        string relativeDir = Path.GetDirectoryName(filePath.Substring(SourcePath.Length)) ?? "";
-                        return relativeDir.Split(Path.DirectorySeparatorChar, StringSplitOptions.RemoveEmptyEntries)
-                                          .Contains(exFolder, StringComparer.OrdinalIgnoreCase);
-                    });
-
-                    return !isInExcludedFolder;
-                })
-                .ToList();
-        }
-
-        private void LoadFiles(List<string> filePaths)
+        private void BuildFolderTree()
         {
             System.Windows.Application.Current.Dispatcher.Invoke(() =>
             {
-                SelectableFiles.Clear();
-                foreach (var path in filePaths.OrderBy(p => p))
+                RootFolders.Clear();
+                var rootDirInfo = new DirectoryInfo(SourcePath);
+                var rootViewModel = new FolderViewModel(rootDirInfo.Name, rootDirInfo.FullName, null, OnFolderSelectionChanged);
+                PopulateChildren(rootViewModel);
+                RootFolders.Add(rootViewModel);
+            });
+        }
+
+        private void PopulateChildren(FolderViewModel parent)
+        {
+            try
+            {
+                var subDirs = Directory.GetDirectories(parent.FullPath);
+                foreach (var dirPath in subDirs)
                 {
-                    SelectableFiles.Add(new SelectableFile
+                    var dirInfo = new DirectoryInfo(dirPath);
+                    var childViewModel = new FolderViewModel(dirInfo.Name, dirInfo.FullName, parent, OnFolderSelectionChanged);
+                    parent.Children.Add(childViewModel);
+                    PopulateChildren(childViewModel);
+                }
+            }
+            catch (UnauthorizedAccessException) { }
+        }
+
+        private void UpdateAvailableExtensions()
+        {
+            var selectedFolders = GetSelectedFolders();
+            var extensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+            foreach (var folder in selectedFolders)
+            {
+                try
+                {
+                    var files = Directory.GetFiles(folder.FullPath, "*.*", SearchOption.TopDirectoryOnly);
+                    foreach (var file in files)
                     {
-                        FileName = Path.GetFileName(path),
-                        FullPath = path,
-                        IsSelected = false
-                    });
+                        extensions.Add(Path.GetExtension(file));
+                    }
+                }
+                catch (UnauthorizedAccessException) { }
+            }
+
+            System.Windows.Application.Current.Dispatcher.Invoke(() =>
+            {
+                var previouslySelected = new HashSet<string>(AvailableExtensions.Where(e => e.IsSelected).Select(e => e.Name));
+
+                AvailableExtensions.Clear();
+                foreach (var ext in extensions.Where(e => !string.IsNullOrEmpty(e)).OrderBy(e => e))
+                {
+                    var item = new SelectableItemViewModel(ext, previouslySelected.Contains(ext) || previouslySelected.Count == 0);
+                    item.PropertyChanged += (s, e) => { if (e.PropertyName == nameof(SelectableItemViewModel.IsSelected)) UpdateSelectableFiles(); };
+                    AvailableExtensions.Add(item);
                 }
             });
+        }
+
+        private void UpdateSelectableFiles()
+        {
+            var selectedFolders = GetSelectedFolders();
+            var selectedExtensions = new HashSet<string>(
+                AvailableExtensions.Where(e => e.IsSelected).Select(e => e.Name),
+                StringComparer.OrdinalIgnoreCase);
+
+            var files = new List<SelectableFile>();
+            foreach (var folder in selectedFolders)
+            {
+                try
+                {
+                    var filesInFolder = Directory.GetFiles(folder.FullPath, "*.*", SearchOption.TopDirectoryOnly)
+                        .Where(f => selectedExtensions.Contains(Path.GetExtension(f)))
+                        .Select(f => new SelectableFile { FileName = Path.GetFileName(f), FullPath = f, IsSelected = false });
+                    files.AddRange(filesInFolder);
+                }
+                catch (UnauthorizedAccessException) { }
+            }
+
+            System.Windows.Application.Current.Dispatcher.Invoke(() =>
+            {
+                SelectableFiles.Clear();
+                foreach (var file in files.OrderBy(f => f.FullPath))
+                {
+                    SelectableFiles.Add(file);
+                }
+            });
+        }
+
+        private List<FolderViewModel> GetSelectedFolders()
+        {
+            if (!RootFolders.Any())
+            {
+                return new List<FolderViewModel>();
+            }
+            return RootFolders[0].GetAllNodes().Where(n => n.IsSelected != false).ToList();
         }
 
         private async Task ExportFileContentAsync()
@@ -335,40 +282,70 @@ namespace FileCraft.ViewModels
             }
         }
 
-        private void SelectAllFiles(object parameter)
+        #region Selection Commands
+        private void SelectAllFiles(object? parameter) => SetAllFilesSelection(true);
+        private void DeselectAllFiles(object? parameter) => SetAllFilesSelection(false);
+        private void SetAllFilesSelection(bool isSelected)
         {
-            foreach (var file in SelectableFiles)
+            foreach (var file in SelectableFiles) { file.IsSelected = isSelected; }
+        }
+
+        private void SelectAllFolders(object? parameter) => SetAllFoldersSelection(true);
+        private void DeselectAllFolders(object? parameter) => SetAllFoldersSelection(false);
+        private void SetAllFoldersSelection(bool isSelected)
+        {
+            if (!RootFolders.Any()) return;
+
+            var root = RootFolders[0];
+            if (isSelected)
             {
-                file.IsSelected = true;
+                root.IsSelected = true;
+            }
+            else
+            {
+                foreach (var child in root.Children)
+                {
+                    child.IsSelected = false;
+                }
             }
         }
 
-        private void DeselectAllFiles(object parameter)
+        private void SelectAllExtensions(object? parameter) => SetAllExtensionsSelection(true);
+        private void DeselectAllExtensions(object? parameter) => SetAllExtensionsSelection(false);
+        private void SetAllExtensionsSelection(bool isSelected)
         {
-            foreach (var file in SelectableFiles)
+            foreach (var ext in AvailableExtensions) { ext.IsSelected = isSelected; }
+        }
+        #endregion
+
+        #region Legacy Methods for Other Views
+        private async Task ExportFolderContents(object? parameter) { }
+
+        private async Task GenerateTreeStructure()
+        {
+            IsBusy = true;
+            try
             {
-                file.IsSelected = false;
+                var allFoldersInSource = Directory.GetDirectories(SourcePath, "*", SearchOption.AllDirectories).Select(d => Path.GetFileName(d));
+                var selectedFolderNames = GetSelectedFolders().Select(f => f.Name);
+
+                var excludedFolders = new HashSet<string>(
+                    allFoldersInSource.Except(selectedFolderNames),
+                    StringComparer.OrdinalIgnoreCase);
+
+                string outputFilePath = await _fileOperationService.GenerateTreeStructureAsync(SourcePath, DestinationPath, excludedFolders);
+                _dialogService.ShowNotification("Success", $"Tree structure file was created successfully!\n\nSaved to: {outputFilePath}");
+            }
+            catch (Exception ex)
+            {
+                _dialogService.ShowNotification("Error", $"An unexpected error occurred:\n\n{ex.Message}");
+            }
+            finally
+            {
+                IsBusy = false;
             }
         }
-
-        private HashSet<string> GetParsedExtensions()
-        {
-            return new HashSet<string>(
-                FileExtensions.Split(';')
-                              .Select(ext => ext.Trim().ToLowerInvariant())
-                              .Where(ext => !string.IsNullOrWhiteSpace(ext) && ext.StartsWith(".")),
-                StringComparer.OrdinalIgnoreCase
-            );
-        }
-
-        private HashSet<string> GetParsedExcludedFolders()
-        {
-            return new HashSet<string>(
-                ContentExport_ExcludeFoldersText.Split(';')
-                                  .Select(f => f.Trim())
-                                  .Where(f => !string.IsNullOrWhiteSpace(f)),
-                StringComparer.OrdinalIgnoreCase);
-        }
+        #endregion
 
         protected void OnPropertyChanged([CallerMemberName] string? name = null)
         {

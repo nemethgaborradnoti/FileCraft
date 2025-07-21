@@ -4,70 +4,99 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:FileCraft.Views"
-             xmlns:viewModels="clr-namespace:FileCraft.ViewModels"
+             xmlns:viewmodels="clr-namespace:FileCraft.ViewModels"
              mc:Ignorable="d" 
-             d:DataContext="{d:DesignInstance Type=viewModels:MainViewModel}"
-             d:DesignHeight="450" d:DesignWidth="800">
-    <Grid Margin="15">
+             d:DataContext="{d:DesignInstance Type=viewmodels:MainViewModel, IsDesignTimeCreatable=False}"
+             d:DesignHeight="600" d:DesignWidth="800">
+    <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <!-- Options -->
-            <RowDefinition Height="Auto" />
-            <!-- Buttons for loading and selection -->
-            <RowDefinition Height="*" />
-            <!-- File List -->
-            <RowDefinition Height="Auto" />
-            <!-- Action Button -->
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <!-- Options Panel -->
-        <StackPanel Grid.Row="0">
-            <!-- File Extensions Input -->
-            <Label Content="File extensions to include (separated by ';' semicolons):" FontWeight="SemiBold"/>
-            <TextBox Text="{Binding FileExtensions, UpdateSourceTrigger=PropertyChanged}" Margin="0,5,0,10" ToolTip="For example: .cs;.html;.css;.js;.txt"/>
+        <!-- Section for folder and extension selection -->
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
 
-            <!-- Exclude Folders Input -->
-            <Label Content="Folders to exclude (separated by ';' semicolons):" FontWeight="SemiBold"/>
-            <TextBox x:Name="excludeFoldersTextBox" Text="{Binding ContentExport_ExcludeFoldersText, UpdateSourceTrigger=PropertyChanged}" Margin="0,5,0,10" ToolTip="For example: .git;node_modules;bin;obj"/>
+            <!-- Folders to Include -->
+            <GroupBox Grid.Column="0" Header="Folders to Include" Margin="5">
+                <DockPanel>
+                    <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button Content="Select All" Command="{Binding SelectAllFoldersCommand}" Margin="2"/>
+                        <Button Content="Deselect All" Command="{Binding DeselectAllFoldersCommand}" Margin="2"/>
+                    </StackPanel>
+                    <TreeView ItemsSource="{Binding RootFolders}" Height="250" Margin="0,5,0,0">
+                        <TreeView.ItemContainerStyle>
+                            <Style TargetType="{x:Type TreeViewItem}">
+                                <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
+                            </Style>
+                        </TreeView.ItemContainerStyle>
+                        <TreeView.ItemTemplate>
+                            <HierarchicalDataTemplate ItemsSource="{Binding Children}">
+                                <StackPanel Orientation="Horizontal">
+                                    <!-- CheckBox now supports three states: checked, unchecked, and indeterminate -->
+                                    <CheckBox IsChecked="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" IsThreeState="True" VerticalAlignment="Center"/>
+                                    <TextBlock Text="{Binding Name}" Margin="5,0,0,0" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </HierarchicalDataTemplate>
+                        </TreeView.ItemTemplate>
+                    </TreeView>
+                </DockPanel>
+            </GroupBox>
 
-            <!-- Include Subfolders Checkbox -->
-            <CheckBox Content="Include files in subfolders" IsChecked="{Binding ContentExport_IncludeSubfolders}" Margin="0,5,0,10"/>
-        </StackPanel>
+            <!-- File extensions to include -->
+            <GroupBox Grid.Column="1" Header="File extensions to include" Margin="5">
+                <DockPanel>
+                    <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button Content="Select All" Command="{Binding SelectAllExtensionsCommand}" Margin="2"/>
+                        <Button Content="Deselect All" Command="{Binding DeselectAllExtensionsCommand}" Margin="2"/>
+                    </StackPanel>
+                    <ListView ItemsSource="{Binding AvailableExtensions}" Height="250" Margin="0,5,0,0">
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <CheckBox IsChecked="{Binding IsSelected}" Content="{Binding Name}"/>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </DockPanel>
+            </GroupBox>
+        </Grid>
 
-        <!-- Load Files and Select/Deselect All Buttons -->
-        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,10">
-            <!-- This button is only visible when more than 100 files are found and need manual loading. -->
-            <Button Content="Load Files" 
-                    Command="{Binding LoadFilesCommand}" 
-                    Padding="10,2" 
-                    Margin="0,0,10,0"
-                    Visibility="{Binding ShowLoadFilesButton, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+        <!-- Section for selected files. This row now takes up the remaining space and will allow the ListView to scroll. -->
+        <GroupBox Grid.Row="1" Header="Files to Export" Margin="5">
+            <DockPanel>
+                <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button Content="Select All" Command="{Binding SelectAllFilesCommand}" Margin="2"/>
+                    <Button Content="Deselect All" Command="{Binding DeselectAllFilesCommand}" Margin="2"/>
+                </StackPanel>
+                <ListView ItemsSource="{Binding SelectableFiles}" Margin="0,5,0,0" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                    <ListView.View>
+                        <GridView>
+                            <GridViewColumn>
+                                <GridViewColumn.Header>
+                                    <CheckBox Name="HeaderCheckBox" Checked="OnCheckAll" Unchecked="OnCheckAll"/>
+                                </GridViewColumn.Header>
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <CheckBox IsChecked="{Binding IsSelected}"/>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                            <GridViewColumn Header="File Path" DisplayMemberBinding="{Binding FullPath}" />
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+            </DockPanel>
+        </GroupBox>
 
-            <Button Content="Select All" Command="{Binding SelectAllFilesCommand}" Padding="10,2" Margin="0,0,5,0"/>
-            <Button Content="Deselect All" Command="{Binding DeselectAllFilesCommand}" Padding="10,2"/>
-        </StackPanel>
-
-        <!-- Files ListBox -->
-        <Border Grid.Row="2" BorderBrush="LightGray" BorderThickness="1" CornerRadius="3">
-            <ScrollViewer VerticalScrollBarVisibility="Auto">
-                <ItemsControl ItemsSource="{Binding SelectableFiles}">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <CheckBox IsChecked="{Binding IsSelected}" Content="{Binding FullPath}" Margin="5"/>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-            </ScrollViewer>
-        </Border>
-
-        <!-- Action Button -->
-        <Button Grid.Row="3" 
-                Content="Export Selected Files Content (.txt)" 
-                Padding="10,5" 
-                HorizontalAlignment="Left" 
-                VerticalAlignment="Bottom" 
-                FontWeight="Bold" 
-                Margin="0,15,0,0"
-                Command="{Binding ExportFileContentCommand}"/>
+        <!-- Export Button -->
+        <Button Grid.Row="2" Content="Export Selected File Contents" 
+                Command="{Binding ExportFileContentCommand}" 
+                HorizontalAlignment="Right" VerticalAlignment="Bottom" 
+                Margin="10" Padding="10,5"/>
     </Grid>
 </UserControl>
