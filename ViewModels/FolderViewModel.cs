@@ -105,6 +105,18 @@ namespace FileCraft.ViewModels
             Parent?.UpdateParentStateWithoutNotification();
         }
 
+        public void SetIsExpandedRecursively(bool isExpanded)
+        {
+            if (Children.Any())
+            {
+                IsExpanded = isExpanded;
+                foreach (var child in Children)
+                {
+                    child.SetIsExpandedRecursively(isExpanded);
+                }
+            }
+        }
+
         public IEnumerable<FolderViewModel> GetAllNodes()
         {
             yield return this;

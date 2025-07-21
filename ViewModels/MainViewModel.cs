@@ -187,7 +187,7 @@ namespace FileCraft.ViewModels
 
         private void UpdateAvailableExtensions()
         {
-            var selectedFolders = GetSelectedFolders();
+            var selectedFolders = GetSelectedFoldersForFileListing();
             var extensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
             foreach (var folder in selectedFolders)
@@ -219,7 +219,7 @@ namespace FileCraft.ViewModels
 
         private void UpdateSelectableFiles()
         {
-            var selectedFolders = GetSelectedFolders();
+            var selectedFolders = GetSelectedFoldersForFileListing();
             var selectedExtensions = new HashSet<string>(
                 AvailableExtensions.Where(e => e.IsSelected).Select(e => e.Name),
                 StringComparer.OrdinalIgnoreCase);
@@ -247,7 +247,7 @@ namespace FileCraft.ViewModels
             });
         }
 
-        private List<FolderViewModel> GetSelectedFolders()
+        private List<FolderViewModel> GetSelectedFoldersForFileListing()
         {
             if (!RootFolders.Any())
             {
@@ -300,6 +300,7 @@ namespace FileCraft.ViewModels
             if (isSelected)
             {
                 root.IsSelected = true;
+                root.SetIsExpandedRecursively(true);
             }
             else
             {
@@ -326,14 +327,13 @@ namespace FileCraft.ViewModels
             IsBusy = true;
             try
             {
-                var allFoldersInSource = Directory.GetDirectories(SourcePath, "*", SearchOption.AllDirectories).Select(d => Path.GetFileName(d));
-                var selectedFolderNames = GetSelectedFolders().Select(f => f.Name);
+                var allNodes = RootFolders.Any() ? RootFolders[0].GetAllNodes() : Enumerable.Empty<FolderViewModel>();
 
-                var excludedFolders = new HashSet<string>(
-                    allFoldersInSource.Except(selectedFolderNames),
+                var excludedFolderPaths = new HashSet<string>(
+                    allNodes.Where(n => n.IsSelected == false).Select(n => n.FullPath),
                     StringComparer.OrdinalIgnoreCase);
 
-                string outputFilePath = await _fileOperationService.GenerateTreeStructureAsync(SourcePath, DestinationPath, excludedFolders);
+                string outputFilePath = await _fileOperationService.GenerateTreeStructureAsync(SourcePath, DestinationPath, excludedFolderPaths);
                 _dialogService.ShowNotification("Success", $"Tree structure file was created successfully!\n\nSaved to: {outputFilePath}");
             }
             catch (Exception ex)

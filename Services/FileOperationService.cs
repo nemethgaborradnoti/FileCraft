@@ -1,7 +1,11 @@
 ﻿using FileCraft.Services.Interfaces;
 using FileCraft.Shared.Validation;
 using System.IO;
+using System.Linq;
 using System.Text;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace FileCraft.Services
 {
@@ -46,7 +50,14 @@ namespace FileCraft.Services
             });
         }
 
-        public Task<string> GenerateTreeStructureAsync(string sourcePath, string destinationPath, ISet<string> excludedFolders)
+        /// <summary>
+        /// Generates a text file representing the folder structure.
+        /// </summary>
+        /// <param name="sourcePath">The root directory to start from.</param>
+        /// <param name="destinationPath">The directory where the output file will be saved.</param>
+        /// <param name="excludedFolderPaths">A set of full folder paths to exclude from the tree.</param>
+        /// <returns>The path to the generated file.</returns>
+        public Task<string> GenerateTreeStructureAsync(string sourcePath, string destinationPath, ISet<string> excludedFolderPaths)
         {
             return Task.Run(() =>
             {
@@ -57,7 +68,7 @@ namespace FileCraft.Services
                 StringBuilder treeBuilder = new StringBuilder();
                 treeBuilder.AppendLine(new DirectoryInfo(sourcePath).Name);
 
-                BuildTree(sourcePath, "", treeBuilder, excludedFolders, true);
+                BuildTree(sourcePath, "", treeBuilder, excludedFolderPaths, true);
 
                 string outputFileName = $"treestructure_{DateTime.Now:yyyyMMdd_HHmmss}.txt";
                 string outputFilePath = Path.Combine(destinationPath, outputFileName);
@@ -67,12 +78,13 @@ namespace FileCraft.Services
             });
         }
 
-        private void BuildTree(string directoryPath, string indent, StringBuilder builder, ISet<string> excludedFolders, bool isLastParent)
+        private void BuildTree(string directoryPath, string indent, StringBuilder builder, ISet<string> excludedFolderPaths, bool isLastParent)
         {
             try
             {
+                // Filter subdirectories based on the full path for robust exclusion.
                 var subDirectories = Directory.GetDirectories(directoryPath)
-                    .Where(d => !excludedFolders.Contains(Path.GetFileName(d)))
+                    .Where(d => !excludedFolderPaths.Contains(d))
                     .OrderBy(d => d)
                     .ToArray();
 
@@ -85,7 +97,7 @@ namespace FileCraft.Services
                     var subDirInfo = new DirectoryInfo(subDirectories[i]);
                     bool isLast = (i == subDirectories.Length - 1) && (files.Length == 0);
                     builder.AppendLine($"{indent}{(isLast ? "└── " : "├── ")}{subDirInfo.Name}");
-                    BuildTree(subDirInfo.FullName, indent + (isLast ? "    " : "│   "), builder, excludedFolders, isLast);
+                    BuildTree(subDirInfo.FullName, indent + (isLast ? "    " : "│   "), builder, excludedFolderPaths, isLast);
                 }
 
                 for (int i = 0; i < files.Length; i++)
