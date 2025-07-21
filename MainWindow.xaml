@@ -47,12 +47,7 @@
             <TextBox Grid.Row="4" Grid.Column="0" Margin="0,0,10,0" IsReadOnly="True" Background="#eee"
                      Text="{Binding DestinationPath, Mode=OneWay}"/>
             <Button x:Name="destinationBrowseButton" Grid.Row="4" Grid.Column="1" Content="Browse..." Padding="10,2" Click="DestinationBrowseButton_Click"/>
-            <Button Grid.Column="3" 
-                    Content="Clear Paths" 
-                    Command="{Binding ClearPathsCommand}" 
-                    Margin="5,5,0,5" 
-                    Padding="10,5"
-                    ToolTip="Clear both source and destination paths."/>
+            <Button Grid.Column="3" Content="Clear Paths" Command="{Binding ClearPathsCommand}" Margin="5,5,0,5" Padding="10,5" ToolTip="Clear both source and destination paths."/>
         </Grid>
 
         <!-- The TabControl is in the second row -->
