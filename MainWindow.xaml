@@ -59,8 +59,8 @@
             <TabItem Header="Tree Generator">
                 <views:TreeGeneratorView/>
             </TabItem>
-            <TabItem Header="Export Folder Contents">
-                <views:ExportFolderContentsView/>
+            <TabItem Header="Folder Content Export">
+                <views:FolderContentExportView/>
             </TabItem>
             <TabItem Header="File Renamer">
                 <views:FileRenamerView/>

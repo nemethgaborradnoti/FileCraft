@@ -5,9 +5,9 @@ using FileCraft.ViewModels;
 
 namespace FileCraft.Views
 {
-    public partial class ExportFolderContentsView : System.Windows.Controls.UserControl
+    public partial class FolderContentExportView : System.Windows.Controls.UserControl
     {
-        public ExportFolderContentsView()
+        public FolderContentExportView()
         {
             InitializeComponent();
         }
