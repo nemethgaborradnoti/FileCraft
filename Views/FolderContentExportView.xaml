@@ -4,22 +4,45 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:FileCraft.Views"
+             xmlns:viewmodels="clr-namespace:FileCraft.ViewModels"
              mc:Ignorable="d" 
+             d:DataContext="{d:DesignInstance Type=viewmodels:MainViewModel, IsDesignTimeCreatable=False}"
              d:DesignHeight="450" d:DesignWidth="800">
-    <Grid Margin="15">
+    <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*" />
-        </Grid.ColumnDefinitions>
 
-        <!-- Options -->
-        <CheckBox x:Name="includeSubfoldersCheckBox" Grid.Row="0" Grid.Column="0" Content="Include files in subfolders" IsChecked="False" Margin="0,5,0,0"/>
+        <!-- Folders to Include Section -->
+        <GroupBox Grid.Row="0" Header="Folders to Include" Margin="5">
+            <DockPanel>
+                <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button Content="Select All" Command="{Binding SelectAllFoldersCommand}" Margin="2"/>
+                    <Button Content="Deselect All" Command="{Binding DeselectAllFoldersCommand}" Margin="2"/>
+                </StackPanel>
+                <TreeView ItemsSource="{Binding RootFolders}" Margin="0,5,0,0">
+                    <TreeView.ItemContainerStyle>
+                        <Style TargetType="{x:Type TreeViewItem}">
+                            <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
+                        </Style>
+                    </TreeView.ItemContainerStyle>
+                    <TreeView.ItemTemplate>
+                        <HierarchicalDataTemplate ItemsSource="{Binding Children}">
+                            <StackPanel Orientation="Horizontal">
+                                <CheckBox IsChecked="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" IsThreeState="True" VerticalAlignment="Center"/>
+                                <TextBlock Text="{Binding Name}" Margin="5,0,0,0" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </HierarchicalDataTemplate>
+                    </TreeView.ItemTemplate>
+                </TreeView>
+            </DockPanel>
+        </GroupBox>
 
-        <!-- Action Button -->
-        <Button x:Name="exportButton" Grid.Row="1" Grid.Column="0" Content="Export Contents (.txt)" Padding="10,5" HorizontalAlignment="Left" VerticalAlignment="Bottom" FontWeight="Bold" Click="ExportButton_Click"/>
-
+        <!-- Export Button -->
+        <Button Grid.Row="1" Content="Export Contents (.txt)" 
+                Command="{Binding ExportFolderContentsCommand}" 
+                HorizontalAlignment="Right" VerticalAlignment="Bottom" 
+                Margin="10" Padding="10,5"/>
     </Grid>
 </UserControl>
