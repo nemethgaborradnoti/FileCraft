@@ -103,6 +103,7 @@ namespace FileCraft.ViewModels
             }
         }
 
+        public ICommand ClearPathsCommand { get; }
         public ICommand ExportFolderContentsCommand { get; }
         public ICommand GenerateTreeStructureCommand { get; }
         public ICommand LoadFilesCommand { get; }
@@ -117,6 +118,11 @@ namespace FileCraft.ViewModels
             _dialogService = dialogService;
             _settingsService = new SettingsService();
 
+            ClearPathsCommand = new RelayCommand(
+                _ => ClearPaths(),
+                _ => !string.IsNullOrEmpty(SourcePath) || !string.IsNullOrEmpty(DestinationPath)
+            );
+
             ExportFolderContentsCommand = new RelayCommand(async (p) => await ExportFolderContents(p), CanExecuteOperation);
             GenerateTreeStructureCommand = new RelayCommand(async (p) => await GenerateTreeStructure(p), CanExecuteOperation);
             LoadFilesCommand = new RelayCommand(async (p) => await LoadFilesAsync(), (p) => !string.IsNullOrWhiteSpace(SourcePath) && !IsBusy);
@@ -125,6 +131,12 @@ namespace FileCraft.ViewModels
             DeselectAllFilesCommand = new RelayCommand(DeselectAllFiles, (p) => SelectableFiles.Any());
 
             LoadSettings();
+        }
+
+        private void ClearPaths()
+        {
+            SourcePath = string.Empty;
+            DestinationPath = string.Empty;
         }
 
         private void LoadSettings()
