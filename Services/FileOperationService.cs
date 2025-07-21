@@ -1,36 +1,37 @@
 ﻿using FileCraft.Services.Interfaces;
 using FileCraft.Shared.Validation;
 using System.IO;
-using System.Linq;
 using System.Text;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace FileCraft.Services
 {
     public class FileOperationService : IFileOperationService
     {
-        public Task<string> ExportFolderContentsAsync(string sourcePath, string destinationPath, bool includeSubfolders)
+        public Task<string> ExportFolderContentsAsync(string destinationPath, IEnumerable<string> includedFolderPaths)
         {
             return Task.Run(() =>
             {
-                Guard.AgainstNullOrWhiteSpace(sourcePath, nameof(sourcePath));
                 Guard.AgainstNullOrWhiteSpace(destinationPath, nameof(destinationPath));
-                Guard.AgainstNonExistentDirectory(sourcePath, "The selected source folder does not exist.");
+                Guard.AgainstNull(includedFolderPaths, nameof(includedFolderPaths));
 
-                var searchOption = includeSubfolders ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
-                var files = Directory.GetFiles(sourcePath, "*.*", searchOption);
-
-                if (files.Length == 0)
+                var allFiles = new List<string>();
+                foreach (var folderPath in includedFolderPaths)
                 {
-                    throw new InvalidOperationException("The selected folder contains no files to export.");
+                    if (Directory.Exists(folderPath))
+                    {
+                        allFiles.AddRange(Directory.GetFiles(folderPath, "*.*", SearchOption.TopDirectoryOnly));
+                    }
+                }
+
+                if (allFiles.Count == 0)
+                {
+                    throw new InvalidOperationException("The selected folders contain no files to export.");
                 }
 
                 var csvBuilder = new StringBuilder();
-                csvBuilder.AppendLine("Name;Size (KB);Modification Date;Creation Date;Last Access Date;Format");
+                csvBuilder.AppendLine("Name;Size (KB);Modification Date;Creation Date;Last Access Date;Format;Full Path");
 
-                foreach (var filePath in files)
+                foreach (var filePath in allFiles.OrderBy(f => f))
                 {
                     var fileInfo = new FileInfo(filePath);
                     csvBuilder.AppendLine(
@@ -39,7 +40,8 @@ namespace FileCraft.Services
                         $"{fileInfo.LastWriteTime:yyyy-MM-dd HH:mm:ss};" +
                         $"{fileInfo.CreationTime:yyyy-MM-dd HH:mm:ss};" +
                         $"{fileInfo.LastAccessTime:yyyy-MM-dd HH:mm:ss};" +
-                        $"{fileInfo.Extension}");
+                        $"{fileInfo.Extension};" +
+                        $"{fileInfo.FullName}");
                 }
 
                 string outputFileName = $"ExportedContents_{DateTime.Now:yyyyMMdd_HHmmss}.txt";
@@ -50,13 +52,6 @@ namespace FileCraft.Services
             });
         }
 
-        /// <summary>
-        /// Generates a text file representing the folder structure.
-        /// </summary>
-        /// <param name="sourcePath">The root directory to start from.</param>
-        /// <param name="destinationPath">The directory where the output file will be saved.</param>
-        /// <param name="excludedFolderPaths">A set of full folder paths to exclude from the tree.</param>
-        /// <returns>The path to the generated file.</returns>
         public Task<string> GenerateTreeStructureAsync(string sourcePath, string destinationPath, ISet<string> excludedFolderPaths)
         {
             return Task.Run(() =>
@@ -82,7 +77,6 @@ namespace FileCraft.Services
         {
             try
             {
-                // Filter subdirectories based on the full path for robust exclusion.
                 var subDirectories = Directory.GetDirectories(directoryPath)
                     .Where(d => !excludedFolderPaths.Contains(d))
                     .OrderBy(d => d)

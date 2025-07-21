@@ -91,7 +91,7 @@ namespace FileCraft.ViewModels
             SelectAllExtensionsCommand = new RelayCommand(SelectAllExtensions, _ => AvailableExtensions.Any());
             DeselectAllExtensionsCommand = new RelayCommand(DeselectAllExtensions, _ => AvailableExtensions.Any());
 
-            ExportFolderContentsCommand = new RelayCommand(async (p) => await ExportFolderContents(p), CanExecuteOperation);
+            ExportFolderContentsCommand = new RelayCommand(async (_) => await ExportFolderContents(), CanExecuteOperation);
             GenerateTreeStructureCommand = new RelayCommand(async (_) => await GenerateTreeStructure(), CanExecuteOperation);
 
             LoadSettings();
@@ -319,8 +319,38 @@ namespace FileCraft.ViewModels
         }
         #endregion
 
-        #region Legacy Methods for Other Views
-        private async Task ExportFolderContents(object? parameter) { }
+        #region Feature Methods
+
+        private async Task ExportFolderContents()
+        {
+            IsBusy = true;
+            try
+            {
+                var allNodes = RootFolders.Any() ? RootFolders[0].GetAllNodes() : Enumerable.Empty<FolderViewModel>();
+
+                var includedFolderPaths = allNodes
+                    .Where(n => n.IsSelected != false)
+                    .Select(n => n.FullPath)
+                    .ToList();
+
+                if (!includedFolderPaths.Any())
+                {
+                    _dialogService.ShowNotification("Information", "No folders were selected. Please select at least one folder.");
+                    return;
+                }
+
+                string outputFilePath = await _fileOperationService.ExportFolderContentsAsync(DestinationPath, includedFolderPaths);
+                _dialogService.ShowNotification("Success", $"Folder contents exported successfully!\n\nSaved to: {outputFilePath}");
+            }
+            catch (Exception ex)
+            {
+                _dialogService.ShowNotification("Error", $"An unexpected error occurred:\n\n{ex.Message}");
+            }
+            finally
+            {
+                IsBusy = false;
+            }
+        }
 
         private async Task GenerateTreeStructure()
         {
