@@ -77,21 +77,17 @@ namespace FileCraft.ViewModels
 
         private void UpdateParentStateWithoutNotification()
         {
+            if (!Children.Any()) return;
+
             bool? newState;
+
             if (Children.All(c => c.IsSelected == true))
             {
                 newState = true;
             }
-            else if (Children.All(c => c.IsSelected == false || c.IsSelected == null))
+            else if (Children.All(c => c.IsSelected == false))
             {
-                if (Children.Any(c => c.IsSelected != false))
-                {
-                    newState = null;
-                }
-                else
-                {
-                    newState = false;
-                }
+                return;
             }
             else
             {
@@ -102,6 +98,7 @@ namespace FileCraft.ViewModels
 
             _isSelected = newState;
             OnPropertyChanged(nameof(IsSelected));
+
             Parent?.UpdateParentStateWithoutNotification();
         }
 
