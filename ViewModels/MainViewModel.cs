@@ -18,6 +18,7 @@ namespace FileCraft.ViewModels
         private bool _isBusy;
         private readonly IFileOperationService _fileOperationService;
         private readonly IDialogService _dialogService;
+        private readonly ISettingsService _settingsService;
 
         private string _fileExtensions = ".cs;.html;.css;.js;.txt";
         private bool _showLoadFilesButton;
@@ -31,16 +32,28 @@ namespace FileCraft.ViewModels
             get => _sourcePath;
             set
             {
-                _sourcePath = value;
-                OnPropertyChanged();
-                OnSourcePathOrOptionsChanged();
+                if (_sourcePath != value)
+                {
+                    _sourcePath = value;
+                    OnPropertyChanged();
+                    OnSourcePathOrOptionsChanged();
+                    SaveSettings();
+                }
             }
         }
 
         public string DestinationPath
         {
             get => _destinationPath;
-            set { _destinationPath = value; OnPropertyChanged(); }
+            set
+            {
+                if (_destinationPath != value)
+                {
+                    _destinationPath = value;
+                    OnPropertyChanged();
+                    SaveSettings();
+                }
+            }
         }
 
         public bool IsBusy
@@ -102,6 +115,7 @@ namespace FileCraft.ViewModels
         {
             _fileOperationService = fileOperationService;
             _dialogService = dialogService;
+            _settingsService = new SettingsService();
 
             ExportFolderContentsCommand = new RelayCommand(async (p) => await ExportFolderContents(p), CanExecuteOperation);
             GenerateTreeStructureCommand = new RelayCommand(async (p) => await GenerateTreeStructure(p), CanExecuteOperation);
@@ -109,6 +123,27 @@ namespace FileCraft.ViewModels
             ExportFileContentCommand = new RelayCommand(async (p) => await ExportFileContentAsync(), (p) => CanExecuteOperation(p) && SelectableFiles.Any(f => f.IsSelected));
             SelectAllFilesCommand = new RelayCommand(SelectAllFiles, (p) => SelectableFiles.Any());
             DeselectAllFilesCommand = new RelayCommand(DeselectAllFiles, (p) => SelectableFiles.Any());
+
+            LoadSettings();
+        }
+
+        private void LoadSettings()
+        {
+            Settings settings = _settingsService.LoadSettings();
+            _sourcePath = settings.SourcePath;
+            _destinationPath = settings.DestinationPath;
+            OnPropertyChanged(nameof(SourcePath));
+            OnPropertyChanged(nameof(DestinationPath));
+        }
+
+        private void SaveSettings()
+        {
+            var settings = new Settings
+            {
+                SourcePath = this.SourcePath,
+                DestinationPath = this.DestinationPath
+            };
+            _settingsService.SaveSettings(settings);
         }
 
         private bool CanExecuteOperation(object parameter)
