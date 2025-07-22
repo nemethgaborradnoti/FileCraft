@@ -9,4 +9,18 @@
     <UseWindowsForms>true</UseWindowsForms>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Remove="Resources\filecontent01.png" />
+    <None Remove="Resources\foldercontent01.png" />
+    <None Remove="Resources\rename01.png" />
+    <None Remove="Resources\treestructure01.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Resources\filecontent01.png" />
+    <Resource Include="Resources\foldercontent01.png" />
+    <Resource Include="Resources\rename01.png" />
+    <Resource Include="Resources\treestructure01.png" />
+  </ItemGroup>
+
 </Project>
