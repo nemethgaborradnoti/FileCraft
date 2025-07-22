@@ -1,0 +1,248 @@
+﻿using FileCraft.Models;
+using FileCraft.Services;
+using FileCraft.Services.Interfaces;
+using FileCraft.Shared.Commands;
+using FileCraft.Shared.Helpers;
+using System.Collections.ObjectModel;
+using System.IO;
+using System.Windows.Input;
+
+namespace FileCraft.ViewModels.Functional
+{
+    public class FileContentExportViewModel : BaseViewModel
+    {
+        #region Fields
+        private readonly MainViewModel _mainViewModel;
+        private readonly IFileOperationService _fileOperationService;
+        private readonly IDialogService _dialogService;
+        #endregion
+
+        #region Properties
+        public ObservableCollection<SelectableFile> SelectableFiles { get; } = new ObservableCollection<SelectableFile>();
+        public ObservableCollection<SelectableItemViewModel> AvailableExtensions { get; } = new ObservableCollection<SelectableItemViewModel>();
+        public ObservableCollection<FolderViewModel> RootFolders { get; } = new ObservableCollection<FolderViewModel>();
+        #endregion
+
+        #region Commands
+        public ICommand ExportFileContentCommand { get; }
+        public ICommand SelectAllFilesCommand { get; }
+        public ICommand DeselectAllFilesCommand { get; }
+        public ICommand SelectAllFoldersCommand { get; }
+        public ICommand DeselectAllFoldersCommand { get; }
+        public ICommand SelectAllExtensionsCommand { get; }
+        public ICommand DeselectAllExtensionsCommand { get; }
+        #endregion
+
+        public FileContentExportViewModel(MainViewModel mainViewModel, IFileOperationService fileOperationService, IDialogService dialogService)
+        {
+            _mainViewModel = mainViewModel;
+            _fileOperationService = fileOperationService;
+            _dialogService = dialogService;
+
+            _mainViewModel.SourcePathChanged += OnSourcePathChanged;
+
+            ExportFileContentCommand = new RelayCommand(async (_) => await ExportFileContentAsync(), (_) => CanExecuteOperation() && SelectableFiles.Any(f => f.IsSelected));
+
+            SelectAllFilesCommand = new RelayCommand(_ => SelectionHelper.SetSelectionState(SelectableFiles, true), _ => SelectableFiles.Any());
+            DeselectAllFilesCommand = new RelayCommand(_ => SelectionHelper.SetSelectionState(SelectableFiles, false), _ => SelectableFiles.Any());
+
+            SelectAllFoldersCommand = new RelayCommand(SelectAllFolders, _ => RootFolders.Any());
+            DeselectAllFoldersCommand = new RelayCommand(DeselectAllFolders, _ => RootFolders.Any());
+
+            SelectAllExtensionsCommand = new RelayCommand(_ => SelectionHelper.SetSelectionState(AvailableExtensions, true), _ => AvailableExtensions.Any());
+            DeselectAllExtensionsCommand = new RelayCommand(_ => SelectionHelper.SetSelectionState(AvailableExtensions, false), _ => AvailableExtensions.Any());
+
+            if (!string.IsNullOrWhiteSpace(_mainViewModel.SourcePath))
+            {
+                OnSourcePathChanged(_mainViewModel.SourcePath);
+            }
+        }
+
+        private bool CanExecuteOperation()
+        {
+            return !string.IsNullOrWhiteSpace(_mainViewModel.SourcePath) &&
+                   !string.IsNullOrWhiteSpace(_mainViewModel.DestinationPath) &&
+                   !IsBusy;
+        }
+
+        private void OnSourcePathChanged(string newPath)
+        {
+            if (string.IsNullOrWhiteSpace(newPath) || !Directory.Exists(newPath))
+            {
+                System.Windows.Application.Current.Dispatcher.Invoke(() =>
+                {
+                    RootFolders.Clear();
+                    AvailableExtensions.Clear();
+                    SelectableFiles.Clear();
+                });
+                return;
+            }
+
+            IsBusy = true;
+            try
+            {
+                BuildFolderTree();
+                OnFolderSelectionChanged();
+            }
+            catch (Exception ex)
+            {
+                _dialogService.ShowNotification("Error", $"Could not access or process the source directory:\n\n{ex.Message}");
+            }
+            finally
+            {
+                IsBusy = false;
+            }
+        }
+
+        private void OnFolderSelectionChanged()
+        {
+            UpdateAvailableExtensions();
+            UpdateSelectableFiles();
+        }
+
+        #region Folder and File Loading Logic
+        private void BuildFolderTree()
+        {
+            System.Windows.Application.Current.Dispatcher.Invoke(() =>
+            {
+                RootFolders.Clear();
+                var rootDirInfo = new DirectoryInfo(_mainViewModel.SourcePath);
+                var rootViewModel = new FolderViewModel(rootDirInfo.Name, rootDirInfo.FullName, null, OnFolderSelectionChanged);
+                PopulateChildren(rootViewModel);
+                RootFolders.Add(rootViewModel);
+            });
+        }
+
+        private void PopulateChildren(FolderViewModel parent)
+        {
+            try
+            {
+                var subDirs = Directory.GetDirectories(parent.FullPath);
+                foreach (var dirPath in subDirs)
+                {
+                    var dirInfo = new DirectoryInfo(dirPath);
+                    var childViewModel = new FolderViewModel(dirInfo.Name, dirInfo.FullName, parent, OnFolderSelectionChanged);
+                    parent.Children.Add(childViewModel);
+                    PopulateChildren(childViewModel);
+                }
+            }
+            catch (UnauthorizedAccessException) { }
+        }
+
+        private void UpdateAvailableExtensions()
+        {
+            var selectedFolders = GetSelectedFoldersForFileListing();
+            var extensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+            foreach (var folder in selectedFolders)
+            {
+                try
+                {
+                    var files = Directory.GetFiles(folder.FullPath, "*.*", SearchOption.TopDirectoryOnly);
+                    foreach (var file in files)
+                    {
+                        extensions.Add(Path.GetExtension(file));
+                    }
+                }
+                catch (UnauthorizedAccessException) { }
+            }
+
+            System.Windows.Application.Current.Dispatcher.Invoke(() =>
+            {
+                var previouslySelected = new HashSet<string>(AvailableExtensions.Where(e => e.IsSelected).Select(e => e.Name));
+                AvailableExtensions.Clear();
+                foreach (var ext in extensions.Where(e => !string.IsNullOrEmpty(e)).OrderBy(e => e))
+                {
+                    var item = new SelectableItemViewModel(ext, previouslySelected.Contains(ext) || !previouslySelected.Any());
+                    item.PropertyChanged += (s, e) => { if (e.PropertyName == nameof(SelectableItemViewModel.IsSelected)) UpdateSelectableFiles(); };
+                    AvailableExtensions.Add(item);
+                }
+            });
+        }
+
+        private void UpdateSelectableFiles()
+        {
+            var selectedFolders = GetSelectedFoldersForFileListing();
+            var selectedExtensions = new HashSet<string>(
+                AvailableExtensions.Where(e => e.IsSelected).Select(e => e.Name),
+                StringComparer.OrdinalIgnoreCase);
+
+            var files = new List<SelectableFile>();
+            foreach (var folder in selectedFolders)
+            {
+                try
+                {
+                    var filesInFolder = Directory.GetFiles(folder.FullPath, "*.*", SearchOption.TopDirectoryOnly)
+                        .Where(f => selectedExtensions.Contains(Path.GetExtension(f)))
+                        .Select(f => new SelectableFile { FileName = Path.GetFileName(f), FullPath = f, IsSelected = false });
+                    files.AddRange(filesInFolder);
+                }
+                catch (UnauthorizedAccessException) { }
+            }
+
+            System.Windows.Application.Current.Dispatcher.Invoke(() =>
+            {
+                SelectableFiles.Clear();
+                foreach (var file in files.OrderBy(f => f.FullPath))
+                {
+                    SelectableFiles.Add(file);
+                }
+            });
+        }
+
+        private List<FolderViewModel> GetSelectedFoldersForFileListing()
+        {
+            if (!RootFolders.Any()) return new List<FolderViewModel>();
+            return RootFolders[0].GetAllNodes().Where(n => n.IsSelected != false).ToList();
+        }
+        #endregion
+
+        private async Task ExportFileContentAsync()
+        {
+            IsBusy = true;
+            try
+            {
+                var selectedPaths = SelectableFiles.Where(f => f.IsSelected).Select(f => f.FullPath).ToList();
+                if (!selectedPaths.Any())
+                {
+                    _dialogService.ShowNotification("Information", "No files were selected. Please select at least one file to export.");
+                    return;
+                }
+
+                string outputFilePath = await _fileOperationService.ExportSelectedFileContentsAsync(_mainViewModel.DestinationPath, selectedPaths);
+                _dialogService.ShowNotification("Success", $"File contents exported successfully!\n\n{selectedPaths.Count} files were processed.\nSaved to: {outputFilePath}");
+            }
+            catch (Exception ex)
+            {
+                _dialogService.ShowNotification("Error", $"An unexpected error occurred during export:\n\n{ex.Message}");
+            }
+            finally
+            {
+                IsBusy = false;
+            }
+        }
+
+        #region Selection Commands
+        private void SelectAllFolders(object? parameter) => SetAllFoldersSelection(true);
+        private void DeselectAllFolders(object? parameter) => SetAllFoldersSelection(false);
+        private void SetAllFoldersSelection(bool isSelected)
+        {
+            if (!RootFolders.Any()) return;
+
+            var root = RootFolders[0];
+            if (isSelected)
+            {
+                root.IsSelected = true;
+                root.SetIsExpandedRecursively(true);
+            }
+            else
+            {
+                foreach (var child in root.Children)
+                {
+                    child.IsSelected = false;
+                }
+            }
+        }
+        #endregion
+    }
+}

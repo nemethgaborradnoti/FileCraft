@@ -1,9 +1,10 @@
-﻿using System.ComponentModel;
+﻿using FileCraft.ViewModels.Interfaces;
+using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
 namespace FileCraft.Models
 {
-    public class SelectableFile : INotifyPropertyChanged
+    public class SelectableFile : INotifyPropertyChanged, ISelectable
     {
         private bool _isSelected;
 
@@ -12,8 +13,11 @@ namespace FileCraft.Models
             get => _isSelected;
             set
             {
-                _isSelected = value;
-                OnPropertyChanged();
+                if (_isSelected != value)
+                {
+                    _isSelected = value;
+                    OnPropertyChanged();
+                }
             }
         }
 
