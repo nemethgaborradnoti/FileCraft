@@ -1,9 +1,10 @@
-﻿using System.ComponentModel;
+﻿using FileCraft.ViewModels.Interfaces;
+using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
 namespace FileCraft.ViewModels
 {
-    public class SelectableItemViewModel : INotifyPropertyChanged
+    public class SelectableItemViewModel : INotifyPropertyChanged, ISelectable
     {
         private bool _isSelected;
 

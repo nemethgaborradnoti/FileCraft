@@ -1,4 +1,4 @@
-﻿using FileCraft.ViewModels;
+﻿using FileCraft.ViewModels.Functional;
 using System.Windows;
 
 namespace FileCraft.Views
@@ -12,7 +12,7 @@ namespace FileCraft.Views
 
         private void OnCheckAll(object sender, RoutedEventArgs e)
         {
-            if (this.DataContext is MainViewModel viewModel)
+            if (this.DataContext is FileContentExportViewModel viewModel)
             {
                 bool isChecked = (sender as System.Windows.Controls.CheckBox)?.IsChecked ?? false;
                 if (isChecked)

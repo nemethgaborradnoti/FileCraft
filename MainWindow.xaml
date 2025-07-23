@@ -60,7 +60,7 @@
                         <TextBlock Text="File Content Export" VerticalAlignment="Center"/>
                     </StackPanel>
                 </TabItem.Header>
-                <views:FileContentExportView/>
+                <views:FileContentExportView DataContext="{Binding FileContentExportVM}"/>
             </TabItem>
             <TabItem>
                 <TabItem.Header>
@@ -69,7 +69,7 @@
                         <TextBlock Text="Tree Generator" VerticalAlignment="Center"/>
                     </StackPanel>
                     </TabItem.Header>
-                <views:TreeGeneratorView/>
+                <views:TreeGeneratorView DataContext="{Binding TreeGeneratorVM}"/>
             </TabItem>
             <TabItem>
                 <TabItem.Header>
@@ -78,7 +78,7 @@
                         <TextBlock Text="Folder Content Export" VerticalAlignment="Center"/>
                     </StackPanel>
                 </TabItem.Header>
-                <views:FolderContentExportView/>
+                <views:FolderContentExportView DataContext="{Binding FolderContentExportVM}"/>
             </TabItem>
             <TabItem>
                 <TabItem.Header>
@@ -87,7 +87,7 @@
                         <TextBlock Text="File Renamer" VerticalAlignment="Center"/>
                     </StackPanel>
                 </TabItem.Header>
-                <views:FileRenamerView/>
+                <views:FileRenamerView DataContext="{Binding FileRenamerVM}"/>
             </TabItem>
         </TabControl>
     </Grid>
