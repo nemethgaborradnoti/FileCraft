@@ -2,7 +2,6 @@
 using FileCraft.Services.Interfaces;
 using FileCraft.Shared.Commands;
 using System.Collections.ObjectModel;
-using System.IO;
 using System.Windows.Input;
 
 namespace FileCraft.ViewModels.Functional
@@ -12,18 +11,20 @@ namespace FileCraft.ViewModels.Functional
         private readonly MainViewModel _mainViewModel;
         private readonly IFileOperationService _fileOperationService;
         private readonly IDialogService _dialogService;
+        private readonly IFolderTreeService _folderTreeService;
 
-        public ObservableCollection<FolderViewModel> RootFolders { get; } = new ObservableCollection<FolderViewModel>();
+        public ObservableCollection<FolderViewModel> RootFolders { get; private set; } = new ObservableCollection<FolderViewModel>();
 
         public ICommand ExportFolderContentsCommand { get; }
         public ICommand SelectAllFoldersCommand { get; }
         public ICommand DeselectAllFoldersCommand { get; }
 
-        public FolderContentExportViewModel(MainViewModel mainViewModel, IFileOperationService fileOperationService, IDialogService dialogService)
+        public FolderContentExportViewModel(MainViewModel mainViewModel, IFileOperationService fileOperationService, IDialogService dialogService, IFolderTreeService folderTreeService)
         {
             _mainViewModel = mainViewModel;
             _fileOperationService = fileOperationService;
             _dialogService = dialogService;
+            _folderTreeService = folderTreeService;
 
             _mainViewModel.SourcePathChanged += OnSourcePathChanged;
 
@@ -46,41 +47,22 @@ namespace FileCraft.ViewModels.Functional
 
         private void OnSourcePathChanged(string newPath)
         {
-            if (string.IsNullOrWhiteSpace(newPath) || !Directory.Exists(newPath))
-            {
-                System.Windows.Application.Current.Dispatcher.Invoke(() => RootFolders.Clear());
-                return;
-            }
-            BuildFolderTree();
-        }
-
-        #region Folder Tree Logic
-        private void BuildFolderTree()
-        {
-            System.Windows.Application.Current.Dispatcher.Invoke(() =>
-            {
-                RootFolders.Clear();
-                var rootDirInfo = new DirectoryInfo(_mainViewModel.SourcePath);
-                var rootViewModel = new FolderViewModel(rootDirInfo.Name, rootDirInfo.FullName, null, () => { });
-                PopulateChildren(rootViewModel);
-                RootFolders.Add(rootViewModel);
-            });
-        }
-
-        private void PopulateChildren(FolderViewModel parent)
-        {
+            IsBusy = true;
             try
             {
-                var subDirs = Directory.GetDirectories(parent.FullPath);
-                foreach (var dirPath in subDirs)
-                {
-                    var dirInfo = new DirectoryInfo(dirPath);
-                    var childViewModel = new FolderViewModel(dirInfo.Name, dirInfo.FullName, parent, () => { });
-                    parent.Children.Add(childViewModel);
-                    PopulateChildren(childViewModel);
-                }
+                RootFolders = _folderTreeService.BuildFolderTree(newPath, () => { });
+                OnPropertyChanged(nameof(RootFolders));
             }
-            catch (UnauthorizedAccessException) { }
+            catch (Exception ex)
+            {
+                _dialogService.ShowNotification("Error", $"Could not access or process the source directory:\n\n{ex.Message}");
+                RootFolders = new ObservableCollection<FolderViewModel>();
+                OnPropertyChanged(nameof(RootFolders));
+            }
+            finally
+            {
+                IsBusy = false;
+            }
         }
 
         private void SelectAllFolders(object? parameter)
@@ -98,7 +80,6 @@ namespace FileCraft.ViewModels.Functional
                 child.IsSelected = false;
             }
         }
-        #endregion
 
         private async Task ExportFolderContents()
         {

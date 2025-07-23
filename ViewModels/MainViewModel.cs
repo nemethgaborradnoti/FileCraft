@@ -50,10 +50,11 @@ namespace FileCraft.ViewModels
         public MainViewModel(IFileOperationService fileOperationService, IDialogService dialogService)
         {
             _settingsService = new SettingsService();
+            IFolderTreeService folderTreeService = new FolderTreeService();
 
-            FileContentExportVM = new FileContentExportViewModel(this, fileOperationService, dialogService);
-            TreeGeneratorVM = new TreeGeneratorViewModel(this, fileOperationService, dialogService);
-            FolderContentExportVM = new FolderContentExportViewModel(this, fileOperationService, dialogService);
+            FileContentExportVM = new FileContentExportViewModel(this, fileOperationService, dialogService, folderTreeService);
+            TreeGeneratorVM = new TreeGeneratorViewModel(this, fileOperationService, dialogService, folderTreeService);
+            FolderContentExportVM = new FolderContentExportViewModel(this, fileOperationService, dialogService, folderTreeService);
             FileRenamerVM = new FileRenamerViewModel();
 
             ClearPathsCommand = new RelayCommand(_ => ClearPaths(), _ => !string.IsNullOrEmpty(SourcePath) || !string.IsNullOrEmpty(DestinationPath));

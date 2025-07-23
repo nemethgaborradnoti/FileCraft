@@ -11,19 +11,14 @@ namespace FileCraft.ViewModels.Functional
 {
     public class FileContentExportViewModel : BaseViewModel
     {
-        #region Fields
         private readonly MainViewModel _mainViewModel;
         private readonly IFileOperationService _fileOperationService;
         private readonly IDialogService _dialogService;
-        #endregion
-
-        #region Properties
+        private readonly IFolderTreeService _folderTreeService;
         public ObservableCollection<SelectableFile> SelectableFiles { get; } = new ObservableCollection<SelectableFile>();
         public ObservableCollection<SelectableItemViewModel> AvailableExtensions { get; } = new ObservableCollection<SelectableItemViewModel>();
-        public ObservableCollection<FolderViewModel> RootFolders { get; } = new ObservableCollection<FolderViewModel>();
-        #endregion
+        public ObservableCollection<FolderViewModel> RootFolders { get; private set; } = new ObservableCollection<FolderViewModel>();
 
-        #region Commands
         public ICommand ExportFileContentCommand { get; }
         public ICommand SelectAllFilesCommand { get; }
         public ICommand DeselectAllFilesCommand { get; }
@@ -31,24 +26,21 @@ namespace FileCraft.ViewModels.Functional
         public ICommand DeselectAllFoldersCommand { get; }
         public ICommand SelectAllExtensionsCommand { get; }
         public ICommand DeselectAllExtensionsCommand { get; }
-        #endregion
 
-        public FileContentExportViewModel(MainViewModel mainViewModel, IFileOperationService fileOperationService, IDialogService dialogService)
+        public FileContentExportViewModel(MainViewModel mainViewModel, IFileOperationService fileOperationService, IDialogService dialogService, IFolderTreeService folderTreeService) // <-- Inject new service
         {
             _mainViewModel = mainViewModel;
             _fileOperationService = fileOperationService;
             _dialogService = dialogService;
+            _folderTreeService = folderTreeService;
 
             _mainViewModel.SourcePathChanged += OnSourcePathChanged;
 
             ExportFileContentCommand = new RelayCommand(async (_) => await ExportFileContentAsync(), (_) => CanExecuteOperation() && SelectableFiles.Any(f => f.IsSelected));
-
             SelectAllFilesCommand = new RelayCommand(_ => SelectionHelper.SetSelectionState(SelectableFiles, true), _ => SelectableFiles.Any());
             DeselectAllFilesCommand = new RelayCommand(_ => SelectionHelper.SetSelectionState(SelectableFiles, false), _ => SelectableFiles.Any());
-
             SelectAllFoldersCommand = new RelayCommand(SelectAllFolders, _ => RootFolders.Any());
             DeselectAllFoldersCommand = new RelayCommand(DeselectAllFolders, _ => RootFolders.Any());
-
             SelectAllExtensionsCommand = new RelayCommand(_ => SelectionHelper.SetSelectionState(AvailableExtensions, true), _ => AvailableExtensions.Any());
             DeselectAllExtensionsCommand = new RelayCommand(_ => SelectionHelper.SetSelectionState(AvailableExtensions, false), _ => AvailableExtensions.Any());
 
@@ -67,26 +59,19 @@ namespace FileCraft.ViewModels.Functional
 
         private void OnSourcePathChanged(string newPath)
         {
-            if (string.IsNullOrWhiteSpace(newPath) || !Directory.Exists(newPath))
-            {
-                System.Windows.Application.Current.Dispatcher.Invoke(() =>
-                {
-                    RootFolders.Clear();
-                    AvailableExtensions.Clear();
-                    SelectableFiles.Clear();
-                });
-                return;
-            }
-
             IsBusy = true;
             try
             {
-                BuildFolderTree();
+                RootFolders = _folderTreeService.BuildFolderTree(newPath, OnFolderSelectionChanged);
+                OnPropertyChanged(nameof(RootFolders));
+
                 OnFolderSelectionChanged();
             }
             catch (Exception ex)
             {
                 _dialogService.ShowNotification("Error", $"Could not access or process the source directory:\n\n{ex.Message}");
+                RootFolders = new ObservableCollection<FolderViewModel>();
+                OnPropertyChanged(nameof(RootFolders));
             }
             finally
             {
@@ -98,35 +83,6 @@ namespace FileCraft.ViewModels.Functional
         {
             UpdateAvailableExtensions();
             UpdateSelectableFiles();
-        }
-
-        #region Folder and File Loading Logic
-        private void BuildFolderTree()
-        {
-            System.Windows.Application.Current.Dispatcher.Invoke(() =>
-            {
-                RootFolders.Clear();
-                var rootDirInfo = new DirectoryInfo(_mainViewModel.SourcePath);
-                var rootViewModel = new FolderViewModel(rootDirInfo.Name, rootDirInfo.FullName, null, OnFolderSelectionChanged);
-                PopulateChildren(rootViewModel);
-                RootFolders.Add(rootViewModel);
-            });
-        }
-
-        private void PopulateChildren(FolderViewModel parent)
-        {
-            try
-            {
-                var subDirs = Directory.GetDirectories(parent.FullPath);
-                foreach (var dirPath in subDirs)
-                {
-                    var dirInfo = new DirectoryInfo(dirPath);
-                    var childViewModel = new FolderViewModel(dirInfo.Name, dirInfo.FullName, parent, OnFolderSelectionChanged);
-                    parent.Children.Add(childViewModel);
-                    PopulateChildren(childViewModel);
-                }
-            }
-            catch (UnauthorizedAccessException) { }
         }
 
         private void UpdateAvailableExtensions()
@@ -195,7 +151,6 @@ namespace FileCraft.ViewModels.Functional
             if (!RootFolders.Any()) return new List<FolderViewModel>();
             return RootFolders[0].GetAllNodes().Where(n => n.IsSelected != false).ToList();
         }
-        #endregion
 
         private async Task ExportFileContentAsync()
         {
@@ -222,7 +177,6 @@ namespace FileCraft.ViewModels.Functional
             }
         }
 
-        #region Selection Commands
         private void SelectAllFolders(object? parameter) => SetAllFoldersSelection(true);
         private void DeselectAllFolders(object? parameter) => SetAllFoldersSelection(false);
         private void SetAllFoldersSelection(bool isSelected)
@@ -243,6 +197,5 @@ namespace FileCraft.ViewModels.Functional
                 }
             }
         }
-        #endregion
     }
 }
