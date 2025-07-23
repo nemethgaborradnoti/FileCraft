@@ -1,6 +1,7 @@
 ﻿using FileCraft.Services;
 using FileCraft.Services.Interfaces;
 using FileCraft.Shared.Commands;
+using FileCraft.ViewModels.Shared;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
 
@@ -11,31 +12,30 @@ namespace FileCraft.ViewModels.Functional
         private readonly MainViewModel _mainViewModel;
         private readonly IFileOperationService _fileOperationService;
         private readonly IDialogService _dialogService;
-        private readonly IFolderTreeService _folderTreeService;
-
-        public ObservableCollection<FolderViewModel> RootFolders { get; private set; } = new ObservableCollection<FolderViewModel>();
+        public FolderTreeManager FolderTreeManager { get; }
+        public ObservableCollection<FolderViewModel> RootFolders => FolderTreeManager.RootFolders;
 
         public ICommand ExportFolderContentsCommand { get; }
         public ICommand SelectAllFoldersCommand { get; }
         public ICommand DeselectAllFoldersCommand { get; }
 
-        public FolderContentExportViewModel(MainViewModel mainViewModel, IFileOperationService fileOperationService, IDialogService dialogService, IFolderTreeService folderTreeService)
+        public FolderContentExportViewModel(MainViewModel mainViewModel, IFileOperationService fileOperationService, IDialogService dialogService, FolderTreeManager folderTreeManager)
         {
             _mainViewModel = mainViewModel;
             _fileOperationService = fileOperationService;
             _dialogService = dialogService;
-            _folderTreeService = folderTreeService;
+            FolderTreeManager = folderTreeManager;
 
-            _mainViewModel.SourcePathChanged += OnSourcePathChanged;
+            FolderTreeManager.PropertyChanged += (s, e) => {
+                if (e.PropertyName == nameof(FolderTreeManager.RootFolders))
+                {
+                    OnPropertyChanged(nameof(RootFolders));
+                }
+            };
 
             ExportFolderContentsCommand = new RelayCommand(async (_) => await ExportFolderContents(), (_) => CanExecuteOperation());
             SelectAllFoldersCommand = new RelayCommand(SelectAllFolders, _ => RootFolders.Any());
             DeselectAllFoldersCommand = new RelayCommand(DeselectAllFolders, _ => RootFolders.Any());
-
-            if (!string.IsNullOrWhiteSpace(_mainViewModel.SourcePath))
-            {
-                OnSourcePathChanged(_mainViewModel.SourcePath);
-            }
         }
 
         private bool CanExecuteOperation()
@@ -43,26 +43,6 @@ namespace FileCraft.ViewModels.Functional
             return !string.IsNullOrWhiteSpace(_mainViewModel.SourcePath) &&
                    !string.IsNullOrWhiteSpace(_mainViewModel.DestinationPath) &&
                    !IsBusy;
-        }
-
-        private void OnSourcePathChanged(string newPath)
-        {
-            IsBusy = true;
-            try
-            {
-                RootFolders = _folderTreeService.BuildFolderTree(newPath, () => { });
-                OnPropertyChanged(nameof(RootFolders));
-            }
-            catch (Exception ex)
-            {
-                _dialogService.ShowNotification("Error", $"Could not access or process the source directory:\n\n{ex.Message}");
-                RootFolders = new ObservableCollection<FolderViewModel>();
-                OnPropertyChanged(nameof(RootFolders));
-            }
-            finally
-            {
-                IsBusy = false;
-            }
         }
 
         private void SelectAllFolders(object? parameter)

@@ -3,7 +3,9 @@ using FileCraft.Services;
 using FileCraft.Services.Interfaces;
 using FileCraft.Shared.Commands;
 using FileCraft.Shared.Helpers;
+using FileCraft.ViewModels.Shared;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.IO;
 using System.Windows.Input;
 
@@ -14,10 +16,13 @@ namespace FileCraft.ViewModels.Functional
         private readonly MainViewModel _mainViewModel;
         private readonly IFileOperationService _fileOperationService;
         private readonly IDialogService _dialogService;
-        private readonly IFolderTreeService _folderTreeService;
+
+        public FolderTreeManager FolderTreeManager { get; }
+
         public ObservableCollection<SelectableFile> SelectableFiles { get; } = new ObservableCollection<SelectableFile>();
         public ObservableCollection<SelectableItemViewModel> AvailableExtensions { get; } = new ObservableCollection<SelectableItemViewModel>();
-        public ObservableCollection<FolderViewModel> RootFolders { get; private set; } = new ObservableCollection<FolderViewModel>();
+
+        public ObservableCollection<FolderViewModel> RootFolders => FolderTreeManager.RootFolders;
 
         public ICommand ExportFileContentCommand { get; }
         public ICommand SelectAllFilesCommand { get; }
@@ -27,14 +32,14 @@ namespace FileCraft.ViewModels.Functional
         public ICommand SelectAllExtensionsCommand { get; }
         public ICommand DeselectAllExtensionsCommand { get; }
 
-        public FileContentExportViewModel(MainViewModel mainViewModel, IFileOperationService fileOperationService, IDialogService dialogService, IFolderTreeService folderTreeService) // <-- Inject new service
+        public FileContentExportViewModel(MainViewModel mainViewModel, IFileOperationService fileOperationService, IDialogService dialogService, FolderTreeManager folderTreeManager)
         {
             _mainViewModel = mainViewModel;
             _fileOperationService = fileOperationService;
             _dialogService = dialogService;
-            _folderTreeService = folderTreeService;
+            FolderTreeManager = folderTreeManager;
 
-            _mainViewModel.SourcePathChanged += OnSourcePathChanged;
+            FolderTreeManager.PropertyChanged += OnFolderTreeManagerPropertyChanged;
 
             ExportFileContentCommand = new RelayCommand(async (_) => await ExportFileContentAsync(), (_) => CanExecuteOperation() && SelectableFiles.Any(f => f.IsSelected));
             SelectAllFilesCommand = new RelayCommand(_ => SelectionHelper.SetSelectionState(SelectableFiles, true), _ => SelectableFiles.Any());
@@ -44,9 +49,15 @@ namespace FileCraft.ViewModels.Functional
             SelectAllExtensionsCommand = new RelayCommand(_ => SelectionHelper.SetSelectionState(AvailableExtensions, true), _ => AvailableExtensions.Any());
             DeselectAllExtensionsCommand = new RelayCommand(_ => SelectionHelper.SetSelectionState(AvailableExtensions, false), _ => AvailableExtensions.Any());
 
-            if (!string.IsNullOrWhiteSpace(_mainViewModel.SourcePath))
+            OnFolderSelectionChanged();
+        }
+
+        private void OnFolderTreeManagerPropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(FolderTreeManager.RootFolders))
             {
-                OnSourcePathChanged(_mainViewModel.SourcePath);
+                OnFolderSelectionChanged();
+                OnPropertyChanged(nameof(RootFolders));
             }
         }
 
@@ -57,34 +68,11 @@ namespace FileCraft.ViewModels.Functional
                    !IsBusy;
         }
 
-        private void OnSourcePathChanged(string newPath)
-        {
-            IsBusy = true;
-            try
-            {
-                RootFolders = _folderTreeService.BuildFolderTree(newPath, OnFolderSelectionChanged);
-                OnPropertyChanged(nameof(RootFolders));
-
-                OnFolderSelectionChanged();
-            }
-            catch (Exception ex)
-            {
-                _dialogService.ShowNotification("Error", $"Could not access or process the source directory:\n\n{ex.Message}");
-                RootFolders = new ObservableCollection<FolderViewModel>();
-                OnPropertyChanged(nameof(RootFolders));
-            }
-            finally
-            {
-                IsBusy = false;
-            }
-        }
-
         private void OnFolderSelectionChanged()
         {
             UpdateAvailableExtensions();
             UpdateSelectableFiles();
         }
-
         private void UpdateAvailableExtensions()
         {
             var selectedFolders = GetSelectedFoldersForFileListing();
