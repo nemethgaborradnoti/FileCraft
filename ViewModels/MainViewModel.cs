@@ -3,6 +3,7 @@ using FileCraft.Services;
 using FileCraft.Services.Interfaces;
 using FileCraft.Shared.Commands;
 using FileCraft.ViewModels.Functional;
+using FileCraft.ViewModels.Shared;
 using System.Windows.Input;
 
 namespace FileCraft.ViewModels
@@ -12,7 +13,9 @@ namespace FileCraft.ViewModels
         private readonly ISettingsService _settingsService;
         private string _sourcePath = string.Empty;
         private string _destinationPath = string.Empty;
-        public event Action<string>? SourcePathChanged;
+
+        public FolderTreeManager FolderTreeManager { get; }
+
         public string SourcePath
         {
             get => _sourcePath;
@@ -22,8 +25,7 @@ namespace FileCraft.ViewModels
                 {
                     _sourcePath = value;
                     OnPropertyChanged();
-                    SourcePathChanged?.Invoke(value);
-                    SaveSettings();
+                    FolderTreeManager.LoadTreeForPath(value);
                 }
             }
         }
@@ -37,10 +39,11 @@ namespace FileCraft.ViewModels
                 {
                     _destinationPath = value;
                     OnPropertyChanged();
-                    SaveSettings();
+                    SaveDestinationPath();
                 }
             }
         }
+
         public FileContentExportViewModel FileContentExportVM { get; }
         public TreeGeneratorViewModel TreeGeneratorVM { get; }
         public FolderContentExportViewModel FolderContentExportVM { get; }
@@ -52,12 +55,14 @@ namespace FileCraft.ViewModels
             _settingsService = new SettingsService();
             IFolderTreeService folderTreeService = new FolderTreeService();
 
-            FileContentExportVM = new FileContentExportViewModel(this, fileOperationService, dialogService, folderTreeService);
-            TreeGeneratorVM = new TreeGeneratorViewModel(this, fileOperationService, dialogService, folderTreeService);
-            FolderContentExportVM = new FolderContentExportViewModel(this, fileOperationService, dialogService, folderTreeService);
+            FolderTreeManager = new FolderTreeManager(folderTreeService, _settingsService);
+
+            FileContentExportVM = new FileContentExportViewModel(this, fileOperationService, dialogService, FolderTreeManager);
+            TreeGeneratorVM = new TreeGeneratorViewModel(this, fileOperationService, dialogService, FolderTreeManager);
+            FolderContentExportVM = new FolderContentExportViewModel(this, fileOperationService, dialogService, FolderTreeManager);
             FileRenamerVM = new FileRenamerViewModel();
 
-            ClearPathsCommand = new RelayCommand(_ => ClearPaths(), _ => !string.IsNullOrEmpty(SourcePath) || !string.IsNullOrEmpty(DestinationPath));
+            ClearPathsCommand = new RelayCommand(_ => ClearPaths());
 
             LoadSettings();
         }
@@ -71,13 +76,16 @@ namespace FileCraft.ViewModels
         private void LoadSettings()
         {
             Settings settings = _settingsService.LoadSettings();
+            _destinationPath = settings.DestinationPath;
+            OnPropertyChanged(nameof(DestinationPath));
+
             SourcePath = settings.SourcePath;
-            DestinationPath = settings.DestinationPath;
         }
 
-        private void SaveSettings()
+        private void SaveDestinationPath()
         {
-            var settings = new Settings { SourcePath = this.SourcePath, DestinationPath = this.DestinationPath };
+            var settings = _settingsService.LoadSettings();
+            settings.DestinationPath = this.DestinationPath;
             _settingsService.SaveSettings(settings);
         }
     }

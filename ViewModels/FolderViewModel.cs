@@ -1,4 +1,5 @@
-﻿using System.Collections.ObjectModel;
+﻿using FileCraft.Models;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
@@ -8,7 +9,7 @@ namespace FileCraft.ViewModels
     {
         private bool? _isSelected;
         private bool _isExpanded;
-        private readonly Action _onSelectionChanged;
+        private readonly Action _onStateChanged;
 
         public string Name { get; }
         public string FullPath { get; }
@@ -24,6 +25,7 @@ namespace FileCraft.ViewModels
                 {
                     _isExpanded = value;
                     OnPropertyChanged();
+                    _onStateChanged?.Invoke();
                 }
             }
         }
@@ -33,37 +35,35 @@ namespace FileCraft.ViewModels
             get => _isSelected;
             set
             {
-                bool targetState = _isSelected != true;
+                bool targetState = value ?? false;
 
                 if (Parent == null && !targetState)
                 {
                     return;
                 }
 
-                SetIsSelectedWithoutNotification(targetState);
-
-                if (Children.Any())
-                {
-                    IsExpanded = targetState;
-                }
-
-                Parent?.UpdateParentStateWithoutNotification();
-
-                _onSelectionChanged?.Invoke();
+                SetIsSelected(targetState);
             }
         }
 
-        public FolderViewModel(string name, string fullPath, FolderViewModel? parent, Action onSelectionChanged)
+        public FolderViewModel(string name, string fullPath, FolderViewModel? parent, Action onStateChanged)
         {
             Name = name;
             FullPath = fullPath;
             Parent = parent;
-            _onSelectionChanged = onSelectionChanged;
+            _onStateChanged = onStateChanged;
             _isSelected = true;
             _isExpanded = true;
         }
 
-        private void SetIsSelectedWithoutNotification(bool value)
+        private void SetIsSelected(bool value)
+        {
+            SetIsSelectedWithoutNotification(value);
+            Parent?.UpdateParentStateWithoutNotification();
+            _onStateChanged?.Invoke();
+        }
+
+        private void SetIsSelectedWithoutNotification(bool? value)
         {
             if (_isSelected == value) return;
             _isSelected = value;
@@ -77,41 +77,47 @@ namespace FileCraft.ViewModels
 
         private void UpdateParentStateWithoutNotification()
         {
-            if (!Children.Any()) return;
+            if (Parent == null) return;
 
-            bool? newState;
-
-            if (Children.All(c => c.IsSelected == true))
+            bool? parentState = null;
+            var siblings = Parent.Children;
+            if (siblings.All(s => s.IsSelected == true))
             {
-                newState = true;
+                parentState = true;
             }
-            else if (Children.All(c => c.IsSelected == false))
+            else if (siblings.All(s => s.IsSelected == false))
             {
-                return;
-            }
-            else
-            {
-                newState = null;
+                parentState = false;
             }
 
-            if (_isSelected == newState) return;
+            Parent.SetParentState(parentState);
+        }
 
-            _isSelected = newState;
+        private void SetParentState(bool? state)
+        {
+            if (_isSelected == state) return;
+            _isSelected = state;
             OnPropertyChanged(nameof(IsSelected));
-
             Parent?.UpdateParentStateWithoutNotification();
+        }
+
+        public void ApplyState(FolderState state)
+        {
+            _isSelected = state.IsSelected;
+            _isExpanded = state.IsExpanded;
+
+            OnPropertyChanged(nameof(IsSelected));
+            OnPropertyChanged(nameof(IsExpanded));
         }
 
         public void SetIsExpandedRecursively(bool isExpanded)
         {
-            if (Children.Any())
+            IsExpanded = isExpanded;
+            foreach (var child in Children)
             {
-                IsExpanded = isExpanded;
-                foreach (var child in Children)
-                {
-                    child.SetIsExpandedRecursively(isExpanded);
-                }
+                child.SetIsExpandedRecursively(isExpanded);
             }
+            _onStateChanged?.Invoke();
         }
 
         public IEnumerable<FolderViewModel> GetAllNodes()
