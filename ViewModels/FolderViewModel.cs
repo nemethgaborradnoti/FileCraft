@@ -55,6 +55,15 @@ namespace FileCraft.ViewModels
 
             if (updateChildren && _isSelected.HasValue)
             {
+                if (_isSelected.Value)
+                {
+                    SetIsExpandedRecursively(true);
+                }
+                else
+                {
+                    IsExpanded = false;
+                }
+
                 foreach (var child in Children)
                 {
                     child.SetIsSelected(_isSelected, true, false);
