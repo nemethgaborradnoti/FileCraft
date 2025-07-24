@@ -143,7 +143,7 @@ namespace FileCraft.ViewModels.Functional
                 AvailableExtensions.Clear();
                 foreach (var ext in extensions.Where(e => !string.IsNullOrEmpty(e)).OrderBy(e => e))
                 {
-                    var item = new SelectableItemViewModel(ext, previouslySelected.Contains(ext) || !previouslySelected.Any());
+                    var item = new SelectableItemViewModel(ext, previouslySelected.Contains(ext));
                     item.PropertyChanged += (s, e) => { if (e.PropertyName == nameof(SelectableItemViewModel.IsSelected)) UpdateSelectableFiles(); };
                     AvailableExtensions.Add(item);
                 }
