@@ -12,6 +12,29 @@ namespace FileCraft.ViewModels.Functional
         private readonly MainViewModel _mainViewModel;
         private readonly IFileOperationService _fileOperationService;
         private readonly IDialogService _dialogService;
+
+        private string _outputFileName = "FolderContentsExport";
+        public string OutputFileName
+        {
+            get => _outputFileName;
+            set
+            {
+                _outputFileName = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private bool _appendTimestamp = true;
+        public bool AppendTimestamp
+        {
+            get => _appendTimestamp;
+            set
+            {
+                _appendTimestamp = value;
+                OnPropertyChanged();
+            }
+        }
+
         public FolderTreeManager FolderTreeManager { get; }
         public ObservableCollection<FolderViewModel> RootFolders => FolderTreeManager.RootFolders;
 
@@ -42,6 +65,7 @@ namespace FileCraft.ViewModels.Functional
         {
             return !string.IsNullOrWhiteSpace(_mainViewModel.SourcePath) &&
                    !string.IsNullOrWhiteSpace(_mainViewModel.DestinationPath) &&
+                   !string.IsNullOrWhiteSpace(OutputFileName) &&
                    !IsBusy;
         }
 
@@ -79,7 +103,11 @@ namespace FileCraft.ViewModels.Functional
                     return;
                 }
 
-                string outputFilePath = await _fileOperationService.ExportFolderContentsAsync(_mainViewModel.DestinationPath, includedFolderPaths);
+                string finalFileName = AppendTimestamp
+                    ? $"{OutputFileName}_{DateTime.Now:yyyy_MM_dd_HH_mm_ss}"
+                    : OutputFileName;
+
+                string outputFilePath = await _fileOperationService.ExportFolderContentsAsync(_mainViewModel.DestinationPath, includedFolderPaths, finalFileName);
                 _dialogService.ShowNotification("Success", $"Folder contents exported successfully!\n\nSaved to: {outputFilePath}");
             }
             catch (Exception ex)

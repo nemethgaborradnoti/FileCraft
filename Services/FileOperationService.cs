@@ -7,12 +7,13 @@ namespace FileCraft.Services
 {
     public class FileOperationService : IFileOperationService
     {
-        public Task<string> ExportFolderContentsAsync(string destinationPath, IEnumerable<string> includedFolderPaths)
+        public Task<string> ExportFolderContentsAsync(string destinationPath, IEnumerable<string> includedFolderPaths, string outputFileName)
         {
             return Task.Run(() =>
             {
                 Guard.AgainstNullOrWhiteSpace(destinationPath, nameof(destinationPath));
                 Guard.AgainstNull(includedFolderPaths, nameof(includedFolderPaths));
+                Guard.AgainstNullOrWhiteSpace(outputFileName, nameof(outputFileName));
 
                 var allFiles = new List<string>();
                 foreach (var folderPath in includedFolderPaths)
@@ -44,29 +45,28 @@ namespace FileCraft.Services
                         $"{fileInfo.FullName}");
                 }
 
-                string outputFileName = $"ExportedContents_{DateTime.Now:yyyyMMdd_HHmmss}.txt";
-                string outputFilePath = Path.Combine(destinationPath, outputFileName);
+                string outputFilePath = Path.Combine(destinationPath, $"{outputFileName}.txt");
                 File.WriteAllText(outputFilePath, csvBuilder.ToString());
 
                 return outputFilePath;
             });
         }
 
-        public Task<string> GenerateTreeStructureAsync(string sourcePath, string destinationPath, ISet<string> excludedFolderPaths)
+        public Task<string> GenerateTreeStructureAsync(string sourcePath, string destinationPath, ISet<string> excludedFolderPaths, string outputFileName)
         {
             return Task.Run(() =>
             {
                 Guard.AgainstNullOrWhiteSpace(sourcePath, nameof(sourcePath));
                 Guard.AgainstNullOrWhiteSpace(destinationPath, nameof(destinationPath));
                 Guard.AgainstNonExistentDirectory(sourcePath, "The selected source folder does not exist.");
+                Guard.AgainstNullOrWhiteSpace(outputFileName, nameof(outputFileName));
 
                 StringBuilder treeBuilder = new StringBuilder();
                 treeBuilder.AppendLine(new DirectoryInfo(sourcePath).Name);
 
                 BuildTree(sourcePath, "", treeBuilder, excludedFolderPaths, true);
 
-                string outputFileName = $"treestructure_{DateTime.Now:yyyyMMdd_HHmmss}.txt";
-                string outputFilePath = Path.Combine(destinationPath, outputFileName);
+                string outputFilePath = Path.Combine(destinationPath, $"{outputFileName}.txt");
                 File.WriteAllText(outputFilePath, treeBuilder.ToString());
 
                 return outputFilePath;
@@ -107,12 +107,13 @@ namespace FileCraft.Services
             }
         }
 
-        public Task<string> ExportSelectedFileContentsAsync(string destinationPath, IEnumerable<string> selectedFilePaths)
+        public Task<string> ExportSelectedFileContentsAsync(string destinationPath, IEnumerable<string> selectedFilePaths, string outputFileName)
         {
             return Task.Run(() =>
             {
                 Guard.AgainstNull(selectedFilePaths, nameof(selectedFilePaths));
                 Guard.AgainstNullOrWhiteSpace(destinationPath, nameof(destinationPath));
+                Guard.AgainstNullOrWhiteSpace(outputFileName, nameof(outputFileName));
 
                 if (!selectedFilePaths.Any())
                 {
@@ -144,8 +145,7 @@ namespace FileCraft.Services
                     }
                 }
 
-                string outputFileName = $"FileContentsExport_{DateTime.Now:yyyyMMdd_HHmmss}.txt";
-                string outputFilePath = Path.Combine(destinationPath, outputFileName);
+                string outputFilePath = Path.Combine(destinationPath, $"{outputFileName}.txt");
                 File.WriteAllText(outputFilePath, contentBuilder.ToString());
 
                 return outputFilePath;

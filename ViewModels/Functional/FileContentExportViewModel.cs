@@ -17,6 +17,28 @@ namespace FileCraft.ViewModels.Functional
         private readonly IFileOperationService _fileOperationService;
         private readonly IDialogService _dialogService;
 
+        private string _outputFileName = "FileContentsExport";
+        public string OutputFileName
+        {
+            get => _outputFileName;
+            set
+            {
+                _outputFileName = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private bool _appendTimestamp = true;
+        public bool AppendTimestamp
+        {
+            get => _appendTimestamp;
+            set
+            {
+                _appendTimestamp = value;
+                OnPropertyChanged();
+            }
+        }
+
         public FolderTreeManager FolderTreeManager { get; }
 
         public ObservableCollection<SelectableFile> SelectableFiles { get; } = new ObservableCollection<SelectableFile>();
@@ -65,6 +87,7 @@ namespace FileCraft.ViewModels.Functional
         {
             return !string.IsNullOrWhiteSpace(_mainViewModel.SourcePath) &&
                    !string.IsNullOrWhiteSpace(_mainViewModel.DestinationPath) &&
+                   !string.IsNullOrWhiteSpace(OutputFileName) &&
                    !IsBusy;
         }
 
@@ -152,7 +175,11 @@ namespace FileCraft.ViewModels.Functional
                     return;
                 }
 
-                string outputFilePath = await _fileOperationService.ExportSelectedFileContentsAsync(_mainViewModel.DestinationPath, selectedPaths);
+                string finalFileName = AppendTimestamp
+                    ? $"{OutputFileName}_{DateTime.Now:yyyy_MM_dd_HH_mm_ss}"
+                    : OutputFileName;
+
+                string outputFilePath = await _fileOperationService.ExportSelectedFileContentsAsync(_mainViewModel.DestinationPath, selectedPaths, finalFileName);
                 _dialogService.ShowNotification("Success", $"File contents exported successfully!\n\n{selectedPaths.Count} files were processed.\nSaved to: {outputFilePath}");
             }
             catch (Exception ex)
