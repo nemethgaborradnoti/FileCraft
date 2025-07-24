@@ -11,6 +11,8 @@ namespace FileCraft.ViewModels.Shared
         private readonly ISettingsService _settingsService;
         private string _currentSourcePath = string.Empty;
 
+        public event Action? FolderSelectionChanged;
+
         private ObservableCollection<FolderViewModel> _rootFolders = new();
         public ObservableCollection<FolderViewModel> RootFolders
         {
@@ -41,9 +43,11 @@ namespace FileCraft.ViewModels.Shared
                 return;
             }
 
+            if (_currentSourcePath == sourcePath) return;
+
             _currentSourcePath = sourcePath;
 
-            var newTree = _folderTreeService.BuildFolderTree(sourcePath, () => SaveState());
+            var newTree = _folderTreeService.BuildFolderTree(sourcePath, HandleFolderStateChange);
 
             var settings = _settingsService.LoadSettings();
             if (settings.SourcePath == sourcePath && settings.FolderTreeState.Any())
@@ -57,12 +61,17 @@ namespace FileCraft.ViewModels.Shared
             {
                 if (newTree.Any())
                 {
-                    RootFolders = newTree;
                     SaveState();
                 }
             }
 
             RootFolders = newTree;
+        }
+
+        private void HandleFolderStateChange()
+        {
+            SaveState();
+            FolderSelectionChanged?.Invoke();
         }
 
         public void SaveState(bool clear = false)

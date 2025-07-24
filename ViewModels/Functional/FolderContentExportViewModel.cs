@@ -39,8 +39,6 @@ namespace FileCraft.ViewModels.Functional
         public ObservableCollection<FolderViewModel> RootFolders => FolderTreeManager.RootFolders;
 
         public ICommand ExportFolderContentsCommand { get; }
-        public ICommand SelectAllFoldersCommand { get; }
-        public ICommand DeselectAllFoldersCommand { get; }
 
         public FolderContentExportViewModel(MainViewModel mainViewModel, IFileOperationService fileOperationService, IDialogService dialogService, FolderTreeManager folderTreeManager)
         {
@@ -57,8 +55,6 @@ namespace FileCraft.ViewModels.Functional
             };
 
             ExportFolderContentsCommand = new RelayCommand(async (_) => await ExportFolderContents(), (_) => CanExecuteOperation());
-            SelectAllFoldersCommand = new RelayCommand(SelectAllFolders, _ => RootFolders.Any());
-            DeselectAllFoldersCommand = new RelayCommand(DeselectAllFolders, _ => RootFolders.Any());
         }
 
         private bool CanExecuteOperation()
@@ -67,22 +63,6 @@ namespace FileCraft.ViewModels.Functional
                    !string.IsNullOrWhiteSpace(_mainViewModel.DestinationPath) &&
                    !string.IsNullOrWhiteSpace(OutputFileName) &&
                    !IsBusy;
-        }
-
-        private void SelectAllFolders(object? parameter)
-        {
-            if (!RootFolders.Any()) return;
-            RootFolders[0].IsSelected = true;
-            RootFolders[0].SetIsExpandedRecursively(true);
-        }
-
-        private void DeselectAllFolders(object? parameter)
-        {
-            if (!RootFolders.Any()) return;
-            foreach (var child in RootFolders[0].Children)
-            {
-                child.IsSelected = false;
-            }
         }
 
         private async Task ExportFolderContents()

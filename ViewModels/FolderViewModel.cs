@@ -33,17 +33,7 @@ namespace FileCraft.ViewModels
         public bool? IsSelected
         {
             get => _isSelected;
-            set
-            {
-                bool targetState = value ?? false;
-
-                if (Parent == null && !targetState)
-                {
-                    return;
-                }
-
-                SetIsSelected(targetState);
-            }
+            set => SetIsSelected(value, updateChildren: true, updateParent: true);
         }
 
         public FolderViewModel(string name, string fullPath, FolderViewModel? parent, Action onStateChanged)
@@ -56,49 +46,42 @@ namespace FileCraft.ViewModels
             _isExpanded = true;
         }
 
-        private void SetIsSelected(bool value)
-        {
-            SetIsSelectedWithoutNotification(value);
-            Parent?.UpdateParentStateWithoutNotification();
-            _onStateChanged?.Invoke();
-        }
-
-        private void SetIsSelectedWithoutNotification(bool? value)
+        private void SetIsSelected(bool? value, bool updateChildren, bool updateParent)
         {
             if (_isSelected == value) return;
+
             _isSelected = value;
             OnPropertyChanged(nameof(IsSelected));
 
-            foreach (var child in Children)
+            if (updateChildren && _isSelected.HasValue)
             {
-                child.SetIsSelectedWithoutNotification(value);
+                foreach (var child in Children)
+                {
+                    child.SetIsSelected(_isSelected, true, false);
+                }
             }
+
+            if (updateParent && Parent != null)
+            {
+                Parent.VerifyCheckState();
+            }
+
+            _onStateChanged?.Invoke();
         }
 
-        private void UpdateParentStateWithoutNotification()
+        private void VerifyCheckState()
         {
-            if (Parent == null) return;
-
-            bool? parentState = null;
-            var siblings = Parent.Children;
-            if (siblings.All(s => s.IsSelected == true))
+            bool? state = null;
+            if (Children.All(c => c.IsSelected == true))
             {
-                parentState = true;
+                state = true;
             }
-            else if (siblings.All(s => s.IsSelected == false))
+            else if (Children.All(c => c.IsSelected == false))
             {
-                parentState = false;
+                state = false;
             }
 
-            Parent.SetParentState(parentState);
-        }
-
-        private void SetParentState(bool? state)
-        {
-            if (_isSelected == state) return;
-            _isSelected = state;
-            OnPropertyChanged(nameof(IsSelected));
-            Parent?.UpdateParentStateWithoutNotification();
+            SetIsSelected(state, false, true);
         }
 
         public void ApplyState(FolderState state)

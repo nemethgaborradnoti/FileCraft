@@ -71,8 +71,6 @@ namespace FileCraft.ViewModels.Functional
         public ICommand ExportFileContentCommand { get; }
         public ICommand SelectAllFilesCommand { get; }
         public ICommand DeselectAllFilesCommand { get; }
-        public ICommand SelectAllFoldersCommand { get; }
-        public ICommand DeselectAllFoldersCommand { get; }
         public ICommand SelectAllExtensionsCommand { get; }
         public ICommand DeselectAllExtensionsCommand { get; }
 
@@ -84,12 +82,11 @@ namespace FileCraft.ViewModels.Functional
             FolderTreeManager = folderTreeManager;
 
             FolderTreeManager.PropertyChanged += OnFolderTreeManagerPropertyChanged;
+            FolderTreeManager.FolderSelectionChanged += OnFolderSelectionChanged;
 
             ExportFileContentCommand = new RelayCommand(async (_) => await ExportFileContentAsync(), (_) => CanExecuteOperation() && SelectableFiles.Any(f => f.IsSelected));
             SelectAllFilesCommand = new RelayCommand(_ => SelectionHelper.SetSelectionState(SelectableFiles, true), _ => SelectableFiles.Any());
             DeselectAllFilesCommand = new RelayCommand(_ => SelectionHelper.SetSelectionState(SelectableFiles, false), _ => SelectableFiles.Any());
-            SelectAllFoldersCommand = new RelayCommand(SelectAllFolders, _ => RootFolders.Any());
-            DeselectAllFoldersCommand = new RelayCommand(DeselectAllFolders, _ => RootFolders.Any());
             SelectAllExtensionsCommand = new RelayCommand(_ => SelectionHelper.SetSelectionState(AvailableExtensions, true), _ => AvailableExtensions.Any());
             DeselectAllExtensionsCommand = new RelayCommand(_ => SelectionHelper.SetSelectionState(AvailableExtensions, false), _ => AvailableExtensions.Any());
 
@@ -172,14 +169,12 @@ namespace FileCraft.ViewModels.Functional
 
             System.Windows.Application.Current.Dispatcher.Invoke(() =>
             {
-                // Unsubscribe from old items to prevent memory leaks
                 foreach (var file in SelectableFiles)
                 {
                     file.PropertyChanged -= SelectableFile_PropertyChanged;
                 }
                 SelectableFiles.Clear();
 
-                // Add new items and subscribe to their PropertyChanged event
                 foreach (var file in files.OrderBy(f => f.FullPath))
                 {
                     file.PropertyChanged += SelectableFile_PropertyChanged;
@@ -235,27 +230,6 @@ namespace FileCraft.ViewModels.Functional
             finally
             {
                 IsBusy = false;
-            }
-        }
-
-        private void SelectAllFolders(object? parameter) => SetAllFoldersSelection(true);
-        private void DeselectAllFolders(object? parameter) => SetAllFoldersSelection(false);
-        private void SetAllFoldersSelection(bool isSelected)
-        {
-            if (!RootFolders.Any()) return;
-
-            var root = RootFolders[0];
-            if (isSelected)
-            {
-                root.IsSelected = true;
-                root.SetIsExpandedRecursively(true);
-            }
-            else
-            {
-                foreach (var child in root.Children)
-                {
-                    child.IsSelected = false;
-                }
             }
         }
     }
