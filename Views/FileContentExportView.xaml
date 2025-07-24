@@ -38,7 +38,6 @@
                         <TreeView.ItemTemplate>
                             <HierarchicalDataTemplate ItemsSource="{Binding Children}">
                                 <StackPanel Orientation="Horizontal">
-                                    <!-- CheckBox now supports three states: checked, unchecked, and indeterminate -->
                                     <CheckBox IsChecked="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" IsThreeState="True" VerticalAlignment="Center"/>
                                     <TextBlock Text="{Binding Name}" Margin="5,0,0,0" VerticalAlignment="Center"/>
                                 </StackPanel>
@@ -66,7 +65,7 @@
             </GroupBox>
         </Grid>
 
-        <!-- Section for selected files. This row now takes up the remaining space and will allow the ListView to scroll. -->
+        <!-- Section for selected files -->
         <GroupBox Grid.Row="1" Header="Files to Export" Margin="5">
             <DockPanel>
                 <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" HorizontalAlignment="Right">
@@ -93,10 +92,21 @@
             </DockPanel>
         </GroupBox>
 
-        <!-- Export Button -->
-        <Button Grid.Row="2" Content="Export Selected File Contents" 
-                Command="{Binding ExportFileContentCommand}" 
-                HorizontalAlignment="Right" VerticalAlignment="Bottom" 
-                Margin="10" Padding="10,5"/>
+        <!-- Export Options and Button -->
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="10">
+            <GroupBox Header="Export Options" Padding="5" Margin="0,0,10,0">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="File Name:" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                    <TextBox Text="{Binding OutputFileName, UpdateSourceTrigger=PropertyChanged}" Width="150" VerticalAlignment="Center"/>
+                    <TextBlock Text=".txt" VerticalAlignment="Center" Margin="2,0,10,0" Foreground="Gray"/>
+                    <CheckBox IsChecked="{Binding AppendTimestamp}" VerticalAlignment="Center">
+                        <TextBlock Text="Append Timestamp" ToolTip="Adds _yyyy_MM_dd_HH_mm_ss to the file name."/>
+                    </CheckBox>
+                </StackPanel>
+            </GroupBox>
+            <Button Content="Export Selected File Contents" 
+                    Command="{Binding ExportFileContentCommand}" 
+                    Padding="10,5"/>
+        </StackPanel>
     </Grid>
 </UserControl>
