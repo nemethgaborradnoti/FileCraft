@@ -22,6 +22,13 @@ namespace FileCraft
             _dialogService = dialogService;
 
             this.DataContext = _viewModel;
+
+            this.Closing += MainWindow_Closing;
+        }
+
+        private void MainWindow_Closing(object? sender, System.ComponentModel.CancelEventArgs e)
+        {
+            _viewModel.SaveSettings();
         }
 
         private void SourceBrowseButton_Click(object sender, RoutedEventArgs e)

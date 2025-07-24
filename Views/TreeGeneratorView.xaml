@@ -15,28 +15,32 @@
         </Grid.RowDefinitions>
 
         <!-- Folders to Include Section -->
-        <GroupBox Grid.Row="0" Header="Folders to Exclude" Margin="5" ToolTip="Uncheck folders to exclude them from the tree structure.">
-            <DockPanel>
-                <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" HorizontalAlignment="Right">
-                    <Button Content="Select All" Command="{Binding SelectAllFoldersCommand}" Margin="2"/>
-                    <Button Content="Deselect All" Command="{Binding DeselectAllFoldersCommand}" Margin="2"/>
-                </StackPanel>
-                <TreeView ItemsSource="{Binding RootFolders}" Margin="0,5,0,0">
-                    <TreeView.ItemContainerStyle>
-                        <Style TargetType="{x:Type TreeViewItem}">
-                            <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
-                        </Style>
-                    </TreeView.ItemContainerStyle>
-                    <TreeView.ItemTemplate>
-                        <HierarchicalDataTemplate ItemsSource="{Binding Children}">
-                            <StackPanel Orientation="Horizontal">
-                                <CheckBox IsChecked="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" IsThreeState="True" VerticalAlignment="Center"/>
-                                <TextBlock Text="{Binding Name}" Margin="5,0,0,0" VerticalAlignment="Center"/>
-                            </StackPanel>
-                        </HierarchicalDataTemplate>
-                    </TreeView.ItemTemplate>
-                </TreeView>
-            </DockPanel>
+        <GroupBox Grid.Row="0" Header="Folders to Include" Margin="5">
+            <TreeView ItemsSource="{Binding RootFolders}" BorderThickness="0">
+                <TreeView.ItemContainerStyle>
+                    <Style TargetType="{x:Type TreeViewItem}">
+                        <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
+                        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                        <Setter Property="Padding" Value="2"/>
+                        <!-- This removes the dotted focus rectangle -->
+                        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+                        <Style.Resources>
+                            <!-- Override the selection and highlight brushes to make selection invisible -->
+                            <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Transparent" />
+                            <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}" Color="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}" />
+                        </Style.Resources>
+                    </Style>
+                </TreeView.ItemContainerStyle>
+                <TreeView.ItemTemplate>
+                    <HierarchicalDataTemplate ItemsSource="{Binding Children}">
+                        <StackPanel Orientation="Horizontal">
+                            <CheckBox IsChecked="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" IsThreeState="True" VerticalAlignment="Center"
+                                      PreviewMouseDown="FolderTreeCheckBox_PreviewMouseDown"/>
+                            <TextBlock Text="{Binding Name}" Margin="5,0,0,0" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </HierarchicalDataTemplate>
+                </TreeView.ItemTemplate>
+            </TreeView>
         </GroupBox>
 
         <!-- Export Options and Button -->

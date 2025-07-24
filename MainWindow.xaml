@@ -22,32 +22,46 @@
         <!--  Shared Folder Selection UI  -->
         <!-- ======================= -->
         <Grid Grid.Row="0" Margin="5,0,5,10">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="10" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-            </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
-            <!-- Source Folder Selection -->
-            <Label Grid.Row="0" Grid.Column="0" Content="Source Folder:" FontWeight="SemiBold"/>
-            <!-- The TextBox text is bound to the SourcePath property in the ViewModel. -->
-            <TextBox Grid.Row="1" Grid.Column="0" Margin="0,0,10,0" IsReadOnly="True" Background="#eee"
-                     Text="{Binding SourcePath, Mode=OneWay}"/>
-            <Button x:Name="sourceBrowseButton" Grid.Row="1" Grid.Column="1" Content="Browse..." Padding="10,2" Click="SourceBrowseButton_Click"/>
+            <!-- Source Folder Column -->
+            <GroupBox Grid.Column="0" Header="Source Folder" Margin="0,0,5,0" Padding="5">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
 
-            <!-- Destination Folder Selection -->
-            <Label Grid.Row="3" Grid.Column="0" Content="Destination Folder:" FontWeight="SemiBold"/>
-            <!-- The TextBox text is bound to the DestinationPath property in the ViewModel. -->
-            <TextBox Grid.Row="4" Grid.Column="0" Margin="0,0,10,0" IsReadOnly="True" Background="#eee"
-                     Text="{Binding DestinationPath, Mode=OneWay}"/>
-            <Button x:Name="destinationBrowseButton" Grid.Row="4" Grid.Column="1" Content="Browse..." Padding="10,2" Click="DestinationBrowseButton_Click"/>
-            <Button Grid.Column="3" Content="Clear Paths" Command="{Binding ClearPathsCommand}" Margin="5,5,0,5" Padding="10,5" ToolTip="Clear both source and destination paths."/>
+                    <!-- The TextBox text is bound to the SourcePath property in the ViewModel. -->
+                    <TextBox Grid.Column="0" Margin="0,0,10,0" IsReadOnly="True" Background="#eee" VerticalContentAlignment="Center"
+                             Text="{Binding SourcePath, Mode=OneWay}"
+                             ToolTip="{Binding SourcePath}"/>
+
+                    <Button x:Name="sourceBrowseButton" Grid.Column="1" Content="Browse..." Padding="10,2" Click="SourceBrowseButton_Click"/>
+                </Grid>
+            </GroupBox>
+
+            <!-- Destination Folder Column -->
+            <GroupBox Grid.Column="1" Header="Destination Folder" Margin="5,0,0,0" Padding="5">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <!-- The TextBox text is bound to the DestinationPath property in the ViewModel. -->
+                    <TextBox Grid.Column="0" Margin="0,0,10,0" IsReadOnly="True" Background="#eee" VerticalContentAlignment="Center"
+                             Text="{Binding DestinationPath, Mode=OneWay}"
+                             ToolTip="{Binding DestinationPath}"/>
+
+                    <Button x:Name="destinationBrowseButton" Grid.Column="1" Content="Browse..." Padding="10,2" Margin="0,0,5,0" Click="DestinationBrowseButton_Click"/>
+                    <Button Grid.Column="2" Content="Clear" Command="{Binding ClearPathsCommand}" Padding="10,2" ToolTip="Clear both source and destination paths."/>
+                </Grid>
+            </GroupBox>
         </Grid>
 
         <!-- The TabControl is in the second row -->
@@ -68,7 +82,7 @@
                         <Image Source="/Resources/treestructure01.png" Width="28" Height="28" Margin="0,0,5,0" VerticalAlignment="Center"/>
                         <TextBlock Text="Tree Generator" VerticalAlignment="Center"/>
                     </StackPanel>
-                    </TabItem.Header>
+                </TabItem.Header>
                 <views:TreeGeneratorView DataContext="{Binding TreeGeneratorVM}"/>
             </TabItem>
             <TabItem>

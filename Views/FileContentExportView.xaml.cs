@@ -1,5 +1,6 @@
 ﻿using FileCraft.ViewModels.Functional;
 using System.Windows;
+using System.Windows.Input;
 
 namespace FileCraft.Views
 {
@@ -24,6 +25,41 @@ namespace FileCraft.Views
                 {
                     if (viewModel.DeselectAllFilesCommand.CanExecute(null))
                         viewModel.DeselectAllFilesCommand.Execute(null);
+                }
+            }
+        }
+
+        private void OnCheckAllExtensions(object sender, RoutedEventArgs e)
+        {
+            if (this.DataContext is FileContentExportViewModel viewModel)
+            {
+                bool isChecked = (sender as System.Windows.Controls.CheckBox)?.IsChecked ?? false;
+                if (isChecked)
+                {
+                    if (viewModel.SelectAllExtensionsCommand.CanExecute(null))
+                        viewModel.SelectAllExtensionsCommand.Execute(null);
+                }
+                else
+                {
+                    if (viewModel.DeselectAllExtensionsCommand.CanExecute(null))
+                        viewModel.DeselectAllExtensionsCommand.Execute(null);
+                }
+            }
+        }
+
+        private void FolderTreeCheckBox_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (sender is System.Windows.Controls.CheckBox checkBox)
+            {
+                e.Handled = true;
+
+                if (checkBox.IsChecked == true)
+                {
+                    checkBox.IsChecked = false;
+                }
+                else
+                {
+                    checkBox.IsChecked = true;
                 }
             }
         }

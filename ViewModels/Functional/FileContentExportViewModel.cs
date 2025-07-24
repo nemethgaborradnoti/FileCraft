@@ -39,6 +39,28 @@ namespace FileCraft.ViewModels.Functional
             }
         }
 
+        private int _availableFilesCount;
+        public int AvailableFilesCount
+        {
+            get => _availableFilesCount;
+            set
+            {
+                _availableFilesCount = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private int _selectedFilesCount;
+        public int SelectedFilesCount
+        {
+            get => _selectedFilesCount;
+            set
+            {
+                _selectedFilesCount = value;
+                OnPropertyChanged();
+            }
+        }
+
         public FolderTreeManager FolderTreeManager { get; }
 
         public ObservableCollection<SelectableFile> SelectableFiles { get; } = new ObservableCollection<SelectableFile>();
@@ -49,8 +71,6 @@ namespace FileCraft.ViewModels.Functional
         public ICommand ExportFileContentCommand { get; }
         public ICommand SelectAllFilesCommand { get; }
         public ICommand DeselectAllFilesCommand { get; }
-        public ICommand SelectAllFoldersCommand { get; }
-        public ICommand DeselectAllFoldersCommand { get; }
         public ICommand SelectAllExtensionsCommand { get; }
         public ICommand DeselectAllExtensionsCommand { get; }
 
@@ -62,16 +82,16 @@ namespace FileCraft.ViewModels.Functional
             FolderTreeManager = folderTreeManager;
 
             FolderTreeManager.PropertyChanged += OnFolderTreeManagerPropertyChanged;
+            FolderTreeManager.FolderSelectionChanged += OnFolderSelectionChanged;
 
             ExportFileContentCommand = new RelayCommand(async (_) => await ExportFileContentAsync(), (_) => CanExecuteOperation() && SelectableFiles.Any(f => f.IsSelected));
             SelectAllFilesCommand = new RelayCommand(_ => SelectionHelper.SetSelectionState(SelectableFiles, true), _ => SelectableFiles.Any());
             DeselectAllFilesCommand = new RelayCommand(_ => SelectionHelper.SetSelectionState(SelectableFiles, false), _ => SelectableFiles.Any());
-            SelectAllFoldersCommand = new RelayCommand(SelectAllFolders, _ => RootFolders.Any());
-            DeselectAllFoldersCommand = new RelayCommand(DeselectAllFolders, _ => RootFolders.Any());
             SelectAllExtensionsCommand = new RelayCommand(_ => SelectionHelper.SetSelectionState(AvailableExtensions, true), _ => AvailableExtensions.Any());
             DeselectAllExtensionsCommand = new RelayCommand(_ => SelectionHelper.SetSelectionState(AvailableExtensions, false), _ => AvailableExtensions.Any());
 
             OnFolderSelectionChanged();
+            UpdateCounts();
         }
 
         private void OnFolderTreeManagerPropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -120,7 +140,7 @@ namespace FileCraft.ViewModels.Functional
                 AvailableExtensions.Clear();
                 foreach (var ext in extensions.Where(e => !string.IsNullOrEmpty(e)).OrderBy(e => e))
                 {
-                    var item = new SelectableItemViewModel(ext, previouslySelected.Contains(ext) || !previouslySelected.Any());
+                    var item = new SelectableItemViewModel(ext, previouslySelected.Contains(ext));
                     item.PropertyChanged += (s, e) => { if (e.PropertyName == nameof(SelectableItemViewModel.IsSelected)) UpdateSelectableFiles(); };
                     AvailableExtensions.Add(item);
                 }
@@ -149,12 +169,33 @@ namespace FileCraft.ViewModels.Functional
 
             System.Windows.Application.Current.Dispatcher.Invoke(() =>
             {
+                foreach (var file in SelectableFiles)
+                {
+                    file.PropertyChanged -= SelectableFile_PropertyChanged;
+                }
                 SelectableFiles.Clear();
+
                 foreach (var file in files.OrderBy(f => f.FullPath))
                 {
+                    file.PropertyChanged += SelectableFile_PropertyChanged;
                     SelectableFiles.Add(file);
                 }
+                UpdateCounts();
             });
+        }
+
+        private void SelectableFile_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(SelectableFile.IsSelected))
+            {
+                UpdateCounts();
+            }
+        }
+
+        private void UpdateCounts()
+        {
+            AvailableFilesCount = SelectableFiles.Count;
+            SelectedFilesCount = SelectableFiles.Count(f => f.IsSelected);
         }
 
         private List<FolderViewModel> GetSelectedFoldersForFileListing()
@@ -181,6 +222,7 @@ namespace FileCraft.ViewModels.Functional
 
                 string outputFilePath = await _fileOperationService.ExportSelectedFileContentsAsync(_mainViewModel.DestinationPath, selectedPaths, finalFileName);
                 _dialogService.ShowNotification("Success", $"File contents exported successfully!\n\n{selectedPaths.Count} files were processed.\nSaved to: {outputFilePath}");
+                _mainViewModel.SaveSettings();
             }
             catch (Exception ex)
             {
@@ -189,27 +231,6 @@ namespace FileCraft.ViewModels.Functional
             finally
             {
                 IsBusy = false;
-            }
-        }
-
-        private void SelectAllFolders(object? parameter) => SetAllFoldersSelection(true);
-        private void DeselectAllFolders(object? parameter) => SetAllFoldersSelection(false);
-        private void SetAllFoldersSelection(bool isSelected)
-        {
-            if (!RootFolders.Any()) return;
-
-            var root = RootFolders[0];
-            if (isSelected)
-            {
-                root.IsSelected = true;
-                root.SetIsExpandedRecursively(true);
-            }
-            else
-            {
-                foreach (var child in root.Children)
-                {
-                    child.IsSelected = false;
-                }
             }
         }
     }

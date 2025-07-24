@@ -24,76 +24,138 @@
 
             <!-- Folders to Include -->
             <GroupBox Grid.Column="0" Header="Folders to Include" Margin="5">
-                <DockPanel>
-                    <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" HorizontalAlignment="Right">
-                        <Button Content="Select All" Command="{Binding SelectAllFoldersCommand}" Margin="2"/>
-                        <Button Content="Deselect All" Command="{Binding DeselectAllFoldersCommand}" Margin="2"/>
-                    </StackPanel>
-                    <TreeView ItemsSource="{Binding RootFolders}" Height="250" Margin="0,5,0,0">
-                        <TreeView.ItemContainerStyle>
-                            <Style TargetType="{x:Type TreeViewItem}">
-                                <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
-                            </Style>
-                        </TreeView.ItemContainerStyle>
-                        <TreeView.ItemTemplate>
-                            <HierarchicalDataTemplate ItemsSource="{Binding Children}">
-                                <StackPanel Orientation="Horizontal">
-                                    <CheckBox IsChecked="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" IsThreeState="True" VerticalAlignment="Center"/>
-                                    <TextBlock Text="{Binding Name}" Margin="5,0,0,0" VerticalAlignment="Center"/>
-                                </StackPanel>
-                            </HierarchicalDataTemplate>
-                        </TreeView.ItemTemplate>
-                    </TreeView>
-                </DockPanel>
+                <TreeView ItemsSource="{Binding RootFolders}" Height="250" BorderThickness="0">
+                    <TreeView.ItemContainerStyle>
+                        <Style TargetType="{x:Type TreeViewItem}">
+                            <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
+                            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                            <Setter Property="Padding" Value="2"/>
+                            <!-- This removes the dotted focus rectangle -->
+                            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+                            <Style.Resources>
+                                <!-- Override the selection and highlight brushes to make selection invisible -->
+                                <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Transparent" />
+                                <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}" Color="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}" />
+                            </Style.Resources>
+                        </Style>
+                    </TreeView.ItemContainerStyle>
+                    <TreeView.ItemTemplate>
+                        <HierarchicalDataTemplate ItemsSource="{Binding Children}">
+                            <CheckBox IsChecked="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" IsThreeState="True" VerticalAlignment="Center" Content="{Binding Name}"
+                                      PreviewMouseDown="FolderTreeCheckBox_PreviewMouseDown"/>
+                        </HierarchicalDataTemplate>
+                    </TreeView.ItemTemplate>
+                </TreeView>
             </GroupBox>
 
             <!-- File extensions to include -->
             <GroupBox Grid.Column="1" Header="File extensions to include" Margin="5">
-                <DockPanel>
-                    <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" HorizontalAlignment="Right">
-                        <Button Content="Select All" Command="{Binding SelectAllExtensionsCommand}" Margin="2"/>
-                        <Button Content="Deselect All" Command="{Binding DeselectAllExtensionsCommand}" Margin="2"/>
-                    </StackPanel>
-                    <ListView ItemsSource="{Binding AvailableExtensions}" Height="250" Margin="0,5,0,0">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Header -->
+                    <Border BorderBrush="LightGray" BorderThickness="0,0,0,1" Padding="4,2">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <CheckBox Grid.Column="0" Name="ExtensionsHeaderCheckBox" Checked="OnCheckAllExtensions" Unchecked="OnCheckAllExtensions" VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="1" Text="Extension" FontWeight="SemiBold" Margin="5,0,0,0" VerticalAlignment="Center"/>
+                        </Grid>
+                    </Border>
+
+                    <!-- List -->
+                    <ListView Grid.Row="1" ItemsSource="{Binding AvailableExtensions}" ScrollViewer.HorizontalScrollBarVisibility="Disabled" BorderThickness="0" Height="250">
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="ListViewItem">
+                                <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                                <Setter Property="Padding" Value="4,1"/>
+                                <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+                                <Style.Triggers>
+                                    <Trigger Property="IsSelected" Value="True">
+                                        <Setter Property="Background" Value="Transparent"/>
+                                        <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>
+                                        <Setter Property="BorderBrush" Value="Transparent"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </ListView.ItemContainerStyle>
                         <ListView.ItemTemplate>
                             <DataTemplate>
-                                <CheckBox IsChecked="{Binding IsSelected}" Content="{Binding Name}"/>
+                                <CheckBox IsChecked="{Binding IsSelected}" Content="{Binding Name}" VerticalAlignment="Center"/>
                             </DataTemplate>
                         </ListView.ItemTemplate>
                     </ListView>
-                </DockPanel>
+                </Grid>
             </GroupBox>
         </Grid>
 
         <!-- Section for selected files -->
         <GroupBox Grid.Row="1" Header="Files to Export" Margin="5">
-            <DockPanel>
-                <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" HorizontalAlignment="Right">
-                    <Button Content="Select All" Command="{Binding SelectAllFilesCommand}" Margin="2"/>
-                    <Button Content="Deselect All" Command="{Binding DeselectAllFilesCommand}" Margin="2"/>
-                </StackPanel>
-                <ListView ItemsSource="{Binding SelectableFiles}" Margin="0,5,0,0" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
-                    <ListView.View>
-                        <GridView>
-                            <GridViewColumn>
-                                <GridViewColumn.Header>
-                                    <CheckBox Name="HeaderCheckBox" Checked="OnCheckAll" Unchecked="OnCheckAll"/>
-                                </GridViewColumn.Header>
-                                <GridViewColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <CheckBox IsChecked="{Binding IsSelected}"/>
-                                    </DataTemplate>
-                                </GridViewColumn.CellTemplate>
-                            </GridViewColumn>
-                            <GridViewColumn Header="File Path" DisplayMemberBinding="{Binding FullPath}" />
-                        </GridView>
-                    </ListView.View>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <!-- Header -->
+                <Border BorderBrush="LightGray" BorderThickness="0,0,0,1" Padding="4,2">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <CheckBox Grid.Column="0" Name="HeaderCheckBox" Checked="OnCheckAll" Unchecked="OnCheckAll" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="1" Text="File Path" FontWeight="SemiBold" Margin="5,0,0,0" VerticalAlignment="Center"/>
+                    </Grid>
+                </Border>
+
+                <!-- List -->
+                <ListView Grid.Row="1" ItemsSource="{Binding SelectableFiles}" ScrollViewer.HorizontalScrollBarVisibility="Disabled" BorderThickness="0">
+                    <ListView.ItemContainerStyle>
+                        <Style TargetType="ListViewItem">
+                            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                            <Setter Property="Padding" Value="4,1"/>
+                            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+                            <Style.Triggers>
+                                <Trigger Property="IsSelected" Value="True">
+                                    <Setter Property="Background" Value="Transparent"/>
+                                    <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>
+                                    <Setter Property="BorderBrush" Value="Transparent"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ListView.ItemContainerStyle>
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <CheckBox IsChecked="{Binding IsSelected}" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding FullPath}" TextTrimming="CharacterEllipsis"/>
+                            </CheckBox>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
                 </ListView>
-            </DockPanel>
+            </Grid>
         </GroupBox>
 
         <!-- Export Options and Button -->
         <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="10">
+
+            <!-- File Counters -->
+            <StackPanel VerticalAlignment="Center" Margin="0,0,20,0">
+                <TextBlock>
+                    <Run Text="Available files:" FontWeight="SemiBold"/>
+                    <Run Text="{Binding AvailableFilesCount, Mode=OneWay}"/>
+                </TextBlock>
+                <TextBlock>
+                    <Run Text="Selected files:" FontWeight="SemiBold"/>
+                    <Run Text="{Binding SelectedFilesCount, Mode=OneWay}"/>
+                </TextBlock>
+            </StackPanel>
+
             <GroupBox Header="Export Options" Padding="5" Margin="0,0,10,0">
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="File Name:" VerticalAlignment="Center" Margin="0,0,5,0"/>

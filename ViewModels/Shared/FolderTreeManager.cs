@@ -11,6 +11,8 @@ namespace FileCraft.ViewModels.Shared
         private readonly ISettingsService _settingsService;
         private string _currentSourcePath = string.Empty;
 
+        public event Action? FolderSelectionChanged;
+
         private ObservableCollection<FolderViewModel> _rootFolders = new();
         public ObservableCollection<FolderViewModel> RootFolders
         {
@@ -33,17 +35,14 @@ namespace FileCraft.ViewModels.Shared
             if (string.IsNullOrWhiteSpace(sourcePath) || !Directory.Exists(sourcePath))
             {
                 RootFolders = new ObservableCollection<FolderViewModel>();
-                if (!string.IsNullOrWhiteSpace(_currentSourcePath))
-                {
-                    SaveState(true);
-                }
                 _currentSourcePath = string.Empty;
                 return;
             }
 
+            if (sourcePath == _currentSourcePath) return;
             _currentSourcePath = sourcePath;
 
-            var newTree = _folderTreeService.BuildFolderTree(sourcePath, () => SaveState());
+            var newTree = _folderTreeService.BuildFolderTree(sourcePath, HandleFolderStateChange);
 
             var settings = _settingsService.LoadSettings();
             if (settings.SourcePath == sourcePath && settings.FolderTreeState.Any())
@@ -53,37 +52,24 @@ namespace FileCraft.ViewModels.Shared
                     ApplyStateToNode(newTree[0], settings.FolderTreeState);
                 }
             }
-            else
-            {
-                if (newTree.Any())
-                {
-                    RootFolders = newTree;
-                    SaveState();
-                }
-            }
-
             RootFolders = newTree;
         }
 
-        public void SaveState(bool clear = false)
+        private void HandleFolderStateChange()
         {
-            var settings = _settingsService.LoadSettings();
+            FolderSelectionChanged?.Invoke();
+        }
 
-            if (clear || !RootFolders.Any() || string.IsNullOrWhiteSpace(_currentSourcePath))
+        public List<FolderState> GetFolderStates()
+        {
+            if (!RootFolders.Any())
             {
-                settings.SourcePath = _currentSourcePath;
-                settings.FolderTreeState = new List<FolderState>();
-            }
-            else
-            {
-                var states = new List<FolderState>();
-                ExtractStateFromNode(RootFolders[0], states);
-
-                settings.SourcePath = _currentSourcePath;
-                settings.FolderTreeState = states;
+                return new List<FolderState>();
             }
 
-            _settingsService.SaveSettings(settings);
+            var states = new List<FolderState>();
+            ExtractStateFromNode(RootFolders[0], states);
+            return states;
         }
 
         private void ExtractStateFromNode(FolderViewModel node, List<FolderState> states)
