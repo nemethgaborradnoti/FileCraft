@@ -39,6 +39,28 @@ namespace FileCraft.ViewModels.Functional
             }
         }
 
+        private int _availableFilesCount;
+        public int AvailableFilesCount
+        {
+            get => _availableFilesCount;
+            set
+            {
+                _availableFilesCount = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private int _selectedFilesCount;
+        public int SelectedFilesCount
+        {
+            get => _selectedFilesCount;
+            set
+            {
+                _selectedFilesCount = value;
+                OnPropertyChanged();
+            }
+        }
+
         public FolderTreeManager FolderTreeManager { get; }
 
         public ObservableCollection<SelectableFile> SelectableFiles { get; } = new ObservableCollection<SelectableFile>();
@@ -72,6 +94,7 @@ namespace FileCraft.ViewModels.Functional
             DeselectAllExtensionsCommand = new RelayCommand(_ => SelectionHelper.SetSelectionState(AvailableExtensions, false), _ => AvailableExtensions.Any());
 
             OnFolderSelectionChanged();
+            UpdateCounts();
         }
 
         private void OnFolderTreeManagerPropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -149,12 +172,35 @@ namespace FileCraft.ViewModels.Functional
 
             System.Windows.Application.Current.Dispatcher.Invoke(() =>
             {
+                // Unsubscribe from old items to prevent memory leaks
+                foreach (var file in SelectableFiles)
+                {
+                    file.PropertyChanged -= SelectableFile_PropertyChanged;
+                }
                 SelectableFiles.Clear();
+
+                // Add new items and subscribe to their PropertyChanged event
                 foreach (var file in files.OrderBy(f => f.FullPath))
                 {
+                    file.PropertyChanged += SelectableFile_PropertyChanged;
                     SelectableFiles.Add(file);
                 }
+                UpdateCounts();
             });
+        }
+
+        private void SelectableFile_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(SelectableFile.IsSelected))
+            {
+                UpdateCounts();
+            }
+        }
+
+        private void UpdateCounts()
+        {
+            AvailableFilesCount = SelectableFiles.Count;
+            SelectedFilesCount = SelectableFiles.Count(f => f.IsSelected);
         }
 
         private List<FolderViewModel> GetSelectedFoldersForFileListing()

@@ -94,6 +94,19 @@
 
         <!-- Export Options and Button -->
         <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="10">
+
+            <!-- File Counters -->
+            <StackPanel VerticalAlignment="Center" Margin="0,0,20,0">
+                <TextBlock>
+                    <Run Text="Available files:" FontWeight="SemiBold"/>
+                    <Run Text="{Binding AvailableFilesCount, Mode=OneWay}"/>
+                </TextBlock>
+                <TextBlock>
+                    <Run Text="Selected files:" FontWeight="SemiBold"/>
+                    <Run Text="{Binding SelectedFilesCount, Mode=OneWay}"/>
+                </TextBlock>
+            </StackPanel>
+
             <GroupBox Header="Export Options" Padding="5" Margin="0,0,10,0">
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="File Name:" VerticalAlignment="Center" Margin="0,0,5,0"/>
