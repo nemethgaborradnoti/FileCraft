@@ -82,6 +82,7 @@ namespace FileCraft.ViewModels.Functional
 
                 string outputFilePath = await _fileOperationService.GenerateTreeStructureAsync(_mainViewModel.SourcePath, _mainViewModel.DestinationPath, excludedFolderPaths, finalFileName);
                 _dialogService.ShowNotification("Success", $"Tree structure file was created successfully!\n\nSaved to: {outputFilePath}");
+                _mainViewModel.SaveSettings();
             }
             catch (Exception ex)
             {

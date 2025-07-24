@@ -222,6 +222,7 @@ namespace FileCraft.ViewModels.Functional
 
                 string outputFilePath = await _fileOperationService.ExportSelectedFileContentsAsync(_mainViewModel.DestinationPath, selectedPaths, finalFileName);
                 _dialogService.ShowNotification("Success", $"File contents exported successfully!\n\n{selectedPaths.Count} files were processed.\nSaved to: {outputFilePath}");
+                _mainViewModel.SaveSettings();
             }
             catch (Exception ex)
             {

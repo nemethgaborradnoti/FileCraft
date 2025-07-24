@@ -26,6 +26,7 @@ namespace FileCraft.ViewModels
                     _sourcePath = value;
                     OnPropertyChanged();
                     FolderTreeManager.LoadTreeForPath(value);
+                    SaveSettings();
                 }
             }
         }
@@ -39,7 +40,7 @@ namespace FileCraft.ViewModels
                 {
                     _destinationPath = value;
                     OnPropertyChanged();
-                    SaveDestinationPath();
+                    SaveSettings();
                 }
             }
         }
@@ -82,10 +83,14 @@ namespace FileCraft.ViewModels
             SourcePath = settings.SourcePath;
         }
 
-        private void SaveDestinationPath()
+        public void SaveSettings()
         {
-            var settings = _settingsService.LoadSettings();
-            settings.DestinationPath = this.DestinationPath;
+            var settings = new Settings
+            {
+                SourcePath = this.SourcePath,
+                DestinationPath = this.DestinationPath,
+                FolderTreeState = FolderTreeManager.GetFolderStates()
+            };
             _settingsService.SaveSettings(settings);
         }
     }

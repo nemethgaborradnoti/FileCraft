@@ -89,6 +89,7 @@ namespace FileCraft.ViewModels.Functional
 
                 string outputFilePath = await _fileOperationService.ExportFolderContentsAsync(_mainViewModel.DestinationPath, includedFolderPaths, finalFileName);
                 _dialogService.ShowNotification("Success", $"Folder contents exported successfully!\n\nSaved to: {outputFilePath}");
+                _mainViewModel.SaveSettings();
             }
             catch (Exception ex)
             {

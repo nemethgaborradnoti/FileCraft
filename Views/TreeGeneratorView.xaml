@@ -14,8 +14,8 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <!-- Folders to Exclude Section -->
-        <GroupBox Grid.Row="0" Header="Folders to Exclude" Margin="5" ToolTip="Uncheck folders to exclude them from the tree structure.">
+        <!-- Folders to Include Section -->
+        <GroupBox Grid.Row="0" Header="Folders to Include" Margin="5">
             <TreeView ItemsSource="{Binding RootFolders}" BorderThickness="0">
                 <TreeView.ItemContainerStyle>
                     <Style TargetType="{x:Type TreeViewItem}">
