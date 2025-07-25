@@ -3,8 +3,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:FileCraft.Views"
              xmlns:viewmodels="clr-namespace:FileCraft.ViewModels"
+             xmlns:controls="clr-namespace:FileCraft.Views.Shared.Controls"
              mc:Ignorable="d" 
              d:DataContext="{d:DesignInstance Type=viewmodels:MainViewModel, IsDesignTimeCreatable=False}"
              d:DesignHeight="450" d:DesignWidth="800">
@@ -22,10 +22,8 @@
                         <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
                         <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
                         <Setter Property="Padding" Value="2"/>
-                        <!-- This removes the dotted focus rectangle -->
                         <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
                         <Style.Resources>
-                            <!-- Override the selection and highlight brushes to make selection invisible -->
                             <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Transparent" />
                             <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}" Color="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}" />
                         </Style.Resources>
@@ -45,16 +43,7 @@
 
         <!-- Export Options and Button -->
         <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="10">
-            <GroupBox Header="Export Options" Padding="5" Margin="0,0,10,0">
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="File Name:" VerticalAlignment="Center" Margin="0,0,5,0"/>
-                    <TextBox Text="{Binding OutputFileName, UpdateSourceTrigger=PropertyChanged}" Width="150" VerticalAlignment="Center"/>
-                    <TextBlock Text=".txt" VerticalAlignment="Center" Margin="2,0,10,0" Foreground="Gray"/>
-                    <CheckBox IsChecked="{Binding AppendTimestamp}" VerticalAlignment="Center">
-                        <TextBlock Text="Append Timestamp" ToolTip="Adds _yyyy_MM_dd_HH_mm_ss to the file name."/>
-                    </CheckBox>
-                </StackPanel>
-            </GroupBox>
+            <controls:ExportOptionsControl DataContext="{Binding}" />
             <Button Content="Generate Tree Structure" 
                     Command="{Binding GenerateTreeStructureCommand}" 
                     Padding="10,5"/>

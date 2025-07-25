@@ -1,6 +1,4 @@
-﻿using FileCraft.Models;
-using FileCraft.Services;
-using FileCraft.Services.Interfaces;
+﻿using FileCraft.Services.Interfaces;
 using FileCraft.Shared.Commands;
 using FileCraft.ViewModels.Shared;
 using System.Collections.ObjectModel;
@@ -8,36 +6,8 @@ using System.Windows.Input;
 
 namespace FileCraft.ViewModels.Functional
 {
-    public class FolderContentExportViewModel : BaseViewModel
+    public class FolderContentExportViewModel : ExportViewModelBase
     {
-        private readonly ISharedStateService _sharedStateService;
-        private readonly IFileOperationService _fileOperationService;
-        private readonly IDialogService _dialogService;
-        private readonly ISettingsService _settingsService;
-
-        private string _outputFileName = "FolderContentsExport";
-        public string OutputFileName
-        {
-            get => _outputFileName;
-            set
-            {
-                _outputFileName = value;
-                OnPropertyChanged();
-            }
-        }
-
-        private bool _appendTimestamp = true;
-        public bool AppendTimestamp
-        {
-            get => _appendTimestamp;
-            set
-            {
-                _appendTimestamp = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public FolderTreeManager FolderTreeManager { get; }
         public ObservableCollection<FolderViewModel> RootFolders => FolderTreeManager.RootFolders;
 
         public ICommand ExportFolderContentsCommand { get; }
@@ -46,14 +16,11 @@ namespace FileCraft.ViewModels.Functional
             ISharedStateService sharedStateService,
             IFileOperationService fileOperationService,
             IDialogService dialogService,
-            FolderTreeManager folderTreeManager,
-            ISettingsService settingsService)
+            ISettingsService settingsService,
+            FolderTreeManager folderTreeManager)
+            : base(sharedStateService, fileOperationService, dialogService, settingsService, folderTreeManager)
         {
-            _sharedStateService = sharedStateService;
-            _fileOperationService = fileOperationService;
-            _dialogService = dialogService;
-            FolderTreeManager = folderTreeManager;
-            _settingsService = settingsService;
+            OutputFileName = "FolderContentsExport";
 
             FolderTreeManager.PropertyChanged += (s, e) => {
                 if (e.PropertyName == nameof(FolderTreeManager.RootFolders))
@@ -63,14 +30,6 @@ namespace FileCraft.ViewModels.Functional
             };
 
             ExportFolderContentsCommand = new RelayCommand(async (_) => await ExportFolderContents(), (_) => CanExecuteOperation());
-        }
-
-        private bool CanExecuteOperation()
-        {
-            return !string.IsNullOrWhiteSpace(_sharedStateService.SourcePath) &&
-                   !string.IsNullOrWhiteSpace(_sharedStateService.DestinationPath) &&
-                   !string.IsNullOrWhiteSpace(OutputFileName) &&
-                   !IsBusy;
         }
 
         private async Task ExportFolderContents()
@@ -91,20 +50,12 @@ namespace FileCraft.ViewModels.Functional
                     return;
                 }
 
-                string finalFileName = AppendTimestamp
-                    ? $"{OutputFileName}_{DateTime.Now:yyyy_MM_dd_HH_mm_ss}"
-                    : OutputFileName;
+                string finalFileName = GetFinalFileName();
 
                 string outputFilePath = await _fileOperationService.ExportFolderContentsAsync(_sharedStateService.DestinationPath, includedFolderPaths, finalFileName);
                 _dialogService.ShowNotification("Success", $"Folder contents exported successfully!\n\nSaved to: {outputFilePath}");
 
-                var settings = new Settings
-                {
-                    SourcePath = _sharedStateService.SourcePath,
-                    DestinationPath = _sharedStateService.DestinationPath,
-                    FolderTreeState = FolderTreeManager.GetFolderStates()
-                };
-                _settingsService.SaveSettings(settings);
+                SaveSettings();
             }
             catch (Exception ex)
             {
