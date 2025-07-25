@@ -1,4 +1,4 @@
-﻿namespace FileCraft.Services
+﻿namespace FileCraft.Services.Interfaces
 {
     public interface IDialogService
     {

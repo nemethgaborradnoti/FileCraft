@@ -1,4 +1,5 @@
-﻿using FileCraft.Views.Shared;
+﻿using FileCraft.Services.Interfaces;
+using FileCraft.Views.Shared;
 
 namespace FileCraft.Services
 {
@@ -8,7 +9,8 @@ namespace FileCraft.Services
         {
             var dialog = new FolderBrowserDialog
             {
-                Description = description
+                Description = description,
+                UseDescriptionForTitle = true
             };
 
             if (dialog.ShowDialog() == DialogResult.OK)

@@ -1,5 +1,9 @@
+<<<<<<< Updated upstream
 ﻿using FileCraft.Services;
 using FileCraft.Services.Interfaces;
+=======
+﻿using FileCraft.Services.Interfaces;
+>>>>>>> Stashed changes
 using FileCraft.ViewModels;
 using System.Windows;
 
@@ -34,7 +38,7 @@ namespace FileCraft
         private void SourceBrowseButton_Click(object sender, RoutedEventArgs e)
         {
             var selectedPath = _dialogService.SelectFolder("Select the common source folder");
-            if (selectedPath != null)
+            if (!string.IsNullOrEmpty(selectedPath))
             {
                 _viewModel.SourcePath = selectedPath;
             }
@@ -43,7 +47,7 @@ namespace FileCraft
         private void DestinationBrowseButton_Click(object sender, RoutedEventArgs e)
         {
             var selectedPath = _dialogService.SelectFolder("Select the common destination folder");
-            if (selectedPath != null)
+            if (!string.IsNullOrEmpty(selectedPath))
             {
                 _viewModel.DestinationPath = selectedPath;
             }
