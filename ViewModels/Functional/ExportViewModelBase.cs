@@ -5,16 +5,11 @@ namespace FileCraft.ViewModels.Functional
 {
     public abstract class ExportViewModelBase : BaseViewModel
     {
-        #region Fields
 
         protected readonly ISharedStateService _sharedStateService;
         protected readonly IFileOperationService _fileOperationService;
         protected readonly IDialogService _dialogService;
         protected readonly ISettingsService _settingsService;
-
-        #endregion
-
-        #region Properties
 
         private string _outputFileName = "ExportedFile";
         public string OutputFileName
@@ -30,7 +25,7 @@ namespace FileCraft.ViewModels.Functional
             }
         }
 
-        private bool _appendTimestamp = true;
+        private bool _appendTimestamp = false;
         public bool AppendTimestamp
         {
             get => _appendTimestamp;
@@ -46,10 +41,6 @@ namespace FileCraft.ViewModels.Functional
 
         public FolderTreeManager FolderTreeManager { get; }
 
-        #endregion
-
-        #region Constructor
-
         protected ExportViewModelBase(
             ISharedStateService sharedStateService,
             IFileOperationService fileOperationService,
@@ -63,10 +54,6 @@ namespace FileCraft.ViewModels.Functional
             _settingsService = settingsService;
             FolderTreeManager = folderTreeManager;
         }
-
-        #endregion
-
-        #region Protected Methods
 
         protected virtual bool CanExecuteOperation()
         {
@@ -93,7 +80,5 @@ namespace FileCraft.ViewModels.Functional
             };
             _settingsService.SaveSettings(settings);
         }
-
-        #endregion
     }
 }

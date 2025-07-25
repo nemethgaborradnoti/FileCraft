@@ -110,7 +110,7 @@
                 </TextBlock>
             </StackPanel>
             <controls:ExportOptionsControl DataContext="{Binding}" />
-            <Button Content="Export Selected File Contents" 
+            <Button Content="Export File Contents" 
                     Command="{Binding ExportFileContentCommand}"/>
         </StackPanel>
     </Grid>
