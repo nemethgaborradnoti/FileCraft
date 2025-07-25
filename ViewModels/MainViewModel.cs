@@ -25,11 +25,6 @@ namespace FileCraft.ViewModels
                     _sharedStateService.SourcePath = value;
                     OnPropertyChanged();
                     FolderTreeManager.LoadTreeForPath(value);
-
-                    if (!_isLoading)
-                    {
-                        SaveSettings();
-                    }
                 }
             }
         }
@@ -43,11 +38,6 @@ namespace FileCraft.ViewModels
                 {
                     _sharedStateService.DestinationPath = value;
                     OnPropertyChanged();
-
-                    if (!_isLoading)
-                    {
-                        SaveSettings();
-                    }
                 }
             }
         }
