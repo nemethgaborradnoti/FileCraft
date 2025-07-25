@@ -11,6 +11,7 @@ namespace FileCraft.ViewModels
     {
         private readonly ISettingsService _settingsService;
         private readonly ISharedStateService _sharedStateService;
+        private bool _isLoading = false;
 
         public FolderTreeManager FolderTreeManager { get; }
 
@@ -24,7 +25,11 @@ namespace FileCraft.ViewModels
                     _sharedStateService.SourcePath = value;
                     OnPropertyChanged();
                     FolderTreeManager.LoadTreeForPath(value);
-                    SaveSettings();
+
+                    if (!_isLoading)
+                    {
+                        SaveSettings();
+                    }
                 }
             }
         }
@@ -38,7 +43,11 @@ namespace FileCraft.ViewModels
                 {
                     _sharedStateService.DestinationPath = value;
                     OnPropertyChanged();
-                    SaveSettings();
+
+                    if (!_isLoading)
+                    {
+                        SaveSettings();
+                    }
                 }
             }
         }
@@ -80,9 +89,14 @@ namespace FileCraft.ViewModels
 
         private void LoadSettings()
         {
+            _isLoading = true;
+
             Settings settings = _settingsService.LoadSettings();
-            DestinationPath = settings.DestinationPath;
+
             SourcePath = settings.SourcePath;
+            DestinationPath = settings.DestinationPath;
+
+            _isLoading = false;
         }
 
         public void SaveSettings()
