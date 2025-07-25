@@ -1,4 +1,5 @@
-﻿using System.Windows.Input;
+﻿using FileCraft.Shared.Helpers;
+using System.Windows.Input;
 
 namespace FileCraft.Views
 {
@@ -11,19 +12,7 @@ namespace FileCraft.Views
 
         private void FolderTreeCheckBox_PreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
-            if (sender is System.Windows.Controls.CheckBox checkBox)
-            {
-                e.Handled = true;
-
-                if (checkBox.IsChecked == true)
-                {
-                    checkBox.IsChecked = false;
-                }
-                else
-                {
-                    checkBox.IsChecked = true;
-                }
-            }
+            TreeViewItemHelper.HandlePreviewMouseDown(sender, e);
         }
     }
 }

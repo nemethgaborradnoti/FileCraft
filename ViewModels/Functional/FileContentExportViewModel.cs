@@ -9,34 +9,13 @@ using System.Windows.Input;
 
 namespace FileCraft.ViewModels.Functional
 {
-    public class FileContentExportViewModel : BaseViewModel
+    public class FileContentExportViewModel : ExportViewModelBase
     {
-        #region Fields
-        private readonly ISharedStateService _sharedStateService;
-        private readonly IFileOperationService _fileOperationService;
-        private readonly IDialogService _dialogService;
-        private readonly ISettingsService _settingsService;
         private readonly IFileQueryService _fileQueryService;
-
-        private string _outputFileName = "FileContentsExport";
-        private bool _appendTimestamp = true;
         private int _availableFilesCount;
         private int _selectedFilesCount;
-        #endregion
 
         #region Properties
-        public string OutputFileName
-        {
-            get => _outputFileName;
-            set { _outputFileName = value; OnPropertyChanged(); }
-        }
-
-        public bool AppendTimestamp
-        {
-            get => _appendTimestamp;
-            set { _appendTimestamp = value; OnPropertyChanged(); }
-        }
-
         public int AvailableFilesCount
         {
             get => _availableFilesCount;
@@ -49,7 +28,6 @@ namespace FileCraft.ViewModels.Functional
             set { _selectedFilesCount = value; OnPropertyChanged(); }
         }
 
-        public FolderTreeManager FolderTreeManager { get; }
         public ObservableCollection<SelectableFile> SelectableFiles { get; } = new ObservableCollection<SelectableFile>();
         public ObservableCollection<SelectableItemViewModel> AvailableExtensions { get; } = new ObservableCollection<SelectableItemViewModel>();
         public ObservableCollection<FolderViewModel> RootFolders => FolderTreeManager.RootFolders;
@@ -67,16 +45,13 @@ namespace FileCraft.ViewModels.Functional
             ISharedStateService sharedStateService,
             IFileOperationService fileOperationService,
             IDialogService dialogService,
-            FolderTreeManager folderTreeManager,
             ISettingsService settingsService,
+            FolderTreeManager folderTreeManager,
             IFileQueryService fileQueryService)
+            : base(sharedStateService, fileOperationService, dialogService, settingsService, folderTreeManager)
         {
-            _sharedStateService = sharedStateService;
-            _fileOperationService = fileOperationService;
-            _dialogService = dialogService;
-            FolderTreeManager = folderTreeManager;
-            _settingsService = settingsService;
             _fileQueryService = fileQueryService;
+            OutputFileName = "FileContentsExport";
 
             FolderTreeManager.PropertyChanged += OnFolderTreeManagerPropertyChanged;
             FolderTreeManager.FolderSelectionChanged += OnFolderSelectionChanged;
@@ -91,6 +66,11 @@ namespace FileCraft.ViewModels.Functional
             UpdateCounts();
         }
 
+        protected override bool CanExecuteOperation()
+        {
+            return base.CanExecuteOperation() && SelectableFiles.Any(f => f.IsSelected);
+        }
+
         private void OnFolderTreeManagerPropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == nameof(FolderTreeManager.RootFolders))
@@ -98,14 +78,6 @@ namespace FileCraft.ViewModels.Functional
                 OnFolderSelectionChanged();
                 OnPropertyChanged(nameof(RootFolders));
             }
-        }
-
-        private bool CanExecuteOperation()
-        {
-            return !string.IsNullOrWhiteSpace(_sharedStateService.SourcePath) &&
-                   !string.IsNullOrWhiteSpace(_sharedStateService.DestinationPath) &&
-                   !string.IsNullOrWhiteSpace(OutputFileName) &&
-                   !IsBusy;
         }
 
         private void OnFolderSelectionChanged()
@@ -117,7 +89,6 @@ namespace FileCraft.ViewModels.Functional
         private void UpdateAvailableExtensions()
         {
             var selectedFolders = GetSelectedFoldersForFileListing();
-
             var extensions = _fileQueryService.GetAvailableExtensions(selectedFolders);
 
             System.Windows.Application.Current.Dispatcher.Invoke(() =>
@@ -191,20 +162,12 @@ namespace FileCraft.ViewModels.Functional
                     return;
                 }
 
-                string finalFileName = AppendTimestamp
-                    ? $"{OutputFileName}_{DateTime.Now:yyyy_MM_dd_HH_mm_ss}"
-                    : OutputFileName;
+                string finalFileName = GetFinalFileName();
 
                 string outputFilePath = await _fileOperationService.ExportSelectedFileContentsAsync(_sharedStateService.DestinationPath, selectedPaths, finalFileName);
                 _dialogService.ShowNotification("Success", $"File contents exported successfully!\n\n{selectedPaths.Count} files were processed.\nSaved to: {outputFilePath}");
 
-                var settings = new Settings
-                {
-                    SourcePath = _sharedStateService.SourcePath,
-                    DestinationPath = _sharedStateService.DestinationPath,
-                    FolderTreeState = FolderTreeManager.GetFolderStates()
-                };
-                _settingsService.SaveSettings(settings);
+                SaveSettings();
             }
             catch (Exception ex)
             {
