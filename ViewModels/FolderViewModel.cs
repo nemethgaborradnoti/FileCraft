@@ -72,11 +72,6 @@ namespace FileCraft.ViewModels
                         child.OnPropertyChanged(nameof(IsSelected));
                         child._onStateChanged?.Invoke();
 
-                        if (_isSelected.Value && !child.IsExpanded)
-                        {
-                            child.IsExpanded = true;
-                        }
-
                         foreach (var grandChild in child.Children)
                         {
                             queue.Enqueue(grandChild);
