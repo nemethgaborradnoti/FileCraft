@@ -13,9 +13,10 @@ namespace FileCraft.ViewModels.Functional
 {
     public class FileContentExportViewModel : BaseViewModel
     {
-        private readonly MainViewModel _mainViewModel;
+        private readonly ISharedStateService _sharedStateService;
         private readonly IFileOperationService _fileOperationService;
         private readonly IDialogService _dialogService;
+        private readonly ISettingsService _settingsService;
 
         private string _outputFileName = "FileContentsExport";
         public string OutputFileName
@@ -74,12 +75,18 @@ namespace FileCraft.ViewModels.Functional
         public ICommand SelectAllExtensionsCommand { get; }
         public ICommand DeselectAllExtensionsCommand { get; }
 
-        public FileContentExportViewModel(MainViewModel mainViewModel, IFileOperationService fileOperationService, IDialogService dialogService, FolderTreeManager folderTreeManager)
+        public FileContentExportViewModel(
+            ISharedStateService sharedStateService,
+            IFileOperationService fileOperationService,
+            IDialogService dialogService,
+            FolderTreeManager folderTreeManager,
+            ISettingsService settingsService)
         {
-            _mainViewModel = mainViewModel;
+            _sharedStateService = sharedStateService;
             _fileOperationService = fileOperationService;
             _dialogService = dialogService;
             FolderTreeManager = folderTreeManager;
+            _settingsService = settingsService;
 
             FolderTreeManager.PropertyChanged += OnFolderTreeManagerPropertyChanged;
             FolderTreeManager.FolderSelectionChanged += OnFolderSelectionChanged;
@@ -105,8 +112,8 @@ namespace FileCraft.ViewModels.Functional
 
         private bool CanExecuteOperation()
         {
-            return !string.IsNullOrWhiteSpace(_mainViewModel.SourcePath) &&
-                   !string.IsNullOrWhiteSpace(_mainViewModel.DestinationPath) &&
+            return !string.IsNullOrWhiteSpace(_sharedStateService.SourcePath) &&
+                   !string.IsNullOrWhiteSpace(_sharedStateService.DestinationPath) &&
                    !string.IsNullOrWhiteSpace(OutputFileName) &&
                    !IsBusy;
         }
@@ -220,9 +227,16 @@ namespace FileCraft.ViewModels.Functional
                     ? $"{OutputFileName}_{DateTime.Now:yyyy_MM_dd_HH_mm_ss}"
                     : OutputFileName;
 
-                string outputFilePath = await _fileOperationService.ExportSelectedFileContentsAsync(_mainViewModel.DestinationPath, selectedPaths, finalFileName);
+                string outputFilePath = await _fileOperationService.ExportSelectedFileContentsAsync(_sharedStateService.DestinationPath, selectedPaths, finalFileName);
                 _dialogService.ShowNotification("Success", $"File contents exported successfully!\n\n{selectedPaths.Count} files were processed.\nSaved to: {outputFilePath}");
-                _mainViewModel.SaveSettings();
+
+                var settings = new Settings
+                {
+                    SourcePath = _sharedStateService.SourcePath,
+                    DestinationPath = _sharedStateService.DestinationPath,
+                    FolderTreeState = FolderTreeManager.GetFolderStates()
+                };
+                _settingsService.SaveSettings(settings);
             }
             catch (Exception ex)
             {

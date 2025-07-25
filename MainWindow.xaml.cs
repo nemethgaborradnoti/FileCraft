@@ -1,9 +1,4 @@
-<<<<<<< Updated upstream
-﻿using FileCraft.Services;
 using FileCraft.Services.Interfaces;
-=======
-﻿using FileCraft.Services.Interfaces;
->>>>>>> Stashed changes
 using FileCraft.ViewModels;
 using System.Windows;
 
@@ -14,19 +9,13 @@ namespace FileCraft
         private readonly MainViewModel _viewModel;
         private readonly IDialogService _dialogService;
 
-        public MainWindow()
+        public MainWindow(MainViewModel viewModel, IDialogService dialogService)
         {
             InitializeComponent();
-
-            IDialogService dialogService = new DialogService();
-            IFileOperationService fileOperationService = new FileOperationService();
-
-            _viewModel = new MainViewModel(fileOperationService, dialogService);
-
+            _viewModel = viewModel;
             _dialogService = dialogService;
 
             this.DataContext = _viewModel;
-
             this.Closing += MainWindow_Closing;
         }
 
