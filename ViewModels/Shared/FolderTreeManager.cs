@@ -74,12 +74,17 @@ namespace FileCraft.ViewModels.Shared
 
         private void ExtractStateFromNode(FolderViewModel node, List<FolderState> states)
         {
-            states.Add(new FolderState
+            bool isDefaultState = node.IsSelected == true && node.IsExpanded == true;
+
+            if (!isDefaultState)
             {
-                FullPath = node.FullPath,
-                IsSelected = node.IsSelected,
-                IsExpanded = node.IsExpanded
-            });
+                states.Add(new FolderState
+                {
+                    FullPath = node.FullPath,
+                    IsSelected = node.IsSelected,
+                    IsExpanded = node.IsExpanded
+                });
+            }
 
             foreach (var child in node.Children)
             {
