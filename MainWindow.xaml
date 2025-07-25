@@ -28,15 +28,16 @@
             </Grid.ColumnDefinitions>
 
             <!-- Source Folder Column -->
-            <GroupBox Grid.Column="0" Header="Source Folder" Margin="0,0,5,0" Padding="5">
+            <GroupBox Grid.Column="0" Header="Source Folder" Margin="0,0,5,0">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
 
-                    <!-- The TextBox text is bound to the SourcePath property in the ViewModel. -->
-                    <TextBox Grid.Column="0" Margin="0,0,10,0" IsReadOnly="True" Background="#eee" VerticalContentAlignment="Center"
+                    <!-- This TextBox now uses a centralized style for a consistent look. -->
+                    <TextBox Grid.Column="0" Margin="0,0,10,0" 
+                             Style="{StaticResource ReadOnlyPathTextBoxStyle}"
                              Text="{Binding SourcePath, Mode=OneWay}"
                              ToolTip="{Binding SourcePath}"/>
 
@@ -45,7 +46,7 @@
             </GroupBox>
 
             <!-- Destination Folder Column -->
-            <GroupBox Grid.Column="1" Header="Destination Folder" Margin="5,0,0,0" Padding="5">
+            <GroupBox Grid.Column="1" Header="Destination Folder" Margin="5,0,0,0">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
@@ -53,8 +54,9 @@
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
 
-                    <!-- The TextBox text is bound to the DestinationPath property in the ViewModel. -->
-                    <TextBox Grid.Column="0" Margin="0,0,10,0" IsReadOnly="True" Background="#eee" VerticalContentAlignment="Center"
+                    <!-- This TextBox also uses the centralized style. -->
+                    <TextBox Grid.Column="0" Margin="0,0,10,0" 
+                             Style="{StaticResource ReadOnlyPathTextBoxStyle}"
                              Text="{Binding DestinationPath, Mode=OneWay}"
                              ToolTip="{Binding DestinationPath}"/>
 
