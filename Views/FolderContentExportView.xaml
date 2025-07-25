@@ -15,20 +15,10 @@
         </Grid.RowDefinitions>
 
         <!-- Folders to Include Section -->
-        <GroupBox Grid.Row="0" Header="Folders to Include" Margin="5">
-            <TreeView ItemsSource="{Binding RootFolders}" BorderThickness="0">
-                <TreeView.ItemContainerStyle>
-                    <Style TargetType="{x:Type TreeViewItem}">
-                        <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
-                        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-                        <Setter Property="Padding" Value="2"/>
-                        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
-                        <Style.Resources>
-                            <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Transparent" />
-                            <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}" Color="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}" />
-                        </Style.Resources>
-                    </Style>
-                </TreeView.ItemContainerStyle>
+        <GroupBox Grid.Row="0" Header="Folders to Include">
+            <!-- The ItemContainerStyle is now referenced from the shared resource dictionary -->
+            <TreeView ItemsSource="{Binding RootFolders}" BorderThickness="0"
+                      ItemContainerStyle="{StaticResource SharedTreeViewItemStyle}">
                 <TreeView.ItemTemplate>
                     <HierarchicalDataTemplate ItemsSource="{Binding Children}">
                         <StackPanel Orientation="Horizontal">
@@ -45,8 +35,7 @@
         <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="10">
             <controls:ExportOptionsControl DataContext="{Binding}" />
             <Button Content="Export Contents (.txt)" 
-                    Command="{Binding ExportFolderContentsCommand}" 
-                    Padding="10,5"/>
+                    Command="{Binding ExportFolderContentsCommand}"/>
         </StackPanel>
     </Grid>
 </UserControl>

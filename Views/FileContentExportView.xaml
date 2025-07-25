@@ -23,20 +23,10 @@
             </Grid.ColumnDefinitions>
 
             <!-- Folders to Include -->
-            <GroupBox Grid.Column="0" Header="Folders to Include" Margin="5">
-                <TreeView ItemsSource="{Binding RootFolders}" Height="250" BorderThickness="0">
-                    <TreeView.ItemContainerStyle>
-                        <Style TargetType="{x:Type TreeViewItem}">
-                            <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
-                            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-                            <Setter Property="Padding" Value="2"/>
-                            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
-                            <Style.Resources>
-                                <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Transparent" />
-                                <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}" Color="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}" />
-                            </Style.Resources>
-                        </Style>
-                    </TreeView.ItemContainerStyle>
+            <GroupBox Grid.Column="0" Header="Folders to Include">
+                <!-- The ItemContainerStyle is now referenced from the shared resource dictionary -->
+                <TreeView ItemsSource="{Binding RootFolders}" Height="250" BorderThickness="0"
+                          ItemContainerStyle="{StaticResource SharedTreeViewItemStyle}">
                     <TreeView.ItemTemplate>
                         <HierarchicalDataTemplate ItemsSource="{Binding Children}">
                             <CheckBox IsChecked="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" IsThreeState="True" VerticalAlignment="Center" Content="{Binding Name}"
@@ -47,13 +37,13 @@
             </GroupBox>
 
             <!-- File extensions to include -->
-            <GroupBox Grid.Column="1" Header="File extensions to include" Margin="5">
+            <GroupBox Grid.Column="1" Header="File extensions to include">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
-                    <Border BorderBrush="LightGray" BorderThickness="0,0,0,1" Padding="4,2">
+                    <Border BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1" Padding="4,2">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/>
@@ -63,21 +53,9 @@
                             <TextBlock Grid.Column="1" Text="Extension" FontWeight="SemiBold" Margin="5,0,0,0" VerticalAlignment="Center"/>
                         </Grid>
                     </Border>
-                    <ListView Grid.Row="1" ItemsSource="{Binding AvailableExtensions}" ScrollViewer.HorizontalScrollBarVisibility="Disabled" BorderThickness="0" Height="250">
-                        <ListView.ItemContainerStyle>
-                            <Style TargetType="ListViewItem">
-                                <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-                                <Setter Property="Padding" Value="4,1"/>
-                                <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
-                                <Style.Triggers>
-                                    <Trigger Property="IsSelected" Value="True">
-                                        <Setter Property="Background" Value="Transparent"/>
-                                        <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>
-                                        <Setter Property="BorderBrush" Value="Transparent"/>
-                                    </Trigger>
-                                </Style.Triggers>
-                            </Style>
-                        </ListView.ItemContainerStyle>
+                    <!-- The ItemContainerStyle is now referenced from the shared resource dictionary -->
+                    <ListView Grid.Row="1" ItemsSource="{Binding AvailableExtensions}" ScrollViewer.HorizontalScrollBarVisibility="Disabled" BorderThickness="0" Height="250"
+                              ItemContainerStyle="{StaticResource SharedListViewItemStyle}">
                         <ListView.ItemTemplate>
                             <DataTemplate>
                                 <CheckBox IsChecked="{Binding IsSelected}" Content="{Binding Name}" VerticalAlignment="Center"/>
@@ -89,13 +67,13 @@
         </Grid>
 
         <!-- Section for selected files -->
-        <GroupBox Grid.Row="1" Header="Files to Export" Margin="5">
+        <GroupBox Grid.Row="1" Header="Files to Export">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
-                <Border BorderBrush="LightGray" BorderThickness="0,0,0,1" Padding="4,2">
+                <Border BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1" Padding="4,2">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
@@ -105,21 +83,9 @@
                         <TextBlock Grid.Column="1" Text="File Path" FontWeight="SemiBold" Margin="5,0,0,0" VerticalAlignment="Center"/>
                     </Grid>
                 </Border>
-                <ListView Grid.Row="1" ItemsSource="{Binding SelectableFiles}" ScrollViewer.HorizontalScrollBarVisibility="Disabled" BorderThickness="0">
-                    <ListView.ItemContainerStyle>
-                        <Style TargetType="ListViewItem">
-                            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-                            <Setter Property="Padding" Value="4,1"/>
-                            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
-                            <Style.Triggers>
-                                <Trigger Property="IsSelected" Value="True">
-                                    <Setter Property="Background" Value="Transparent"/>
-                                    <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>
-                                    <Setter Property="BorderBrush" Value="Transparent"/>
-                                </Trigger>
-                            </Style.Triggers>
-                        </Style>
-                    </ListView.ItemContainerStyle>
+                <!-- The ItemContainerStyle is now referenced from the shared resource dictionary -->
+                <ListView Grid.Row="1" ItemsSource="{Binding SelectableFiles}" ScrollViewer.HorizontalScrollBarVisibility="Disabled" BorderThickness="0"
+                          ItemContainerStyle="{StaticResource SharedListViewItemStyle}">
                     <ListView.ItemTemplate>
                         <DataTemplate>
                             <CheckBox IsChecked="{Binding IsSelected}" VerticalAlignment="Center">
@@ -145,8 +111,7 @@
             </StackPanel>
             <controls:ExportOptionsControl DataContext="{Binding}" />
             <Button Content="Export Selected File Contents" 
-                    Command="{Binding ExportFileContentCommand}" 
-                    Padding="10,5"/>
+                    Command="{Binding ExportFileContentCommand}"/>
         </StackPanel>
     </Grid>
 </UserControl>
