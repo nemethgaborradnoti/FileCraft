@@ -31,6 +31,7 @@ namespace FileCraft
             services.RegisterSingleton<ISettingsService, SettingsService>();
             services.RegisterSingleton<ISharedStateService, SharedStateService>();
 
+            services.RegisterSingleton<IFileQueryService, FileQueryService>();
             services.RegisterSingleton<FolderTreeManager, FolderTreeManager>();
 
             services.RegisterSingleton<FileContentExportViewModel, FileContentExportViewModel>();
