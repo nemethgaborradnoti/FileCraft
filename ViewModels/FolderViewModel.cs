@@ -10,7 +10,7 @@ namespace FileCraft.ViewModels
         private bool? _isSelected;
         private bool _isExpanded;
         private readonly Action _onStateChanged;
-
+        private bool _isProcessingSelectionChange = false;
         public string Name { get; }
         public string FullPath { get; }
         public FolderViewModel? Parent { get; }
@@ -33,7 +33,11 @@ namespace FileCraft.ViewModels
         public bool? IsSelected
         {
             get => _isSelected;
-            set => SetIsSelected(value, updateChildren: true, updateParent: true);
+            set
+            {
+                if (_isProcessingSelectionChange) return;
+                SetIsSelected(value, updateChildren: true, updateParent: true);
+            }
         }
 
         public FolderViewModel(string name, string fullPath, FolderViewModel? parent, Action onStateChanged)
@@ -50,47 +54,67 @@ namespace FileCraft.ViewModels
         {
             if (_isSelected == value) return;
 
-            _isSelected = value;
-            OnPropertyChanged(nameof(IsSelected));
-
-            if (updateChildren && _isSelected.HasValue)
+            _isProcessingSelectionChange = true;
+            try
             {
-                if (_isSelected.Value)
+                _isSelected = value;
+                OnPropertyChanged(nameof(IsSelected));
+                _onStateChanged?.Invoke();
+
+                if (updateChildren && _isSelected.HasValue)
                 {
-                    SetIsExpandedRecursively(true);
-                }
-                else
-                {
-                    IsExpanded = false;
+                    var queue = new Queue<FolderViewModel>(Children);
+                    while (queue.Count > 0)
+                    {
+                        var child = queue.Dequeue();
+
+                        child._isSelected = _isSelected;
+                        child.OnPropertyChanged(nameof(IsSelected));
+                        child._onStateChanged?.Invoke();
+
+                        if (_isSelected.Value && !child.IsExpanded)
+                        {
+                            child.IsExpanded = true;
+                        }
+
+                        foreach (var grandChild in child.Children)
+                        {
+                            queue.Enqueue(grandChild);
+                        }
+                    }
                 }
 
-                foreach (var child in Children)
+                if (updateParent && Parent != null)
                 {
-                    child.SetIsSelected(_isSelected, true, false);
+                    Parent.VerifyCheckState();
                 }
             }
-
-            if (updateParent && Parent != null)
+            finally
             {
-                Parent.VerifyCheckState();
+                _isProcessingSelectionChange = false;
             }
-
-            _onStateChanged?.Invoke();
         }
 
         private void VerifyCheckState()
         {
-            bool? state = null;
-            if (Children.All(c => c.IsSelected == true))
+            bool? state;
+            if (Children.Any() && Children.All(c => c.IsSelected == true))
             {
                 state = true;
             }
-            else if (Children.All(c => c.IsSelected == false))
+            else if (Children.Any() && Children.All(c => c.IsSelected == false))
             {
                 state = false;
             }
+            else
+            {
+                state = null;
+            }
 
-            SetIsSelected(state, false, true);
+            if (_isSelected != state)
+            {
+                SetIsSelected(state, false, true);
+            }
         }
 
         public void ApplyState(FolderState state)
@@ -104,12 +128,22 @@ namespace FileCraft.ViewModels
 
         public void SetIsExpandedRecursively(bool isExpanded)
         {
-            IsExpanded = isExpanded;
-            foreach (var child in Children)
+            var queue = new Queue<FolderViewModel>();
+            queue.Enqueue(this);
+
+            while (queue.Count > 0)
             {
-                child.SetIsExpandedRecursively(isExpanded);
+                var node = queue.Dequeue();
+                if (node.IsExpanded != isExpanded)
+                {
+                    node.IsExpanded = isExpanded;
+                }
+
+                foreach (var child in node.Children)
+                {
+                    queue.Enqueue(child);
+                }
             }
-            _onStateChanged?.Invoke();
         }
 
         public IEnumerable<FolderViewModel> GetAllNodes()
