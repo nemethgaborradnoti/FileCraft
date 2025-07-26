@@ -5,17 +5,33 @@ using FileCraft.Shared.Helpers;
 using FileCraft.ViewModels.Shared;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Linq;
 using System.Windows.Input;
+using Timer = System.Threading.Timer;
 
 namespace FileCraft.ViewModels.Functional
 {
     public class FileContentExportViewModel : ExportViewModelBase
     {
         private readonly IFileQueryService _fileQueryService;
+        private readonly Timer _debounceTimer;
+        private string _searchFilter = string.Empty;
+
+        private readonly ObservableCollection<SelectableFile> _allSelectableFiles = new();
+
+        public ObservableCollection<SelectableFile> FilteredSelectableFiles { get; } = new();
+
+        private int _totalFilesCount;
         private int _availableFilesCount;
         private int _selectedFilesCount;
         private bool? _areAllFilesSelected;
         private bool? _areAllExtensionsSelected;
+
+        public int TotalFilesCount
+        {
+            get => _totalFilesCount;
+            set { _totalFilesCount = value; OnPropertyChanged(); }
+        }
 
         public int AvailableFilesCount
         {
@@ -29,20 +45,33 @@ namespace FileCraft.ViewModels.Functional
             set { _selectedFilesCount = value; OnPropertyChanged(); }
         }
 
+        public string SearchFilter
+        {
+            get => _searchFilter;
+            set
+            {
+                if (_searchFilter != value)
+                {
+                    _searchFilter = value;
+                    OnPropertyChanged();
+                    _debounceTimer.Change(300, Timeout.Infinite);
+                }
+            }
+        }
+
         public bool? AreAllFilesSelected
         {
             get => _areAllFilesSelected;
             set
             {
-                if (value.HasValue && _areAllFilesSelected != value)
+                bool selectAll = (_areAllFilesSelected != true);
+                if (selectAll)
                 {
-                    if (value.Value)
-                        SelectAllFilesCommand.Execute(null);
-                    else
-                        DeselectAllFilesCommand.Execute(null);
-
-                    _areAllFilesSelected = value;
-                    OnPropertyChanged();
+                    SelectAllFilesCommand.Execute(null);
+                }
+                else
+                {
+                    DeselectAllFilesCommand.Execute(null);
                 }
             }
         }
@@ -52,20 +81,18 @@ namespace FileCraft.ViewModels.Functional
             get => _areAllExtensionsSelected;
             set
             {
-                if (value.HasValue && _areAllExtensionsSelected != value)
+                bool selectAll = (_areAllExtensionsSelected != true);
+                if (selectAll)
                 {
-                    if (value.Value)
-                        SelectAllExtensionsCommand.Execute(null);
-                    else
-                        DeselectAllExtensionsCommand.Execute(null);
-
-                    _areAllExtensionsSelected = value;
-                    OnPropertyChanged();
+                    SelectAllExtensionsCommand.Execute(null);
+                }
+                else
+                {
+                    DeselectAllExtensionsCommand.Execute(null);
                 }
             }
         }
 
-        public ObservableCollection<SelectableFile> SelectableFiles { get; } = new ObservableCollection<SelectableFile>();
         public ObservableCollection<SelectableItemViewModel> AvailableExtensions { get; } = new ObservableCollection<SelectableItemViewModel>();
         public ObservableCollection<FolderViewModel> RootFolders => FolderTreeManager.RootFolders;
 
@@ -87,23 +114,85 @@ namespace FileCraft.ViewModels.Functional
             _fileQueryService = fileQueryService;
             OutputFileName = "FileContentsExport";
 
+            _debounceTimer = new Timer(OnDebounceTimerElapsed, null, Timeout.Infinite, Timeout.Infinite);
+
             FolderTreeManager.PropertyChanged += OnFolderTreeManagerPropertyChanged;
             FolderTreeManager.FolderSelectionChanged += OnFolderSelectionChanged;
 
-            ExportFileContentCommand = new RelayCommand(async (_) => await ExportFileContentAsync(), (_) => CanExecuteOperation() && SelectableFiles.Any(f => f.IsSelected));
-            SelectAllFilesCommand = new RelayCommand(_ => SelectionHelper.SetSelectionState(SelectableFiles, true), _ => SelectableFiles.Any());
-            DeselectAllFilesCommand = new RelayCommand(_ => SelectionHelper.SetSelectionState(SelectableFiles, false), _ => SelectableFiles.Any());
-            SelectAllExtensionsCommand = new RelayCommand(_ => SelectionHelper.SetSelectionState(AvailableExtensions, true), _ => AvailableExtensions.Any());
-            DeselectAllExtensionsCommand = new RelayCommand(_ => SelectionHelper.SetSelectionState(AvailableExtensions, false), _ => AvailableExtensions.Any());
+            ExportFileContentCommand = new RelayCommand(async (_) => await ExportFileContentAsync(), (_) => CanExecuteOperation() && _allSelectableFiles.Any(f => f.IsSelected));
+
+            SelectAllFilesCommand = new RelayCommand(_ => SetFilteredFilesSelectionState(true), _ => FilteredSelectableFiles.Any());
+            DeselectAllFilesCommand = new RelayCommand(_ => SetFilteredFilesSelectionState(false), _ => FilteredSelectableFiles.Any());
+
+            SelectAllExtensionsCommand = new RelayCommand(_ => SetExtensionsSelectionState(true), _ => AvailableExtensions.Any());
+            DeselectAllExtensionsCommand = new RelayCommand(_ => SetExtensionsSelectionState(false), _ => AvailableExtensions.Any());
 
             OnFolderSelectionChanged();
             UpdateFileCounts();
             UpdateExtensionCounts();
         }
 
+        private void SetFilteredFilesSelectionState(bool isSelected)
+        {
+            foreach (var file in FilteredSelectableFiles)
+            {
+                file.PropertyChanged -= OnFileSelectionChanged;
+            }
+
+            SelectionHelper.SetSelectionState(FilteredSelectableFiles, isSelected);
+
+            foreach (var file in FilteredSelectableFiles)
+            {
+                file.PropertyChanged += OnFileSelectionChanged;
+            }
+
+            UpdateFileCounts();
+        }
+
+        private void SetExtensionsSelectionState(bool isSelected)
+        {
+            foreach (var ext in AvailableExtensions)
+            {
+                ext.PropertyChanged -= OnExtensionSelectionChanged;
+            }
+
+            SelectionHelper.SetSelectionState(AvailableExtensions, isSelected);
+
+            foreach (var ext in AvailableExtensions)
+            {
+                ext.PropertyChanged += OnExtensionSelectionChanged;
+            }
+
+            UpdateSelectableFiles();
+            UpdateExtensionCounts();
+        }
+
+        private void OnDebounceTimerElapsed(object? state)
+        {
+            ApplyFileFilter();
+        }
+
+        private void ApplyFileFilter()
+        {
+            System.Windows.Application.Current.Dispatcher.Invoke(() =>
+            {
+                FilteredSelectableFiles.Clear();
+
+                var filtered = string.IsNullOrWhiteSpace(SearchFilter)
+                    ? _allSelectableFiles
+                    : _allSelectableFiles.Where(f => f.FullPath.IndexOf(SearchFilter, StringComparison.OrdinalIgnoreCase) >= 0);
+
+                foreach (var file in filtered)
+                {
+                    FilteredSelectableFiles.Add(file);
+                }
+                UpdateFileCounts();
+            });
+        }
+
         protected override bool CanExecuteOperation()
         {
-            return base.CanExecuteOperation() && SelectableFiles.Any(f => f.IsSelected);
+            return base.CanExecuteOperation() && _allSelectableFiles.Any(f => f.IsSelected);
         }
 
         private void OnFolderTreeManagerPropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -156,18 +245,18 @@ namespace FileCraft.ViewModels.Functional
 
             System.Windows.Application.Current.Dispatcher.Invoke(() =>
             {
-                foreach (var file in SelectableFiles)
+                foreach (var file in _allSelectableFiles)
                 {
                     file.PropertyChanged -= OnFileSelectionChanged;
                 }
-                SelectableFiles.Clear();
+                _allSelectableFiles.Clear();
 
                 foreach (var file in files.OrderBy(f => f.FullPath))
                 {
                     file.PropertyChanged += OnFileSelectionChanged;
-                    SelectableFiles.Add(file);
+                    _allSelectableFiles.Add(file);
                 }
-                UpdateFileCounts();
+                ApplyFileFilter();
             });
         }
 
@@ -190,22 +279,36 @@ namespace FileCraft.ViewModels.Functional
 
         private void UpdateFileCounts()
         {
-            AvailableFilesCount = SelectableFiles.Count;
-            SelectedFilesCount = SelectableFiles.Count(f => f.IsSelected);
+            TotalFilesCount = _allSelectableFiles.Count;
+            AvailableFilesCount = FilteredSelectableFiles.Count;
+            SelectedFilesCount = _allSelectableFiles.Count(f => f.IsSelected);
 
-            if (SelectedFilesCount == 0 && AvailableFilesCount > 0)
+            int selectedInFilter = FilteredSelectableFiles.Count(f => f.IsSelected);
+            int totalInFilter = FilteredSelectableFiles.Count;
+
+            bool? newSelectionState;
+            if (totalInFilter == 0)
             {
-                _areAllFilesSelected = false;
+                newSelectionState = false;
             }
-            else if (SelectedFilesCount == AvailableFilesCount && AvailableFilesCount > 0)
+            else if (selectedInFilter == 0)
             {
-                _areAllFilesSelected = true;
+                newSelectionState = false;
+            }
+            else if (selectedInFilter == totalInFilter)
+            {
+                newSelectionState = true;
             }
             else
             {
-                _areAllFilesSelected = null;
+                newSelectionState = null;
             }
-            OnPropertyChanged(nameof(AreAllFilesSelected));
+
+            if (_areAllFilesSelected != newSelectionState)
+            {
+                _areAllFilesSelected = newSelectionState;
+                OnPropertyChanged(nameof(AreAllFilesSelected));
+            }
         }
 
         private void UpdateExtensionCounts()
@@ -213,19 +316,25 @@ namespace FileCraft.ViewModels.Functional
             int selectedCount = AvailableExtensions.Count(e => e.IsSelected);
             int totalCount = AvailableExtensions.Count;
 
+            bool? newSelectionState;
             if (selectedCount == 0 && totalCount > 0)
             {
-                _areAllExtensionsSelected = false;
+                newSelectionState = false;
             }
             else if (selectedCount == totalCount && totalCount > 0)
             {
-                _areAllExtensionsSelected = true;
+                newSelectionState = true;
             }
             else
             {
-                _areAllExtensionsSelected = null;
+                newSelectionState = null;
             }
-            OnPropertyChanged(nameof(AreAllExtensionsSelected));
+
+            if (_areAllExtensionsSelected != newSelectionState)
+            {
+                _areAllExtensionsSelected = newSelectionState;
+                OnPropertyChanged(nameof(AreAllExtensionsSelected));
+            }
         }
 
         private List<FolderViewModel> GetSelectedFoldersForFileListing()
@@ -239,7 +348,7 @@ namespace FileCraft.ViewModels.Functional
             IsBusy = true;
             try
             {
-                var selectedPaths = SelectableFiles.Where(f => f.IsSelected).Select(f => f.FullPath).ToList();
+                var selectedPaths = _allSelectableFiles.Where(f => f.IsSelected).Select(f => f.FullPath).ToList();
                 if (!selectedPaths.Any())
                 {
                     _dialogService.ShowNotification("Information", "No files were selected. Please select at least one file to export.");
