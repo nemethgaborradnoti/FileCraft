@@ -36,7 +36,9 @@ namespace FileCraft.ViewModels
             set
             {
                 if (_isProcessingSelectionChange) return;
-                SetIsSelected(value, updateChildren: true, updateParent: true);
+
+                bool newSelectionValue = (_isSelected != true);
+                SetIsSelected(newSelectionValue, updateChildren: true, updateParent: true);
             }
         }
 
@@ -68,9 +70,7 @@ namespace FileCraft.ViewModels
                     {
                         var child = queue.Dequeue();
 
-                        child._isSelected = _isSelected;
-                        child.OnPropertyChanged(nameof(IsSelected));
-                        child._onStateChanged?.Invoke();
+                        child.SetIsSelected(_isSelected, false, false);
 
                         foreach (var grandChild in child.Children)
                         {
@@ -106,10 +106,7 @@ namespace FileCraft.ViewModels
                 state = null;
             }
 
-            if (_isSelected != state)
-            {
-                SetIsSelected(state, false, true);
-            }
+            SetIsSelected(state, false, true);
         }
 
         public void ApplyState(FolderState state)
