@@ -15,28 +15,23 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <!-- Section for folder and extension selection -->
         <Grid Grid.Row="0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <!-- Folders to Include -->
             <GroupBox Grid.Column="0" Header="Folders to Include">
-                <!-- The ItemContainerStyle is now referenced from the shared resource dictionary -->
                 <TreeView ItemsSource="{Binding RootFolders}" Height="250" BorderThickness="0"
                           ItemContainerStyle="{StaticResource SharedTreeViewItemStyle}">
                     <TreeView.ItemTemplate>
                         <HierarchicalDataTemplate ItemsSource="{Binding Children}">
-                            <CheckBox IsChecked="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" IsThreeState="True" VerticalAlignment="Center" Content="{Binding Name}"
-                                      PreviewMouseDown="FolderTreeCheckBox_PreviewMouseDown"/>
+                            <CheckBox IsChecked="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" IsThreeState="True" VerticalAlignment="Center" Content="{Binding Name}"/>
                         </HierarchicalDataTemplate>
                     </TreeView.ItemTemplate>
                 </TreeView>
             </GroupBox>
 
-            <!-- File extensions to include -->
             <GroupBox Grid.Column="1" Header="File extensions to include">
                 <Grid>
                     <Grid.RowDefinitions>
@@ -49,11 +44,10 @@
                                 <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
-                            <CheckBox Grid.Column="0" Name="ExtensionsHeaderCheckBox" Checked="OnCheckAllExtensions" Unchecked="OnCheckAllExtensions" VerticalAlignment="Center"/>
+                            <CheckBox Grid.Column="0" IsChecked="{Binding AreAllExtensionsSelected}" IsThreeState="True" VerticalAlignment="Center"/>
                             <TextBlock Grid.Column="1" Text="Extension" FontWeight="SemiBold" Margin="5,0,0,0" VerticalAlignment="Center"/>
                         </Grid>
                     </Border>
-                    <!-- The ItemContainerStyle is now referenced from the shared resource dictionary -->
                     <ListView Grid.Row="1" ItemsSource="{Binding AvailableExtensions}" ScrollViewer.HorizontalScrollBarVisibility="Disabled" BorderThickness="0" Height="250"
                               ItemContainerStyle="{StaticResource SharedListViewItemStyle}">
                         <ListView.ItemTemplate>
@@ -66,7 +60,6 @@
             </GroupBox>
         </Grid>
 
-        <!-- Section for selected files -->
         <GroupBox Grid.Row="1" Header="Files to Export">
             <Grid>
                 <Grid.RowDefinitions>
@@ -79,11 +72,10 @@
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <CheckBox Grid.Column="0" Name="HeaderCheckBox" Checked="OnCheckAll" Unchecked="OnCheckAll" VerticalAlignment="Center"/>
+                        <CheckBox Grid.Column="0" IsChecked="{Binding AreAllFilesSelected}" IsThreeState="True" VerticalAlignment="Center"/>
                         <TextBlock Grid.Column="1" Text="File Path" FontWeight="SemiBold" Margin="5,0,0,0" VerticalAlignment="Center"/>
                     </Grid>
                 </Border>
-                <!-- The ItemContainerStyle is now referenced from the shared resource dictionary -->
                 <ListView Grid.Row="1" ItemsSource="{Binding SelectableFiles}" ScrollViewer.HorizontalScrollBarVisibility="Disabled" BorderThickness="0"
                           ItemContainerStyle="{StaticResource SharedListViewItemStyle}">
                     <ListView.ItemTemplate>
@@ -97,7 +89,6 @@
             </Grid>
         </GroupBox>
 
-        <!-- Export Options and Button -->
         <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="10">
             <StackPanel VerticalAlignment="Center" Margin="0,0,20,0">
                 <TextBlock>

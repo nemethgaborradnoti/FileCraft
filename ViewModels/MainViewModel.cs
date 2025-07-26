@@ -11,6 +11,7 @@ namespace FileCraft.ViewModels
     {
         private readonly ISettingsService _settingsService;
         private readonly ISharedStateService _sharedStateService;
+        private readonly IDialogService _dialogService;
         private bool _isLoading = false;
 
         public FolderTreeManager FolderTreeManager { get; }
@@ -24,7 +25,10 @@ namespace FileCraft.ViewModels
                 {
                     _sharedStateService.SourcePath = value;
                     OnPropertyChanged();
-                    FolderTreeManager.LoadTreeForPath(value);
+                    if (!_isLoading)
+                    {
+                        FolderTreeManager.LoadTreeForPath(value);
+                    }
                 }
             }
         }
@@ -48,10 +52,13 @@ namespace FileCraft.ViewModels
         public FileRenamerViewModel FileRenamerVM { get; }
 
         public ICommand ClearPathsCommand { get; }
+        public ICommand SelectSourcePathCommand { get; }
+        public ICommand SelectDestinationPathCommand { get; }
 
         public MainViewModel(
             ISettingsService settingsService,
             ISharedStateService sharedStateService,
+            IDialogService dialogService,
             FolderTreeManager folderTreeManager,
             FileContentExportViewModel fileContentExportVM,
             TreeGeneratorViewModel treeGeneratorVM,
@@ -60,6 +67,7 @@ namespace FileCraft.ViewModels
         {
             _settingsService = settingsService;
             _sharedStateService = sharedStateService;
+            _dialogService = dialogService;
             FolderTreeManager = folderTreeManager;
             FileContentExportVM = fileContentExportVM;
             TreeGeneratorVM = treeGeneratorVM;
@@ -67,8 +75,27 @@ namespace FileCraft.ViewModels
             FileRenamerVM = fileRenamerVM;
 
             ClearPathsCommand = new RelayCommand(_ => ClearPaths());
+            SelectSourcePathCommand = new RelayCommand(_ => SelectPath(isSource: true));
+            SelectDestinationPathCommand = new RelayCommand(_ => SelectPath(isSource: false));
 
             LoadSettings();
+        }
+
+        private void SelectPath(bool isSource)
+        {
+            var title = isSource ? "Select the common source folder" : "Select the common destination folder";
+            var selectedPath = _dialogService.SelectFolder(title);
+            if (!string.IsNullOrEmpty(selectedPath))
+            {
+                if (isSource)
+                {
+                    SourcePath = selectedPath;
+                }
+                else
+                {
+                    DestinationPath = selectedPath;
+                }
+            }
         }
 
         private void ClearPaths()
@@ -80,12 +107,10 @@ namespace FileCraft.ViewModels
         private void LoadSettings()
         {
             _isLoading = true;
-
             Settings settings = _settingsService.LoadSettings();
-
             SourcePath = settings.SourcePath;
             DestinationPath = settings.DestinationPath;
-
+            FolderTreeManager.LoadTreeForPath(SourcePath);
             _isLoading = false;
         }
 
