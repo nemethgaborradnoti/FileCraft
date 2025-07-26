@@ -12,7 +12,7 @@ namespace FileCraft.Services
             return Task.Run(() =>
             {
                 Guard.AgainstNullOrWhiteSpace(destinationPath, nameof(destinationPath));
-                Guard.AgainstNull(includedFolderPaths, nameof(includedFolderPaths));
+                Guard.AgainstNullOrEmpty(includedFolderPaths, nameof(includedFolderPaths), "No folders were selected to export from.");
                 Guard.AgainstNullOrWhiteSpace(outputFileName, nameof(outputFileName));
 
                 var allFiles = new List<string>();
@@ -24,10 +24,7 @@ namespace FileCraft.Services
                     }
                 }
 
-                if (allFiles.Count == 0)
-                {
-                    throw new InvalidOperationException("The selected folders contain no files to export.");
-                }
+                Guard.AgainstNullOrEmpty(allFiles, nameof(allFiles), "The selected folders contain no files to export.");
 
                 var csvBuilder = new StringBuilder();
                 csvBuilder.AppendLine("Name;Size (KB);Modification Date;Creation Date;Last Access Date;Format;Full Path");
@@ -59,6 +56,7 @@ namespace FileCraft.Services
                 Guard.AgainstNullOrWhiteSpace(sourcePath, nameof(sourcePath));
                 Guard.AgainstNullOrWhiteSpace(destinationPath, nameof(destinationPath));
                 Guard.AgainstNonExistentDirectory(sourcePath, "The selected source folder does not exist.");
+                Guard.AgainstNull(excludedFolderPaths, nameof(excludedFolderPaths));
                 Guard.AgainstNullOrWhiteSpace(outputFileName, nameof(outputFileName));
 
                 StringBuilder treeBuilder = new StringBuilder();
@@ -111,14 +109,9 @@ namespace FileCraft.Services
         {
             return Task.Run(() =>
             {
-                Guard.AgainstNull(selectedFilePaths, nameof(selectedFilePaths));
                 Guard.AgainstNullOrWhiteSpace(destinationPath, nameof(destinationPath));
                 Guard.AgainstNullOrWhiteSpace(outputFileName, nameof(outputFileName));
-
-                if (!selectedFilePaths.Any())
-                {
-                    throw new InvalidOperationException("No files were selected for export.");
-                }
+                Guard.AgainstNullOrEmpty(selectedFilePaths, nameof(selectedFilePaths), "No files were selected for export.");
 
                 var contentBuilder = new StringBuilder();
 
