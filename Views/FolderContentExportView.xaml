@@ -14,16 +14,13 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <!-- Folders to Include Section -->
         <GroupBox Grid.Row="0" Header="Folders to Include">
-            <!-- The ItemContainerStyle is now referenced from the shared resource dictionary -->
             <TreeView ItemsSource="{Binding RootFolders}" BorderThickness="0"
                       ItemContainerStyle="{StaticResource SharedTreeViewItemStyle}">
                 <TreeView.ItemTemplate>
                     <HierarchicalDataTemplate ItemsSource="{Binding Children}">
                         <StackPanel Orientation="Horizontal">
-                            <CheckBox IsChecked="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" IsThreeState="True" VerticalAlignment="Center"
-                                      PreviewMouseDown="FolderTreeCheckBox_PreviewMouseDown"/>
+                            <CheckBox IsChecked="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" IsThreeState="True" VerticalAlignment="Center"/>
                             <TextBlock Text="{Binding Name}" Margin="5,0,0,0" VerticalAlignment="Center"/>
                         </StackPanel>
                     </HierarchicalDataTemplate>
@@ -31,7 +28,6 @@
             </TreeView>
         </GroupBox>
 
-        <!-- Export Options and Button -->
         <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="10">
             <controls:ExportOptionsControl DataContext="{Binding}" />
             <Button Content="Export Folder Contents" 

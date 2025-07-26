@@ -14,8 +14,9 @@ namespace FileCraft.ViewModels.Functional
         private readonly IFileQueryService _fileQueryService;
         private int _availableFilesCount;
         private int _selectedFilesCount;
+        private bool? _areAllFilesSelected;
+        private bool? _areAllExtensionsSelected;
 
-        #region Properties
         public int AvailableFilesCount
         {
             get => _availableFilesCount;
@@ -28,18 +29,51 @@ namespace FileCraft.ViewModels.Functional
             set { _selectedFilesCount = value; OnPropertyChanged(); }
         }
 
+        public bool? AreAllFilesSelected
+        {
+            get => _areAllFilesSelected;
+            set
+            {
+                if (value.HasValue && _areAllFilesSelected != value)
+                {
+                    if (value.Value)
+                        SelectAllFilesCommand.Execute(null);
+                    else
+                        DeselectAllFilesCommand.Execute(null);
+
+                    _areAllFilesSelected = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        public bool? AreAllExtensionsSelected
+        {
+            get => _areAllExtensionsSelected;
+            set
+            {
+                if (value.HasValue && _areAllExtensionsSelected != value)
+                {
+                    if (value.Value)
+                        SelectAllExtensionsCommand.Execute(null);
+                    else
+                        DeselectAllExtensionsCommand.Execute(null);
+
+                    _areAllExtensionsSelected = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
         public ObservableCollection<SelectableFile> SelectableFiles { get; } = new ObservableCollection<SelectableFile>();
         public ObservableCollection<SelectableItemViewModel> AvailableExtensions { get; } = new ObservableCollection<SelectableItemViewModel>();
         public ObservableCollection<FolderViewModel> RootFolders => FolderTreeManager.RootFolders;
-        #endregion
 
-        #region Commands
         public ICommand ExportFileContentCommand { get; }
         public ICommand SelectAllFilesCommand { get; }
         public ICommand DeselectAllFilesCommand { get; }
         public ICommand SelectAllExtensionsCommand { get; }
         public ICommand DeselectAllExtensionsCommand { get; }
-        #endregion
 
         public FileContentExportViewModel(
             ISharedStateService sharedStateService,
@@ -63,7 +97,8 @@ namespace FileCraft.ViewModels.Functional
             DeselectAllExtensionsCommand = new RelayCommand(_ => SelectionHelper.SetSelectionState(AvailableExtensions, false), _ => AvailableExtensions.Any());
 
             OnFolderSelectionChanged();
-            UpdateCounts();
+            UpdateFileCounts();
+            UpdateExtensionCounts();
         }
 
         protected override bool CanExecuteOperation()
@@ -93,14 +128,20 @@ namespace FileCraft.ViewModels.Functional
 
             System.Windows.Application.Current.Dispatcher.Invoke(() =>
             {
+                foreach (var ext in AvailableExtensions)
+                {
+                    ext.PropertyChanged -= OnExtensionSelectionChanged;
+                }
+
                 var previouslySelected = new HashSet<string>(AvailableExtensions.Where(e => e.IsSelected).Select(e => e.Name));
                 AvailableExtensions.Clear();
                 foreach (var ext in extensions.Where(e => !string.IsNullOrEmpty(e)).OrderBy(e => e))
                 {
                     var item = new SelectableItemViewModel(ext, previouslySelected.Contains(ext));
-                    item.PropertyChanged += (s, e) => { if (e.PropertyName == nameof(SelectableItemViewModel.IsSelected)) UpdateSelectableFiles(); };
+                    item.PropertyChanged += OnExtensionSelectionChanged;
                     AvailableExtensions.Add(item);
                 }
+                UpdateExtensionCounts();
             });
         }
 
@@ -117,31 +158,74 @@ namespace FileCraft.ViewModels.Functional
             {
                 foreach (var file in SelectableFiles)
                 {
-                    file.PropertyChanged -= SelectableFile_PropertyChanged;
+                    file.PropertyChanged -= OnFileSelectionChanged;
                 }
                 SelectableFiles.Clear();
 
                 foreach (var file in files.OrderBy(f => f.FullPath))
                 {
-                    file.PropertyChanged += SelectableFile_PropertyChanged;
+                    file.PropertyChanged += OnFileSelectionChanged;
                     SelectableFiles.Add(file);
                 }
-                UpdateCounts();
+                UpdateFileCounts();
             });
         }
 
-        private void SelectableFile_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+        private void OnFileSelectionChanged(object? sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == nameof(SelectableFile.IsSelected))
             {
-                UpdateCounts();
+                UpdateFileCounts();
             }
         }
 
-        private void UpdateCounts()
+        private void OnExtensionSelectionChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(SelectableItemViewModel.IsSelected))
+            {
+                UpdateSelectableFiles();
+                UpdateExtensionCounts();
+            }
+        }
+
+        private void UpdateFileCounts()
         {
             AvailableFilesCount = SelectableFiles.Count;
             SelectedFilesCount = SelectableFiles.Count(f => f.IsSelected);
+
+            if (SelectedFilesCount == 0 && AvailableFilesCount > 0)
+            {
+                _areAllFilesSelected = false;
+            }
+            else if (SelectedFilesCount == AvailableFilesCount && AvailableFilesCount > 0)
+            {
+                _areAllFilesSelected = true;
+            }
+            else
+            {
+                _areAllFilesSelected = null;
+            }
+            OnPropertyChanged(nameof(AreAllFilesSelected));
+        }
+
+        private void UpdateExtensionCounts()
+        {
+            int selectedCount = AvailableExtensions.Count(e => e.IsSelected);
+            int totalCount = AvailableExtensions.Count;
+
+            if (selectedCount == 0 && totalCount > 0)
+            {
+                _areAllExtensionsSelected = false;
+            }
+            else if (selectedCount == totalCount && totalCount > 0)
+            {
+                _areAllExtensionsSelected = true;
+            }
+            else
+            {
+                _areAllExtensionsSelected = null;
+            }
+            OnPropertyChanged(nameof(AreAllExtensionsSelected));
         }
 
         private List<FolderViewModel> GetSelectedFoldersForFileListing()
