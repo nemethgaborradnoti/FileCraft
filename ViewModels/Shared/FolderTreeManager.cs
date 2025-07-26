@@ -8,7 +8,6 @@ namespace FileCraft.ViewModels.Shared
     public class FolderTreeManager : BaseViewModel
     {
         private readonly IFolderTreeService _folderTreeService;
-        private readonly ISettingsService _settingsService;
         private string _currentSourcePath = string.Empty;
 
         public event Action? FolderSelectionChanged;
@@ -24,13 +23,12 @@ namespace FileCraft.ViewModels.Shared
             }
         }
 
-        public FolderTreeManager(IFolderTreeService folderTreeService, ISettingsService settingsService)
+        public FolderTreeManager(IFolderTreeService folderTreeService)
         {
             _folderTreeService = folderTreeService;
-            _settingsService = settingsService;
         }
 
-        public void LoadTreeForPath(string sourcePath)
+        public void LoadTreeForPath(string sourcePath, List<FolderState>? folderState = null)
         {
             if (string.IsNullOrWhiteSpace(sourcePath) || !Directory.Exists(sourcePath))
             {
@@ -39,18 +37,14 @@ namespace FileCraft.ViewModels.Shared
                 return;
             }
 
-            if (sourcePath == _currentSourcePath) return;
+            if (sourcePath == _currentSourcePath && folderState == null) return;
             _currentSourcePath = sourcePath;
 
             var newTree = _folderTreeService.BuildFolderTree(sourcePath, HandleFolderStateChange);
 
-            var settings = _settingsService.LoadSettings();
-            if (settings.SourcePath == sourcePath && settings.FolderTreeState.Any())
+            if (folderState != null && newTree.Any())
             {
-                if (newTree.Any())
-                {
-                    ApplyStateToNode(newTree[0], settings.FolderTreeState);
-                }
+                ApplyStateToNode(newTree[0], folderState);
             }
             RootFolders = newTree;
         }
@@ -75,7 +69,6 @@ namespace FileCraft.ViewModels.Shared
         private void ExtractStateFromNode(FolderViewModel node, List<FolderState> states)
         {
             bool isDefaultState = node.IsSelected == true && node.IsExpanded == true;
-
             if (!isDefaultState)
             {
                 states.Add(new FolderState
@@ -85,7 +78,6 @@ namespace FileCraft.ViewModels.Shared
                     IsExpanded = node.IsExpanded
                 });
             }
-
             foreach (var child in node.Children)
             {
                 ExtractStateFromNode(child, states);
@@ -99,7 +91,6 @@ namespace FileCraft.ViewModels.Shared
             {
                 node.ApplyState(state);
             }
-
             foreach (var child in node.Children)
             {
                 ApplyStateToNode(child, savedStates);

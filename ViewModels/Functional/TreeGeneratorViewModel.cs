@@ -8,28 +8,54 @@ namespace FileCraft.ViewModels.Functional
 {
     public class TreeGeneratorViewModel : ExportViewModelBase
     {
-        public ObservableCollection<FolderViewModel> RootFolders => FolderTreeManager.RootFolders;
+        private string _outputFileName = string.Empty;
+        private bool _appendTimestamp;
 
+        public string OutputFileName
+        {
+            get => _outputFileName;
+            set
+            {
+                if (_outputFileName != value)
+                {
+                    _outputFileName = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        public bool AppendTimestamp
+        {
+            get => _appendTimestamp;
+            set
+            {
+                if (_appendTimestamp != value)
+                {
+                    _appendTimestamp = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        public ObservableCollection<FolderViewModel> RootFolders => FolderTreeManager.RootFolders;
         public ICommand GenerateTreeStructureCommand { get; }
 
         public TreeGeneratorViewModel(
             ISharedStateService sharedStateService,
             IFileOperationService fileOperationService,
             IDialogService dialogService,
-            ISettingsService settingsService,
             FolderTreeManager folderTreeManager)
-            : base(sharedStateService, fileOperationService, dialogService, settingsService, folderTreeManager)
+            : base(sharedStateService, fileOperationService, dialogService, folderTreeManager)
         {
-            OutputFileName = "TreeStructure";
-
-            FolderTreeManager.PropertyChanged += (s, e) => {
+            FolderTreeManager.PropertyChanged += (s, e) =>
+            {
                 if (e.PropertyName == nameof(FolderTreeManager.RootFolders))
                 {
                     OnPropertyChanged(nameof(RootFolders));
                 }
             };
 
-            GenerateTreeStructureCommand = new RelayCommand(async (_) => await GenerateTreeStructure(), (_) => CanExecuteOperation());
+            GenerateTreeStructureCommand = new RelayCommand(async (_) => await GenerateTreeStructure(), (_) => CanExecuteOperation(this.OutputFileName));
         }
 
         private async Task GenerateTreeStructure()
@@ -38,17 +64,13 @@ namespace FileCraft.ViewModels.Functional
             try
             {
                 var allNodes = RootFolders.Any() ? RootFolders[0].GetAllNodes() : Enumerable.Empty<FolderViewModel>();
-
                 var excludedFolderPaths = new HashSet<string>(
                     allNodes.Where(n => n.IsSelected == false).Select(n => n.FullPath),
                     StringComparer.OrdinalIgnoreCase);
 
-                string finalFileName = GetFinalFileName();
-
+                string finalFileName = GetFinalFileName(OutputFileName, AppendTimestamp);
                 string outputFilePath = await _fileOperationService.GenerateTreeStructureAsync(_sharedStateService.SourcePath, _sharedStateService.DestinationPath, excludedFolderPaths, finalFileName);
                 _dialogService.ShowNotification("Success", $"Tree structure file was created successfully!\n\nSaved to: {outputFilePath}");
-
-                SaveSettings();
             }
             catch (Exception ex)
             {

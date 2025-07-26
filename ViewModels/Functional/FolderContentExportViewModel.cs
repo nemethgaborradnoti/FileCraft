@@ -8,28 +8,54 @@ namespace FileCraft.ViewModels.Functional
 {
     public class FolderContentExportViewModel : ExportViewModelBase
     {
-        public ObservableCollection<FolderViewModel> RootFolders => FolderTreeManager.RootFolders;
+        private string _outputFileName = string.Empty;
+        private bool _appendTimestamp;
 
+        public string OutputFileName
+        {
+            get => _outputFileName;
+            set
+            {
+                if (_outputFileName != value)
+                {
+                    _outputFileName = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        public bool AppendTimestamp
+        {
+            get => _appendTimestamp;
+            set
+            {
+                if (_appendTimestamp != value)
+                {
+                    _appendTimestamp = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        public ObservableCollection<FolderViewModel> RootFolders => FolderTreeManager.RootFolders;
         public ICommand ExportFolderContentsCommand { get; }
 
         public FolderContentExportViewModel(
             ISharedStateService sharedStateService,
             IFileOperationService fileOperationService,
             IDialogService dialogService,
-            ISettingsService settingsService,
             FolderTreeManager folderTreeManager)
-            : base(sharedStateService, fileOperationService, dialogService, settingsService, folderTreeManager)
+            : base(sharedStateService, fileOperationService, dialogService, folderTreeManager)
         {
-            OutputFileName = "FolderContentsExport";
-
-            FolderTreeManager.PropertyChanged += (s, e) => {
+            FolderTreeManager.PropertyChanged += (s, e) =>
+            {
                 if (e.PropertyName == nameof(FolderTreeManager.RootFolders))
                 {
                     OnPropertyChanged(nameof(RootFolders));
                 }
             };
 
-            ExportFolderContentsCommand = new RelayCommand(async (_) => await ExportFolderContents(), (_) => CanExecuteOperation());
+            ExportFolderContentsCommand = new RelayCommand(async (_) => await ExportFolderContents(), (_) => CanExecuteOperation(this.OutputFileName));
         }
 
         private async Task ExportFolderContents()
@@ -38,7 +64,6 @@ namespace FileCraft.ViewModels.Functional
             try
             {
                 var allNodes = RootFolders.Any() ? RootFolders[0].GetAllNodes() : Enumerable.Empty<FolderViewModel>();
-
                 var includedFolderPaths = allNodes
                     .Where(n => n.IsSelected != false)
                     .Select(n => n.FullPath)
@@ -50,12 +75,9 @@ namespace FileCraft.ViewModels.Functional
                     return;
                 }
 
-                string finalFileName = GetFinalFileName();
-
+                string finalFileName = GetFinalFileName(OutputFileName, AppendTimestamp);
                 string outputFilePath = await _fileOperationService.ExportFolderContentsAsync(_sharedStateService.DestinationPath, includedFolderPaths, finalFileName);
                 _dialogService.ShowNotification("Success", $"Folder contents exported successfully!\n\nSaved to: {outputFilePath}");
-
-                SaveSettings();
             }
             catch (Exception ex)
             {
