@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 
 namespace FileCraft.Shared.Validation
 {
@@ -26,6 +25,18 @@ namespace FileCraft.Shared.Validation
             if (!Directory.Exists(path))
             {
                 throw new DirectoryNotFoundException($"{message}\nPath: '{path}'");
+            }
+        }
+
+        public static void AgainstNullOrEmpty<T>(IEnumerable<T> enumerable, string paramName, string message = "Collection cannot be null or empty.")
+        {
+            if (enumerable == null)
+            {
+                throw new ArgumentNullException(paramName, message);
+            }
+            if (!enumerable.Any())
+            {
+                throw new ArgumentException(message, paramName);
             }
         }
     }
