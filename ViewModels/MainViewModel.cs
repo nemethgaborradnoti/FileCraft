@@ -88,13 +88,9 @@ namespace FileCraft.ViewModels
             if (!string.IsNullOrEmpty(selectedPath))
             {
                 if (isSource)
-                {
                     SourcePath = selectedPath;
-                }
                 else
-                {
                     DestinationPath = selectedPath;
-                }
             }
         }
 
@@ -110,7 +106,16 @@ namespace FileCraft.ViewModels
             Settings settings = _settingsService.LoadSettings();
             SourcePath = settings.SourcePath;
             DestinationPath = settings.DestinationPath;
-            FolderTreeManager.LoadTreeForPath(SourcePath);
+
+            FileContentExportVM.ApplySettings(settings.FileContentExport);
+
+            FolderContentExportVM.OutputFileName = settings.FolderContentExport.OutputFileName;
+            FolderContentExportVM.AppendTimestamp = settings.FolderContentExport.AppendTimestamp;
+
+            TreeGeneratorVM.OutputFileName = settings.TreeGenerator.OutputFileName;
+            TreeGeneratorVM.AppendTimestamp = settings.TreeGenerator.AppendTimestamp;
+
+            FolderTreeManager.LoadTreeForPath(SourcePath, settings.FolderTreeState);
             _isLoading = false;
         }
 
@@ -120,7 +125,23 @@ namespace FileCraft.ViewModels
             {
                 SourcePath = this.SourcePath,
                 DestinationPath = this.DestinationPath,
-                FolderTreeState = FolderTreeManager.GetFolderStates()
+                FolderTreeState = FolderTreeManager.GetFolderStates(),
+                FileContentExport = new FileContentExportSettings
+                {
+                    OutputFileName = FileContentExportVM.OutputFileName,
+                    AppendTimestamp = FileContentExportVM.AppendTimestamp,
+                    SelectedExtensions = FileContentExportVM.GetSelectedExtensions()
+                },
+                FolderContentExport = new FolderContentExportSettings
+                {
+                    OutputFileName = FolderContentExportVM.OutputFileName,
+                    AppendTimestamp = FolderContentExportVM.AppendTimestamp
+                },
+                TreeGenerator = new TreeGeneratorSettings
+                {
+                    OutputFileName = TreeGeneratorVM.OutputFileName,
+                    AppendTimestamp = TreeGeneratorVM.AppendTimestamp
+                }
             };
             _settingsService.SaveSettings(settings);
         }
