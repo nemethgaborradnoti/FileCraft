@@ -19,6 +19,7 @@
     public class FileContentExportSettings : ExportSettingsBase
     {
         public List<string> SelectedExtensions { get; set; } = new();
+        public List<string> SelectedFilePaths { get; set; } = new();
 
         public FileContentExportSettings()
         {

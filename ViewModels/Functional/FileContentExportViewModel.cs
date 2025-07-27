@@ -24,7 +24,9 @@ namespace FileCraft.ViewModels.Functional
         private bool? _areAllExtensionsSelected;
         private string _outputFileName = string.Empty;
         private bool _appendTimestamp;
+
         private List<string> _loadedSelectedExtensions = new();
+        private List<string> _loadedSelectedFilePaths = new();
 
         public int TotalFilesCount
         {
@@ -149,6 +151,12 @@ namespace FileCraft.ViewModels.Functional
             OutputFileName = settings.OutputFileName;
             AppendTimestamp = settings.AppendTimestamp;
             _loadedSelectedExtensions = settings.SelectedExtensions ?? new List<string>();
+            _loadedSelectedFilePaths = settings.SelectedFilePaths ?? new List<string>();
+        }
+
+        public List<string> GetSelectedFilePaths()
+        {
+            return _allSelectableFiles.Where(f => f.IsSelected).Select(f => f.FullPath).ToList();
         }
 
         public List<string> GetSelectedExtensions()
@@ -249,11 +257,19 @@ namespace FileCraft.ViewModels.Functional
                 foreach (var file in _allSelectableFiles)
                     file.PropertyChanged -= OnFileSelectionChanged;
                 _allSelectableFiles.Clear();
+
                 foreach (var file in files.OrderBy(f => f.FullPath))
                 {
+                    if (_loadedSelectedFilePaths.Contains(file.FullPath))
+                    {
+                        file.IsSelected = true;
+                    }
                     file.PropertyChanged += OnFileSelectionChanged;
                     _allSelectableFiles.Add(file);
                 }
+
+                _loadedSelectedFilePaths.Clear();
+
                 ApplyFileFilter();
             });
         }
