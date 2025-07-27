@@ -130,7 +130,8 @@ namespace FileCraft.ViewModels
                 {
                     OutputFileName = FileContentExportVM.OutputFileName,
                     AppendTimestamp = FileContentExportVM.AppendTimestamp,
-                    SelectedExtensions = FileContentExportVM.GetSelectedExtensions()
+                    SelectedExtensions = FileContentExportVM.GetSelectedExtensions(),
+                    SelectedFilePaths = FileContentExportVM.GetSelectedFilePaths()
                 },
                 FolderContentExport = new FolderContentExportSettings
                 {
