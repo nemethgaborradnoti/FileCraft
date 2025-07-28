@@ -109,6 +109,7 @@ namespace FileCraft.ViewModels
 
             FileContentExportVM.ApplySettings(settings.FileContentExport);
             FolderContentExportVM.ApplySettings(settings.FolderContentExport);
+            FileRenamerVM.ApplySettings(settings.FileRenamer);
 
             TreeGeneratorVM.OutputFileName = settings.TreeGenerator.OutputFileName;
             TreeGeneratorVM.AppendTimestamp = settings.TreeGenerator.AppendTimestamp;
@@ -141,7 +142,8 @@ namespace FileCraft.ViewModels
                 {
                     OutputFileName = TreeGeneratorVM.OutputFileName,
                     AppendTimestamp = TreeGeneratorVM.AppendTimestamp
-                }
+                },
+                FileRenamer = FileRenamerVM.GetSettings()
             };
             _settingsService.SaveSettings(settings);
         }

@@ -8,6 +8,7 @@
         public FileContentExportSettings FileContentExport { get; set; } = new();
         public FolderContentExportSettings FolderContentExport { get; set; } = new();
         public TreeGeneratorSettings TreeGenerator { get; set; } = new();
+        public FileRenamerSettings FileRenamer { get; set; } = new();
     }
 
     public abstract class ExportSettingsBase
@@ -41,6 +42,15 @@
         public TreeGeneratorSettings()
         {
             OutputFileName = "TreeStructure";
+        }
+    }
+
+    public class FileRenamerSettings : ExportSettingsBase
+    {
+        public bool IncludeFolders { get; set; } = false;
+        public FileRenamerSettings()
+        {
+            OutputFileName = "RenameResult";
         }
     }
 }
