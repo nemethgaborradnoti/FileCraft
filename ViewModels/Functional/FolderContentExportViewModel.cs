@@ -1,4 +1,5 @@
-﻿using FileCraft.Services.Interfaces;
+﻿using FileCraft.Models;
+using FileCraft.Services.Interfaces;
 using FileCraft.Shared.Commands;
 using FileCraft.ViewModels.Shared;
 using System.Collections.ObjectModel;
@@ -37,6 +38,7 @@ namespace FileCraft.ViewModels.Functional
             }
         }
 
+        public ObservableCollection<SelectableItemViewModel> AvailableColumns { get; } = new();
         public ObservableCollection<FolderViewModel> RootFolders => FolderTreeManager.RootFolders;
         public ICommand ExportFolderContentsCommand { get; }
 
@@ -56,6 +58,32 @@ namespace FileCraft.ViewModels.Functional
             };
 
             ExportFolderContentsCommand = new RelayCommand(async (_) => await ExportFolderContents(), (_) => CanExecuteOperation(this.OutputFileName));
+
+            var columns = new List<string> { "Name", "Size (KB)", "Modification Date", "Creation Date", "Last Access Date", "Format", "Full Path" };
+            foreach (var col in columns)
+            {
+                AvailableColumns.Add(new SelectableItemViewModel(col, true));
+            }
+        }
+
+        public void ApplySettings(FolderContentExportSettings settings)
+        {
+            OutputFileName = settings.OutputFileName;
+            AppendTimestamp = settings.AppendTimestamp;
+            var loadedSelectedColumns = settings.SelectedColumns ?? new List<string>();
+
+            if (loadedSelectedColumns.Any())
+            {
+                foreach (var column in AvailableColumns)
+                {
+                    column.IsSelected = loadedSelectedColumns.Contains(column.Name);
+                }
+            }
+        }
+
+        public List<string> GetSelectedColumns()
+        {
+            return AvailableColumns.Where(c => c.IsSelected).Select(c => c.Name).ToList();
         }
 
         private async Task ExportFolderContents()
@@ -75,8 +103,15 @@ namespace FileCraft.ViewModels.Functional
                     return;
                 }
 
+                var selectedColumns = GetSelectedColumns();
+                if (!selectedColumns.Any())
+                {
+                    _dialogService.ShowNotification("Information", "No columns were selected. Please select at least one column to export.");
+                    return;
+                }
+
                 string finalFileName = GetFinalFileName(OutputFileName, AppendTimestamp);
-                string outputFilePath = await _fileOperationService.ExportFolderContentsAsync(_sharedStateService.DestinationPath, includedFolderPaths, finalFileName);
+                string outputFilePath = await _fileOperationService.ExportFolderContentsAsync(_sharedStateService.DestinationPath, includedFolderPaths, finalFileName, selectedColumns);
                 _dialogService.ShowNotification("Success", $"Folder contents exported successfully!\n\nSaved to: {outputFilePath}");
             }
             catch (Exception ex)
