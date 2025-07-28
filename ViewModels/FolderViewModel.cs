@@ -48,7 +48,7 @@ namespace FileCraft.ViewModels
             FullPath = fullPath;
             Parent = parent;
             _onStateChanged = onStateChanged;
-            _isSelected = true;
+            _isSelected = false;
             _isExpanded = true;
         }
 
