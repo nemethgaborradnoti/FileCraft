@@ -7,11 +7,12 @@ namespace FileCraft.Services
 {
     public class FileOperationService : IFileOperationService
     {
-        public async Task<string> ExportFolderContentsAsync(string destinationPath, IEnumerable<string> includedFolderPaths, string outputFileName)
+        public async Task<string> ExportFolderContentsAsync(string destinationPath, IEnumerable<string> includedFolderPaths, string outputFileName, IEnumerable<string> selectedColumns)
         {
             Guard.AgainstNullOrWhiteSpace(destinationPath, nameof(destinationPath));
             Guard.AgainstNullOrEmpty(includedFolderPaths, nameof(includedFolderPaths), "No folders were selected to export from.");
             Guard.AgainstNullOrWhiteSpace(outputFileName, nameof(outputFileName));
+            Guard.AgainstNullOrEmpty(selectedColumns, nameof(selectedColumns), "No columns were selected for export.");
 
             var allFiles = new List<string>();
             foreach (var folderPath in includedFolderPaths)
@@ -25,19 +26,34 @@ namespace FileCraft.Services
             Guard.AgainstNullOrEmpty(allFiles, nameof(allFiles), "The selected folders contain no files to export.");
 
             var csvBuilder = new StringBuilder();
-            csvBuilder.AppendLine("Name;Size (KB);Modification Date;Creation Date;Last Access Date;Format;Full Path");
+            csvBuilder.AppendLine(string.Join(";", selectedColumns));
+
+            var columnExtractors = new Dictionary<string, Func<FileInfo, string>>
+            {
+                { "Name", fi => fi.Name },
+                { "Size (byte)", fi => fi.Length.ToString() },
+                { "CreationTime", fi => $"{fi.CreationTime:yyyy-MM-dd HH:mm:ss}" },
+                { "LastWriteTime", fi => $"{fi.LastWriteTime:yyyy-MM-dd HH:mm:ss}" },
+                { "LastAccessTime", fi => $"{fi.LastAccessTime:yyyy-MM-dd HH:mm:ss}" },
+                { "IsReadOnly", fi => fi.IsReadOnly.ToString() },
+                { "Attributes", fi => fi.Attributes.ToString() },
+                { "FullPath", fi => fi.FullName },
+                { "Parent", fi => fi.Directory?.Name ?? string.Empty },
+                { "Format", fi => fi.Extension }
+            };
 
             foreach (var filePath in allFiles.OrderBy(f => f))
             {
                 var fileInfo = new FileInfo(filePath);
-                csvBuilder.AppendLine(
-                    $"{fileInfo.Name};" +
-                    $"{(fileInfo.Length / 1024.0):F2};" +
-                    $"{fileInfo.LastWriteTime:yyyy-MM-dd HH:mm:ss};" +
-                    $"{fileInfo.CreationTime:yyyy-MM-dd HH:mm:ss};" +
-                    $"{fileInfo.LastAccessTime:yyyy-MM-dd HH:mm:ss};" +
-                    $"{fileInfo.Extension};" +
-                    $"{fileInfo.FullName}");
+                var lineParts = new List<string>();
+                foreach (var column in selectedColumns)
+                {
+                    if (columnExtractors.TryGetValue(column, out var extractor))
+                    {
+                        lineParts.Add(extractor(fileInfo));
+                    }
+                }
+                csvBuilder.AppendLine(string.Join(";", lineParts));
             }
 
             string outputFilePath = Path.Combine(destinationPath, $"{outputFileName}.txt");

@@ -108,9 +108,7 @@ namespace FileCraft.ViewModels
             DestinationPath = settings.DestinationPath;
 
             FileContentExportVM.ApplySettings(settings.FileContentExport);
-
-            FolderContentExportVM.OutputFileName = settings.FolderContentExport.OutputFileName;
-            FolderContentExportVM.AppendTimestamp = settings.FolderContentExport.AppendTimestamp;
+            FolderContentExportVM.ApplySettings(settings.FolderContentExport);
 
             TreeGeneratorVM.OutputFileName = settings.TreeGenerator.OutputFileName;
             TreeGeneratorVM.AppendTimestamp = settings.TreeGenerator.AppendTimestamp;
@@ -136,7 +134,8 @@ namespace FileCraft.ViewModels
                 FolderContentExport = new FolderContentExportSettings
                 {
                     OutputFileName = FolderContentExportVM.OutputFileName,
-                    AppendTimestamp = FolderContentExportVM.AppendTimestamp
+                    AppendTimestamp = FolderContentExportVM.AppendTimestamp,
+                    SelectedColumns = FolderContentExportVM.GetSelectedColumns()
                 },
                 TreeGenerator = new TreeGeneratorSettings
                 {

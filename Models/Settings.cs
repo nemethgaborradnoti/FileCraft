@@ -29,6 +29,7 @@
 
     public class FolderContentExportSettings : ExportSettingsBase
     {
+        public List<string> SelectedColumns { get; set; } = new();
         public FolderContentExportSettings()
         {
             OutputFileName = "FolderContentsExport";
