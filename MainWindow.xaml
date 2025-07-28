@@ -8,7 +8,7 @@
         xmlns:viewModels="clr-namespace:FileCraft.ViewModels"
         mc:Ignorable="d"
         Title="FileCraft" Height="800" Width="850"
-        d:DataContext="{d:DesignInstance Type=viewModels:MainViewModel}">
+        d:DataContext="{d:DesignInstance Type=viewmodels:MainViewModel}">
 
     <Grid Margin="10">
         <Grid.RowDefinitions>
@@ -57,7 +57,7 @@
             </GroupBox>
         </Grid>
 
-        <TabControl Grid.Row="1" Margin="5">
+        <TabControl Grid.Row="1" Margin="5" SelectedIndex="{Binding SelectedTabIndex}">
             <TabItem>
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal">

@@ -3,14 +3,42 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:FileCraft.Views"
+             xmlns:viewmodels="clr-namespace:FileCraft.ViewModels.Functional"
+             xmlns:controls="clr-namespace:FileCraft.Views.Shared.Controls"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
-    <Grid>
-        <TextBlock Text="File Renamer Feature - Coming Soon!"
-                   HorizontalAlignment="Center"
-                   VerticalAlignment="Center"
-                   FontSize="24"
-                   Foreground="Gray"/>
+             d:DataContext="{d:DesignInstance Type=viewmodels:FileRenamerViewModel, IsDesignTimeCreatable=False}"
+             d:DesignHeight="600" d:DesignWidth="800">
+    <Grid Margin="5">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="3*"/>
+                <ColumnDefinition Width="2*"/>
+            </Grid.ColumnDefinitions>
+
+            <GroupBox Grid.Column="0" Header="Rename Preview (First 100 items)" Margin="0,0,5,0">
+                <ListView ItemsSource="{Binding RenamePreview}" BorderThickness="0"
+                          ItemContainerStyle="{StaticResource SharedListViewItemStyle}"
+                          ScrollViewer.HorizontalScrollBarVisibility="Disabled"/>
+            </GroupBox>
+
+            <GroupBox Grid.Column="1" Header="Configuration" Margin="5,0,0,0">
+                <StackPanel Margin="5">
+                    <CheckBox IsChecked="{Binding IncludeFolders}" Content="Include folders" ToolTip="If checked, folders will also be renamed sequentially along with files."/>
+                </StackPanel>
+            </GroupBox>
+        </Grid>
+
+        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,10,0,0">
+            <controls:ExportOptionsControl DataContext="{Binding}" />
+            <Button Content="Start Renaming" 
+                    Command="{Binding RenameFilesCommand}"
+                    Padding="20,10"
+                    FontWeight="Bold"/>
+        </StackPanel>
     </Grid>
 </UserControl>

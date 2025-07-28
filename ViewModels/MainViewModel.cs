@@ -46,6 +46,20 @@ namespace FileCraft.ViewModels
             }
         }
 
+        private int _selectedTabIndex;
+        public int SelectedTabIndex
+        {
+            get => _selectedTabIndex;
+            set
+            {
+                if (_selectedTabIndex != value)
+                {
+                    _selectedTabIndex = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
         public FileContentExportViewModel FileContentExportVM { get; }
         public TreeGeneratorViewModel TreeGeneratorVM { get; }
         public FolderContentExportViewModel FolderContentExportVM { get; }
@@ -106,9 +120,11 @@ namespace FileCraft.ViewModels
             Settings settings = _settingsService.LoadSettings();
             SourcePath = settings.SourcePath;
             DestinationPath = settings.DestinationPath;
+            SelectedTabIndex = settings.SelectedTabIndex;
 
             FileContentExportVM.ApplySettings(settings.FileContentExport);
             FolderContentExportVM.ApplySettings(settings.FolderContentExport);
+            FileRenamerVM.ApplySettings(settings.FileRenamer);
 
             TreeGeneratorVM.OutputFileName = settings.TreeGenerator.OutputFileName;
             TreeGeneratorVM.AppendTimestamp = settings.TreeGenerator.AppendTimestamp;
@@ -123,6 +139,7 @@ namespace FileCraft.ViewModels
             {
                 SourcePath = this.SourcePath,
                 DestinationPath = this.DestinationPath,
+                SelectedTabIndex = this.SelectedTabIndex,
                 FolderTreeState = FolderTreeManager.GetFolderStates(),
                 FileContentExport = new FileContentExportSettings
                 {
@@ -141,7 +158,8 @@ namespace FileCraft.ViewModels
                 {
                     OutputFileName = TreeGeneratorVM.OutputFileName,
                     AppendTimestamp = TreeGeneratorVM.AppendTimestamp
-                }
+                },
+                FileRenamer = FileRenamerVM.GetSettings()
             };
             _settingsService.SaveSettings(settings);
         }
