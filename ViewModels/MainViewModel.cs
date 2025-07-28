@@ -46,6 +46,20 @@ namespace FileCraft.ViewModels
             }
         }
 
+        private int _selectedTabIndex;
+        public int SelectedTabIndex
+        {
+            get => _selectedTabIndex;
+            set
+            {
+                if (_selectedTabIndex != value)
+                {
+                    _selectedTabIndex = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
         public FileContentExportViewModel FileContentExportVM { get; }
         public TreeGeneratorViewModel TreeGeneratorVM { get; }
         public FolderContentExportViewModel FolderContentExportVM { get; }
@@ -106,6 +120,7 @@ namespace FileCraft.ViewModels
             Settings settings = _settingsService.LoadSettings();
             SourcePath = settings.SourcePath;
             DestinationPath = settings.DestinationPath;
+            SelectedTabIndex = settings.SelectedTabIndex;
 
             FileContentExportVM.ApplySettings(settings.FileContentExport);
             FolderContentExportVM.ApplySettings(settings.FolderContentExport);
@@ -124,6 +139,7 @@ namespace FileCraft.ViewModels
             {
                 SourcePath = this.SourcePath,
                 DestinationPath = this.DestinationPath,
+                SelectedTabIndex = this.SelectedTabIndex,
                 FolderTreeState = FolderTreeManager.GetFolderStates(),
                 FileContentExport = new FileContentExportSettings
                 {

@@ -102,7 +102,7 @@ namespace FileCraft.ViewModels.Functional
                 }
 
                 int currentNumber = 1;
-                foreach (var itemPath in itemsToPreview.OrderBy(f => f).Take(20))
+                foreach (var itemPath in itemsToPreview.OrderBy(f => f).Take(100))
                 {
                     string originalName = Path.GetFileName(itemPath);
                     bool isDirectory = File.GetAttributes(itemPath).HasFlag(FileAttributes.Directory);
