@@ -31,12 +31,15 @@ namespace FileCraft.Services
             var columnExtractors = new Dictionary<string, Func<FileInfo, string>>
             {
                 { "Name", fi => fi.Name },
-                { "Size (KB)", fi => $"{(fi.Length / 1024.0):F2}" },
-                { "Modification Date", fi => $"{fi.LastWriteTime:yyyy-MM-dd HH:mm:ss}" },
-                { "Creation Date", fi => $"{fi.CreationTime:yyyy-MM-dd HH:mm:ss}" },
-                { "Last Access Date", fi => $"{fi.LastAccessTime:yyyy-MM-dd HH:mm:ss}" },
-                { "Format", fi => fi.Extension },
-                { "Full Path", fi => fi.FullName }
+                { "Size (byte)", fi => fi.Length.ToString() },
+                { "CreationTime", fi => $"{fi.CreationTime:yyyy-MM-dd HH:mm:ss}" },
+                { "LastWriteTime", fi => $"{fi.LastWriteTime:yyyy-MM-dd HH:mm:ss}" },
+                { "LastAccessTime", fi => $"{fi.LastAccessTime:yyyy-MM-dd HH:mm:ss}" },
+                { "IsReadOnly", fi => fi.IsReadOnly.ToString() },
+                { "Attributes", fi => fi.Attributes.ToString() },
+                { "FullPath", fi => fi.FullName },
+                { "Parent", fi => fi.Directory?.Name ?? string.Empty },
+                { "Format", fi => fi.Extension }
             };
 
             foreach (var filePath in allFiles.OrderBy(f => f))
@@ -52,7 +55,6 @@ namespace FileCraft.Services
                 }
                 csvBuilder.AppendLine(string.Join(";", lineParts));
             }
-
 
             string outputFilePath = Path.Combine(destinationPath, $"{outputFileName}.txt");
             await File.WriteAllTextAsync(outputFilePath, csvBuilder.ToString());

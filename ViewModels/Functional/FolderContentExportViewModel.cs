@@ -59,7 +59,18 @@ namespace FileCraft.ViewModels.Functional
 
             ExportFolderContentsCommand = new RelayCommand(async (_) => await ExportFolderContents(), (_) => CanExecuteOperation(this.OutputFileName));
 
-            var columns = new List<string> { "Name", "Size (KB)", "Modification Date", "Creation Date", "Last Access Date", "Format", "Full Path" };
+            var columns = new List<string> {
+                "Name",
+                "Size (byte)",
+                "CreationTime",
+                "LastWriteTime",
+                "LastAccessTime",
+                "IsReadOnly",
+                "Attributes",
+                "FullPath",
+                "Parent",
+                "Format"
+            };
             foreach (var col in columns)
             {
                 AvailableColumns.Add(new SelectableItemViewModel(col, true));
