@@ -132,7 +132,7 @@ namespace FileCraft.ViewModels.Functional
         {
             OutputFileName = settings.OutputFileName;
             AppendTimestamp = settings.AppendTimestamp;
-            var loadedSelectedColumns = settings.SelectedColumns ?? new List<string>();
+            var loadedSelectedColumns = new HashSet<string>(settings.SelectedColumns ?? new List<string>());
 
             if (loadedSelectedColumns.Any())
             {
@@ -141,6 +141,7 @@ namespace FileCraft.ViewModels.Functional
                     column.IsSelected = loadedSelectedColumns.Contains(column.Name);
                 }
             }
+            UpdateSelectAllColumnsState();
         }
 
         public List<string> GetSelectedColumns()

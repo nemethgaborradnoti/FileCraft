@@ -10,7 +10,7 @@ namespace FileCraft
 {
     public partial class App : System.Windows.Application
     {
-        public static ServiceProvider ServiceProvider { get; private set; }
+        public static ServiceProvider? ServiceProvider { get; private set; }
 
         protected override void OnStartup(StartupEventArgs e)
         {
@@ -38,6 +38,7 @@ namespace FileCraft
             services.RegisterSingleton<TreeGeneratorViewModel, TreeGeneratorViewModel>();
             services.RegisterSingleton<FolderContentExportViewModel, FolderContentExportViewModel>();
             services.RegisterSingleton<FileRenamerViewModel, FileRenamerViewModel>();
+            services.RegisterSingleton<SettingsViewModel, SettingsViewModel>();
 
             services.RegisterSingleton<MainViewModel, MainViewModel>();
 

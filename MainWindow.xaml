@@ -94,6 +94,15 @@
                 </TabItem.Header>
                 <views:FileRenamerView DataContext="{Binding FileRenamerVM}"/>
             </TabItem>
+            <TabItem>
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <Image Source="/Resources/settings01.png" Width="28" Height="28" Margin="0,0,5,0" VerticalAlignment="Center"/>
+                        <TextBlock Text="Settings" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </TabItem.Header>
+                <views:SettingsView DataContext="{Binding SettingsVM}"/>
+            </TabItem>
         </TabControl>
     </Grid>
 </Window>

@@ -25,9 +25,6 @@ namespace FileCraft.ViewModels.Functional
         private string _outputFileName = string.Empty;
         private bool _appendTimestamp;
 
-        private List<string> _loadedSelectedExtensions = new();
-        private List<string> _loadedSelectedFilePaths = new();
-
         public int TotalFilesCount
         {
             get => _totalFilesCount;
@@ -136,8 +133,22 @@ namespace FileCraft.ViewModels.Functional
         {
             OutputFileName = settings.OutputFileName;
             AppendTimestamp = settings.AppendTimestamp;
-            _loadedSelectedExtensions = settings.SelectedExtensions ?? new List<string>();
-            _loadedSelectedFilePaths = settings.SelectedFilePaths ?? new List<string>();
+
+            var loadedSelectedExtensions = new HashSet<string>(settings.SelectedExtensions ?? new List<string>());
+            foreach (var extVM in AvailableExtensions)
+            {
+                extVM.IsSelected = loadedSelectedExtensions.Contains(extVM.Name);
+            }
+
+            var loadedSelectedFilePaths = new HashSet<string>(settings.SelectedFilePaths ?? new List<string>());
+            foreach (var fileVM in _allSelectableFiles)
+            {
+                fileVM.IsSelected = loadedSelectedFilePaths.Contains(fileVM.FullPath);
+            }
+
+            UpdateSelectableFiles();
+            UpdateFileCounts();
+            UpdateExtensionMasterState();
         }
 
         public List<string> GetSelectedFilePaths()
@@ -169,6 +180,7 @@ namespace FileCraft.ViewModels.Functional
                 ext.PropertyChanged -= OnExtensionSelectionChanged;
 
             SelectionHelper.SetSelectionState(AvailableExtensions, isSelected);
+
 
             foreach (var ext in AvailableExtensions)
                 ext.PropertyChanged += OnExtensionSelectionChanged;
@@ -222,12 +234,10 @@ namespace FileCraft.ViewModels.Functional
                 AvailableExtensions.Clear();
                 foreach (var ext in extensions.Where(e => !string.IsNullOrEmpty(e)).OrderBy(e => e))
                 {
-                    bool isSelected = previouslySelected.Contains(ext) || _loadedSelectedExtensions.Contains(ext);
-                    var item = new SelectableItemViewModel(ext, isSelected);
+                    var item = new SelectableItemViewModel(ext, previouslySelected.Contains(ext));
                     item.PropertyChanged += OnExtensionSelectionChanged;
                     AvailableExtensions.Add(item);
                 }
-                _loadedSelectedExtensions.Clear();
                 UpdateExtensionMasterState();
             });
         }
@@ -237,6 +247,7 @@ namespace FileCraft.ViewModels.Functional
             var selectedFolders = GetSelectedFoldersForFileListing();
             var selectedExtensions = new HashSet<string>(GetSelectedExtensions(), StringComparer.OrdinalIgnoreCase);
             var files = _fileQueryService.GetFilesByExtensions(selectedFolders, selectedExtensions);
+            var previouslySelectedFiles = new HashSet<string>(_allSelectableFiles.Where(f => f.IsSelected).Select(f => f.FullPath));
 
             System.Windows.Application.Current.Dispatcher.Invoke(() =>
             {
@@ -246,15 +257,13 @@ namespace FileCraft.ViewModels.Functional
 
                 foreach (var file in files.OrderBy(f => f.FullPath))
                 {
-                    if (_loadedSelectedFilePaths.Contains(file.FullPath))
+                    if (previouslySelectedFiles.Contains(file.FullPath))
                     {
                         file.IsSelected = true;
                     }
                     file.PropertyChanged += OnFileSelectionChanged;
                     _allSelectableFiles.Add(file);
                 }
-
-                _loadedSelectedFilePaths.Clear();
 
                 ApplyFileFilter();
             });
