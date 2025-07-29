@@ -35,15 +35,31 @@
             </GroupBox>
 
             <GroupBox Grid.Column="1" Header="Select details" Margin="5,0,0,0">
-                <ListView ItemsSource="{Binding AvailableColumns}" BorderThickness="0"
-                          ItemContainerStyle="{StaticResource SharedListViewItemStyle}"
-                          ScrollViewer.HorizontalScrollBarVisibility="Disabled">
-                    <ListView.ItemTemplate>
-                        <DataTemplate>
-                            <CheckBox IsChecked="{Binding IsSelected}" Content="{Binding Name}" VerticalAlignment="Center"/>
-                        </DataTemplate>
-                    </ListView.ItemTemplate>
-                </ListView>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <Border BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1" Padding="4,2">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <CheckBox Grid.Column="0" IsChecked="{Binding AreAllColumnsSelected}" IsThreeState="True" VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="1" Text="Select all" FontWeight="SemiBold" Margin="5,0,0,0" VerticalAlignment="Center"/>
+                        </Grid>
+                    </Border>
+                    <ListView Grid.Row="1" ItemsSource="{Binding AvailableColumns}" BorderThickness="0"
+                              ItemContainerStyle="{StaticResource SharedListViewItemStyle}"
+                              ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <CheckBox IsChecked="{Binding IsSelected}" Content="{Binding Name}" VerticalAlignment="Center"/>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </Grid>
             </GroupBox>
 
         </Grid>

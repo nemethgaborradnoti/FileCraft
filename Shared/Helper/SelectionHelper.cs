@@ -1,4 +1,6 @@
 ﻿using FileCraft.ViewModels.Interfaces;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace FileCraft.Shared.Helpers
 {
@@ -10,6 +12,26 @@ namespace FileCraft.Shared.Helpers
             {
                 item.IsSelected = isSelected;
             }
+        }
+
+        public static bool? GetMasterSelectionState<T>(ICollection<T> items) where T : ISelectable
+        {
+            if (items == null || !items.Any())
+            {
+                return false;
+            }
+
+            int selectedCount = items.Count(i => i.IsSelected);
+
+            if (selectedCount == 0)
+            {
+                return false;
+            }
+            if (selectedCount == items.Count)
+            {
+                return true;
+            }
+            return null;
         }
     }
 }

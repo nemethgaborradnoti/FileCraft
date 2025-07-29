@@ -45,7 +45,7 @@
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
                             <CheckBox Grid.Column="0" IsChecked="{Binding AreAllExtensionsSelected}" IsThreeState="True" VerticalAlignment="Center"/>
-                            <TextBlock Grid.Column="1" Text="Extension" FontWeight="SemiBold" Margin="5,0,0,0" VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="1" Text="Select all" FontWeight="SemiBold" Margin="5,0,0,0" VerticalAlignment="Center"/>
                         </Grid>
                     </Border>
                     <ListView Grid.Row="1" ItemsSource="{Binding AvailableExtensions}" ScrollViewer.HorizontalScrollBarVisibility="Disabled" BorderThickness="0" Height="250"
@@ -108,7 +108,7 @@
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <CheckBox Grid.Column="0" IsChecked="{Binding AreAllFilesSelected}" IsThreeState="True" VerticalAlignment="Center"/>
-                        <TextBlock Grid.Column="1" Text="File Path" FontWeight="SemiBold" Margin="5,0,0,0" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="1" Text="Select all" FontWeight="SemiBold" Margin="5,0,0,0" VerticalAlignment="Center"/>
                     </Grid>
                 </Border>
 
