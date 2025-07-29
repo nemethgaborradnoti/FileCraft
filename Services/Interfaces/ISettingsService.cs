@@ -7,6 +7,7 @@ namespace FileCraft.Services.Interfaces
         Settings LoadSettings();
         void SaveSettings(Settings settings);
         void SaveSettingsAsPreset(Settings settings, int presetNumber);
-        Settings LoadSettingsFromPreset(int presetNumber);
+        Settings? LoadSettingsFromPreset(int presetNumber);
+        bool CheckPresetExists(int presetNumber);
     }
 }

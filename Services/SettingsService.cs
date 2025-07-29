@@ -74,7 +74,7 @@ namespace FileCraft.Services
             }
         }
 
-        public Settings LoadSettingsFromPreset(int presetNumber)
+        public Settings? LoadSettingsFromPreset(int presetNumber)
         {
             string presetFilePath = GetPresetFilePath(presetNumber);
             if (!File.Exists(presetFilePath))
@@ -92,6 +92,12 @@ namespace FileCraft.Services
             {
                 return new Settings();
             }
+        }
+
+        public bool CheckPresetExists(int presetNumber)
+        {
+            string presetFilePath = GetPresetFilePath(presetNumber);
+            return File.Exists(presetFilePath);
         }
     }
 }

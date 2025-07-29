@@ -16,13 +16,32 @@
 
         <StackPanel Margin="10" VerticalAlignment="Top">
             <GroupBox Header="Load Settings Preset" Padding="10">
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                    <Button Content="1" Command="{Binding LoadPresetCommand}" CommandParameter="1" Width="50" Height="30" Margin="5"/>
-                    <Button Content="2" Command="{Binding LoadPresetCommand}" CommandParameter="2" Width="50" Height="30" Margin="5"/>
-                    <Button Content="3" Command="{Binding LoadPresetCommand}" CommandParameter="3" Width="50" Height="30" Margin="5"/>
-                    <Button Content="4" Command="{Binding LoadPresetCommand}" CommandParameter="4" Width="50" Height="30" Margin="5"/>
-                    <Button Content="5" Command="{Binding LoadPresetCommand}" CommandParameter="5" Width="50" Height="30" Margin="5"/>
-                </StackPanel>
+                <ItemsControl ItemsSource="{Binding LoadPresetSlots}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Button Content="{Binding PresetNumber}" 
+                                    Command="{Binding DataContext.LoadPresetCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                    CommandParameter="{Binding PresetNumber}" 
+                                    Width="50" Height="30" Margin="5">
+                                <Button.Style>
+                                    <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+                                        <Setter Property="Background" Value="#FFE6E6E6"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Exists}" Value="True">
+                                                <Setter Property="Background" Value="#7a9cc7"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
             </GroupBox>
 
             <GroupBox Header="Save Settings Preset" Padding="10" Margin="0,20,0,0">

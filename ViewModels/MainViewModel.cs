@@ -194,6 +194,7 @@ namespace FileCraft.ViewModels
                 var currentSettings = GetCurrentSettings();
                 _settingsService.SaveSettingsAsPreset(currentSettings, presetNumber);
                 _dialogService.ShowNotification("Success", $"Preset {presetNumber} saved successfully.");
+                SettingsVM.CheckForExistingPresets();
             }
             catch (Exception ex)
             {

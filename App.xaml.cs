@@ -10,7 +10,7 @@ namespace FileCraft
 {
     public partial class App : System.Windows.Application
     {
-        public static ServiceProvider ServiceProvider { get; private set; }
+        public static ServiceProvider? ServiceProvider { get; private set; }
 
         protected override void OnStartup(StartupEventArgs e)
         {
