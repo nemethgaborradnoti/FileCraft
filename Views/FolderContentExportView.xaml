@@ -20,7 +20,7 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <GroupBox Grid.Column="0" Header="Folders to Include" Margin="0,0,5,0">
+            <GroupBox Grid.Column="0" Header="Folders to Include">
                 <TreeView ItemsSource="{Binding RootFolders}" BorderThickness="0"
                           ItemContainerStyle="{StaticResource SharedTreeViewItemStyle}">
                     <TreeView.ItemTemplate>
@@ -34,7 +34,7 @@
                 </TreeView>
             </GroupBox>
 
-            <GroupBox Grid.Column="1" Header="Select details" Margin="5,0,0,0">
+            <GroupBox Grid.Column="1" Header="Select details">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
