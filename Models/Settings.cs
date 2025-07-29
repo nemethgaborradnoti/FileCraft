@@ -10,6 +10,7 @@
         public FolderContentExportSettings FolderContentExport { get; set; } = new();
         public TreeGeneratorSettings TreeGenerator { get; set; } = new();
         public FileRenamerSettings FileRenamer { get; set; } = new();
+        public SettingsPageSettings SettingsPage { get; set; } = new();
     }
 
     public abstract class ExportSettingsBase
@@ -53,5 +54,10 @@
         {
             OutputFileName = "RenameResult";
         }
+    }
+
+    public class SettingsPageSettings
+    {
+        // Future options
     }
 }

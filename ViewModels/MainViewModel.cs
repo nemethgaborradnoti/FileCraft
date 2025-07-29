@@ -64,6 +64,7 @@ namespace FileCraft.ViewModels
         public TreeGeneratorViewModel TreeGeneratorVM { get; }
         public FolderContentExportViewModel FolderContentExportVM { get; }
         public FileRenamerViewModel FileRenamerVM { get; }
+        public SettingsViewModel SettingsVM { get; }
 
         public ICommand ClearPathsCommand { get; }
         public ICommand SelectSourcePathCommand { get; }
@@ -77,7 +78,8 @@ namespace FileCraft.ViewModels
             FileContentExportViewModel fileContentExportVM,
             TreeGeneratorViewModel treeGeneratorVM,
             FolderContentExportViewModel folderContentExportVM,
-            FileRenamerViewModel fileRenamerVM)
+            FileRenamerViewModel fileRenamerVM,
+            SettingsViewModel settingsVM)
         {
             _settingsService = settingsService;
             _sharedStateService = sharedStateService;
@@ -87,6 +89,7 @@ namespace FileCraft.ViewModels
             TreeGeneratorVM = treeGeneratorVM;
             FolderContentExportVM = folderContentExportVM;
             FileRenamerVM = fileRenamerVM;
+            SettingsVM = settingsVM;
 
             ClearPathsCommand = new RelayCommand(_ => ClearPaths());
             SelectSourcePathCommand = new RelayCommand(_ => SelectPath(isSource: true));
@@ -159,7 +162,8 @@ namespace FileCraft.ViewModels
                     OutputFileName = TreeGeneratorVM.OutputFileName,
                     AppendTimestamp = TreeGeneratorVM.AppendTimestamp
                 },
-                FileRenamer = FileRenamerVM.GetSettings()
+                FileRenamer = FileRenamerVM.GetSettings(),
+                SettingsPage = new SettingsPageSettings()
             };
             _settingsService.SaveSettings(settings);
         }

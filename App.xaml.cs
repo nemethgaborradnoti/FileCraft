@@ -38,6 +38,7 @@ namespace FileCraft
             services.RegisterSingleton<TreeGeneratorViewModel, TreeGeneratorViewModel>();
             services.RegisterSingleton<FolderContentExportViewModel, FolderContentExportViewModel>();
             services.RegisterSingleton<FileRenamerViewModel, FileRenamerViewModel>();
+            services.RegisterSingleton<SettingsViewModel, SettingsViewModel>();
 
             services.RegisterSingleton<MainViewModel, MainViewModel>();
 
