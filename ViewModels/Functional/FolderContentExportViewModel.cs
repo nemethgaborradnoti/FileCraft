@@ -1,8 +1,10 @@
 ﻿using FileCraft.Models;
 using FileCraft.Services.Interfaces;
 using FileCraft.Shared.Commands;
+using FileCraft.Shared.Helpers;
 using FileCraft.ViewModels.Shared;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Windows.Input;
 
 namespace FileCraft.ViewModels.Functional
@@ -11,6 +13,7 @@ namespace FileCraft.ViewModels.Functional
     {
         private string _outputFileName = string.Empty;
         private bool _appendTimestamp;
+        private bool? _areAllColumnsSelected;
 
         public string OutputFileName
         {
@@ -38,6 +41,16 @@ namespace FileCraft.ViewModels.Functional
             }
         }
 
+        public bool? AreAllColumnsSelected
+        {
+            get => _areAllColumnsSelected;
+            set
+            {
+                bool selectAll = _areAllColumnsSelected != true;
+                SetColumnsSelectionState(selectAll);
+            }
+        }
+
         public ObservableCollection<SelectableItemViewModel> AvailableColumns { get; } = new();
         public ObservableCollection<FolderViewModel> RootFolders => FolderTreeManager.RootFolders;
         public ICommand ExportFolderContentsCommand { get; }
@@ -57,7 +70,7 @@ namespace FileCraft.ViewModels.Functional
                 }
             };
 
-            ExportFolderContentsCommand = new RelayCommand(async (_) => await ExportFolderContents(), (_) => CanExecuteOperation(this.OutputFileName));
+            ExportFolderContentsCommand = new RelayCommand(async (_) => await ExportFolderContents(), (_) => CanExecuteOperation(this.OutputFileName) && AvailableColumns.Any(c => c.IsSelected));
 
             var columns = new List<string> {
                 "Name",
@@ -73,7 +86,45 @@ namespace FileCraft.ViewModels.Functional
             };
             foreach (var col in columns)
             {
-                AvailableColumns.Add(new SelectableItemViewModel(col, true));
+                var item = new SelectableItemViewModel(col, true);
+                item.PropertyChanged += OnColumnSelectionChanged;
+                AvailableColumns.Add(item);
+            }
+            UpdateSelectAllColumnsState();
+        }
+
+        private void OnColumnSelectionChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(SelectableItemViewModel.IsSelected))
+            {
+                UpdateSelectAllColumnsState();
+            }
+        }
+
+        private void SetColumnsSelectionState(bool isSelected)
+        {
+            foreach (var column in AvailableColumns)
+            {
+                column.PropertyChanged -= OnColumnSelectionChanged;
+            }
+
+            SelectionHelper.SetSelectionState(AvailableColumns, isSelected);
+
+            foreach (var column in AvailableColumns)
+            {
+                column.PropertyChanged += OnColumnSelectionChanged;
+            }
+            UpdateSelectAllColumnsState();
+        }
+
+        private void UpdateSelectAllColumnsState()
+        {
+            bool? newSelectionState = SelectionHelper.GetMasterSelectionState(AvailableColumns);
+
+            if (_areAllColumnsSelected != newSelectionState)
+            {
+                _areAllColumnsSelected = newSelectionState;
+                OnPropertyChanged(nameof(AreAllColumnsSelected));
             }
         }
 
