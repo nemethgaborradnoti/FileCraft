@@ -8,12 +8,12 @@ namespace FileCraft
     {
         private readonly MainViewModel _viewModel;
 
-        public MainWindow(MainViewModel viewModel, IDialogService dialogService)
+        public MainWindow(MainViewModel viewModel)
         {
             InitializeComponent();
             _viewModel = viewModel;
-            this.DataContext = _viewModel;
-            this.Closing += MainWindow_Closing;
+            DataContext = _viewModel;
+            Closing += MainWindow_Closing;
         }
 
         private void MainWindow_Closing(object? sender, System.ComponentModel.CancelEventArgs e)
