@@ -6,65 +6,65 @@ using System.Text.Json;
 
 namespace FileCraft.Services
 {
-    public class SettingsService : ISettingsService
+    public class SaveService : ISaveService
     {
-        private readonly string _settingsFilePath;
+        private readonly string _saveFilePath;
         private readonly string _appDirectory;
 
-        public SettingsService()
+        public SaveService()
         {
             _appDirectory = AppDomain.CurrentDomain.BaseDirectory;
-            _settingsFilePath = Path.Combine(_appDirectory, "settings.json");
+            _saveFilePath = Path.Combine(_appDirectory, "save.json");
         }
 
-        public Settings LoadSettings()
+        public SaveData LoadSaveData()
         {
-            if (!File.Exists(_settingsFilePath))
+            if (!File.Exists(_saveFilePath))
             {
-                return new Settings();
+                return new SaveData();
             }
 
             try
             {
-                string json = File.ReadAllText(_settingsFilePath);
-                var settings = JsonSerializer.Deserialize<Settings>(json);
-                return settings ?? new Settings();
+                string json = File.ReadAllText(_saveFilePath);
+                var saveData = JsonSerializer.Deserialize<SaveData>(json);
+                return saveData ?? new SaveData();
             }
             catch (Exception)
             {
-                return new Settings();
+                return new SaveData();
             }
         }
 
-        public void SaveSettings(Settings settings)
+        public void Save(SaveData saveData)
         {
-            Guard.AgainstNull(settings, nameof(settings));
+            Guard.AgainstNull(saveData, nameof(saveData));
 
             try
             {
                 var options = new JsonSerializerOptions { WriteIndented = true };
-                string json = JsonSerializer.Serialize(settings, options);
-                File.WriteAllText(_settingsFilePath, json);
+                string json = JsonSerializer.Serialize(saveData, options);
+                File.WriteAllText(_saveFilePath, json);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error saving settings: {ex.Message}");
+                Console.WriteLine($"Error saving data: {ex.Message}");
             }
         }
 
         private string GetPresetFilePath(int presetNumber)
         {
-            return Path.Combine(_appDirectory, $"settings_preset_{presetNumber:00}.json");
+            return Path.Combine(_appDirectory, $"save_preset_{presetNumber:00}.json");
         }
 
-        public void SaveSettingsAsPreset(Settings settings, int presetNumber)
+        public void SaveAsPreset(SaveData saveData, int presetNumber)
         {
-            Guard.AgainstNull(settings, nameof(settings));
+            Guard.AgainstNull(saveData, nameof(saveData));
             string presetFilePath = GetPresetFilePath(presetNumber);
             try
             {
                 var options = new JsonSerializerOptions { WriteIndented = true };
-                string json = JsonSerializer.Serialize(settings, options);
+                string json = JsonSerializer.Serialize(saveData, options);
                 File.WriteAllText(presetFilePath, json);
             }
             catch (Exception ex)
@@ -74,7 +74,7 @@ namespace FileCraft.Services
             }
         }
 
-        public Settings? LoadSettingsFromPreset(int presetNumber)
+        public SaveData? LoadFromPreset(int presetNumber)
         {
             string presetFilePath = GetPresetFilePath(presetNumber);
             if (!File.Exists(presetFilePath))
@@ -85,12 +85,12 @@ namespace FileCraft.Services
             try
             {
                 string json = File.ReadAllText(presetFilePath);
-                var settings = JsonSerializer.Deserialize<Settings>(json);
-                return settings ?? new Settings();
+                var saveData = JsonSerializer.Deserialize<SaveData>(json);
+                return saveData ?? new SaveData();
             }
             catch (Exception)
             {
-                return new Settings();
+                return new SaveData();
             }
         }
 

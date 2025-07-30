@@ -1,12 +1,11 @@
-﻿<UserControl x:Class="FileCraft.Views.SettingsView"
+﻿<UserControl x:Class="FileCraft.Views.OptionsView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:FileCraft.Views"
              xmlns:viewmodels="clr-namespace:FileCraft.ViewModels.Functional"
              mc:Ignorable="d" 
-             d:DataContext="{d:DesignInstance Type=viewmodels:SettingsViewModel, IsDesignTimeCreatable=True}"
+             d:DataContext="{d:DesignInstance Type=viewmodels:OptionsViewModel, IsDesignTimeCreatable=True}"
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
         <Grid.RowDefinitions>
@@ -15,7 +14,7 @@
         </Grid.RowDefinitions>
 
         <StackPanel Margin="10" VerticalAlignment="Top">
-            <GroupBox Header="Load Settings Preset" Padding="10">
+            <GroupBox Header="Load Preset" Padding="10">
                 <ItemsControl ItemsSource="{Binding LoadPresetSlots}">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
@@ -44,7 +43,7 @@
                 </ItemsControl>
             </GroupBox>
 
-            <GroupBox Header="Save Settings Preset" Padding="10" Margin="0,20,0,0">
+            <GroupBox Header="Save Preset" Padding="10" Margin="0,20,0,0">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                     <Button Content="1" Command="{Binding SavePresetCommand}" CommandParameter="1" Width="50" Height="30" Margin="5"/>
                     <Button Content="2" Command="{Binding SavePresetCommand}" CommandParameter="2" Width="50" Height="30" Margin="5"/>

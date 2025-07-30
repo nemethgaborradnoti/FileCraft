@@ -1,6 +1,5 @@
 ﻿using FileCraft.Services.Interfaces;
 using FileCraft.Shared.Commands;
-using System;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
 
@@ -26,9 +25,9 @@ namespace FileCraft.ViewModels.Functional
         }
     }
 
-    public class SettingsViewModel : BaseViewModel
+    public class OptionsViewModel : BaseViewModel
     {
-        private readonly ISettingsService _settingsService;
+        private readonly ISaveService _saveService;
         public string Version => "v1.0.0";
 
         public event Action<int>? PresetSaveRequested;
@@ -39,9 +38,9 @@ namespace FileCraft.ViewModels.Functional
 
         public ObservableCollection<PresetSlotViewModel> LoadPresetSlots { get; } = new();
 
-        public SettingsViewModel(ISettingsService settingsService)
+        public OptionsViewModel(ISaveService saveService)
         {
-            _settingsService = settingsService;
+            _saveService = saveService;
 
             SavePresetCommand = new RelayCommand(presetNumber => PresetSaveRequested?.Invoke(Convert.ToInt32(presetNumber)));
             LoadPresetCommand = new RelayCommand(presetNumber => PresetLoadRequested?.Invoke(Convert.ToInt32(presetNumber)));
@@ -57,7 +56,7 @@ namespace FileCraft.ViewModels.Functional
         {
             foreach (var slot in LoadPresetSlots)
             {
-                slot.Exists = _settingsService.CheckPresetExists(slot.PresetNumber);
+                slot.Exists = _saveService.CheckPresetExists(slot.PresetNumber);
             }
         }
     }

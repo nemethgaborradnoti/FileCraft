@@ -1,4 +1,3 @@
-using FileCraft.Services.Interfaces;
 using FileCraft.ViewModels;
 using System.Windows;
 
@@ -18,7 +17,7 @@ namespace FileCraft
 
         private void MainWindow_Closing(object? sender, System.ComponentModel.CancelEventArgs e)
         {
-            _viewModel.SaveSettings();
+            _viewModel.Save();
         }
     }
 }
