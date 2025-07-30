@@ -1,4 +1,5 @@
 ﻿using FileCraft.Services.Interfaces;
+using FileCraft.ViewModels.Shared;
 using FileCraft.Views.Shared;
 
 namespace FileCraft.Services
@@ -25,6 +26,18 @@ namespace FileCraft.Services
         {
             var notificationWindow = new NotificationWindow(title, message);
             notificationWindow.ShowDialog();
+        }
+
+        public bool ShowConfirmation(string actionName, string destinationPath, int filesAffected)
+        {
+            var viewModel = new ConfirmationViewModel
+            {
+                ActionName = actionName,
+                DestinationPath = destinationPath,
+                FilesAffected = filesAffected
+            };
+            var confirmationWindow = new ConfirmationWindow(viewModel);
+            return confirmationWindow.ShowDialog() ?? false;
         }
     }
 }

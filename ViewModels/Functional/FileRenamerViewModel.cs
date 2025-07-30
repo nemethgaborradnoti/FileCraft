@@ -4,8 +4,6 @@ using FileCraft.Shared.Commands;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace FileCraft.ViewModels.Functional
@@ -114,7 +112,6 @@ namespace FileCraft.ViewModels.Functional
             }
             catch
             {
-                // Silently fail, UI will just be empty.
             }
         }
 
@@ -123,6 +120,29 @@ namespace FileCraft.ViewModels.Functional
             IsBusy = true;
             try
             {
+                var itemsToRename = new List<string>();
+                itemsToRename.AddRange(Directory.GetFiles(_sharedStateService.SourcePath, "*.*", SearchOption.TopDirectoryOnly));
+                if (IncludeFolders)
+                {
+                    itemsToRename.AddRange(Directory.GetDirectories(_sharedStateService.SourcePath, "*", SearchOption.TopDirectoryOnly));
+                }
+
+                if (!itemsToRename.Any())
+                {
+                    _dialogService.ShowNotification("Information", "No items to rename in the source folder.");
+                    return;
+                }
+
+                bool confirmed = _dialogService.ShowConfirmation(
+                    actionName: "Rename Files",
+                    destinationPath: _sharedStateService.SourcePath,
+                    filesAffected: itemsToRename.Count);
+
+                if (!confirmed)
+                {
+                    return;
+                }
+
                 string logFilePath = await _fileOperationService.RenameFilesAsync(
                     _sharedStateService.SourcePath,
                     _sharedStateService.DestinationPath,

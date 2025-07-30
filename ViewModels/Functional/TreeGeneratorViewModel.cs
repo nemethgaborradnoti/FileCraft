@@ -64,9 +64,20 @@ namespace FileCraft.ViewModels.Functional
             try
             {
                 var allNodes = RootFolders.Any() ? RootFolders[0].GetAllNodes() : Enumerable.Empty<FolderViewModel>();
+                int includedFoldersCount = allNodes.Count(n => n.IsSelected != false);
                 var excludedFolderPaths = new HashSet<string>(
                     allNodes.Where(n => n.IsSelected == false).Select(n => n.FullPath),
                     StringComparer.OrdinalIgnoreCase);
+
+                bool confirmed = _dialogService.ShowConfirmation(
+                    actionName: "Generate Tree Structure",
+                    destinationPath: _sharedStateService.DestinationPath,
+                    filesAffected: includedFoldersCount);
+
+                if (!confirmed)
+                {
+                    return;
+                }
 
                 string finalFileName = GetFinalFileName(OutputFileName, AppendTimestamp);
                 string outputFilePath = await _fileOperationService.GenerateTreeStructureAsync(_sharedStateService.SourcePath, _sharedStateService.DestinationPath, excludedFolderPaths, finalFileName);

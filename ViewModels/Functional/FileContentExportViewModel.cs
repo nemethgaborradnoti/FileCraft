@@ -332,6 +332,17 @@ namespace FileCraft.ViewModels.Functional
                     _dialogService.ShowNotification("Information", "No files were selected. Please select at least one file to export.");
                     return;
                 }
+
+                bool confirmed = _dialogService.ShowConfirmation(
+                    actionName: "Export File Contents",
+                    destinationPath: _sharedStateService.DestinationPath,
+                    filesAffected: selectedPaths.Count);
+
+                if (!confirmed)
+                {
+                    return;
+                }
+
                 string finalFileName = GetFinalFileName(OutputFileName, AppendTimestamp);
                 string outputFilePath = await _fileOperationService.ExportSelectedFileContentsAsync(_sharedStateService.DestinationPath, selectedPaths, finalFileName);
                 _dialogService.ShowNotification("Success", $"File contents exported successfully!\n\n{selectedPaths.Count} files were processed.\nSaved to: {outputFilePath}");

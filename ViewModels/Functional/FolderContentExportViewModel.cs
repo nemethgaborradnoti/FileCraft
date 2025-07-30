@@ -5,6 +5,7 @@ using FileCraft.Shared.Helpers;
 using FileCraft.ViewModels.Shared;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
 using System.Windows.Input;
 
 namespace FileCraft.ViewModels.Functional
@@ -170,6 +171,29 @@ namespace FileCraft.ViewModels.Functional
                 if (!selectedColumns.Any())
                 {
                     _dialogService.ShowNotification("Information", "No columns were selected. Please select at least one column to export.");
+                    return;
+                }
+
+                int fileCount = 0;
+                foreach (var folderPath in includedFolderPaths)
+                {
+                    if (Directory.Exists(folderPath))
+                    {
+                        try
+                        {
+                            fileCount += Directory.GetFiles(folderPath, "*.*", SearchOption.TopDirectoryOnly).Length;
+                        }
+                        catch (UnauthorizedAccessException) { }
+                    }
+                }
+
+                bool confirmed = _dialogService.ShowConfirmation(
+                    actionName: "Export Folder Contents",
+                    destinationPath: _sharedStateService.DestinationPath,
+                    filesAffected: fileCount);
+
+                if (!confirmed)
+                {
                     return;
                 }
 
