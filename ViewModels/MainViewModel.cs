@@ -92,6 +92,8 @@ namespace FileCraft.ViewModels
             OptionsVM = optionsVM;
             OptionsVM.PresetSaveRequested += OnPresetSaveRequested;
             OptionsVM.PresetLoadRequested += OnPresetLoadRequested;
+            OptionsVM.PresetDeleteRequested += OnPresetDeleteRequested;
+            OptionsVM.CurrentSaveDeleteRequested += OnCurrentSaveDeleteRequested;
 
             ClearPathsCommand = new RelayCommand(_ => ClearPaths());
             SelectSourcePathCommand = new RelayCommand(_ => SelectPath(isSource: true));
@@ -187,6 +189,12 @@ namespace FileCraft.ViewModels
 
         private void OnPresetSaveRequested(int presetNumber, string presetName)
         {
+            bool confirmed = _dialogService.ShowConfirmation(
+                title: $"Save to Preset {presetNumber}",
+                message: $"This will save the current configuration as '{presetName}'.\nIf a preset already exists, it will be overwritten.\n\nAre you sure you want to continue?");
+
+            if (!confirmed) return;
+
             try
             {
                 var currentSaveData = GetCurrentSaveData();
@@ -220,6 +228,48 @@ namespace FileCraft.ViewModels
             catch (Exception ex)
             {
                 _dialogService.ShowNotification("Error", $"Failed to load preset {presetNumber}.\n\n{ex.Message}");
+            }
+        }
+
+        private void OnPresetDeleteRequested(int presetNumber)
+        {
+            bool confirmed = _dialogService.ShowConfirmation(
+                title: $"Delete Preset {presetNumber}",
+                message: "This action cannot be undone.");
+
+            if (confirmed)
+            {
+                try
+                {
+                    _saveService.DeletePreset(presetNumber);
+                    OptionsVM.CheckForExistingPresets();
+                    _dialogService.ShowNotification("Success", $"Preset {presetNumber} has been deleted.");
+                }
+                catch (Exception ex)
+                {
+                    _dialogService.ShowNotification("Error", $"Failed to delete preset {presetNumber}.\n\n{ex.Message}");
+                }
+            }
+        }
+
+        private void OnCurrentSaveDeleteRequested()
+        {
+            bool confirmed = _dialogService.ShowConfirmation(
+                title: "Delete Current Save",
+                message: "All current settings will be reset to default. This action cannot be undone.");
+
+            if (confirmed)
+            {
+                try
+                {
+                    _saveService.DeleteSaveData();
+                    ApplyAllData(new SaveData());
+                    _dialogService.ShowNotification("Success", "Current save data has been deleted. Application has been reset to default settings.");
+                }
+                catch (Exception ex)
+                {
+                    _dialogService.ShowNotification("Error", $"Failed to delete save data.\n\n{ex.Message}");
+                }
             }
         }
     }

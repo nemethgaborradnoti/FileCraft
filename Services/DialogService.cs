@@ -8,15 +8,14 @@ namespace FileCraft.Services
     {
         public string? SelectFolder(string description)
         {
-            var dialog = new FolderBrowserDialog
+            var dialog = new Microsoft.Win32.OpenFolderDialog
             {
-                Description = description,
-                UseDescriptionForTitle = true
+                Title = description
             };
 
-            if (dialog.ShowDialog() == DialogResult.OK)
+            if (dialog.ShowDialog() == true)
             {
-                return dialog.SelectedPath;
+                return dialog.FolderName;
             }
 
             return null;
@@ -33,8 +32,20 @@ namespace FileCraft.Services
             var viewModel = new ConfirmationViewModel
             {
                 ActionName = actionName,
-                DestinationPath = destinationPath,
+                Message = $"The operation will affect the following path:\n{destinationPath}",
                 FilesAffected = filesAffected
+            };
+            var confirmationWindow = new ConfirmationWindow(viewModel);
+            return confirmationWindow.ShowDialog() ?? false;
+        }
+
+        public bool ShowConfirmation(string title, string message)
+        {
+            var viewModel = new ConfirmationViewModel
+            {
+                ActionName = title,
+                Message = message,
+                FilesAffected = null
             };
             var confirmationWindow = new ConfirmationWindow(viewModel);
             return confirmationWindow.ShowDialog() ?? false;

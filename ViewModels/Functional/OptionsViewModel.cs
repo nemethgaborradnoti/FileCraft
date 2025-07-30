@@ -65,9 +65,13 @@ namespace FileCraft.ViewModels.Functional
 
         public event Action<int, string>? PresetSaveRequested;
         public event Action<int>? PresetLoadRequested;
+        public event Action<int>? PresetDeleteRequested;
+        public event Action? CurrentSaveDeleteRequested;
 
         public ICommand SavePresetCommand { get; }
         public ICommand LoadPresetCommand { get; }
+        public ICommand DeletePresetCommand { get; }
+        public ICommand DeleteCurrentSaveCommand { get; }
 
         public ObservableCollection<PresetSlotViewModel> PresetSlots { get; } = new();
 
@@ -92,6 +96,13 @@ namespace FileCraft.ViewModels.Functional
 
             LoadPresetCommand = new RelayCommand(
                 presetNumber => PresetLoadRequested?.Invoke(Convert.ToInt32(presetNumber)));
+
+            DeletePresetCommand = new RelayCommand(
+                presetNumber => PresetDeleteRequested?.Invoke(Convert.ToInt32(presetNumber)));
+
+            DeleteCurrentSaveCommand = new RelayCommand(
+                _ => CurrentSaveDeleteRequested?.Invoke());
+
 
             for (int i = 1; i <= 5; i++)
             {

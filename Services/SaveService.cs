@@ -105,5 +105,38 @@ namespace FileCraft.Services
             var presetData = LoadFromPreset(presetNumber);
             return presetData?.PresetName ?? string.Empty;
         }
+
+        public void DeletePreset(int presetNumber)
+        {
+            string presetFilePath = GetPresetFilePath(presetNumber);
+            if (File.Exists(presetFilePath))
+            {
+                try
+                {
+                    File.Delete(presetFilePath);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error deleting preset {presetNumber}: {ex.Message}");
+                    throw;
+                }
+            }
+        }
+
+        public void DeleteSaveData()
+        {
+            if (File.Exists(_saveFilePath))
+            {
+                try
+                {
+                    File.Delete(_saveFilePath);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error deleting save data: {ex.Message}");
+                    throw;
+                }
+            }
+        }
     }
 }
