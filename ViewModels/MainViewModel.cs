@@ -172,14 +172,14 @@ namespace FileCraft.ViewModels
                 DestinationPath = settings.DestinationPath;
                 SelectedTabIndex = settings.SelectedTabIndex;
 
+                FolderTreeManager.LoadTreeForPath(SourcePath, settings.FolderTreeState);
+
                 FileContentExportVM.ApplySettings(settings.FileContentExport);
                 FolderContentExportVM.ApplySettings(settings.FolderContentExport);
                 FileRenamerVM.ApplySettings(settings.FileRenamer);
 
                 TreeGeneratorVM.OutputFileName = settings.TreeGenerator.OutputFileName;
                 TreeGeneratorVM.AppendTimestamp = settings.TreeGenerator.AppendTimestamp;
-
-                FolderTreeManager.LoadTreeForPath(SourcePath, settings.FolderTreeState);
             }
             finally
             {
