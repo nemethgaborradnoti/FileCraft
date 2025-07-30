@@ -15,6 +15,7 @@ namespace FileCraft.ViewModels.Functional
         private string _outputFileName = string.Empty;
         private bool _appendTimestamp;
         private bool? _areAllColumnsSelected;
+        private int _affectedFilesCount;
 
         public string OutputFileName
         {
@@ -52,6 +53,16 @@ namespace FileCraft.ViewModels.Functional
             }
         }
 
+        public int AffectedFilesCount
+        {
+            get => _affectedFilesCount;
+            set
+            {
+                _affectedFilesCount = value;
+                OnPropertyChanged();
+            }
+        }
+
         public ObservableCollection<SelectableItemViewModel> AvailableColumns { get; } = new();
         public ObservableCollection<FolderViewModel> RootFolders => FolderTreeManager.RootFolders;
         public ICommand ExportFolderContentsCommand { get; }
@@ -63,27 +74,21 @@ namespace FileCraft.ViewModels.Functional
             FolderTreeManager folderTreeManager)
             : base(sharedStateService, fileOperationService, dialogService, folderTreeManager)
         {
+            FolderTreeManager.FolderSelectionChanged += UpdateAffectedFilesCount;
             FolderTreeManager.PropertyChanged += (s, e) =>
             {
                 if (e.PropertyName == nameof(FolderTreeManager.RootFolders))
                 {
                     OnPropertyChanged(nameof(RootFolders));
+                    UpdateAffectedFilesCount();
                 }
             };
 
             ExportFolderContentsCommand = new RelayCommand(async (_) => await ExportFolderContents(), (_) => CanExecuteOperation(this.OutputFileName) && AvailableColumns.Any(c => c.IsSelected));
 
             var columns = new List<string> {
-                "Name",
-                "Size (byte)",
-                "CreationTime",
-                "LastWriteTime",
-                "LastAccessTime",
-                "IsReadOnly",
-                "Attributes",
-                "FullPath",
-                "Parent",
-                "Format"
+                "Name", "Size (byte)", "CreationTime", "LastWriteTime", "LastAccessTime",
+                "IsReadOnly", "Attributes", "FullPath", "Parent", "Format"
             };
             foreach (var col in columns)
             {
@@ -92,6 +97,7 @@ namespace FileCraft.ViewModels.Functional
                 AvailableColumns.Add(item);
             }
             UpdateSelectAllColumnsState();
+            UpdateAffectedFilesCount();
         }
 
         private void OnColumnSelectionChanged(object? sender, PropertyChangedEventArgs e)
@@ -105,16 +111,13 @@ namespace FileCraft.ViewModels.Functional
         private void SetColumnsSelectionState(bool isSelected)
         {
             foreach (var column in AvailableColumns)
-            {
                 column.PropertyChanged -= OnColumnSelectionChanged;
-            }
 
             SelectionHelper.SetSelectionState(AvailableColumns, isSelected);
 
             foreach (var column in AvailableColumns)
-            {
                 column.PropertyChanged += OnColumnSelectionChanged;
-            }
+
             UpdateSelectAllColumnsState();
         }
 
@@ -150,6 +153,29 @@ namespace FileCraft.ViewModels.Functional
             return AvailableColumns.Where(c => c.IsSelected).Select(c => c.Name).ToList();
         }
 
+        private void UpdateAffectedFilesCount()
+        {
+            var allNodes = RootFolders.Any() ? RootFolders[0].GetAllNodes() : Enumerable.Empty<FolderViewModel>();
+            var includedFolderPaths = allNodes
+                .Where(n => n.IsSelected != false)
+                .Select(n => n.FullPath)
+                .ToList();
+
+            int fileCount = 0;
+            foreach (var folderPath in includedFolderPaths)
+            {
+                if (Directory.Exists(folderPath))
+                {
+                    try
+                    {
+                        fileCount += Directory.GetFiles(folderPath, "*.*", SearchOption.TopDirectoryOnly).Length;
+                    }
+                    catch (UnauthorizedAccessException) { }
+                }
+            }
+            AffectedFilesCount = fileCount;
+        }
+
         private async Task ExportFolderContents()
         {
             IsBusy = true;
@@ -174,23 +200,10 @@ namespace FileCraft.ViewModels.Functional
                     return;
                 }
 
-                int fileCount = 0;
-                foreach (var folderPath in includedFolderPaths)
-                {
-                    if (Directory.Exists(folderPath))
-                    {
-                        try
-                        {
-                            fileCount += Directory.GetFiles(folderPath, "*.*", SearchOption.TopDirectoryOnly).Length;
-                        }
-                        catch (UnauthorizedAccessException) { }
-                    }
-                }
-
                 bool confirmed = _dialogService.ShowConfirmation(
                     actionName: "Export Folder Contents",
                     destinationPath: _sharedStateService.DestinationPath,
-                    filesAffected: fileCount);
+                    filesAffected: AffectedFilesCount);
 
                 if (!confirmed)
                 {

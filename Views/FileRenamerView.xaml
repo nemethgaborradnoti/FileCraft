@@ -34,6 +34,12 @@
         </Grid>
 
         <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,10,0,0">
+            <StackPanel VerticalAlignment="Center" Margin="0,0,20,0">
+                <TextBlock>
+                    <Run Text="Items to rename:" FontWeight="Bold"/>
+                    <Run Text="{Binding ItemsToRenameCount, Mode=OneWay}"/>
+                </TextBlock>
+            </StackPanel>
             <controls:ExportOptionsControl DataContext="{Binding}" />
             <Button Content="Start Renaming" 
                     Command="{Binding RenameFilesCommand}"
