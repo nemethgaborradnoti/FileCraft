@@ -10,6 +10,7 @@ namespace FileCraft.ViewModels.Functional
     {
         private string _outputFileName = string.Empty;
         private bool _appendTimestamp;
+        private int _includedFoldersCount;
 
         public string OutputFileName
         {
@@ -37,6 +38,16 @@ namespace FileCraft.ViewModels.Functional
             }
         }
 
+        public int IncludedFoldersCount
+        {
+            get => _includedFoldersCount;
+            set
+            {
+                _includedFoldersCount = value;
+                OnPropertyChanged();
+            }
+        }
+
         public ObservableCollection<FolderViewModel> RootFolders => FolderTreeManager.RootFolders;
         public ICommand GenerateTreeStructureCommand { get; }
 
@@ -47,15 +58,24 @@ namespace FileCraft.ViewModels.Functional
             FolderTreeManager folderTreeManager)
             : base(sharedStateService, fileOperationService, dialogService, folderTreeManager)
         {
+            FolderTreeManager.FolderSelectionChanged += UpdateIncludedFoldersCount;
             FolderTreeManager.PropertyChanged += (s, e) =>
             {
                 if (e.PropertyName == nameof(FolderTreeManager.RootFolders))
                 {
                     OnPropertyChanged(nameof(RootFolders));
+                    UpdateIncludedFoldersCount();
                 }
             };
 
             GenerateTreeStructureCommand = new RelayCommand(async (_) => await GenerateTreeStructure(), (_) => CanExecuteOperation(this.OutputFileName));
+            UpdateIncludedFoldersCount();
+        }
+
+        private void UpdateIncludedFoldersCount()
+        {
+            var allNodes = RootFolders.Any() ? RootFolders[0].GetAllNodes() : Enumerable.Empty<FolderViewModel>();
+            IncludedFoldersCount = allNodes.Count(n => n.IsSelected != false);
         }
 
         private async Task GenerateTreeStructure()
@@ -64,9 +84,20 @@ namespace FileCraft.ViewModels.Functional
             try
             {
                 var allNodes = RootFolders.Any() ? RootFolders[0].GetAllNodes() : Enumerable.Empty<FolderViewModel>();
+
                 var excludedFolderPaths = new HashSet<string>(
                     allNodes.Where(n => n.IsSelected == false).Select(n => n.FullPath),
                     StringComparer.OrdinalIgnoreCase);
+
+                bool confirmed = _dialogService.ShowConfirmation(
+                    actionName: "Generate Tree Structure",
+                    destinationPath: _sharedStateService.DestinationPath,
+                    filesAffected: IncludedFoldersCount);
+
+                if (!confirmed)
+                {
+                    return;
+                }
 
                 string finalFileName = GetFinalFileName(OutputFileName, AppendTimestamp);
                 string outputFilePath = await _fileOperationService.GenerateTreeStructureAsync(_sharedStateService.SourcePath, _sharedStateService.DestinationPath, excludedFolderPaths, finalFileName);

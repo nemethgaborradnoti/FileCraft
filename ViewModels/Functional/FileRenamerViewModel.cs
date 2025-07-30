@@ -4,8 +4,6 @@ using FileCraft.Shared.Commands;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace FileCraft.ViewModels.Functional
@@ -17,20 +15,22 @@ namespace FileCraft.ViewModels.Functional
         private readonly IDialogService _dialogService;
 
         private string _outputFileName = "RenameResult";
+        private bool _appendTimestamp;
+        private bool _includeFolders;
+        private int _itemsToRenameCount;
+
         public string OutputFileName
         {
             get => _outputFileName;
             set { _outputFileName = value; OnPropertyChanged(); }
         }
 
-        private bool _appendTimestamp;
         public bool AppendTimestamp
         {
             get => _appendTimestamp;
             set { _appendTimestamp = value; OnPropertyChanged(); }
         }
 
-        private bool _includeFolders;
         public bool IncludeFolders
         {
             get => _includeFolders;
@@ -42,6 +42,16 @@ namespace FileCraft.ViewModels.Functional
                     OnPropertyChanged();
                     UpdatePreview();
                 }
+            }
+        }
+
+        public int ItemsToRenameCount
+        {
+            get => _itemsToRenameCount;
+            set
+            {
+                _itemsToRenameCount = value;
+                OnPropertyChanged();
             }
         }
 
@@ -85,6 +95,7 @@ namespace FileCraft.ViewModels.Functional
         private void UpdatePreview()
         {
             RenamePreview.Clear();
+            ItemsToRenameCount = 0;
 
             string sourcePath = _sharedStateService.SourcePath;
             if (string.IsNullOrWhiteSpace(sourcePath) || !Directory.Exists(sourcePath))
@@ -101,6 +112,8 @@ namespace FileCraft.ViewModels.Functional
                     itemsToPreview.AddRange(Directory.GetDirectories(sourcePath, "*", SearchOption.TopDirectoryOnly));
                 }
 
+                ItemsToRenameCount = itemsToPreview.Count;
+
                 int currentNumber = 1;
                 foreach (var itemPath in itemsToPreview.OrderBy(f => f).Take(100))
                 {
@@ -114,7 +127,6 @@ namespace FileCraft.ViewModels.Functional
             }
             catch
             {
-                // Silently fail, UI will just be empty.
             }
         }
 
@@ -123,6 +135,22 @@ namespace FileCraft.ViewModels.Functional
             IsBusy = true;
             try
             {
+                if (ItemsToRenameCount == 0)
+                {
+                    _dialogService.ShowNotification("Information", "No items to rename in the source folder.");
+                    return;
+                }
+
+                bool confirmed = _dialogService.ShowConfirmation(
+                    actionName: "Rename Files",
+                    destinationPath: _sharedStateService.SourcePath,
+                    filesAffected: ItemsToRenameCount);
+
+                if (!confirmed)
+                {
+                    return;
+                }
+
                 string logFilePath = await _fileOperationService.RenameFilesAsync(
                     _sharedStateService.SourcePath,
                     _sharedStateService.DestinationPath,
