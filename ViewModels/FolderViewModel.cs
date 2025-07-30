@@ -63,19 +63,11 @@ namespace FileCraft.ViewModels
                 OnPropertyChanged(nameof(IsSelected));
                 _onStateChanged?.Invoke();
 
-                if (updateChildren && _isSelected.HasValue)
+                if (updateChildren)
                 {
-                    var queue = new Queue<FolderViewModel>(Children);
-                    while (queue.Count > 0)
+                    foreach (var child in Children)
                     {
-                        var child = queue.Dequeue();
-
-                        child.SetIsSelected(_isSelected, false, false);
-
-                        foreach (var grandChild in child.Children)
-                        {
-                            queue.Enqueue(grandChild);
-                        }
+                        child.SetIsSelected(value, true, false);
                     }
                 }
 
@@ -92,21 +84,23 @@ namespace FileCraft.ViewModels
 
         private void VerifyCheckState()
         {
-            bool? state;
-            if (Children.Any() && Children.All(c => c.IsSelected == true))
+            bool? newParentState;
+
+            if (!Children.Any())
             {
-                state = true;
+                return;
             }
-            else if (Children.Any() && Children.All(c => c.IsSelected == false))
+
+            if (Children.All(c => c.IsSelected == true))
             {
-                state = false;
+                newParentState = true;
             }
             else
             {
-                state = null;
+                newParentState = null;
             }
 
-            SetIsSelected(state, false, true);
+            SetIsSelected(newParentState, false, true);
         }
 
         public void ApplyState(FolderState state)
