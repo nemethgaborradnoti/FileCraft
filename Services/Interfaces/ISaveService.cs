@@ -9,5 +9,8 @@ namespace FileCraft.Services.Interfaces
         void SaveAsPreset(SaveData saveData, int presetNumber);
         SaveData? LoadFromPreset(int presetNumber);
         bool CheckPresetExists(int presetNumber);
+        string GetPresetName(int presetNumber);
+        void DeletePreset(int presetNumber);
+        void DeleteSaveData();
     }
 }

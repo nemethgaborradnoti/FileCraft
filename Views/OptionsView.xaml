@@ -13,52 +13,127 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <StackPanel Margin="10" VerticalAlignment="Top">
-            <GroupBox Header="Load Preset" Padding="10">
-                <ItemsControl ItemsSource="{Binding LoadPresetSlots}">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center"/>
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <Button Content="{Binding PresetNumber}" 
-                                    Command="{Binding DataContext.LoadPresetCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                    CommandParameter="{Binding PresetNumber}" 
-                                    Width="50" Height="30" Margin="5">
-                                <Button.Style>
-                                    <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
-                                        <Setter Property="Background" Value="#FFE6E6E6"/>
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding Exists}" Value="True">
-                                                <Setter Property="Background" Value="#7a9cc7"/>
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </Button.Style>
-                            </Button>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-            </GroupBox>
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
 
-            <GroupBox Header="Save Preset" Padding="10" Margin="0,20,0,0">
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                    <Button Content="1" Command="{Binding SavePresetCommand}" CommandParameter="1" Width="50" Height="30" Margin="5"/>
-                    <Button Content="2" Command="{Binding SavePresetCommand}" CommandParameter="2" Width="50" Height="30" Margin="5"/>
-                    <Button Content="3" Command="{Binding SavePresetCommand}" CommandParameter="3" Width="50" Height="30" Margin="5"/>
-                    <Button Content="4" Command="{Binding SavePresetCommand}" CommandParameter="4" Width="50" Height="30" Margin="5"/>
-                    <Button Content="5" Command="{Binding SavePresetCommand}" CommandParameter="5" Width="50" Height="30" Margin="5"/>
-                </StackPanel>
-            </GroupBox>
-        </StackPanel>
+            <StackPanel Grid.Column="0" Margin="10">
+                <GroupBox Header="Load Preset" Padding="10">
+                    <ItemsControl ItemsSource="{Binding PresetSlots}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Margin="0,2">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
 
-        <TextBlock Grid.Row="1" Text="{Binding Version, StringFormat='Version: {0}'}"
-                   HorizontalAlignment="Right"
+                                    <Button Grid.Column="0" 
+                                            Content="X"
+                                            Command="{Binding DataContext.DeletePresetCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                            CommandParameter="{Binding PresetNumber}"
+                                            IsEnabled="{Binding Exists}"
+                                            Width="28" Height="28" Margin="5,0,0,0"
+                                            FontWeight="Bold"
+                                            Padding="0"
+                                            Foreground="White">
+                                        <Button.Style>
+                                            <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+                                                <Setter Property="Background" Value="#FFC10707"/>
+                                                <Style.Triggers>
+                                                    <Trigger Property="IsEnabled" Value="False">
+                                                        <Setter Property="Background" Value="LightGray"/>
+                                                        <Setter Property="Foreground" Value="DarkGray"/>
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Button.Style>
+                                    </Button>
+
+                                    <Button Grid.Column="1" 
+                                            Content="{Binding PresetNumber}"
+                                            ContentStringFormat="Load ({0})"
+                                            Command="{Binding DataContext.LoadPresetCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                            CommandParameter="{Binding PresetNumber}" 
+                                            IsEnabled="{Binding Exists}"
+                                            Width="90" Height="28" Margin="5,0,0,0">
+                                        <Button.Style>
+                                            <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Exists}" Value="False">
+                                                        <Setter Property="Background" Value="#FFE6E6E6"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Exists}" Value="True">
+                                                        <Setter Property="Background" Value="#7a9cc7"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Button.Style>
+                                    </Button>
+
+                                    <TextBlock Grid.Column="2" Text="{Binding PresetName}" VerticalAlignment="Center" Margin="10,0,0,0" FontStyle="Italic"/>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </GroupBox>
+
+                <GroupBox Header="Save Preset" Padding="10" Margin="0,10,0,0">
+                    <ItemsControl ItemsSource="{Binding PresetSlots}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Margin="0,2">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Button Grid.Column="0"
+                                            Content="{Binding PresetNumber}"
+                                            ContentStringFormat="Save ({0})"
+                                            Command="{Binding DataContext.SavePresetCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                            CommandParameter="{Binding}" 
+                                            Width="90" Height="28" Margin="5,0,0,0"/>
+                                    <Grid Grid.Column="1" Margin="10,0,5,0">
+                                        <TextBlock IsHitTestVisible="False" Text="{Binding PresetNumber, StringFormat='preset_{0:00}'}" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5,0,0,0" Foreground="Gray" FontStyle="Italic">
+                                            <TextBlock.Style>
+                                                <Style TargetType="{x:Type TextBlock}">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding Text, ElementName=PresetNameTextBox}" Value="">
+                                                            <Setter Property="Visibility" Value="Visible"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                        <TextBox x:Name="PresetNameTextBox" Text="{Binding InputName, UpdateSourceTrigger=PropertyChanged}" MaxLength="50" VerticalContentAlignment="Center" Background="Transparent" Height="28" />
+                                    </Grid>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </GroupBox>
+
+                <Button Content="Delete Current Save" 
+                        Command="{Binding DeleteCurrentSaveCommand}"
+                        Margin="10,20,10,10"
+                        Padding="10,5"
+                        Background="#FFE0E0E0"/>
+
+            </StackPanel>
+
+            <Border Grid.Column="1" Margin="10" BorderBrush="LightGray" BorderThickness="1" CornerRadius="3">
+            </Border>
+        </Grid>
+
+        <TextBlock Grid.Row="1" Text="{Binding Version, StringFormat='Version {0}'}"
+                   HorizontalAlignment="Center"
                    VerticalAlignment="Bottom"
                    FontSize="12"
                    Foreground="Gray"
-                   Margin="0,0,10,10"/>
+                   Margin="10"/>
     </Grid>
 </UserControl>
