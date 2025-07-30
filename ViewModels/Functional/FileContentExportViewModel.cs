@@ -140,13 +140,20 @@ namespace FileCraft.ViewModels.Functional
                 extVM.IsSelected = loadedSelectedExtensions.Contains(extVM.Name);
             }
 
+            UpdateSelectableFiles();
+
             var loadedSelectedFilePaths = new HashSet<string>(settings.SelectedFilePaths ?? new List<string>());
-            foreach (var fileVM in _allSelectableFiles)
+            if (loadedSelectedFilePaths.Any())
             {
-                fileVM.IsSelected = loadedSelectedFilePaths.Contains(fileVM.FullPath);
+                foreach (var fileVM in _allSelectableFiles)
+                {
+                    if (loadedSelectedFilePaths.Contains(fileVM.FullPath))
+                    {
+                        fileVM.IsSelected = true;
+                    }
+                }
             }
 
-            UpdateSelectableFiles();
             UpdateFileCounts();
             UpdateExtensionMasterState();
         }
