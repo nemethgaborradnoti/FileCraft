@@ -1,48 +1,68 @@
-﻿using FileCraft.Core.DependencyInjection;
-using FileCraft.Services;
+﻿using FileCraft.Services;
 using FileCraft.Services.Interfaces;
 using FileCraft.ViewModels;
 using FileCraft.ViewModels.Functional;
 using FileCraft.ViewModels.Shared;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using System.Windows;
 
 namespace FileCraft
 {
     public partial class App : System.Windows.Application
     {
-        public static ServiceProvider? ServiceProvider { get; private set; }
+        private readonly IHost _host;
 
-        protected override void OnStartup(StartupEventArgs e)
+        public App()
         {
-            base.OnStartup(e);
-
-            ServiceProvider = new ServiceProvider();
-            ConfigureServices(ServiceProvider);
-
-            var mainWindow = ServiceProvider.GetService<MainWindow>();
-            mainWindow.Show();
+            _host = Host.CreateDefaultBuilder()
+                .ConfigureServices((context, services) =>
+                {
+                    ConfigureServices(services);
+                })
+                .Build();
         }
 
-        private void ConfigureServices(ServiceProvider services)
+        protected override async void OnStartup(StartupEventArgs e)
         {
-            services.RegisterSingleton<IDialogService, DialogService>();
-            services.RegisterSingleton<IFileOperationService, FileOperationService>();
-            services.RegisterSingleton<IFolderTreeService, FolderTreeService>();
-            services.RegisterSingleton<ISettingsService, SettingsService>();
-            services.RegisterSingleton<ISharedStateService, SharedStateService>();
+            await _host.StartAsync();
 
-            services.RegisterSingleton<IFileQueryService, FileQueryService>();
-            services.RegisterSingleton<FolderTreeManager, FolderTreeManager>();
+            var mainWindow = _host.Services.GetRequiredService<MainWindow>();
+            mainWindow.Show();
 
-            services.RegisterSingleton<FileContentExportViewModel, FileContentExportViewModel>();
-            services.RegisterSingleton<TreeGeneratorViewModel, TreeGeneratorViewModel>();
-            services.RegisterSingleton<FolderContentExportViewModel, FolderContentExportViewModel>();
-            services.RegisterSingleton<FileRenamerViewModel, FileRenamerViewModel>();
-            services.RegisterSingleton<SettingsViewModel, SettingsViewModel>();
+            base.OnStartup(e);
+        }
 
-            services.RegisterSingleton<MainViewModel, MainViewModel>();
+        private void ConfigureServices(IServiceCollection services)
+        {
+            services.AddSingleton<IDialogService, DialogService>();
+            services.AddSingleton<IFileOperationService, FileOperationService>();
+            services.AddSingleton<IFolderTreeService, FolderTreeService>();
+            services.AddSingleton<ISettingsService, SettingsService>();
+            services.AddSingleton<ISharedStateService, SharedStateService>();
+            services.AddSingleton<IFileQueryService, FileQueryService>();
 
-            services.RegisterTransient<MainWindow, MainWindow>();
+            services.AddSingleton<FolderTreeManager>();
+
+            services.AddSingleton<FileContentExportViewModel>();
+            services.AddSingleton<TreeGeneratorViewModel>();
+            services.AddSingleton<FolderContentExportViewModel>();
+            services.AddSingleton<FileRenamerViewModel>();
+            services.AddSingleton<SettingsViewModel>();
+
+            services.AddSingleton<MainViewModel>();
+
+            services.AddTransient<MainWindow>();
+        }
+
+        protected override async void OnExit(ExitEventArgs e)
+        {
+            using (_host)
+            {
+                await _host.StopAsync(TimeSpan.FromSeconds(5));
+            }
+
+            base.OnExit(e);
         }
     }
 }
