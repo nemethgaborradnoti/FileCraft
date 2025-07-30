@@ -38,7 +38,7 @@ namespace FileCraft
             services.AddSingleton<IDialogService, DialogService>();
             services.AddSingleton<IFileOperationService, FileOperationService>();
             services.AddSingleton<IFolderTreeService, FolderTreeService>();
-            services.AddSingleton<ISettingsService, SettingsService>();
+            services.AddSingleton<ISaveService, SaveService>();
             services.AddSingleton<ISharedStateService, SharedStateService>();
             services.AddSingleton<IFileQueryService, FileQueryService>();
 
@@ -48,7 +48,7 @@ namespace FileCraft
             services.AddSingleton<TreeGeneratorViewModel>();
             services.AddSingleton<FolderContentExportViewModel>();
             services.AddSingleton<FileRenamerViewModel>();
-            services.AddSingleton<SettingsViewModel>();
+            services.AddSingleton<OptionsViewModel>();
 
             services.AddSingleton<MainViewModel>();
 

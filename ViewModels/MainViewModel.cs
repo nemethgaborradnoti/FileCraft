@@ -3,14 +3,13 @@ using FileCraft.Services.Interfaces;
 using FileCraft.Shared.Commands;
 using FileCraft.ViewModels.Functional;
 using FileCraft.ViewModels.Shared;
-using System;
 using System.Windows.Input;
 
 namespace FileCraft.ViewModels
 {
     public class MainViewModel : BaseViewModel
     {
-        private readonly ISettingsService _settingsService;
+        private readonly ISaveService _saveService;
         private readonly ISharedStateService _sharedStateService;
         private readonly IDialogService _dialogService;
         private bool _isLoading = false;
@@ -65,14 +64,14 @@ namespace FileCraft.ViewModels
         public TreeGeneratorViewModel TreeGeneratorVM { get; }
         public FolderContentExportViewModel FolderContentExportVM { get; }
         public FileRenamerViewModel FileRenamerVM { get; }
-        public SettingsViewModel SettingsVM { get; }
+        public OptionsViewModel OptionsVM { get; }
 
         public ICommand ClearPathsCommand { get; }
         public ICommand SelectSourcePathCommand { get; }
         public ICommand SelectDestinationPathCommand { get; }
 
         public MainViewModel(
-            ISettingsService settingsService,
+            ISaveService saveService,
             ISharedStateService sharedStateService,
             IDialogService dialogService,
             FolderTreeManager folderTreeManager,
@@ -80,9 +79,9 @@ namespace FileCraft.ViewModels
             TreeGeneratorViewModel treeGeneratorVM,
             FolderContentExportViewModel folderContentExportVM,
             FileRenamerViewModel fileRenamerVM,
-            SettingsViewModel settingsVM)
+            OptionsViewModel optionsVM)
         {
-            _settingsService = settingsService;
+            _saveService = saveService;
             _sharedStateService = sharedStateService;
             _dialogService = dialogService;
             FolderTreeManager = folderTreeManager;
@@ -90,15 +89,15 @@ namespace FileCraft.ViewModels
             TreeGeneratorVM = treeGeneratorVM;
             FolderContentExportVM = folderContentExportVM;
             FileRenamerVM = fileRenamerVM;
-            SettingsVM = settingsVM;
-            SettingsVM.PresetSaveRequested += OnPresetSaveRequested;
-            SettingsVM.PresetLoadRequested += OnPresetLoadRequested;
+            OptionsVM = optionsVM;
+            OptionsVM.PresetSaveRequested += OnPresetSaveRequested;
+            OptionsVM.PresetLoadRequested += OnPresetLoadRequested;
 
             ClearPathsCommand = new RelayCommand(_ => ClearPaths());
             SelectSourcePathCommand = new RelayCommand(_ => SelectPath(isSource: true));
             SelectDestinationPathCommand = new RelayCommand(_ => SelectPath(isSource: false));
 
-            LoadSettings();
+            LoadData();
         }
 
         private void SelectPath(bool isSource)
@@ -120,21 +119,21 @@ namespace FileCraft.ViewModels
             DestinationPath = string.Empty;
         }
 
-        private void LoadSettings()
+        private void LoadData()
         {
-            Settings settings = _settingsService.LoadSettings();
-            ApplyAllSettings(settings);
+            SaveData saveData = _saveService.LoadSaveData();
+            ApplyAllData(saveData);
         }
 
-        public void SaveSettings()
+        public void Save()
         {
-            var settings = GetCurrentSettings();
-            _settingsService.SaveSettings(settings);
+            var saveData = GetCurrentSaveData();
+            _saveService.Save(saveData);
         }
 
-        private Settings GetCurrentSettings()
+        private SaveData GetCurrentSaveData()
         {
-            return new Settings
+            return new SaveData
             {
                 SourcePath = this.SourcePath,
                 DestinationPath = this.DestinationPath,
@@ -158,28 +157,27 @@ namespace FileCraft.ViewModels
                     OutputFileName = TreeGeneratorVM.OutputFileName,
                     AppendTimestamp = TreeGeneratorVM.AppendTimestamp
                 },
-                FileRenamer = FileRenamerVM.GetSettings(),
-                SettingsPage = new SettingsPageSettings()
+                FileRenamer = FileRenamerVM.GetSettings()
             };
         }
 
-        private void ApplyAllSettings(Settings settings)
+        private void ApplyAllData(SaveData saveData)
         {
             _isLoading = true;
             try
             {
-                SourcePath = settings.SourcePath;
-                DestinationPath = settings.DestinationPath;
-                SelectedTabIndex = settings.SelectedTabIndex;
+                SourcePath = saveData.SourcePath;
+                DestinationPath = saveData.DestinationPath;
+                SelectedTabIndex = saveData.SelectedTabIndex;
 
-                FolderTreeManager.LoadTreeForPath(SourcePath, settings.FolderTreeState);
+                FolderTreeManager.LoadTreeForPath(SourcePath, saveData.FolderTreeState);
 
-                FileContentExportVM.ApplySettings(settings.FileContentExport);
-                FolderContentExportVM.ApplySettings(settings.FolderContentExport);
-                FileRenamerVM.ApplySettings(settings.FileRenamer);
+                FileContentExportVM.ApplySettings(saveData.FileContentExport);
+                FolderContentExportVM.ApplySettings(saveData.FolderContentExport);
+                FileRenamerVM.ApplySettings(saveData.FileRenamer);
 
-                TreeGeneratorVM.OutputFileName = settings.TreeGenerator.OutputFileName;
-                TreeGeneratorVM.AppendTimestamp = settings.TreeGenerator.AppendTimestamp;
+                TreeGeneratorVM.OutputFileName = saveData.TreeGenerator.OutputFileName;
+                TreeGeneratorVM.AppendTimestamp = saveData.TreeGenerator.AppendTimestamp;
             }
             finally
             {
@@ -191,10 +189,10 @@ namespace FileCraft.ViewModels
         {
             try
             {
-                var currentSettings = GetCurrentSettings();
-                _settingsService.SaveSettingsAsPreset(currentSettings, presetNumber);
+                var currentSaveData = GetCurrentSaveData();
+                _saveService.SaveAsPreset(currentSaveData, presetNumber);
                 _dialogService.ShowNotification("Success", $"Preset {presetNumber} saved successfully.");
-                SettingsVM.CheckForExistingPresets();
+                OptionsVM.CheckForExistingPresets();
             }
             catch (Exception ex)
             {
@@ -206,15 +204,15 @@ namespace FileCraft.ViewModels
         {
             try
             {
-                var presetSettings = _settingsService.LoadSettingsFromPreset(presetNumber);
-                if (presetSettings == null)
+                var presetData = _saveService.LoadFromPreset(presetNumber);
+                if (presetData == null)
                 {
                     _dialogService.ShowNotification("Information", $"Preset {presetNumber} does not exist yet.");
                     return;
                 }
 
-                ApplyAllSettings(presetSettings);
-                SaveSettings();
+                ApplyAllData(presetData);
+                Save();
 
                 _dialogService.ShowNotification("Success", $"Preset {presetNumber} loaded successfully.");
             }

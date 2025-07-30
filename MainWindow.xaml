@@ -8,7 +8,7 @@
         xmlns:viewModels="clr-namespace:FileCraft.ViewModels"
         mc:Ignorable="d"
         Title="FileCraft" Height="800" Width="850"
-        d:DataContext="{d:DesignInstance Type=viewmodels:MainViewModel}">
+        d:DataContext="{d:DesignInstance Type=viewModels:MainViewModel, IsDesignTimeCreatable=False}">
 
     <Grid Margin="10">
         <Grid.RowDefinitions>
@@ -98,10 +98,10 @@
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal">
                         <Image Source="/Resources/settings01.png" Width="28" Height="28" Margin="0,0,5,0" VerticalAlignment="Center"/>
-                        <TextBlock Text="Settings" VerticalAlignment="Center"/>
+                        <TextBlock Text="Options" VerticalAlignment="Center"/>
                     </StackPanel>
                 </TabItem.Header>
-                <views:SettingsView DataContext="{Binding SettingsVM}"/>
+                <views:OptionsView DataContext="{Binding OptionsVM}"/>
             </TabItem>
         </TabControl>
     </Grid>
