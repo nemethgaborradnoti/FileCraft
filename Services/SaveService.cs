@@ -99,5 +99,11 @@ namespace FileCraft.Services
             string presetFilePath = GetPresetFilePath(presetNumber);
             return File.Exists(presetFilePath);
         }
+
+        public string GetPresetName(int presetNumber)
+        {
+            var presetData = LoadFromPreset(presetNumber);
+            return presetData?.PresetName ?? string.Empty;
+        }
     }
 }

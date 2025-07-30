@@ -2,6 +2,7 @@
 {
     public class SaveData
     {
+        public string PresetName { get; set; } = string.Empty;
         public string SourcePath { get; set; } = string.Empty;
         public string DestinationPath { get; set; } = string.Empty;
         public int SelectedTabIndex { get; set; } = 0;
@@ -58,6 +59,5 @@
 
     public class SettingsPageSettings
     {
-        // Future options
     }
 }

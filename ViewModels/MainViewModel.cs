@@ -185,13 +185,14 @@ namespace FileCraft.ViewModels
             }
         }
 
-        private void OnPresetSaveRequested(int presetNumber)
+        private void OnPresetSaveRequested(int presetNumber, string presetName)
         {
             try
             {
                 var currentSaveData = GetCurrentSaveData();
+                currentSaveData.PresetName = presetName;
                 _saveService.SaveAsPreset(currentSaveData, presetNumber);
-                _dialogService.ShowNotification("Success", $"Preset {presetNumber} saved successfully.");
+                _dialogService.ShowNotification("Success", $"Preset '{presetName}' saved successfully to slot {presetNumber}.");
                 OptionsVM.CheckForExistingPresets();
             }
             catch (Exception ex)
