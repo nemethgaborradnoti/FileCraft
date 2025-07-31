@@ -37,8 +37,18 @@ namespace FileCraft.ViewModels
             {
                 if (_isProcessingSelectionChange) return;
 
-                bool newSelectionValue = (_isSelected != true);
-                SetIsSelected(newSelectionValue, updateChildren: true, updateParent: true);
+                _isProcessingSelectionChange = true;
+                try
+                {
+                    bool newSelectionValue = (_isSelected != true);
+                    SetIsSelected(newSelectionValue, updateChildren: true, updateParent: true);
+                }
+                finally
+                {
+                    _isProcessingSelectionChange = false;
+                }
+
+                _onStateChanged?.Invoke();
             }
         }
 
@@ -56,29 +66,20 @@ namespace FileCraft.ViewModels
         {
             if (_isSelected == value) return;
 
-            _isProcessingSelectionChange = true;
-            try
+            _isSelected = value;
+            OnPropertyChanged(nameof(IsSelected));
+
+            if (updateChildren)
             {
-                _isSelected = value;
-                OnPropertyChanged(nameof(IsSelected));
-                _onStateChanged?.Invoke();
-
-                if (updateChildren)
+                foreach (var child in Children)
                 {
-                    foreach (var child in Children)
-                    {
-                        child.SetIsSelected(value, true, false);
-                    }
-                }
-
-                if (updateParent && Parent != null)
-                {
-                    Parent.VerifyCheckState();
+                    child.SetIsSelected(value, true, false);
                 }
             }
-            finally
+
+            if (updateParent && Parent != null)
             {
-                _isProcessingSelectionChange = false;
+                Parent.VerifyCheckState();
             }
         }
 
