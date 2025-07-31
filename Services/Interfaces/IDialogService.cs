@@ -4,7 +4,6 @@
     {
         string? SelectFolder(string description);
         void ShowNotification(string title, string message);
-        bool ShowConfirmation(string actionName, string destinationPath, int filesAffected);
-        bool ShowConfirmation(string title, string message);
+        bool ShowConfirmation(string title, string message, int? filesAffected = null);
     }
 }

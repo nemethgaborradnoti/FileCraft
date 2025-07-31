@@ -7,6 +7,7 @@ namespace FileCraft.Views.Shared
         public NotificationWindow(string title, string message)
         {
             InitializeComponent();
+            Owner = System.Windows.Application.Current.MainWindow;
             this.Title = title;
             MessageTextBlock.Text = message;
         }
