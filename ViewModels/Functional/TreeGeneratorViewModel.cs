@@ -89,9 +89,10 @@ namespace FileCraft.ViewModels.Functional
                     allNodes.Where(n => n.IsSelected == false).Select(n => n.FullPath),
                     StringComparer.OrdinalIgnoreCase);
 
+                string message = $"Are you sure you want to generate the tree structure to the following path?\n{_sharedStateService.DestinationPath}";
                 bool confirmed = _dialogService.ShowConfirmation(
-                    actionName: "Generate Tree Structure",
-                    destinationPath: _sharedStateService.DestinationPath,
+                    title: "Generate Tree Structure",
+                    message: message,
                     filesAffected: IncludedFoldersCount);
 
                 if (!confirmed)

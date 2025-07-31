@@ -333,9 +333,10 @@ namespace FileCraft.ViewModels.Functional
                     return;
                 }
 
+                string message = $"Are you sure you want to export file contents to the following path?\n{_sharedStateService.DestinationPath}";
                 bool confirmed = _dialogService.ShowConfirmation(
-                    actionName: "Export File Contents",
-                    destinationPath: _sharedStateService.DestinationPath,
+                    title: "Export File Contents",
+                    message: message,
                     filesAffected: selectedPaths.Count);
 
                 if (!confirmed)

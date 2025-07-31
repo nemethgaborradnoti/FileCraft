@@ -189,9 +189,10 @@ namespace FileCraft.ViewModels
 
         private void OnPresetSaveRequested(int presetNumber, string presetName)
         {
+            string message = $"This will save the current configuration as '{presetName}' to Preset ({presetNumber}).\nIf a preset already exists, it will be overwritten.\n\nAre you sure you want to continue?";
             bool confirmed = _dialogService.ShowConfirmation(
-                title: $"Save to Preset {presetNumber}",
-                message: $"This will save the current configuration as '{presetName}'.\nIf a preset already exists, it will be overwritten.\n\nAre you sure you want to continue?");
+                title: $"Save to Preset ({presetNumber})",
+                message: message);
 
             if (!confirmed) return;
 
@@ -211,19 +212,25 @@ namespace FileCraft.ViewModels
 
         private void OnPresetLoadRequested(int presetNumber)
         {
+            var presetData = _saveService.LoadFromPreset(presetNumber);
+            if (presetData == null)
+            {
+                _dialogService.ShowNotification("Information", $"Preset ({presetNumber}) does not exist yet.");
+                return;
+            }
+
+            string message = $"Are you sure you want to load Preset ({presetNumber}): '{presetData.PresetName}'?\nAny unsaved changes will be lost.";
+            bool confirmed = _dialogService.ShowConfirmation(
+                title: $"Load Preset ({presetNumber})",
+                message: message);
+
+            if (!confirmed) return;
+
             try
             {
-                var presetData = _saveService.LoadFromPreset(presetNumber);
-                if (presetData == null)
-                {
-                    _dialogService.ShowNotification("Information", $"Preset {presetNumber} does not exist yet.");
-                    return;
-                }
-
                 ApplyAllData(presetData);
                 Save();
-
-                _dialogService.ShowNotification("Success", $"Preset {presetNumber} loaded successfully.");
+                _dialogService.ShowNotification("Success", $"Preset ({presetNumber}): '{presetData.PresetName}' loaded successfully.");
             }
             catch (Exception ex)
             {
@@ -233,9 +240,16 @@ namespace FileCraft.ViewModels
 
         private void OnPresetDeleteRequested(int presetNumber)
         {
+            string presetName = _saveService.GetPresetName(presetNumber);
+            if (string.IsNullOrWhiteSpace(presetName))
+            {
+                presetName = $"Preset ({presetNumber})";
+            }
+
+            string message = $"You are about to delete Preset ({presetNumber}): '{presetName}'.\nThis action cannot be undone.\n\nAre you sure you want to continue?";
             bool confirmed = _dialogService.ShowConfirmation(
-                title: $"Delete Preset {presetNumber}",
-                message: "This action cannot be undone.");
+                title: $"Delete Preset ({presetNumber})",
+                message: message);
 
             if (confirmed)
             {
@@ -243,7 +257,7 @@ namespace FileCraft.ViewModels
                 {
                     _saveService.DeletePreset(presetNumber);
                     OptionsVM.CheckForExistingPresets();
-                    _dialogService.ShowNotification("Success", $"Preset {presetNumber} has been deleted.");
+                    _dialogService.ShowNotification("Success", $"Preset ({presetNumber}): '{presetName}' has been deleted.");
                 }
                 catch (Exception ex)
                 {
@@ -256,7 +270,7 @@ namespace FileCraft.ViewModels
         {
             bool confirmed = _dialogService.ShowConfirmation(
                 title: "Delete Current Save",
-                message: "All current settings will be reset to default. This action cannot be undone.");
+                message: "Are you sure you want to delete all current settings and reset to default? This action cannot be undone.");
 
             if (confirmed)
             {

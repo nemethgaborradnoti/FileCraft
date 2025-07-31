@@ -141,9 +141,10 @@ namespace FileCraft.ViewModels.Functional
                     return;
                 }
 
+                string message = $"Are you sure you want to rename the items in the following path?\n{_sharedStateService.SourcePath}";
                 bool confirmed = _dialogService.ShowConfirmation(
-                    actionName: "Rename Files",
-                    destinationPath: _sharedStateService.SourcePath,
+                    title: "Rename Files",
+                    message: message,
                     filesAffected: ItemsToRenameCount);
 
                 if (!confirmed)

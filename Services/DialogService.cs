@@ -27,25 +27,13 @@ namespace FileCraft.Services
             notificationWindow.ShowDialog();
         }
 
-        public bool ShowConfirmation(string actionName, string destinationPath, int filesAffected)
-        {
-            var viewModel = new ConfirmationViewModel
-            {
-                ActionName = actionName,
-                Message = $"The operation will affect the following path:\n{destinationPath}",
-                FilesAffected = filesAffected
-            };
-            var confirmationWindow = new ConfirmationWindow(viewModel);
-            return confirmationWindow.ShowDialog() ?? false;
-        }
-
-        public bool ShowConfirmation(string title, string message)
+        public bool ShowConfirmation(string title, string message, int? filesAffected = null)
         {
             var viewModel = new ConfirmationViewModel
             {
                 ActionName = title,
                 Message = message,
-                FilesAffected = null
+                FilesAffected = filesAffected
             };
             var confirmationWindow = new ConfirmationWindow(viewModel);
             return confirmationWindow.ShowDialog() ?? false;
