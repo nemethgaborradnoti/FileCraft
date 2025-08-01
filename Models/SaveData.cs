@@ -27,7 +27,7 @@
 
         public FileContentExportSettings()
         {
-            OutputFileName = "FileContentsExport";
+            OutputFileName = "FileContents";
         }
     }
 
@@ -36,7 +36,7 @@
         public List<string> SelectedColumns { get; set; } = new();
         public FolderContentExportSettings()
         {
-            OutputFileName = "FolderContentsExport";
+            OutputFileName = "FolderContents";
         }
     }
 
