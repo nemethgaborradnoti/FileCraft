@@ -17,12 +17,20 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <TextBlock x:Name="MessageTextBlock" 
-                   Grid.Row="0" 
-                   TextWrapping="Wrap"
-                   HorizontalAlignment="Center" 
-                   VerticalAlignment="Center"
-                   Margin="0,0,0,20"/>
+        <Grid Grid.Row="0" VerticalAlignment="Center" Margin="0,0,0,20">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <Image Grid.Column="0" Source="{Binding IconPath}" Width="48" Height="48" Margin="0,0,15,0" VerticalAlignment="Center"/>
+
+            <TextBlock x:Name="MessageTextBlock" 
+                       Grid.Column="1"
+                       TextWrapping="Wrap"
+                       HorizontalAlignment="Left" 
+                       VerticalAlignment="Center"/>
+        </Grid>
 
         <Button x:Name="OkButton" 
                 Grid.Row="1" 

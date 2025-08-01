@@ -1,15 +1,19 @@
-﻿using System.Windows;
-
-namespace FileCraft.Views.Shared
+﻿namespace FileCraft.Views.Shared
 {
+    using System.Windows;
+
     public partial class NotificationWindow : Window
     {
-        public NotificationWindow(string title, string message)
+        public string IconPath { get; }
+
+        public NotificationWindow(string title, string message, string iconPath)
         {
             InitializeComponent();
-            Owner = System.Windows.Application.Current.MainWindow;
+            Owner = Application.Current.MainWindow;
             this.Title = title;
             MessageTextBlock.Text = message;
+            IconPath = iconPath;
+            DataContext = this;
         }
 
         private void OkButton_Click(object sender, RoutedEventArgs e)

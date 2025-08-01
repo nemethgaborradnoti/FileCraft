@@ -10,6 +10,7 @@ using System.Windows.Input;
 
 namespace FileCraft.ViewModels.Functional
 {
+
     public class FolderContentExportViewModel : ExportViewModelBase
     {
         private string _outputFileName = string.Empty;
@@ -189,14 +190,14 @@ namespace FileCraft.ViewModels.Functional
 
                 if (!includedFolderPaths.Any())
                 {
-                    _dialogService.ShowNotification("Information", "No folders were selected. Please select at least one folder.");
+                    _dialogService.ShowNotification("Information", "No folders were selected. Please select at least one folder.", DialogIconType.Info);
                     return;
                 }
 
                 var selectedColumns = GetSelectedColumns();
                 if (!selectedColumns.Any())
                 {
-                    _dialogService.ShowNotification("Information", "No columns were selected. Please select at least one column to export.");
+                    _dialogService.ShowNotification("Information", "No columns were selected. Please select at least one column to export.", DialogIconType.Info);
                     return;
                 }
 
@@ -204,6 +205,7 @@ namespace FileCraft.ViewModels.Functional
                 bool confirmed = _dialogService.ShowConfirmation(
                     title: "Export Folder Contents",
                     message: message,
+                    iconType: DialogIconType.Info,
                     filesAffected: AffectedFilesCount);
 
                 if (!confirmed)
@@ -213,11 +215,11 @@ namespace FileCraft.ViewModels.Functional
 
                 string finalFileName = GetFinalFileName(OutputFileName, AppendTimestamp);
                 string outputFilePath = await _fileOperationService.ExportFolderContentsAsync(_sharedStateService.DestinationPath, includedFolderPaths, finalFileName, selectedColumns);
-                _dialogService.ShowNotification("Success", $"Folder contents exported successfully!\n\nSaved to: {outputFilePath}");
+                _dialogService.ShowNotification("Success", $"Folder contents exported successfully!\n\nSaved to: {outputFilePath}", DialogIconType.Success);
             }
             catch (Exception ex)
             {
-                _dialogService.ShowNotification("Error", $"An unexpected error occurred:\n\n{ex.Message}");
+                _dialogService.ShowNotification("Error", $"An unexpected error occurred:\n\n{ex.Message}", DialogIconType.Error);
             }
             finally
             {

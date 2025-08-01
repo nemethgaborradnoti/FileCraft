@@ -1,4 +1,5 @@
-﻿using FileCraft.Services.Interfaces;
+﻿using FileCraft.Models;
+using FileCraft.Services.Interfaces;
 using FileCraft.Shared.Commands;
 using FileCraft.ViewModels.Shared;
 using System.Collections.ObjectModel;
@@ -6,6 +7,7 @@ using System.Windows.Input;
 
 namespace FileCraft.ViewModels.Functional
 {
+
     public class TreeGeneratorViewModel : ExportViewModelBase
     {
         private string _outputFileName = string.Empty;
@@ -93,6 +95,7 @@ namespace FileCraft.ViewModels.Functional
                 bool confirmed = _dialogService.ShowConfirmation(
                     title: "Generate Tree Structure",
                     message: message,
+                    iconType: DialogIconType.Info,
                     filesAffected: IncludedFoldersCount);
 
                 if (!confirmed)
@@ -102,11 +105,11 @@ namespace FileCraft.ViewModels.Functional
 
                 string finalFileName = GetFinalFileName(OutputFileName, AppendTimestamp);
                 string outputFilePath = await _fileOperationService.GenerateTreeStructureAsync(_sharedStateService.SourcePath, _sharedStateService.DestinationPath, excludedFolderPaths, finalFileName);
-                _dialogService.ShowNotification("Success", $"Tree structure file was created successfully!\n\nSaved to: {outputFilePath}");
+                _dialogService.ShowNotification("Success", $"Tree structure file was created successfully!\n\nSaved to: {outputFilePath}", DialogIconType.Success);
             }
             catch (Exception ex)
             {
-                _dialogService.ShowNotification("Error", $"An unexpected error occurred:\n\n{ex.Message}");
+                _dialogService.ShowNotification("Error", $"An unexpected error occurred:\n\n{ex.Message}", DialogIconType.Error);
             }
             finally
             {

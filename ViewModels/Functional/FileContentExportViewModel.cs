@@ -10,6 +10,7 @@ using Timer = System.Threading.Timer;
 
 namespace FileCraft.ViewModels.Functional
 {
+
     public class FileContentExportViewModel : ExportViewModelBase
     {
         private readonly IFileQueryService _fileQueryService;
@@ -329,7 +330,7 @@ namespace FileCraft.ViewModels.Functional
                 var selectedPaths = _allSelectableFiles.Where(f => f.IsSelected).Select(f => f.FullPath).ToList();
                 if (!selectedPaths.Any())
                 {
-                    _dialogService.ShowNotification("Information", "No files were selected. Please select at least one file to export.");
+                    _dialogService.ShowNotification("Information", "No files were selected. Please select at least one file to export.", DialogIconType.Info);
                     return;
                 }
 
@@ -337,6 +338,7 @@ namespace FileCraft.ViewModels.Functional
                 bool confirmed = _dialogService.ShowConfirmation(
                     title: "Export File Contents",
                     message: message,
+                    iconType: DialogIconType.Info,
                     filesAffected: selectedPaths.Count);
 
                 if (!confirmed)
@@ -346,11 +348,11 @@ namespace FileCraft.ViewModels.Functional
 
                 string finalFileName = GetFinalFileName(OutputFileName, AppendTimestamp);
                 string outputFilePath = await _fileOperationService.ExportSelectedFileContentsAsync(_sharedStateService.DestinationPath, selectedPaths, finalFileName);
-                _dialogService.ShowNotification("Success", $"File contents exported successfully!\n\n{selectedPaths.Count} files were processed.\nSaved to: {outputFilePath}");
+                _dialogService.ShowNotification("Success", $"File contents exported successfully!\n\n{selectedPaths.Count} files were processed.\nSaved to: {outputFilePath}", DialogIconType.Success);
             }
             catch (Exception ex)
             {
-                _dialogService.ShowNotification("Error", $"An unexpected error occurred during export:\n\n{ex.Message}");
+                _dialogService.ShowNotification("Error", $"An unexpected error occurred during export:\n\n{ex.Message}", DialogIconType.Error);
             }
             finally
             {
