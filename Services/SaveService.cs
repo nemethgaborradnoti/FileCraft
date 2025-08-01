@@ -13,8 +13,15 @@ namespace FileCraft.Services
 
         public SaveService()
         {
-            _appDirectory = AppDomain.CurrentDomain.BaseDirectory;
+            string appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+            _appDirectory = Path.Combine(appDataPath, "FileCraft");
+            Directory.CreateDirectory(_appDirectory);
             _saveFilePath = Path.Combine(_appDirectory, "save.json");
+        }
+
+        public string GetSaveDirectory()
+        {
+            return _appDirectory;
         }
 
         public SaveData LoadSaveData()

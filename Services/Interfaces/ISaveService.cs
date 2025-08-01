@@ -12,5 +12,6 @@ namespace FileCraft.Services.Interfaces
         string GetPresetName(int presetNumber);
         void DeletePreset(int presetNumber);
         void DeleteSaveData();
+        string GetSaveDirectory();
     }
 }
