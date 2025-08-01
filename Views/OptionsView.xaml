@@ -125,11 +125,17 @@
                     </ItemsControl>
                 </GroupBox>
 
-                <Button Content="Delete Current Save" 
-                        Command="{Binding DeleteCurrentSaveCommand}"
-                        Margin="10,20,10,10"
+                <Button Content="Open Save Folder"
+                        Command="{Binding OpenSaveFolderCommand}"
+                        Margin="10,20,10,0"
                         Padding="10,5"
                         Background="#FFE0E0E0"/>
+
+                <Button Content="Delete Current Save" 
+                        Command="{Binding DeleteCurrentSaveCommand}"
+                        Margin="10,5,10,10"
+                        Padding="10,5"
+                        Background="#f15249"/>
 
             </StackPanel>
 

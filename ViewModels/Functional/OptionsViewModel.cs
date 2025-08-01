@@ -1,6 +1,8 @@
 ﻿using FileCraft.Services.Interfaces;
 using FileCraft.Shared.Commands;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.IO;
 using System.Windows.Input;
 
 namespace FileCraft.ViewModels.Functional
@@ -61,6 +63,7 @@ namespace FileCraft.ViewModels.Functional
     public class OptionsViewModel : BaseViewModel
     {
         private readonly ISaveService _saveService;
+        private readonly IDialogService _dialogService;
         public string Version => "v1.0.0";
 
         public event Action<int, string>? PresetSaveRequested;
@@ -72,12 +75,14 @@ namespace FileCraft.ViewModels.Functional
         public ICommand LoadPresetCommand { get; }
         public ICommand DeletePresetCommand { get; }
         public ICommand DeleteCurrentSaveCommand { get; }
+        public ICommand OpenSaveFolderCommand { get; }
 
         public ObservableCollection<PresetSlotViewModel> PresetSlots { get; } = new();
 
-        public OptionsViewModel(ISaveService saveService)
+        public OptionsViewModel(ISaveService saveService, IDialogService dialogService)
         {
             _saveService = saveService;
+            _dialogService = dialogService;
 
             SavePresetCommand = new RelayCommand(
                 execute: slot =>
@@ -103,12 +108,39 @@ namespace FileCraft.ViewModels.Functional
             DeleteCurrentSaveCommand = new RelayCommand(
                 _ => CurrentSaveDeleteRequested?.Invoke());
 
+            OpenSaveFolderCommand = new RelayCommand(_ => OpenSaveFolder());
+
 
             for (int i = 1; i <= 5; i++)
             {
                 PresetSlots.Add(new PresetSlotViewModel(i));
             }
             CheckForExistingPresets();
+        }
+
+        private void OpenSaveFolder()
+        {
+            try
+            {
+                string path = _saveService.GetSaveDirectory();
+                if (Directory.Exists(path))
+                {
+                    Process.Start(new ProcessStartInfo
+                    {
+                        FileName = path,
+                        UseShellExecute = true,
+                        Verb = "open"
+                    });
+                }
+                else
+                {
+                    _dialogService.ShowNotification("Error", "The save folder could not be found.", Models.DialogIconType.Error);
+                }
+            }
+            catch (Exception ex)
+            {
+                _dialogService.ShowNotification("Error", $"An error occurred while trying to open the folder:\n{ex.Message}", Models.DialogIconType.Error);
+            }
         }
 
         public void CheckForExistingPresets()
