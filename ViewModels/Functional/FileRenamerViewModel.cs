@@ -8,6 +8,7 @@ using System.Windows.Input;
 
 namespace FileCraft.ViewModels.Functional
 {
+
     public class FileRenamerViewModel : BaseViewModel
     {
         private readonly ISharedStateService _sharedStateService;
@@ -137,7 +138,7 @@ namespace FileCraft.ViewModels.Functional
             {
                 if (ItemsToRenameCount == 0)
                 {
-                    _dialogService.ShowNotification("Information", "No items to rename in the source folder.");
+                    _dialogService.ShowNotification("Information", "No items to rename in the source folder.", DialogIconType.Info);
                     return;
                 }
 
@@ -145,6 +146,7 @@ namespace FileCraft.ViewModels.Functional
                 bool confirmed = _dialogService.ShowConfirmation(
                     title: "Rename Files",
                     message: message,
+                    iconType: DialogIconType.Info,
                     filesAffected: ItemsToRenameCount);
 
                 if (!confirmed)
@@ -159,11 +161,11 @@ namespace FileCraft.ViewModels.Functional
                     AppendTimestamp,
                     IncludeFolders);
 
-                _dialogService.ShowNotification("Operation Finished", $"Rename process complete.\n\nLog file created at:\n{logFilePath}");
+                _dialogService.ShowNotification("Operation Finished", $"Rename process complete.\n\nLog file created at:\n{logFilePath}", DialogIconType.Success);
             }
             catch (System.Exception ex)
             {
-                _dialogService.ShowNotification("Error", $"An unexpected error occurred:\n\n{ex.Message}");
+                _dialogService.ShowNotification("Error", $"An unexpected error occurred:\n\n{ex.Message}", DialogIconType.Error);
             }
             finally
             {
