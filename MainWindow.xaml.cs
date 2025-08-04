@@ -1,4 +1,5 @@
 using FileCraft.ViewModels;
+using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -20,9 +21,9 @@ namespace FileCraft
             this.PreviewMouseDown += MainWindow_PreviewMouseDown;
         }
 
-        private void MainWindow_Closing(object? sender, System.ComponentModel.CancelEventArgs e)
+        private void MainWindow_Closing(object? sender, CancelEventArgs e)
         {
-            _viewModel.Save();
+            _viewModel.RequestClose(e);
         }
 
         private void MainWindow_PreviewMouseDown(object sender, MouseButtonEventArgs e)

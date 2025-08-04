@@ -1,6 +1,8 @@
 ﻿using FileCraft.Models;
+using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Linq;
 using System.Runtime.CompilerServices;
 
 namespace FileCraft.ViewModels
@@ -10,6 +12,7 @@ namespace FileCraft.ViewModels
         private bool? _isSelected;
         private bool _isExpanded;
         private readonly Action _onStateChanged;
+        private readonly Action _onStateChanging;
         private bool _isProcessingSelectionChange = false;
         public string Name { get; }
         public string FullPath { get; }
@@ -23,6 +26,7 @@ namespace FileCraft.ViewModels
             {
                 if (_isExpanded != value)
                 {
+                    _onStateChanging?.Invoke();
                     _isExpanded = value;
                     OnPropertyChanged();
                     _onStateChanged?.Invoke();
@@ -36,6 +40,8 @@ namespace FileCraft.ViewModels
             set
             {
                 if (_isProcessingSelectionChange) return;
+
+                _onStateChanging?.Invoke();
 
                 _isProcessingSelectionChange = true;
                 try
@@ -52,12 +58,13 @@ namespace FileCraft.ViewModels
             }
         }
 
-        public FolderViewModel(string name, string fullPath, FolderViewModel? parent, Action onStateChanged)
+        public FolderViewModel(string name, string fullPath, FolderViewModel? parent, Action onStateChanged, Action onStateChanging)
         {
             Name = name;
             FullPath = fullPath;
             Parent = parent;
             _onStateChanged = onStateChanged;
+            _onStateChanging = onStateChanging;
             _isSelected = false;
             _isExpanded = true;
         }

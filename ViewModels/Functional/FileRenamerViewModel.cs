@@ -1,14 +1,16 @@
 ﻿using FileCraft.Models;
 using FileCraft.Services.Interfaces;
 using FileCraft.Shared.Commands;
+using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
+using System.Linq;
 using System.Windows.Input;
 
 namespace FileCraft.ViewModels.Functional
 {
-
     public class FileRenamerViewModel : BaseViewModel
     {
         private readonly ISharedStateService _sharedStateService;
@@ -23,13 +25,29 @@ namespace FileCraft.ViewModels.Functional
         public string OutputFileName
         {
             get => _outputFileName;
-            set { _outputFileName = value; OnPropertyChanged(); }
+            set
+            {
+                if (_outputFileName != value)
+                {
+                    OnStateChanging();
+                    _outputFileName = value;
+                    OnPropertyChanged();
+                }
+            }
         }
 
         public bool AppendTimestamp
         {
             get => _appendTimestamp;
-            set { _appendTimestamp = value; OnPropertyChanged(); }
+            set
+            {
+                if (_appendTimestamp != value)
+                {
+                    OnStateChanging();
+                    _appendTimestamp = value;
+                    OnPropertyChanged();
+                }
+            }
         }
 
         public bool IncludeFolders
@@ -39,6 +57,7 @@ namespace FileCraft.ViewModels.Functional
             {
                 if (_includeFolders != value)
                 {
+                    OnStateChanging();
                     _includeFolders = value;
                     OnPropertyChanged();
                     UpdatePreview();

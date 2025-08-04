@@ -1,5 +1,6 @@
 ﻿using FileCraft.Models;
 using FileCraft.Services.Interfaces;
+using System;
 using System.Collections.ObjectModel;
 using System.IO;
 
@@ -40,7 +41,7 @@ namespace FileCraft.ViewModels.Shared
             if (sourcePath == _currentSourcePath && folderState == null) return;
             _currentSourcePath = sourcePath;
 
-            var newTree = _folderTreeService.BuildFolderTree(sourcePath, HandleFolderStateChange);
+            var newTree = _folderTreeService.BuildFolderTree(sourcePath, HandleFolderStateChange, OnStateChanging);
 
             if (folderState != null && newTree.Any())
             {

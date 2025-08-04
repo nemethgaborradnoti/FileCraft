@@ -3,14 +3,15 @@ using FileCraft.Services.Interfaces;
 using FileCraft.Shared.Commands;
 using FileCraft.Shared.Helpers;
 using FileCraft.ViewModels.Shared;
+using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
+using System.Linq;
 using System.Windows.Input;
 
 namespace FileCraft.ViewModels.Functional
 {
-
     public class FolderContentExportViewModel : ExportViewModelBase
     {
         private string _outputFileName = string.Empty;
@@ -25,6 +26,7 @@ namespace FileCraft.ViewModels.Functional
             {
                 if (_outputFileName != value)
                 {
+                    OnStateChanging();
                     _outputFileName = value;
                     OnPropertyChanged();
                 }
@@ -38,6 +40,7 @@ namespace FileCraft.ViewModels.Functional
             {
                 if (_appendTimestamp != value)
                 {
+                    OnStateChanging();
                     _appendTimestamp = value;
                     OnPropertyChanged();
                 }
@@ -49,6 +52,7 @@ namespace FileCraft.ViewModels.Functional
             get => _areAllColumnsSelected;
             set
             {
+                OnStateChanging();
                 bool selectAll = _areAllColumnsSelected != true;
                 SetColumnsSelectionState(selectAll);
             }
@@ -76,6 +80,7 @@ namespace FileCraft.ViewModels.Functional
             : base(sharedStateService, fileOperationService, dialogService, folderTreeManager)
         {
             FolderTreeManager.FolderSelectionChanged += UpdateAffectedFilesCount;
+            FolderTreeManager.StateChanging += OnStateChanging;
             FolderTreeManager.PropertyChanged += (s, e) =>
             {
                 if (e.PropertyName == nameof(FolderTreeManager.RootFolders))
@@ -93,7 +98,7 @@ namespace FileCraft.ViewModels.Functional
             };
             foreach (var col in columns)
             {
-                var item = new SelectableItemViewModel(col, true);
+                var item = new SelectableItemViewModel(col, true, this.OnStateChanging);
                 item.PropertyChanged += OnColumnSelectionChanged;
                 AvailableColumns.Add(item);
             }
@@ -114,7 +119,10 @@ namespace FileCraft.ViewModels.Functional
             foreach (var column in AvailableColumns)
                 column.PropertyChanged -= OnColumnSelectionChanged;
 
-            SelectionHelper.SetSelectionState(AvailableColumns, isSelected);
+            foreach (var column in AvailableColumns)
+            {
+                column.SetIsSelectedInternal(isSelected);
+            }
 
             foreach (var column in AvailableColumns)
                 column.PropertyChanged += OnColumnSelectionChanged;
@@ -139,13 +147,11 @@ namespace FileCraft.ViewModels.Functional
             AppendTimestamp = settings.AppendTimestamp;
             var loadedSelectedColumns = new HashSet<string>(settings.SelectedColumns ?? new List<string>());
 
-            if (loadedSelectedColumns.Any())
+            foreach (var column in AvailableColumns)
             {
-                foreach (var column in AvailableColumns)
-                {
-                    column.IsSelected = loadedSelectedColumns.Contains(column.Name);
-                }
+                column.IsSelected = loadedSelectedColumns.Contains(column.Name);
             }
+
             UpdateSelectAllColumnsState();
         }
 

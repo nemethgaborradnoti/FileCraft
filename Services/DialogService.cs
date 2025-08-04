@@ -5,7 +5,6 @@ using FileCraft.Views.Shared;
 
 namespace FileCraft.Services
 {
-
     public class DialogService : IDialogService
     {
         public string? SelectFolder(string description)
@@ -41,6 +40,13 @@ namespace FileCraft.Services
             };
             var confirmationWindow = new ConfirmationWindow(viewModel);
             return confirmationWindow.ShowDialog() ?? false;
+        }
+
+        public ExitConfirmationResult ShowExitConfirmation(string title, string message)
+        {
+            var confirmationWindow = new ExitConfirmationWindow(title, message);
+            confirmationWindow.ShowDialog();
+            return confirmationWindow.Result;
         }
 
         private string GetIconPath(DialogIconType iconType)
