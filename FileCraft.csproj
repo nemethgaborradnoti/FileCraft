@@ -10,6 +10,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Resources\arrow01.png" />
+    <None Remove="Resources\arrow02.png" />
     <None Remove="Resources\cancel01.png" />
     <None Remove="Resources\checked01.png" />
     <None Remove="Resources\edit01.png" />
@@ -17,12 +19,15 @@
     <None Remove="Resources\foldercontent01.png" />
     <None Remove="Resources\info01.png" />
     <None Remove="Resources\rename01.png" />
+    <None Remove="Resources\save01.png" />
     <None Remove="Resources\settings01.png" />
     <None Remove="Resources\treestructure01.png" />
     <None Remove="Resources\warning01.png" />
   </ItemGroup>
 
   <ItemGroup>
+    <Resource Include="Resources\arrow01.png" />
+    <Resource Include="Resources\arrow02.png" />
     <Resource Include="Resources\cancel01.png" />
     <Resource Include="Resources\checked01.png" />
     <Resource Include="Resources\edit01.png" />
@@ -30,6 +35,7 @@
     <Resource Include="Resources\foldercontent01.png" />
     <Resource Include="Resources\info01.png" />
     <Resource Include="Resources\rename01.png" />
+    <Resource Include="Resources\save01.png" />
     <Resource Include="Resources\settings01.png" />
     <Resource Include="Resources\treestructure01.png" />
     <Resource Include="Resources\warning01.png" />

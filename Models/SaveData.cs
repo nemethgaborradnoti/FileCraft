@@ -6,7 +6,6 @@
         public string SourcePath { get; set; } = string.Empty;
         public string DestinationPath { get; set; } = string.Empty;
         public int SelectedTabIndex { get; set; } = 0;
-        public List<FolderState> FolderTreeState { get; set; } = new();
         public FileContentExportSettings FileContentExport { get; set; } = new();
         public FolderContentExportSettings FolderContentExport { get; set; } = new();
         public TreeGeneratorSettings TreeGenerator { get; set; } = new();
@@ -24,6 +23,7 @@
     {
         public List<string> SelectedExtensions { get; set; } = new();
         public List<string> SelectedFilePaths { get; set; } = new();
+        public List<FolderState> FolderTreeState { get; set; } = new();
 
         public FileContentExportSettings()
         {
@@ -34,6 +34,7 @@
     public class FolderContentExportSettings : ExportSettingsBase
     {
         public List<string> SelectedColumns { get; set; } = new();
+        public List<FolderState> FolderTreeState { get; set; } = new();
         public FolderContentExportSettings()
         {
             OutputFileName = "FolderContents";
@@ -42,6 +43,7 @@
 
     public class TreeGeneratorSettings : ExportSettingsBase
     {
+        public List<FolderState> FolderTreeState { get; set; } = new();
         public TreeGeneratorSettings()
         {
             OutputFileName = "TreeStructure";
