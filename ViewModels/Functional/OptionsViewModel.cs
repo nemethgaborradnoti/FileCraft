@@ -10,12 +10,26 @@ using System.Windows.Input;
 
 namespace FileCraft.ViewModels.Functional
 {
-    public class TabInfo
+    public class TabItemViewModel : BaseViewModel
     {
-        public string Name { get; set; }
-        public FolderTreeManager FolderTreeManager { get; set; }
+        public string Name { get; }
+        public FolderTreeManager? FolderTreeManager { get; }
 
-        public TabInfo(string name, FolderTreeManager folderTreeManager)
+        private bool _isSelectable = true;
+        public bool IsSelectable
+        {
+            get => _isSelectable;
+            set
+            {
+                if (_isSelectable != value)
+                {
+                    _isSelectable = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        public TabItemViewModel(string name, FolderTreeManager? folderTreeManager)
         {
             Name = name;
             FolderTreeManager = folderTreeManager;
@@ -95,11 +109,10 @@ namespace FileCraft.ViewModels.Functional
         public ICommand CopyFolderTreeCommand { get; }
 
         public ObservableCollection<PresetSlotViewModel> PresetSlots { get; } = new();
-        public ObservableCollection<TabInfo> AvailableTabs { get; } = new();
-        public ObservableCollection<TabInfo> AvailableDestinationTabs { get; } = new();
+        public ObservableCollection<TabItemViewModel> AllTabs { get; } = new();
 
-        private TabInfo? _selectedSourceTab;
-        public TabInfo? SelectedSourceTab
+        private TabItemViewModel? _selectedSourceTab;
+        public TabItemViewModel? SelectedSourceTab
         {
             get => _selectedSourceTab;
             set
@@ -108,13 +121,31 @@ namespace FileCraft.ViewModels.Functional
                 {
                     _selectedSourceTab = value;
                     OnPropertyChanged();
-                    UpdateAvailableDestinationTabs();
+
+                    foreach (var tab in AllTabs)
+                    {
+                        tab.IsSelectable = true;
+                    }
+
+                    if (_selectedSourceTab != null && _selectedSourceTab.FolderTreeManager != null)
+                    {
+                        var tabToDisable = AllTabs.FirstOrDefault(t => t.Name == _selectedSourceTab.Name);
+                        if (tabToDisable != null)
+                        {
+                            tabToDisable.IsSelectable = false;
+                        }
+                    }
+
+                    if (SelectedDestinationTab != null && !SelectedDestinationTab.IsSelectable)
+                    {
+                        SelectedDestinationTab = AllTabs.First(t => t.FolderTreeManager == null);
+                    }
                 }
             }
         }
 
-        private TabInfo? _selectedDestinationTab;
-        public TabInfo? SelectedDestinationTab
+        private TabItemViewModel? _selectedDestinationTab;
+        public TabItemViewModel? SelectedDestinationTab
         {
             get => _selectedDestinationTab;
             set
@@ -169,49 +200,29 @@ namespace FileCraft.ViewModels.Functional
             }
             CheckForExistingPresets();
 
-            AvailableTabs.Add(new TabInfo("File Content Export", fileContentExportVM.FolderTreeManager));
-            AvailableTabs.Add(new TabInfo("Tree Generator", treeGeneratorVM.FolderTreeManager));
-            AvailableTabs.Add(new TabInfo("Folder Content Export", folderContentExportVM.FolderTreeManager));
+            AllTabs.Add(new TabItemViewModel("-- None --", null));
+            AllTabs.Add(new TabItemViewModel("File Content Export", fileContentExportVM.FolderTreeManager));
+            AllTabs.Add(new TabItemViewModel("Tree Generator", treeGeneratorVM.FolderTreeManager));
+            AllTabs.Add(new TabItemViewModel("Folder Content Export", folderContentExportVM.FolderTreeManager));
 
-            UpdateAvailableDestinationTabs();
-        }
-
-        private void UpdateAvailableDestinationTabs()
-        {
-            var currentDestination = SelectedDestinationTab;
-            AvailableDestinationTabs.Clear();
-
-            var filteredTabs = SelectedSourceTab == null
-                ? AvailableTabs
-                : AvailableTabs.Where(t => t != SelectedSourceTab);
-
-            foreach (var tab in filteredTabs)
-            {
-                AvailableDestinationTabs.Add(tab);
-            }
-
-            if (SelectedDestinationTab != null && SelectedDestinationTab == SelectedSourceTab)
-            {
-                SelectedDestinationTab = null;
-            }
+            SelectedSourceTab = AllTabs[0];
+            SelectedDestinationTab = AllTabs[0];
         }
 
         private bool CanCopyFolderTree()
         {
-            return SelectedSourceTab != null &&
-                   SelectedDestinationTab != null &&
+            return SelectedSourceTab?.FolderTreeManager != null &&
+                   SelectedDestinationTab?.FolderTreeManager != null &&
                    SelectedSourceTab != SelectedDestinationTab &&
                    !string.IsNullOrWhiteSpace(_sharedStateService.SourcePath);
         }
 
         private void CopyFolderTree()
         {
-            if (!CanCopyFolderTree()) return;
+            if (!CanCopyFolderTree() || SelectedSourceTab?.FolderTreeManager is null || SelectedDestinationTab?.FolderTreeManager is null) return;
 
-            OnStateChanging();
-
-            var sourceManager = SelectedSourceTab!.FolderTreeManager;
-            var destManager = SelectedDestinationTab!.FolderTreeManager;
+            var sourceManager = SelectedSourceTab.FolderTreeManager;
+            var destManager = SelectedDestinationTab.FolderTreeManager;
 
             int sourceFolderCount = sourceManager.GetSelectedNodeCount();
             int destFolderCount = destManager.GetSelectedNodeCount();
@@ -225,6 +236,7 @@ namespace FileCraft.ViewModels.Functional
 
             if (confirmed)
             {
+                OnStateChanging();
                 var sourceState = sourceManager.GetFolderStates();
                 destManager.LoadTreeForPath(_sharedStateService.SourcePath, sourceState);
                 _dialogService.ShowNotification("Success", "Folder tree copied successfully.", DialogIconType.Success);

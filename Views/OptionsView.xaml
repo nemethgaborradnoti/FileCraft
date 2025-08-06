@@ -149,15 +149,21 @@
 
                         <StackPanel Grid.Column="0" VerticalAlignment="Top">
                             <TextBlock Text="Copy from this Tab:" Margin="0,0,0,2"/>
-                            <ComboBox ItemsSource="{Binding AvailableTabs}"
+                            <ComboBox ItemsSource="{Binding AllTabs}"
                                       SelectedItem="{Binding SelectedSourceTab}"
                                       DisplayMemberPath="Name"
                                       Margin="0,0,0,10"/>
 
                             <TextBlock Text="Copy to this tab:" Margin="0,0,0,2"/>
-                            <ComboBox ItemsSource="{Binding AvailableDestinationTabs}"
+                            <ComboBox ItemsSource="{Binding AllTabs}"
                                       SelectedItem="{Binding SelectedDestinationTab}"
-                                      DisplayMemberPath="Name"/>
+                                      DisplayMemberPath="Name">
+                                <ComboBox.ItemContainerStyle>
+                                    <Style TargetType="ComboBoxItem">
+                                        <Setter Property="IsEnabled" Value="{Binding IsSelectable}"/>
+                                    </Style>
+                                </ComboBox.ItemContainerStyle>
+                            </ComboBox>
                         </StackPanel>
 
                         <Button Grid.Column="1" 
