@@ -3,6 +3,7 @@ using FileCraft.Services.Interfaces;
 using System;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Linq;
 
 namespace FileCraft.ViewModels.Shared
 {
@@ -53,6 +54,15 @@ namespace FileCraft.ViewModels.Shared
         private void HandleFolderStateChange()
         {
             FolderSelectionChanged?.Invoke();
+        }
+
+        public int GetSelectedNodeCount()
+        {
+            if (!RootFolders.Any())
+            {
+                return 0;
+            }
+            return RootFolders[0].GetAllNodes().Count(n => n.IsSelected != false);
         }
 
         public List<FolderState> GetFolderStates()

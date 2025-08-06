@@ -140,6 +140,40 @@
             </StackPanel>
 
             <Border Grid.Column="1" Margin="10" BorderBrush="LightGray" BorderThickness="1" CornerRadius="3">
+                <GroupBox Header="Copy FolderTree content" Margin="5" Padding="10">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0" VerticalAlignment="Top">
+                            <TextBlock Text="Copy from this Tab:" Margin="0,0,0,2"/>
+                            <ComboBox ItemsSource="{Binding AllTabs}"
+                                      SelectedItem="{Binding SelectedSourceTab}"
+                                      DisplayMemberPath="Name"
+                                      Margin="0,0,0,10"/>
+
+                            <TextBlock Text="Copy to this tab:" Margin="0,0,0,2"/>
+                            <ComboBox ItemsSource="{Binding AllTabs}"
+                                      SelectedItem="{Binding SelectedDestinationTab}"
+                                      DisplayMemberPath="Name">
+                                <ComboBox.ItemContainerStyle>
+                                    <Style TargetType="ComboBoxItem">
+                                        <Setter Property="IsEnabled" Value="{Binding IsSelectable}"/>
+                                    </Style>
+                                </ComboBox.ItemContainerStyle>
+                            </ComboBox>
+                        </StackPanel>
+
+                        <Button Grid.Column="1" 
+                                Content="Copy Folder Tree"
+                                Command="{Binding CopyFolderTreeCommand}"
+                                VerticalAlignment="Center"
+                                Margin="15,0,0,0"
+                                Padding="10,5"/>
+                    </Grid>
+                </GroupBox>
             </Border>
         </Grid>
 

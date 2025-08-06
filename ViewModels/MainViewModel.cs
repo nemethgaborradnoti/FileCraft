@@ -111,6 +111,7 @@ namespace FileCraft.ViewModels
             TreeGeneratorVM.StateChanging += OnStateChanging;
             FolderContentExportVM.StateChanging += OnStateChanging;
             FileRenamerVM.StateChanging += OnStateChanging;
+            OptionsVM.StateChanging += OnStateChanging;
 
             _undoService.HistoryChanged += OnHistoryChanged;
         }
@@ -180,7 +181,7 @@ namespace FileCraft.ViewModels
             _undoService.Clear();
             SaveData saveData = _saveService.LoadSaveData();
             ApplyAllData(saveData);
-            SelectedTabIndex = 0;
+            SelectedTabIndex = saveData.SelectedTabIndex;
             _isLoading = false;
         }
 
@@ -192,6 +193,7 @@ namespace FileCraft.ViewModels
             {
                 SourcePath = saveData.SourcePath,
                 DestinationPath = saveData.DestinationPath,
+                SelectedTabIndex = saveData.SelectedTabIndex,
                 FileContentExport = saveData.FileContentExport,
                 FolderContentExport = saveData.FolderContentExport,
                 TreeGenerator = saveData.TreeGenerator,
@@ -331,7 +333,6 @@ namespace FileCraft.ViewModels
 
         private void OnPresetLoadRequested(int presetNumber)
         {
-            OnStateChanging();
             if (string.IsNullOrWhiteSpace(SourcePath) || !Directory.Exists(SourcePath))
             {
                 _dialogService.ShowNotification("Action Required", "To load a preset, please first select the root source folder for your project.", DialogIconType.Warning);
@@ -353,6 +354,7 @@ namespace FileCraft.ViewModels
 
             if (!confirmed) return;
 
+            OnStateChanging();
             try
             {
                 var absolutePresetData = MakePathsAbsolute(relativePresetData, SourcePath);
@@ -368,7 +370,6 @@ namespace FileCraft.ViewModels
 
         private void OnPresetDeleteRequested(int presetNumber)
         {
-            OnStateChanging();
             string presetName = _saveService.GetPresetName(presetNumber);
             if (string.IsNullOrWhiteSpace(presetName))
             {
@@ -383,6 +384,7 @@ namespace FileCraft.ViewModels
 
             if (confirmed)
             {
+                OnStateChanging();
                 try
                 {
                     _saveService.DeletePreset(presetNumber);
@@ -398,7 +400,6 @@ namespace FileCraft.ViewModels
 
         private void OnCurrentSaveDeleteRequested()
         {
-            OnStateChanging();
             bool confirmed = _dialogService.ShowConfirmation(
                 title: "Delete Current Save",
                 message: "Are you sure you want to delete all current settings and reset to default? This action cannot be undone.",
@@ -406,6 +407,7 @@ namespace FileCraft.ViewModels
 
             if (confirmed)
             {
+                OnStateChanging();
                 try
                 {
                     _saveService.DeleteSaveData();
