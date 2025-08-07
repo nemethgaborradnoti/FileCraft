@@ -20,105 +20,80 @@
             </Grid.ColumnDefinitions>
 
             <StackPanel Grid.Column="0" Margin="10">
-                <GroupBox Header="Load Preset" Padding="10">
+                <GroupBox Header="Manage Presets" Padding="10">
                     <ItemsControl ItemsSource="{Binding PresetSlots}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Grid Margin="0,2">
+                                <Grid Margin="0,5">
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="Auto"/>
                                         <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
 
-                                    <Button Grid.Column="0" 
-                                            Command="{Binding DataContext.DeletePresetCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                            CommandParameter="{Binding PresetNumber}"
-                                            IsEnabled="{Binding Exists}"
-                                            Width="28" Height="28" Margin="5,0,0,0">
-                                        <Button.Style>
-                                            <Style TargetType="Button">
-                                                <Setter Property="Background" Value="Transparent"/>
-                                                <Setter Property="BorderThickness" Value="0"/>
-                                                <Setter Property="Padding" Value="0"/>
-                                                <Setter Property="Cursor" Value="Hand"/>
-                                                <Setter Property="Template">
-                                                    <Setter.Value>
-                                                        <ControlTemplate TargetType="Button">
-                                                            <Border Background="Transparent" BorderThickness="0">
-                                                                <ContentPresenter/>
-                                                            </Border>
-                                                        </ControlTemplate>
-                                                    </Setter.Value>
-                                                </Setter>
+                                    <TextBlock Grid.Column="0" Text="{Binding PresetName}" VerticalAlignment="Center" Margin="5,0" ToolTip="{Binding PresetName}">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="FontStyle" Value="Italic"/>
+                                                <Setter Property="FontWeight" Value="Normal"/>
                                                 <Style.Triggers>
-                                                    <Trigger Property="IsEnabled" Value="False">
-                                                        <Setter Property="Visibility" Value="Collapsed"/>
-                                                    </Trigger>
+                                                    <DataTrigger Binding="{Binding Exists}" Value="True">
+                                                        <Setter Property="FontStyle" Value="Normal"/>
+                                                        <Setter Property="FontWeight" Value="Bold"/>
+                                                    </DataTrigger>
                                                 </Style.Triggers>
                                             </Style>
-                                        </Button.Style>
-                                        <Image Source="/Resources/cancel01.png" Stretch="Uniform" />
+                                        </TextBlock.Style>
+                                    </TextBlock>
+
+                                    <Button Grid.Column="1"
+                                            Style="{StaticResource SquareIconButton}"
+                                            ToolTip="Save current settings to this preset"
+                                            Command="{Binding DataContext.SavePresetCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                            CommandParameter="{Binding}">
+                                        <Image Source="/Resources/save02.png" />
                                     </Button>
 
-                                    <Button Grid.Column="1" 
+                                    <Button Grid.Column="2"
+                                            Style="{StaticResource SquareIconButton}"
+                                            ToolTip="Edit preset name"
+                                            Command="{Binding DataContext.EditPresetCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                            CommandParameter="{Binding}"
+                                            IsEnabled="{Binding Exists}">
+                                        <Image Source="/Resources/edit01.png" />
+                                    </Button>
+
+                                    <Button Grid.Column="3"
+                                            Style="{StaticResource SquareIconButton}"
+                                            ToolTip="Delete this preset"
+                                            Command="{Binding DataContext.DeletePresetCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                            CommandParameter="{Binding}"
+                                            IsEnabled="{Binding Exists}">
+                                        <Image Source="/Resources/delete01.png" />
+                                    </Button>
+
+                                    <Button Grid.Column="4"
                                             Content="{Binding PresetNumber}"
                                             ContentStringFormat="Load ({0})"
                                             Command="{Binding DataContext.LoadPresetCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                            CommandParameter="{Binding PresetNumber}" 
+                                            CommandParameter="{Binding}"
                                             IsEnabled="{Binding Exists}"
                                             Width="90" Height="28" Margin="5,0,0,0">
                                         <Button.Style>
                                             <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+                                                <Setter Property="Background" Value="#FFE6E6E6"/>
+                                                <Setter Property="Foreground" Value="#FF888888"/>
                                                 <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding Exists}" Value="False">
-                                                        <Setter Property="Background" Value="#FFE6E6E6"/>
-                                                    </DataTrigger>
                                                     <DataTrigger Binding="{Binding Exists}" Value="True">
-                                                        <Setter Property="Background" Value="#7a9cc7"/>
+                                                        <Setter Property="Background" Value="#9dbde4"/>
+                                                        <Setter Property="Foreground" Value="Black"/>
                                                     </DataTrigger>
                                                 </Style.Triggers>
                                             </Style>
                                         </Button.Style>
                                     </Button>
-
-                                    <TextBlock Grid.Column="2" Text="{Binding PresetName}" VerticalAlignment="Center" Margin="10,0,0,0" FontStyle="Italic"/>
-                                </Grid>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                </GroupBox>
-
-                <GroupBox Header="Save Preset" Padding="10" Margin="0,10,0,0">
-                    <ItemsControl ItemsSource="{Binding PresetSlots}">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <Grid Margin="0,2">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <Button Grid.Column="0"
-                                            Content="{Binding PresetNumber}"
-                                            ContentStringFormat="Save ({0})"
-                                            Command="{Binding DataContext.SavePresetCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                            CommandParameter="{Binding}" 
-                                            Width="90" Height="28" Margin="5,0,0,0"/>
-                                    <Grid Grid.Column="1" Margin="10,0,5,0">
-                                        <TextBlock IsHitTestVisible="False" Text="{Binding PresetNumber, StringFormat='preset_{0:00}'}" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5,0,0,0" Foreground="Gray" FontStyle="Italic">
-                                            <TextBlock.Style>
-                                                <Style TargetType="{x:Type TextBlock}">
-                                                    <Setter Property="Visibility" Value="Collapsed"/>
-                                                    <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding Text, ElementName=PresetNameTextBox}" Value="">
-                                                            <Setter Property="Visibility" Value="Visible"/>
-                                                        </DataTrigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </TextBlock.Style>
-                                        </TextBlock>
-                                        <TextBox x:Name="PresetNameTextBox" Text="{Binding InputName, UpdateSourceTrigger=PropertyChanged}" MaxLength="50" VerticalContentAlignment="Center" Background="Transparent" Height="28" />
-                                    </Grid>
                                 </Grid>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>

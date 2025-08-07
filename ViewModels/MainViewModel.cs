@@ -90,6 +90,7 @@ namespace FileCraft.ViewModels
             SubscribeToChanges();
 
             OptionsVM.PresetSaveRequested += OnPresetSaveRequested;
+            OptionsVM.PresetRenameRequested += OnPresetRenameRequested;
             OptionsVM.PresetLoadRequested += OnPresetLoadRequested;
             OptionsVM.PresetDeleteRequested += OnPresetDeleteRequested;
             OptionsVM.CurrentSaveDeleteRequested += OnCurrentSaveDeleteRequested;
@@ -286,7 +287,7 @@ namespace FileCraft.ViewModels
             _isLoading = false;
         }
 
-        private void OnPresetSaveRequested(int presetNumber, string presetName)
+        private void OnPresetSaveRequested(int presetNumber)
         {
             if (string.IsNullOrWhiteSpace(SourcePath) || !Directory.Exists(SourcePath))
             {
@@ -294,9 +295,25 @@ namespace FileCraft.ViewModels
                 return;
             }
 
-            string message = $"This will save the entire current configuration as '{presetName}' to Preset ({presetNumber}).\nIf a preset already exists, it will be completely overwritten.\n\nAre you sure you want to continue?";
+            bool exists = _saveService.CheckPresetExists(presetNumber);
+            string presetName = exists ? _saveService.GetPresetName(presetNumber) : $"Preset{presetNumber:00}";
+
+            string message;
+            string title;
+
+            if (exists)
+            {
+                title = $"Overwrite Preset ({presetNumber})";
+                message = $"Are you sure you want to overwrite Preset ({presetNumber}): '{presetName}' with the current settings?";
+            }
+            else
+            {
+                title = $"Save New Preset ({presetNumber})";
+                message = $"Are you sure you want to save the current settings as a new preset named '{presetName}'?";
+            }
+
             bool confirmed = _dialogService.ShowConfirmation(
-                title: $"Save to Preset ({presetNumber})",
+                title: title,
                 message: message,
                 iconType: DialogIconType.Info);
 
@@ -304,30 +321,33 @@ namespace FileCraft.ViewModels
 
             try
             {
+                OnStateChanging();
                 var currentSaveData = GetCurrentSaveData();
                 currentSaveData.PresetName = presetName;
 
                 var relativeSaveData = MakePathsRelative(currentSaveData, SourcePath);
-
-                var dataToPersist = new SaveData
-                {
-                    PresetName = relativeSaveData.PresetName,
-                    SourcePath = relativeSaveData.SourcePath,
-                    DestinationPath = relativeSaveData.DestinationPath,
-                    FileContentExport = relativeSaveData.FileContentExport,
-                    FolderContentExport = relativeSaveData.FolderContentExport,
-                    TreeGenerator = relativeSaveData.TreeGenerator,
-                    FileRenamer = relativeSaveData.FileRenamer,
-                    SettingsPage = relativeSaveData.SettingsPage
-                };
-
-                _saveService.SaveAsPreset(dataToPersist, presetNumber);
+                _saveService.SaveAsPreset(relativeSaveData, presetNumber);
                 _dialogService.ShowNotification("Success", $"Preset '{presetName}' saved successfully to slot {presetNumber}.", DialogIconType.Success);
                 OptionsVM.CheckForExistingPresets();
             }
             catch (System.Exception ex)
             {
                 _dialogService.ShowNotification("Error", $"Failed to save preset {presetNumber}.\n\n{ex.Message}", DialogIconType.Error);
+            }
+        }
+
+        private void OnPresetRenameRequested(int presetNumber, string newName)
+        {
+            try
+            {
+                OnStateChanging();
+                _saveService.UpdatePresetName(presetNumber, newName);
+                OptionsVM.CheckForExistingPresets();
+                _dialogService.ShowNotification("Success", $"Preset ({presetNumber}) renamed to '{newName}'.", DialogIconType.Success);
+            }
+            catch (Exception ex)
+            {
+                _dialogService.ShowNotification("Error", $"Failed to rename preset {presetNumber}.\n\n{ex.Message}", DialogIconType.Error);
             }
         }
 

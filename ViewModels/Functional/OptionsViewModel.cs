@@ -68,20 +68,6 @@ namespace FileCraft.ViewModels.Functional
             }
         }
 
-        private string _inputName = string.Empty;
-        public string InputName
-        {
-            get => _inputName;
-            set
-            {
-                if (_inputName != value)
-                {
-                    _inputName = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
-
         public PresetSlotViewModel(int number)
         {
             PresetNumber = number;
@@ -96,14 +82,16 @@ namespace FileCraft.ViewModels.Functional
         private readonly ISharedStateService _sharedStateService;
         public string Version => "v2.0.0";
 
-        public event Action<int, string>? PresetSaveRequested;
+        public event Action<int>? PresetSaveRequested;
+        public event Action<int, string>? PresetRenameRequested;
         public event Action<int>? PresetLoadRequested;
         public event Action<int>? PresetDeleteRequested;
         public event Action? CurrentSaveDeleteRequested;
 
         public ICommand SavePresetCommand { get; }
-        public ICommand LoadPresetCommand { get; }
+        public ICommand EditPresetCommand { get; }
         public ICommand DeletePresetCommand { get; }
+        public ICommand LoadPresetCommand { get; }
         public ICommand DeleteCurrentSaveCommand { get; }
         public ICommand OpenSaveFolderCommand { get; }
         public ICommand CopyFolderTreeCommand { get; }
@@ -172,21 +160,44 @@ namespace FileCraft.ViewModels.Functional
                 {
                     if (slot is PresetSlotViewModel vm)
                     {
-                        PresetSaveRequested?.Invoke(vm.PresetNumber, vm.InputName);
-                        vm.InputName = string.Empty;
+                        PresetSaveRequested?.Invoke(vm.PresetNumber);
                     }
-                },
-                canExecute: slot =>
-                {
-                    return slot is PresetSlotViewModel vm && !string.IsNullOrWhiteSpace(vm.InputName);
                 });
 
-
-            LoadPresetCommand = new RelayCommand(
-                presetNumber => PresetLoadRequested?.Invoke(Convert.ToInt32(presetNumber)));
+            EditPresetCommand = new RelayCommand(
+                execute: slot =>
+                {
+                    if (slot is PresetSlotViewModel vm)
+                    {
+                        string? newName = _dialogService.ShowRenamePresetDialog(vm.PresetName, vm.PresetNumber);
+                        if (!string.IsNullOrWhiteSpace(newName))
+                        {
+                            PresetRenameRequested?.Invoke(vm.PresetNumber, newName);
+                        }
+                    }
+                },
+                canExecute: slot => slot is PresetSlotViewModel vm && vm.Exists);
 
             DeletePresetCommand = new RelayCommand(
-                presetNumber => PresetDeleteRequested?.Invoke(Convert.ToInt32(presetNumber)));
+                execute: slot =>
+                {
+                    if (slot is PresetSlotViewModel vm)
+                    {
+                        PresetDeleteRequested?.Invoke(vm.PresetNumber);
+                    }
+                },
+                canExecute: slot => slot is PresetSlotViewModel vm && vm.Exists);
+
+            LoadPresetCommand = new RelayCommand(
+                execute: slot =>
+                {
+                    if (slot is PresetSlotViewModel vm)
+                    {
+                        PresetLoadRequested?.Invoke(vm.PresetNumber);
+                    }
+                },
+                canExecute: slot => slot is PresetSlotViewModel vm && vm.Exists);
+
 
             DeleteCurrentSaveCommand = new RelayCommand(
                 _ => CurrentSaveDeleteRequested?.Invoke());
