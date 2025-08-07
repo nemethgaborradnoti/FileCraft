@@ -42,6 +42,8 @@ namespace FileCraft.Models
 
         public string FullPath { get; set; } = string.Empty;
 
+        public string RelativePath { get; set; } = string.Empty;
+
         public event PropertyChangedEventHandler? PropertyChanged;
 
         protected void OnPropertyChanged([CallerMemberName] string? name = null)

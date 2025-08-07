@@ -117,7 +117,7 @@
                     <ListView.ItemTemplate>
                         <DataTemplate>
                             <CheckBox IsChecked="{Binding IsSelected}" VerticalAlignment="Center">
-                                <TextBlock Text="{Binding FullPath}" TextTrimming="CharacterEllipsis"/>
+                                <TextBlock Text="{Binding RelativePath}" TextTrimming="CharacterEllipsis"/>
                             </CheckBox>
                         </DataTemplate>
                     </ListView.ItemTemplate>
