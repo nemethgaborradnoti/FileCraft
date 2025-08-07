@@ -49,6 +49,16 @@ namespace FileCraft.Services
             return confirmationWindow.Result;
         }
 
+        public string? ShowRenamePresetDialog(string currentName, int presetNumber)
+        {
+            var renameWindow = new RenamePresetWindow(currentName, presetNumber);
+            if (renameWindow.ShowDialog() == true)
+            {
+                return renameWindow.NewPresetName;
+            }
+            return null;
+        }
+
         private string GetIconPath(DialogIconType iconType)
         {
             return iconType switch
