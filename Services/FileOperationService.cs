@@ -1,4 +1,5 @@
-﻿using FileCraft.Services.Interfaces;
+﻿using FileCraft.Models;
+using FileCraft.Services.Interfaces;
 using FileCraft.Shared.Validation;
 using System.IO;
 using System.Text;
@@ -115,33 +116,35 @@ namespace FileCraft.Services
             }
         }
 
-        public async Task<string> ExportSelectedFileContentsAsync(string destinationPath, IEnumerable<string> selectedFilePaths, string outputFileName)
+        public async Task<string> ExportSelectedFileContentsAsync(string destinationPath, IEnumerable<SelectableFile> selectedFiles, string outputFileName)
         {
             Guard.AgainstNullOrWhiteSpace(destinationPath, nameof(destinationPath));
             Guard.AgainstNullOrWhiteSpace(outputFileName, nameof(outputFileName));
-            Guard.AgainstNullOrEmpty(selectedFilePaths, nameof(selectedFilePaths), "No files were selected for export.");
+            Guard.AgainstNullOrEmpty(selectedFiles, nameof(selectedFiles), "No files were selected for export.");
 
             var contentBuilder = new StringBuilder();
+            var selectedFilesList = selectedFiles.ToList();
 
-            foreach (var filePath in selectedFilePaths)
+            for (int i = 0; i < selectedFilesList.Count; i++)
             {
+                var file = selectedFilesList[i];
                 try
                 {
-                    var fileInfo = new FileInfo(filePath);
-                    string fileContent = await File.ReadAllTextAsync(filePath);
+                    string fileContent = await File.ReadAllTextAsync(file.FullPath);
 
-                    contentBuilder.AppendLine($"===== {fileInfo.Name} file contains:");
+                    contentBuilder.AppendLine($"=== {file.RelativePath} file contains:");
                     contentBuilder.AppendLine();
                     contentBuilder.AppendLine(fileContent);
-                    contentBuilder.AppendLine();
-                    contentBuilder.AppendLine();
-                    contentBuilder.AppendLine("===============");
+
+                    if (i < selectedFilesList.Count - 1)
+                    {
+                        contentBuilder.AppendLine();
+                        contentBuilder.AppendLine("===========");
+                    }
                 }
                 catch (Exception ex)
                 {
-                    contentBuilder.AppendLine($"--- Could not read file: {Path.GetFileName(filePath)}. Error: {ex.Message} ---");
-                    contentBuilder.AppendLine();
-                    contentBuilder.AppendLine();
+                    contentBuilder.AppendLine($"--- Could not read file: {file.FileName}. Error: {ex.Message} ---");
                     contentBuilder.AppendLine();
                 }
             }

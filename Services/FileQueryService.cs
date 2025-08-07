@@ -29,7 +29,7 @@ namespace FileCraft.Services
             return extensions;
         }
 
-        public List<SelectableFile> GetFilesByExtensions(IEnumerable<FolderViewModel> folders, ISet<string> selectedExtensions)
+        public List<SelectableFile> GetFilesByExtensions(string basePath, IEnumerable<FolderViewModel> folders, ISet<string> selectedExtensions)
         {
             var files = new List<SelectableFile>();
             foreach (var folder in folders)
@@ -38,7 +38,13 @@ namespace FileCraft.Services
                 {
                     var filesInFolder = Directory.GetFiles(folder.FullPath, "*.*", SearchOption.TopDirectoryOnly)
                         .Where(f => selectedExtensions.Contains(Path.GetExtension(f), StringComparer.OrdinalIgnoreCase))
-                        .Select(f => new SelectableFile { FileName = Path.GetFileName(f), FullPath = f, IsSelected = false });
+                        .Select(f => new SelectableFile
+                        {
+                            FileName = Path.GetFileName(f),
+                            FullPath = f,
+                            RelativePath = Path.GetRelativePath(basePath, f),
+                            IsSelected = false
+                        });
                     files.AddRange(filesInFolder);
                 }
                 catch (UnauthorizedAccessException)

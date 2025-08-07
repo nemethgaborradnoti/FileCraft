@@ -262,7 +262,7 @@ namespace FileCraft.ViewModels.Functional
         {
             var selectedFolders = GetSelectedFoldersForFileListing();
             var selectedExtensions = new HashSet<string>(GetSelectedExtensions(), StringComparer.OrdinalIgnoreCase);
-            var files = _fileQueryService.GetFilesByExtensions(selectedFolders, selectedExtensions);
+            var files = _fileQueryService.GetFilesByExtensions(_sharedStateService.SourcePath, selectedFolders, selectedExtensions);
             var previouslySelectedFiles = new HashSet<string>(_allSelectableFiles.Where(f => f.IsSelected).Select(f => f.FullPath));
 
             System.Windows.Application.Current.Dispatcher.Invoke(() =>
@@ -338,8 +338,8 @@ namespace FileCraft.ViewModels.Functional
             IsBusy = true;
             try
             {
-                var selectedPaths = _allSelectableFiles.Where(f => f.IsSelected).Select(f => f.FullPath).ToList();
-                if (!selectedPaths.Any())
+                var selectedFiles = _allSelectableFiles.Where(f => f.IsSelected).ToList();
+                if (!selectedFiles.Any())
                 {
                     _dialogService.ShowNotification("Information", "No files were selected. Please select at least one file to export.", DialogIconType.Info);
                     return;
@@ -350,7 +350,7 @@ namespace FileCraft.ViewModels.Functional
                     title: "Export File Contents",
                     message: message,
                     iconType: DialogIconType.Info,
-                    filesAffected: selectedPaths.Count);
+                    filesAffected: selectedFiles.Count);
 
                 if (!confirmed)
                 {
@@ -358,8 +358,8 @@ namespace FileCraft.ViewModels.Functional
                 }
 
                 string finalFileName = GetFinalFileName(OutputFileName, AppendTimestamp);
-                string outputFilePath = await _fileOperationService.ExportSelectedFileContentsAsync(_sharedStateService.DestinationPath, selectedPaths, finalFileName);
-                _dialogService.ShowNotification("Success", $"File contents exported successfully!\n\n{selectedPaths.Count} files were processed.\nSaved to: {outputFilePath}", DialogIconType.Success);
+                string outputFilePath = await _fileOperationService.ExportSelectedFileContentsAsync(_sharedStateService.DestinationPath, selectedFiles, finalFileName);
+                _dialogService.ShowNotification("Success", $"File contents exported successfully!\n\n{selectedFiles.Count} files were processed.\nSaved to: {outputFilePath}", DialogIconType.Success);
             }
             catch (Exception ex)
             {
