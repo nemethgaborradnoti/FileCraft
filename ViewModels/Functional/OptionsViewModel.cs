@@ -232,10 +232,10 @@ namespace FileCraft.ViewModels.Functional
 
         private void CopyFolderTree()
         {
-            if (!CanCopyFolderTree() || SelectedSourceTab?.FolderTreeManager is null || SelectedDestinationTab?.FolderTreeManager is null || SelectedSourceTab is null || SelectedDestinationTab is null) return;
+            if (!CanCopyFolderTree()) return;
 
-            var sourceManager = SelectedSourceTab.FolderTreeManager;
-            var destManager = SelectedDestinationTab.FolderTreeManager;
+            var sourceManager = SelectedSourceTab!.FolderTreeManager!;
+            var destManager = SelectedDestinationTab!.FolderTreeManager!;
 
             int sourceFolderCount = sourceManager.GetSelectedNodeCount();
             int destFolderCount = destManager.GetSelectedNodeCount();

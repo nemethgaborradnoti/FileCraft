@@ -58,22 +58,24 @@ namespace FileCraft.ViewModels.Shared
 
         public int GetSelectedNodeCount()
         {
-            if (!RootFolders.Any())
+            var root = RootFolders.FirstOrDefault();
+            if (root is null)
             {
                 return 0;
             }
-            return RootFolders[0].GetAllNodes().Count(n => n.IsSelected != false);
+            return root.GetAllNodes().Count(n => n.IsSelected != false);
         }
 
         public List<FolderState> GetFolderStates()
         {
-            if (!RootFolders.Any())
+            var root = RootFolders.FirstOrDefault();
+            if (root is null)
             {
                 return new List<FolderState>();
             }
 
             var states = new List<FolderState>();
-            ExtractStateFromNode(RootFolders[0], states);
+            ExtractStateFromNode(root, states);
             return states;
         }
 
