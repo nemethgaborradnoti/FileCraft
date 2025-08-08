@@ -24,16 +24,24 @@
                     <ItemsControl ItemsSource="{Binding PresetSlots}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Grid Margin="0,5">
+                                <Grid Margin="0,10">
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
                                         <ColumnDefinition Width="Auto"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
 
-                                    <TextBlock Grid.Column="0" Text="{Binding PresetName}" VerticalAlignment="Center" Margin="5,0" ToolTip="{Binding PresetName}">
+                                    <Button Grid.Column="0"
+                                            Style="{StaticResource SquareIconButton}"
+                                            ToolTip="Save current settings to this preset"
+                                            Command="{Binding DataContext.SavePresetCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                            CommandParameter="{Binding}">
+                                        <Image Source="/Resources/save03.png" />
+                                    </Button>
+
+                                    <TextBlock Grid.Column="1" Text="{Binding PresetName}" VerticalAlignment="Center" Margin="5, 0" ToolTip="{Binding PresetName}">
                                         <TextBlock.Style>
                                             <Style TargetType="TextBlock">
                                                 <Setter Property="FontStyle" Value="Italic"/>
@@ -47,14 +55,6 @@
                                             </Style>
                                         </TextBlock.Style>
                                     </TextBlock>
-
-                                    <Button Grid.Column="1"
-                                            Style="{StaticResource SquareIconButton}"
-                                            ToolTip="Save current settings to this preset"
-                                            Command="{Binding DataContext.SavePresetCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                            CommandParameter="{Binding}">
-                                        <Image Source="/Resources/save02.png" />
-                                    </Button>
 
                                     <Button Grid.Column="2"
                                             Style="{StaticResource SquareIconButton}"

@@ -22,6 +22,7 @@
     <None Remove="Resources\rename01.png" />
     <None Remove="Resources\save01.png" />
     <None Remove="Resources\save02.png" />
+    <None Remove="Resources\save03.png" />
     <None Remove="Resources\settings01.png" />
     <None Remove="Resources\treestructure01.png" />
     <None Remove="Resources\warning01.png" />
@@ -40,6 +41,7 @@
     <Resource Include="Resources\rename01.png" />
     <Resource Include="Resources\save01.png" />
     <Resource Include="Resources\save02.png" />
+    <Resource Include="Resources\save03.png" />
     <Resource Include="Resources\settings01.png" />
     <Resource Include="Resources\treestructure01.png" />
     <Resource Include="Resources\warning01.png" />
