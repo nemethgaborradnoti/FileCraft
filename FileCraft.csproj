@@ -7,9 +7,11 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
     <UseWindowsForms>true</UseWindowsForms>
+	<ApplicationIcon>Resources\app_icon.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Resources\app_icon.ico" />
     <None Remove="Resources\arrow01.png" />
     <None Remove="Resources\arrow02.png" />
     <None Remove="Resources\cancel01.png" />
@@ -29,6 +31,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Resource Include="Resources\app_icon.ico" />
     <Resource Include="Resources\arrow01.png" />
     <Resource Include="Resources\arrow02.png" />
     <Resource Include="Resources\cancel01.png" />
