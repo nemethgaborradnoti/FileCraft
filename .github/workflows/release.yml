@@ -1,0 +1,59 @@
+# The name of the workflow, which appears on the GitHub "Actions" tab.
+name: Manual .NET Release
+
+# The event that triggers the workflow.
+# 'workflow_dispatch' allows for manual triggering.
+on:
+  workflow_dispatch:
+    # Defines input fields that GitHub will prompt for upon triggering.
+    inputs:
+      version:
+        description: 'The release version number (e.g., v1.0.0)'
+        required: true
+        default: 'v1.0.0'
+
+# The jobs that the workflow will execute.
+jobs:
+  build-and-release:
+    # Specifies that the job will run on a Windows-based virtual machine.
+    runs-on: windows-latest
+
+    # The steps that make up the job.
+    steps:
+    # Step 1: Checkout code from the main branch
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        ref: 'main' # Ensures that it always uses the content of the main branch
+
+    # Step 2: Setup .NET 9 SDK
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '9.0.x'
+
+    # Step 3: Restore NuGet packages
+    - name: Restore dependencies
+      run: dotnet restore
+
+    # Step 4: Publish the application
+    - name: Build and publish
+      run: dotnet publish -c Release -r win-x64 --output ./publish
+
+    # Step 5: Zip the published files
+    - name: Zip the artifacts
+      run: Compress-Archive -Path ./publish/* -DestinationPath FileCraft-Release.zip
+
+    # Step 6: Create a GitHub Release with the specified version number
+    # 'softprops/action-gh-release@v2' is a popular action for creating releases.
+    - name: Create Release
+      uses: softprops/action-gh-release@v2
+      with:
+        # List of files to attach to the release.
+        files: FileCraft-Release.zip
+        # The name of the release. We use the version number provided as input.
+        name: "FileCraft Release ${{ github.event.inputs.version }}"
+        # The Git tag name. We also use the input.
+        tag_name: "${{ github.event.inputs.version }}"
+        # The GITHUB_TOKEN is a temporary key automatically provided by GitHub.
+        token: ${{ secrets.GITHUB_TOKEN }}
