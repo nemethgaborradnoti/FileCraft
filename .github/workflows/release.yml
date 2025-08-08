@@ -41,7 +41,7 @@ jobs:
 
     # Step 4: Publish the application
     - name: Build and publish
-      run: dotnet publish -c Release -r win-x64 --output ./publish
+      run: dotnet publish -c Release -r win-x64 --self-contained true /p:PublishSingleFile=true --output ./publish
 
     # Step 5: Zip the published files
     - name: Zip the artifacts
