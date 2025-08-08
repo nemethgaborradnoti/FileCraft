@@ -13,6 +13,7 @@ namespace FileCraft.ViewModels.Functional
     public class TabItemViewModel : BaseViewModel
     {
         public string Name { get; }
+        public string? IconPath { get; }
         public FolderTreeManager? FolderTreeManager { get; }
 
         private bool _isSelectable = true;
@@ -29,9 +30,10 @@ namespace FileCraft.ViewModels.Functional
             }
         }
 
-        public TabItemViewModel(string name, FolderTreeManager? folderTreeManager)
+        public TabItemViewModel(string name, string? iconPath, FolderTreeManager? folderTreeManager)
         {
             Name = name;
+            IconPath = iconPath;
             FolderTreeManager = folderTreeManager;
         }
     }
@@ -211,10 +213,10 @@ namespace FileCraft.ViewModels.Functional
             }
             CheckForExistingPresets();
 
-            AllTabs.Add(new TabItemViewModel("-- None --", null));
-            AllTabs.Add(new TabItemViewModel("File Content Export", fileContentExportVM.FolderTreeManager));
-            AllTabs.Add(new TabItemViewModel("Tree Generator", treeGeneratorVM.FolderTreeManager));
-            AllTabs.Add(new TabItemViewModel("Folder Content Export", folderContentExportVM.FolderTreeManager));
+            AllTabs.Add(new TabItemViewModel("-- None --", null, null));
+            AllTabs.Add(new TabItemViewModel("File Content Export", "/Resources/filecontent01.png", fileContentExportVM.FolderTreeManager));
+            AllTabs.Add(new TabItemViewModel("Tree Generator", "/Resources/treestructure01.png", treeGeneratorVM.FolderTreeManager));
+            AllTabs.Add(new TabItemViewModel("Folder Content Export", "/Resources/foldercontent01.png", folderContentExportVM.FolderTreeManager));
 
             SelectedSourceTab = AllTabs[0];
             SelectedDestinationTab = AllTabs[0];
