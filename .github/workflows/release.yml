@@ -1,5 +1,5 @@
 # The name of the workflow, which appears on the GitHub "Actions" tab.
-name: Manual .NET Release
+name: Manual FileCraft release
 
 # The event that triggers the workflow.
 # 'workflow_dispatch' allows for manual triggering.
@@ -11,6 +11,9 @@ on:
         description: 'The release version number (e.g., v1.0.0)'
         required: true
         default: 'v1.0.0'
+        
+permissions:
+  contents: write
 
 # The jobs that the workflow will execute.
 jobs:
