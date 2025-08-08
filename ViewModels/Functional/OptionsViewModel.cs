@@ -232,7 +232,7 @@ namespace FileCraft.ViewModels.Functional
 
         private void CopyFolderTree()
         {
-            if (!CanCopyFolderTree() || SelectedSourceTab?.FolderTreeManager is null || SelectedDestinationTab?.FolderTreeManager is null) return;
+            if (!CanCopyFolderTree() || SelectedSourceTab?.FolderTreeManager is null || SelectedDestinationTab?.FolderTreeManager is null || SelectedSourceTab is null || SelectedDestinationTab is null) return;
 
             var sourceManager = SelectedSourceTab.FolderTreeManager;
             var destManager = SelectedDestinationTab.FolderTreeManager;
@@ -240,12 +240,15 @@ namespace FileCraft.ViewModels.Functional
             int sourceFolderCount = sourceManager.GetSelectedNodeCount();
             int destFolderCount = destManager.GetSelectedNodeCount();
 
-            string message = $"Are you sure you want to copy {SelectedSourceTab.Name} tab's folder tree ({sourceFolderCount} folders) to {SelectedDestinationTab.Name} tab's folder tree ({destFolderCount} folders)?";
-
-            bool confirmed = _dialogService.ShowConfirmation(
+            bool confirmed = _dialogService.ShowCopyTreeConfirmation(
                 title: "Copy Folder Tree",
-                message: message,
-                iconType: DialogIconType.Warning);
+                iconType: DialogIconType.Warning,
+                sourceName: SelectedSourceTab.Name,
+                sourceIcon: SelectedSourceTab.IconPath,
+                sourceCount: sourceFolderCount,
+                destName: SelectedDestinationTab.Name,
+                destIcon: SelectedDestinationTab.IconPath,
+                destCount: destFolderCount);
 
             if (confirmed)
             {
