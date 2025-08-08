@@ -13,6 +13,7 @@ namespace FileCraft.ViewModels.Functional
     public class TabItemViewModel : BaseViewModel
     {
         public string Name { get; }
+        public string? IconPath { get; }
         public FolderTreeManager? FolderTreeManager { get; }
 
         private bool _isSelectable = true;
@@ -29,9 +30,10 @@ namespace FileCraft.ViewModels.Functional
             }
         }
 
-        public TabItemViewModel(string name, FolderTreeManager? folderTreeManager)
+        public TabItemViewModel(string name, string? iconPath, FolderTreeManager? folderTreeManager)
         {
             Name = name;
+            IconPath = iconPath;
             FolderTreeManager = folderTreeManager;
         }
     }
@@ -211,10 +213,10 @@ namespace FileCraft.ViewModels.Functional
             }
             CheckForExistingPresets();
 
-            AllTabs.Add(new TabItemViewModel("-- None --", null));
-            AllTabs.Add(new TabItemViewModel("File Content Export", fileContentExportVM.FolderTreeManager));
-            AllTabs.Add(new TabItemViewModel("Tree Generator", treeGeneratorVM.FolderTreeManager));
-            AllTabs.Add(new TabItemViewModel("Folder Content Export", folderContentExportVM.FolderTreeManager));
+            AllTabs.Add(new TabItemViewModel("-- None --", null, null));
+            AllTabs.Add(new TabItemViewModel("File Content Export", "/Resources/filecontent01.png", fileContentExportVM.FolderTreeManager));
+            AllTabs.Add(new TabItemViewModel("Tree Generator", "/Resources/treestructure01.png", treeGeneratorVM.FolderTreeManager));
+            AllTabs.Add(new TabItemViewModel("Folder Content Export", "/Resources/foldercontent01.png", folderContentExportVM.FolderTreeManager));
 
             SelectedSourceTab = AllTabs[0];
             SelectedDestinationTab = AllTabs[0];
@@ -230,7 +232,7 @@ namespace FileCraft.ViewModels.Functional
 
         private void CopyFolderTree()
         {
-            if (!CanCopyFolderTree() || SelectedSourceTab?.FolderTreeManager is null || SelectedDestinationTab?.FolderTreeManager is null) return;
+            if (!CanCopyFolderTree() || SelectedSourceTab?.FolderTreeManager is null || SelectedDestinationTab?.FolderTreeManager is null || SelectedSourceTab is null || SelectedDestinationTab is null) return;
 
             var sourceManager = SelectedSourceTab.FolderTreeManager;
             var destManager = SelectedDestinationTab.FolderTreeManager;
@@ -238,12 +240,15 @@ namespace FileCraft.ViewModels.Functional
             int sourceFolderCount = sourceManager.GetSelectedNodeCount();
             int destFolderCount = destManager.GetSelectedNodeCount();
 
-            string message = $"Are you sure you want to copy {SelectedSourceTab.Name} tab's folder tree ({sourceFolderCount} folders) to {SelectedDestinationTab.Name} tab's folder tree ({destFolderCount} folders)?";
-
-            bool confirmed = _dialogService.ShowConfirmation(
+            bool confirmed = _dialogService.ShowCopyTreeConfirmation(
                 title: "Copy Folder Tree",
-                message: message,
-                iconType: DialogIconType.Warning);
+                iconType: DialogIconType.Warning,
+                sourceName: SelectedSourceTab.Name,
+                sourceIcon: SelectedSourceTab.IconPath,
+                sourceCount: sourceFolderCount,
+                destName: SelectedDestinationTab.Name,
+                destIcon: SelectedDestinationTab.IconPath,
+                destCount: destFolderCount);
 
             if (confirmed)
             {
@@ -294,7 +299,7 @@ namespace FileCraft.ViewModels.Functional
                 }
                 else
                 {
-                    slot.PresetName = "Empty Slot";
+                    slot.PresetName = "(<-- Save) Empty slot";
                 }
             }
         }
