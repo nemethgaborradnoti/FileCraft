@@ -3,14 +3,15 @@ using FileCraft.Services.Interfaces;
 using FileCraft.Shared.Commands;
 using FileCraft.Shared.Helpers;
 using FileCraft.ViewModels.Shared;
+using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Linq;
 using System.Windows.Input;
 using Timer = System.Threading.Timer;
 
 namespace FileCraft.ViewModels.Functional
 {
-
     public class FileContentExportViewModel : ExportViewModelBase
     {
         private readonly IFileQueryService _fileQueryService;
@@ -51,6 +52,7 @@ namespace FileCraft.ViewModels.Functional
             {
                 if (_searchFilter != value)
                 {
+                    OnStateChanging();
                     _searchFilter = value;
                     OnPropertyChanged();
                     _debounceTimer.Change(300, Timeout.Infinite);
@@ -63,6 +65,7 @@ namespace FileCraft.ViewModels.Functional
             get => _areAllFilesSelected;
             set
             {
+                OnStateChanging();
                 bool selectAll = _areAllFilesSelected != true;
                 SetFilteredFilesSelectionState(selectAll);
             }
@@ -73,6 +76,7 @@ namespace FileCraft.ViewModels.Functional
             get => _areAllExtensionsSelected;
             set
             {
+                OnStateChanging();
                 bool selectAll = _areAllExtensionsSelected != true;
                 SetExtensionsSelectionState(selectAll);
             }
@@ -85,6 +89,7 @@ namespace FileCraft.ViewModels.Functional
             {
                 if (_outputFileName != value)
                 {
+                    OnStateChanging();
                     _outputFileName = value;
                     OnPropertyChanged();
                 }
@@ -98,6 +103,7 @@ namespace FileCraft.ViewModels.Functional
             {
                 if (_appendTimestamp != value)
                 {
+                    OnStateChanging();
                     _appendTimestamp = value;
                     OnPropertyChanged();
                 }
@@ -122,6 +128,7 @@ namespace FileCraft.ViewModels.Functional
 
             FolderTreeManager.PropertyChanged += OnFolderTreeManagerPropertyChanged;
             FolderTreeManager.FolderSelectionChanged += OnFolderSelectionChanged;
+            FolderTreeManager.StateChanging += OnStateChanging;
 
             ExportFileContentCommand = new RelayCommand(async (_) => await ExportFileContentAsync(), (_) => CanExecuteOperation(this.OutputFileName) && _allSelectableFiles.Any(f => f.IsSelected));
 
@@ -144,19 +151,15 @@ namespace FileCraft.ViewModels.Functional
             UpdateSelectableFiles();
 
             var loadedSelectedFilePaths = new HashSet<string>(settings.SelectedFilePaths ?? new List<string>());
-            if (loadedSelectedFilePaths.Any())
+
+            foreach (var fileVM in _allSelectableFiles)
             {
-                foreach (var fileVM in _allSelectableFiles)
-                {
-                    if (loadedSelectedFilePaths.Contains(fileVM.FullPath))
-                    {
-                        fileVM.IsSelected = true;
-                    }
-                }
+                fileVM.IsSelected = loadedSelectedFilePaths.Contains(fileVM.FullPath);
             }
 
             UpdateFileCounts();
             UpdateExtensionMasterState();
+            ApplyFileFilter();
         }
 
         public List<string> GetSelectedFilePaths()
@@ -174,7 +177,10 @@ namespace FileCraft.ViewModels.Functional
             foreach (var file in FilteredSelectableFiles)
                 file.PropertyChanged -= OnFileSelectionChanged;
 
-            SelectionHelper.SetSelectionState(FilteredSelectableFiles, isSelected);
+            foreach (var file in FilteredSelectableFiles)
+            {
+                file.SetIsSelectedInternal(isSelected);
+            }
 
             foreach (var file in FilteredSelectableFiles)
                 file.PropertyChanged += OnFileSelectionChanged;
@@ -187,8 +193,10 @@ namespace FileCraft.ViewModels.Functional
             foreach (var ext in AvailableExtensions)
                 ext.PropertyChanged -= OnExtensionSelectionChanged;
 
-            SelectionHelper.SetSelectionState(AvailableExtensions, isSelected);
-
+            foreach (var ext in AvailableExtensions)
+            {
+                ext.SetIsSelectedInternal(isSelected);
+            }
 
             foreach (var ext in AvailableExtensions)
                 ext.PropertyChanged += OnExtensionSelectionChanged;
@@ -242,7 +250,7 @@ namespace FileCraft.ViewModels.Functional
                 AvailableExtensions.Clear();
                 foreach (var ext in extensions.Where(e => !string.IsNullOrEmpty(e)).OrderBy(e => e))
                 {
-                    var item = new SelectableItemViewModel(ext, previouslySelected.Contains(ext));
+                    var item = new SelectableItemViewModel(ext, previouslySelected.Contains(ext), this.OnStateChanging);
                     item.PropertyChanged += OnExtensionSelectionChanged;
                     AvailableExtensions.Add(item);
                 }
@@ -254,7 +262,7 @@ namespace FileCraft.ViewModels.Functional
         {
             var selectedFolders = GetSelectedFoldersForFileListing();
             var selectedExtensions = new HashSet<string>(GetSelectedExtensions(), StringComparer.OrdinalIgnoreCase);
-            var files = _fileQueryService.GetFilesByExtensions(selectedFolders, selectedExtensions);
+            var files = _fileQueryService.GetFilesByExtensions(_sharedStateService.SourcePath, selectedFolders, selectedExtensions);
             var previouslySelectedFiles = new HashSet<string>(_allSelectableFiles.Where(f => f.IsSelected).Select(f => f.FullPath));
 
             System.Windows.Application.Current.Dispatcher.Invoke(() =>
@@ -269,6 +277,7 @@ namespace FileCraft.ViewModels.Functional
                     {
                         file.IsSelected = true;
                     }
+                    file.SetStateChangingAction(this.OnStateChanging);
                     file.PropertyChanged += OnFileSelectionChanged;
                     _allSelectableFiles.Add(file);
                 }
@@ -280,7 +289,9 @@ namespace FileCraft.ViewModels.Functional
         private void OnFileSelectionChanged(object? sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == nameof(SelectableFile.IsSelected))
+            {
                 UpdateFileCounts();
+            }
         }
 
         private void OnExtensionSelectionChanged(object? sender, PropertyChangedEventArgs e)
@@ -327,8 +338,8 @@ namespace FileCraft.ViewModels.Functional
             IsBusy = true;
             try
             {
-                var selectedPaths = _allSelectableFiles.Where(f => f.IsSelected).Select(f => f.FullPath).ToList();
-                if (!selectedPaths.Any())
+                var selectedFiles = _allSelectableFiles.Where(f => f.IsSelected).ToList();
+                if (!selectedFiles.Any())
                 {
                     _dialogService.ShowNotification("Information", "No files were selected. Please select at least one file to export.", DialogIconType.Info);
                     return;
@@ -339,7 +350,7 @@ namespace FileCraft.ViewModels.Functional
                     title: "Export File Contents",
                     message: message,
                     iconType: DialogIconType.Info,
-                    filesAffected: selectedPaths.Count);
+                    filesAffected: selectedFiles.Count);
 
                 if (!confirmed)
                 {
@@ -347,8 +358,8 @@ namespace FileCraft.ViewModels.Functional
                 }
 
                 string finalFileName = GetFinalFileName(OutputFileName, AppendTimestamp);
-                string outputFilePath = await _fileOperationService.ExportSelectedFileContentsAsync(_sharedStateService.DestinationPath, selectedPaths, finalFileName);
-                _dialogService.ShowNotification("Success", $"File contents exported successfully!\n\n{selectedPaths.Count} files were processed.\nSaved to: {outputFilePath}", DialogIconType.Success);
+                string outputFilePath = await _fileOperationService.ExportSelectedFileContentsAsync(_sharedStateService.DestinationPath, selectedFiles, finalFileName);
+                _dialogService.ShowNotification("Success", $"File contents exported successfully!\n\n{selectedFiles.Count} files were processed.\nSaved to: {outputFilePath}", DialogIconType.Success);
             }
             catch (Exception ex)
             {

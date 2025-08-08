@@ -5,7 +5,6 @@ using FileCraft.Views.Shared;
 
 namespace FileCraft.Services
 {
-
     public class DialogService : IDialogService
     {
         public string? SelectFolder(string description)
@@ -41,6 +40,41 @@ namespace FileCraft.Services
             };
             var confirmationWindow = new ConfirmationWindow(viewModel);
             return confirmationWindow.ShowDialog() ?? false;
+        }
+
+        public bool ShowCopyTreeConfirmation(string title, DialogIconType iconType, string sourceName, string? sourceIcon, int sourceCount, string destName, string? destIcon, int destCount)
+        {
+            var viewModel = new ConfirmationViewModel
+            {
+                ActionName = title,
+                IconPath = GetIconPath(iconType),
+                IsCopyTreeMessage = true,
+                SourceTabName = sourceName,
+                SourceTabIcon = sourceIcon,
+                SourceFolderCount = sourceCount,
+                DestinationTabName = destName,
+                DestinationTabIcon = destIcon,
+                DestinationFolderCount = destCount
+            };
+            var confirmationWindow = new ConfirmationWindow(viewModel);
+            return confirmationWindow.ShowDialog() ?? false;
+        }
+
+        public ExitConfirmationResult ShowExitConfirmation(string title, string message)
+        {
+            var confirmationWindow = new ExitConfirmationWindow(title, message);
+            confirmationWindow.ShowDialog();
+            return confirmationWindow.Result;
+        }
+
+        public string? ShowRenamePresetDialog(string currentName, int presetNumber)
+        {
+            var renameWindow = new RenamePresetWindow(currentName, presetNumber);
+            if (renameWindow.ShowDialog() == true)
+            {
+                return renameWindow.NewPresetName;
+            }
+            return null;
         }
 
         private string GetIconPath(DialogIconType iconType)

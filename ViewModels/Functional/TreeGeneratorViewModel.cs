@@ -2,12 +2,13 @@
 using FileCraft.Services.Interfaces;
 using FileCraft.Shared.Commands;
 using FileCraft.ViewModels.Shared;
+using System;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Windows.Input;
 
 namespace FileCraft.ViewModels.Functional
 {
-
     public class TreeGeneratorViewModel : ExportViewModelBase
     {
         private string _outputFileName = string.Empty;
@@ -21,6 +22,7 @@ namespace FileCraft.ViewModels.Functional
             {
                 if (_outputFileName != value)
                 {
+                    OnStateChanging();
                     _outputFileName = value;
                     OnPropertyChanged();
                 }
@@ -34,6 +36,7 @@ namespace FileCraft.ViewModels.Functional
             {
                 if (_appendTimestamp != value)
                 {
+                    OnStateChanging();
                     _appendTimestamp = value;
                     OnPropertyChanged();
                 }
@@ -61,6 +64,7 @@ namespace FileCraft.ViewModels.Functional
             : base(sharedStateService, fileOperationService, dialogService, folderTreeManager)
         {
             FolderTreeManager.FolderSelectionChanged += UpdateIncludedFoldersCount;
+            FolderTreeManager.StateChanging += OnStateChanging;
             FolderTreeManager.PropertyChanged += (s, e) =>
             {
                 if (e.PropertyName == nameof(FolderTreeManager.RootFolders))

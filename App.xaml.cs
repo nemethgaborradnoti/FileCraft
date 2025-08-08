@@ -41,8 +41,9 @@ namespace FileCraft
             services.AddSingleton<ISaveService, SaveService>();
             services.AddSingleton<ISharedStateService, SharedStateService>();
             services.AddSingleton<IFileQueryService, FileQueryService>();
+            services.AddSingleton<IUndoService, UndoService>();
 
-            services.AddSingleton<FolderTreeManager>();
+            services.AddTransient<FolderTreeManager>();
 
             services.AddSingleton<FileContentExportViewModel>();
             services.AddSingleton<TreeGeneratorViewModel>();

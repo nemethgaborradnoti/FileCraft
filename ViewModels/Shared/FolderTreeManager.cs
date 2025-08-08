@@ -1,7 +1,9 @@
 ﻿using FileCraft.Models;
 using FileCraft.Services.Interfaces;
+using System;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Linq;
 
 namespace FileCraft.ViewModels.Shared
 {
@@ -40,7 +42,7 @@ namespace FileCraft.ViewModels.Shared
             if (sourcePath == _currentSourcePath && folderState == null) return;
             _currentSourcePath = sourcePath;
 
-            var newTree = _folderTreeService.BuildFolderTree(sourcePath, HandleFolderStateChange);
+            var newTree = _folderTreeService.BuildFolderTree(sourcePath, HandleFolderStateChange, OnStateChanging);
 
             if (folderState != null && newTree.Any())
             {
@@ -54,15 +56,26 @@ namespace FileCraft.ViewModels.Shared
             FolderSelectionChanged?.Invoke();
         }
 
+        public int GetSelectedNodeCount()
+        {
+            var root = RootFolders.FirstOrDefault();
+            if (root is null)
+            {
+                return 0;
+            }
+            return root.GetAllNodes().Count(n => n.IsSelected != false);
+        }
+
         public List<FolderState> GetFolderStates()
         {
-            if (!RootFolders.Any())
+            var root = RootFolders.FirstOrDefault();
+            if (root is null)
             {
                 return new List<FolderState>();
             }
 
             var states = new List<FolderState>();
-            ExtractStateFromNode(RootFolders[0], states);
+            ExtractStateFromNode(root, states);
             return states;
         }
 

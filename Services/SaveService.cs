@@ -113,6 +113,34 @@ namespace FileCraft.Services
             return presetData?.PresetName ?? string.Empty;
         }
 
+        public void UpdatePresetName(int presetNumber, string newName)
+        {
+            Guard.AgainstNullOrWhiteSpace(newName, nameof(newName));
+            string presetFilePath = GetPresetFilePath(presetNumber);
+            if (!File.Exists(presetFilePath))
+            {
+                return;
+            }
+
+            try
+            {
+                string json = File.ReadAllText(presetFilePath);
+                var saveData = JsonSerializer.Deserialize<SaveData>(json);
+                if (saveData != null)
+                {
+                    saveData.PresetName = newName;
+                    var options = new JsonSerializerOptions { WriteIndented = true };
+                    string updatedJson = JsonSerializer.Serialize(saveData, options);
+                    File.WriteAllText(presetFilePath, updatedJson);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error updating preset name for {presetNumber}: {ex.Message}");
+                throw;
+            }
+        }
+
         public void DeletePreset(int presetNumber)
         {
             string presetFilePath = GetPresetFilePath(presetNumber);
