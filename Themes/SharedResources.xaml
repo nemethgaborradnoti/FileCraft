@@ -20,7 +20,6 @@
 
     <!-- Modern Button Colors -->
     <Color x:Key="PrimaryColor">#007BFF</Color>
-    <Color x:Key="PrimaryLighterColor">#3395FF</Color>
     <Color x:Key="PrimaryDarkerColor">#0069D9</Color>
 
     <Color x:Key="SecondaryColor">#ADB5BD</Color>
@@ -28,22 +27,18 @@
     <Color x:Key="SecondaryDarkerColor">#6C757D</Color>
 
     <Color x:Key="DangerColor">#DC3545</Color>
-    <Color x:Key="DangerLighterColor">#E25361</Color>
     <Color x:Key="DangerDarkerColor">#C82333</Color>
 
     <Color x:Key="WarningColor">#FFC107</Color>
-    <Color x:Key="WarningLighterColor">#FFCA2C</Color>
     <Color x:Key="WarningDarkerColor">#E0A800</Color>
 
     <Color x:Key="SuccessColor">#28A745</Color>
-    <Color x:Key="SuccessLighterColor">#48B56A</Color>
     <Color x:Key="SuccessDarkerColor">#218838</Color>
 
     <Color x:Key="ButtonTextColor">#FFFFFF</Color>
 
     <!-- Modern Button Brushes -->
     <SolidColorBrush x:Key="PrimaryBrush" Color="{StaticResource PrimaryColor}"/>
-    <SolidColorBrush x:Key="PrimaryLighterBrush" Color="{StaticResource PrimaryLighterColor}"/>
     <SolidColorBrush x:Key="PrimaryDarkerBrush" Color="{StaticResource PrimaryDarkerColor}"/>
 
     <SolidColorBrush x:Key="SecondaryBrush" Color="{StaticResource SecondaryColor}"/>
@@ -51,15 +46,12 @@
     <SolidColorBrush x:Key="SecondaryDarkerBrush" Color="{StaticResource SecondaryDarkerColor}"/>
 
     <SolidColorBrush x:Key="DangerBrush" Color="{StaticResource DangerColor}"/>
-    <SolidColorBrush x:Key="DangerLighterBrush" Color="{StaticResource DangerLighterColor}"/>
     <SolidColorBrush x:Key="DangerDarkerBrush" Color="{StaticResource DangerDarkerColor}"/>
 
     <SolidColorBrush x:Key="WarningBrush" Color="{StaticResource WarningColor}"/>
-    <SolidColorBrush x:Key="WarningLighterBrush" Color="{StaticResource WarningLighterColor}"/>
     <SolidColorBrush x:Key="WarningDarkerBrush" Color="{StaticResource WarningDarkerColor}"/>
 
     <SolidColorBrush x:Key="SuccessBrush" Color="{StaticResource SuccessColor}"/>
-    <SolidColorBrush x:Key="SuccessLighterBrush" Color="{StaticResource SuccessLighterColor}"/>
     <SolidColorBrush x:Key="SuccessDarkerBrush" Color="{StaticResource SuccessDarkerColor}"/>
 
     <SolidColorBrush x:Key="ButtonTextBrush" Color="{StaticResource ButtonTextColor}"/>
@@ -119,12 +111,22 @@
         <Setter Property="Background" Value="{StaticResource PrimaryBrush}"/>
         <Setter Property="BorderBrush" Value="{StaticResource PrimaryDarkerBrush}"/>
         <Style.Triggers>
-            <Trigger Property="IsMouseOver" Value="True">
-                <Setter Property="Background" Value="{StaticResource PrimaryLighterBrush}"/>
-            </Trigger>
-            <Trigger Property="IsPressed" Value="True">
-                <Setter Property="Background" Value="{StaticResource PrimaryDarkerBrush}"/>
-            </Trigger>
+            <EventTrigger RoutedEvent="MouseEnter">
+                <BeginStoryboard>
+                    <Storyboard>
+                        <ColorAnimation Storyboard.TargetProperty="(Button.Background).(SolidColorBrush.Color)"
+                                        To="{StaticResource PrimaryDarkerColor}" Duration="0:0:0.1"/>
+                    </Storyboard>
+                </BeginStoryboard>
+            </EventTrigger>
+            <EventTrigger RoutedEvent="MouseLeave">
+                <BeginStoryboard>
+                    <Storyboard>
+                        <ColorAnimation Storyboard.TargetProperty="(Button.Background).(SolidColorBrush.Color)"
+                                        To="{StaticResource PrimaryColor}" Duration="0:0:0.1"/>
+                    </Storyboard>
+                </BeginStoryboard>
+            </EventTrigger>
             <Trigger Property="IsEnabled" Value="False">
                 <Setter Property="Background" Value="{StaticResource SecondaryBrush}"/>
                 <Setter Property="BorderBrush" Value="{StaticResource SecondaryDarkerBrush}"/>
@@ -137,12 +139,22 @@
         <Setter Property="Background" Value="{StaticResource SecondaryBrush}"/>
         <Setter Property="BorderBrush" Value="{StaticResource SecondaryDarkerBrush}"/>
         <Style.Triggers>
-            <Trigger Property="IsMouseOver" Value="True">
-                <Setter Property="Background" Value="{StaticResource SecondaryLighterBrush}"/>
-            </Trigger>
-            <Trigger Property="IsPressed" Value="True">
-                <Setter Property="Background" Value="{StaticResource SecondaryDarkerBrush}"/>
-            </Trigger>
+            <EventTrigger RoutedEvent="MouseEnter">
+                <BeginStoryboard>
+                    <Storyboard>
+                        <ColorAnimation Storyboard.TargetProperty="(Button.Background).(SolidColorBrush.Color)"
+                                        To="{StaticResource SecondaryDarkerColor}" Duration="0:0:0.1"/>
+                    </Storyboard>
+                </BeginStoryboard>
+            </EventTrigger>
+            <EventTrigger RoutedEvent="MouseLeave">
+                <BeginStoryboard>
+                    <Storyboard>
+                        <ColorAnimation Storyboard.TargetProperty="(Button.Background).(SolidColorBrush.Color)"
+                                        To="{StaticResource SecondaryColor}" Duration="0:0:0.1"/>
+                    </Storyboard>
+                </BeginStoryboard>
+            </EventTrigger>
         </Style.Triggers>
     </Style>
 
@@ -151,12 +163,22 @@
         <Setter Property="Background" Value="{StaticResource DangerBrush}"/>
         <Setter Property="BorderBrush" Value="{StaticResource DangerDarkerBrush}"/>
         <Style.Triggers>
-            <Trigger Property="IsMouseOver" Value="True">
-                <Setter Property="Background" Value="{StaticResource DangerLighterBrush}"/>
-            </Trigger>
-            <Trigger Property="IsPressed" Value="True">
-                <Setter Property="Background" Value="{StaticResource DangerDarkerBrush}"/>
-            </Trigger>
+            <EventTrigger RoutedEvent="MouseEnter">
+                <BeginStoryboard>
+                    <Storyboard>
+                        <ColorAnimation Storyboard.TargetProperty="(Button.Background).(SolidColorBrush.Color)"
+                                        To="{StaticResource DangerDarkerColor}" Duration="0:0:0.1"/>
+                    </Storyboard>
+                </BeginStoryboard>
+            </EventTrigger>
+            <EventTrigger RoutedEvent="MouseLeave">
+                <BeginStoryboard>
+                    <Storyboard>
+                        <ColorAnimation Storyboard.TargetProperty="(Button.Background).(SolidColorBrush.Color)"
+                                        To="{StaticResource DangerColor}" Duration="0:0:0.1"/>
+                    </Storyboard>
+                </BeginStoryboard>
+            </EventTrigger>
         </Style.Triggers>
     </Style>
 
@@ -166,12 +188,22 @@
         <Setter Property="Background" Value="{StaticResource WarningBrush}"/>
         <Setter Property="BorderBrush" Value="{StaticResource WarningDarkerBrush}"/>
         <Style.Triggers>
-            <Trigger Property="IsMouseOver" Value="True">
-                <Setter Property="Background" Value="{StaticResource WarningLighterBrush}"/>
-            </Trigger>
-            <Trigger Property="IsPressed" Value="True">
-                <Setter Property="Background" Value="{StaticResource WarningDarkerBrush}"/>
-            </Trigger>
+            <EventTrigger RoutedEvent="MouseEnter">
+                <BeginStoryboard>
+                    <Storyboard>
+                        <ColorAnimation Storyboard.TargetProperty="(Button.Background).(SolidColorBrush.Color)"
+                                        To="{StaticResource WarningDarkerColor}" Duration="0:0:0.1"/>
+                    </Storyboard>
+                </BeginStoryboard>
+            </EventTrigger>
+            <EventTrigger RoutedEvent="MouseLeave">
+                <BeginStoryboard>
+                    <Storyboard>
+                        <ColorAnimation Storyboard.TargetProperty="(Button.Background).(SolidColorBrush.Color)"
+                                        To="{StaticResource WarningColor}" Duration="0:0:0.1"/>
+                    </Storyboard>
+                </BeginStoryboard>
+            </EventTrigger>
         </Style.Triggers>
     </Style>
 
@@ -180,12 +212,22 @@
         <Setter Property="Background" Value="{StaticResource SuccessBrush}"/>
         <Setter Property="BorderBrush" Value="{StaticResource SuccessDarkerBrush}"/>
         <Style.Triggers>
-            <Trigger Property="IsMouseOver" Value="True">
-                <Setter Property="Background" Value="{StaticResource SuccessLighterBrush}"/>
-            </Trigger>
-            <Trigger Property="IsPressed" Value="True">
-                <Setter Property="Background" Value="{StaticResource SuccessDarkerBrush}"/>
-            </Trigger>
+            <EventTrigger RoutedEvent="MouseEnter">
+                <BeginStoryboard>
+                    <Storyboard>
+                        <ColorAnimation Storyboard.TargetProperty="(Button.Background).(SolidColorBrush.Color)"
+                                        To="{StaticResource SuccessDarkerColor}" Duration="0:0:0.1"/>
+                    </Storyboard>
+                </BeginStoryboard>
+            </EventTrigger>
+            <EventTrigger RoutedEvent="MouseLeave">
+                <BeginStoryboard>
+                    <Storyboard>
+                        <ColorAnimation Storyboard.TargetProperty="(Button.Background).(SolidColorBrush.Color)"
+                                        To="{StaticResource SuccessColor}" Duration="0:0:0.1"/>
+                    </Storyboard>
+                </BeginStoryboard>
+            </EventTrigger>
         </Style.Triggers>
     </Style>
 
@@ -212,12 +254,22 @@
             </Setter.Value>
         </Setter>
         <Style.Triggers>
-            <Trigger Property="IsMouseOver" Value="True">
-                <Setter Property="Background" Value="#F0F0F0"/>
-            </Trigger>
-            <Trigger Property="IsPressed" Value="True">
-                <Setter Property="Background" Value="#E0E0E0"/>
-            </Trigger>
+            <EventTrigger RoutedEvent="MouseEnter">
+                <BeginStoryboard>
+                    <Storyboard>
+                        <ColorAnimation Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
+                                        To="#E0E0E0" Duration="0:0:0.1"/>
+                    </Storyboard>
+                </BeginStoryboard>
+            </EventTrigger>
+            <EventTrigger RoutedEvent="MouseLeave">
+                <BeginStoryboard>
+                    <Storyboard>
+                        <ColorAnimation Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
+                                        To="Transparent" Duration="0:0:0.1"/>
+                    </Storyboard>
+                </BeginStoryboard>
+            </EventTrigger>
             <Trigger Property="IsEnabled" Value="False">
                 <Setter Property="Opacity" Value="0.5"/>
             </Trigger>
@@ -540,7 +592,7 @@
                                     <Storyboard>
                                         <DoubleAnimation Storyboard.TargetName="RotateTransform"
                                                          Storyboard.TargetProperty="Angle"
-                                                         To="90" Duration="0:0:0.2" />
+                                                         To="90" Duration="0:0:0.1" />
                                     </Storyboard>
                                 </BeginStoryboard>
                             </Trigger.EnterActions>
@@ -549,7 +601,7 @@
                                     <Storyboard>
                                         <DoubleAnimation Storyboard.TargetName="RotateTransform"
                                                          Storyboard.TargetProperty="Angle"
-                                                         To="0" Duration="0:0:0.2" />
+                                                         To="0" Duration="0:0:0.1" />
                                     </Storyboard>
                                 </BeginStoryboard>
                             </Trigger.ExitActions>
@@ -712,4 +764,3 @@
     </Style>
 
 </ResourceDictionary>
-
