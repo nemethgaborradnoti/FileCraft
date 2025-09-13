@@ -48,7 +48,7 @@
                              Text="{Binding SourcePath, Mode=OneWay}"
                              ToolTip="{Binding SourcePath}"/>
 
-                    <Button Grid.Column="1" Content="Browse..." Padding="10,2" Command="{Binding SelectSourcePathCommand}"/>
+                    <Button Grid.Column="1" Content="Browse..." Command="{Binding SelectSourcePathCommand}"/>
                 </Grid>
             </GroupBox>
 
@@ -65,8 +65,8 @@
                              Text="{Binding DestinationPath, Mode=OneWay}"
                              ToolTip="{Binding DestinationPath}"/>
 
-                    <Button Grid.Column="1" Content="Browse..." Padding="10,2" Margin="0,0,5,0" Command="{Binding SelectDestinationPathCommand}"/>
-                    <Button Grid.Column="2" Content="Clear" Command="{Binding ClearPathsCommand}" Padding="10,2" ToolTip="Clear both source and destination paths."/>
+                    <Button Grid.Column="1" Content="Browse..." Margin="0,0,5,0" Command="{Binding SelectDestinationPathCommand}"/>
+                    <Button Grid.Column="2" Content="Clear" Command="{Binding ClearPathsCommand}" ToolTip="Clear both source and destination paths."/>
                 </Grid>
             </GroupBox>
         </Grid>
@@ -111,4 +111,3 @@
         </TabControl>
     </Grid>
 </Window>
-

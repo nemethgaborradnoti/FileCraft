@@ -80,7 +80,7 @@
 
         <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right">
             <Button Content="Yes" Click="YesButton_Click" IsDefault="True" MinWidth="80" Margin="0,0,10,0"/>
-            <Button Content="Cancel" Click="CancelButton_Click" IsCancel="True" MinWidth="80"/>
+            <Button Content="Cancel" Click="CancelButton_Click" IsCancel="True" MinWidth="80" Style="{StaticResource SecondaryButton}"/>
         </StackPanel>
     </Grid>
 </Window>

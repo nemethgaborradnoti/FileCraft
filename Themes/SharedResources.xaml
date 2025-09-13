@@ -18,12 +18,171 @@
     <SolidColorBrush x:Key="GrayTextBrush" Color="{StaticResource DarkGrayColor}"/>
     <SolidColorBrush x:Key="TransparentBrush" Color="Transparent"/>
 
+    <!-- Modern Button Colors -->
+    <Color x:Key="PrimaryColor">#007BFF</Color>
+    <Color x:Key="PrimaryLighterColor">#3395FF</Color>
+    <Color x:Key="PrimaryDarkerColor">#0069D9</Color>
+
+    <Color x:Key="SecondaryColor">#ADB5BD</Color>
+    <Color x:Key="SecondaryLighterColor">#CED4DA</Color>
+    <Color x:Key="SecondaryDarkerColor">#6C757D</Color>
+
+    <Color x:Key="DangerColor">#DC3545</Color>
+    <Color x:Key="DangerLighterColor">#E25361</Color>
+    <Color x:Key="DangerDarkerColor">#C82333</Color>
+
+    <Color x:Key="WarningColor">#FFC107</Color>
+    <Color x:Key="WarningLighterColor">#FFCA2C</Color>
+    <Color x:Key="WarningDarkerColor">#E0A800</Color>
+
+    <Color x:Key="SuccessColor">#28A745</Color>
+    <Color x:Key="SuccessLighterColor">#48B56A</Color>
+    <Color x:Key="SuccessDarkerColor">#218838</Color>
+
+    <Color x:Key="ButtonTextColor">#FFFFFF</Color>
+
+    <!-- Modern Button Brushes -->
+    <SolidColorBrush x:Key="PrimaryBrush" Color="{StaticResource PrimaryColor}"/>
+    <SolidColorBrush x:Key="PrimaryLighterBrush" Color="{StaticResource PrimaryLighterColor}"/>
+    <SolidColorBrush x:Key="PrimaryDarkerBrush" Color="{StaticResource PrimaryDarkerColor}"/>
+
+    <SolidColorBrush x:Key="SecondaryBrush" Color="{StaticResource SecondaryColor}"/>
+    <SolidColorBrush x:Key="SecondaryLighterBrush" Color="{StaticResource SecondaryLighterColor}"/>
+    <SolidColorBrush x:Key="SecondaryDarkerBrush" Color="{StaticResource SecondaryDarkerColor}"/>
+
+    <SolidColorBrush x:Key="DangerBrush" Color="{StaticResource DangerColor}"/>
+    <SolidColorBrush x:Key="DangerLighterBrush" Color="{StaticResource DangerLighterColor}"/>
+    <SolidColorBrush x:Key="DangerDarkerBrush" Color="{StaticResource DangerDarkerColor}"/>
+
+    <SolidColorBrush x:Key="WarningBrush" Color="{StaticResource WarningColor}"/>
+    <SolidColorBrush x:Key="WarningLighterBrush" Color="{StaticResource WarningLighterColor}"/>
+    <SolidColorBrush x:Key="WarningDarkerBrush" Color="{StaticResource WarningDarkerColor}"/>
+
+    <SolidColorBrush x:Key="SuccessBrush" Color="{StaticResource SuccessColor}"/>
+    <SolidColorBrush x:Key="SuccessLighterBrush" Color="{StaticResource SuccessLighterColor}"/>
+    <SolidColorBrush x:Key="SuccessDarkerBrush" Color="{StaticResource SuccessDarkerColor}"/>
+
+    <SolidColorBrush x:Key="ButtonTextBrush" Color="{StaticResource ButtonTextColor}"/>
+
     <!--
     ================================================================
     CONTROL STYLES
     Base styles for common controls to ensure consistency.
     ================================================================
     -->
+
+    <!-- Base style for modern Buttons -->
+    <Style x:Key="ModernButtonBase" TargetType="Button">
+        <Setter Property="Padding" Value="10,5"/>
+        <Setter Property="Margin" Value="2"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Foreground" Value="{StaticResource ButtonTextBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="border"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="4"
+                            SnapsToDevicePixels="true">
+                        <ContentPresenter x:Name="contentPresenter"
+                                          Focusable="False"
+                                          HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                          Margin="{TemplateBinding Padding}"
+                                          RecognizesAccessKey="True"
+                                          SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
+                                          VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Opacity" Value="0.65"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Primary Button Style -->
+    <Style x:Key="PrimaryButton" TargetType="Button" BasedOn="{StaticResource ModernButtonBase}">
+        <Setter Property="Background" Value="{StaticResource PrimaryBrush}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource PrimaryDarkerBrush}"/>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="{StaticResource PrimaryLighterBrush}"/>
+            </Trigger>
+            <Trigger Property="IsPressed" Value="True">
+                <Setter Property="Background" Value="{StaticResource PrimaryDarkerBrush}"/>
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+                <Setter Property="Background" Value="{StaticResource SecondaryBrush}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource SecondaryDarkerBrush}"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <!-- Secondary Button Style -->
+    <Style x:Key="SecondaryButton" TargetType="Button" BasedOn="{StaticResource ModernButtonBase}">
+        <Setter Property="Background" Value="{StaticResource SecondaryBrush}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource SecondaryDarkerBrush}"/>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="{StaticResource SecondaryLighterBrush}"/>
+            </Trigger>
+            <Trigger Property="IsPressed" Value="True">
+                <Setter Property="Background" Value="{StaticResource SecondaryDarkerBrush}"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <!-- Danger Button Style -->
+    <Style x:Key="DangerButton" TargetType="Button" BasedOn="{StaticResource ModernButtonBase}">
+        <Setter Property="Background" Value="{StaticResource DangerBrush}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource DangerDarkerBrush}"/>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="{StaticResource DangerLighterBrush}"/>
+            </Trigger>
+            <Trigger Property="IsPressed" Value="True">
+                <Setter Property="Background" Value="{StaticResource DangerDarkerBrush}"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <!-- Warning Button Style -->
+    <Style x:Key="WarningButton" TargetType="Button" BasedOn="{StaticResource ModernButtonBase}">
+        <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
+        <Setter Property="Background" Value="{StaticResource WarningBrush}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource WarningDarkerBrush}"/>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="{StaticResource WarningLighterBrush}"/>
+            </Trigger>
+            <Trigger Property="IsPressed" Value="True">
+                <Setter Property="Background" Value="{StaticResource WarningDarkerBrush}"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <!-- Success Button Style -->
+    <Style x:Key="SuccessButton" TargetType="Button" BasedOn="{StaticResource ModernButtonBase}">
+        <Setter Property="Background" Value="{StaticResource SuccessBrush}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource SuccessDarkerBrush}"/>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="{StaticResource SuccessLighterBrush}"/>
+            </Trigger>
+            <Trigger Property="IsPressed" Value="True">
+                <Setter Property="Background" Value="{StaticResource SuccessDarkerBrush}"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <!-- Base style for standard Buttons -->
+    <Style TargetType="Button" BasedOn="{StaticResource PrimaryButton}"/>
 
     <!-- Style for the new square icon buttons in the header -->
     <Style x:Key="SquareIconButton" TargetType="Button">
@@ -71,12 +230,6 @@
         <Setter Property="BorderThickness" Value="1"/>
     </Style>
 
-    <!-- Base style for standard Buttons -->
-    <Style TargetType="Button">
-        <Setter Property="Padding" Value="10,5"/>
-        <Setter Property="Cursor" Value="Hand"/>
-    </Style>
-
     <!-- Base style for GroupBoxes -->
     <Style TargetType="GroupBox">
         <Setter Property="Padding" Value="5"/>
@@ -116,3 +269,4 @@
     </Style>
 
 </ResourceDictionary>
+
