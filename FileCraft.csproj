@@ -19,7 +19,6 @@
     <None Remove="Resources\filecontent01.png" />
     <None Remove="Resources\foldercontent01.png" />
     <None Remove="Resources\info01.png" />
-    <None Remove="Resources\rename01.png" />
     <None Remove="Resources\save01.png" />
     <None Remove="Resources\save02.png" />
     <None Remove="Resources\save03.png" />
@@ -38,7 +37,6 @@
     <Resource Include="Resources\filecontent01.png" />
     <Resource Include="Resources\foldercontent01.png" />
     <Resource Include="Resources\info01.png" />
-    <Resource Include="Resources\rename01.png" />
     <Resource Include="Resources\save01.png" />
     <Resource Include="Resources\save02.png" />
     <Resource Include="Resources\save03.png" />

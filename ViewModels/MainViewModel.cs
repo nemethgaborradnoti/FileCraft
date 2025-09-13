@@ -55,7 +55,6 @@ namespace FileCraft.ViewModels
         public FileContentExportViewModel FileContentExportVM { get; }
         public TreeGeneratorViewModel TreeGeneratorVM { get; }
         public FolderContentExportViewModel FolderContentExportVM { get; }
-        public FileRenamerViewModel FileRenamerVM { get; }
         public OptionsViewModel OptionsVM { get; }
 
         public ICommand ClearPathsCommand { get; }
@@ -73,7 +72,6 @@ namespace FileCraft.ViewModels
             FileContentExportViewModel fileContentExportVM,
             TreeGeneratorViewModel treeGeneratorVM,
             FolderContentExportViewModel folderContentExportVM,
-            FileRenamerViewModel fileRenamerVM,
             OptionsViewModel optionsVM)
         {
             _saveService = saveService;
@@ -84,7 +82,6 @@ namespace FileCraft.ViewModels
             FileContentExportVM = fileContentExportVM;
             TreeGeneratorVM = treeGeneratorVM;
             FolderContentExportVM = folderContentExportVM;
-            FileRenamerVM = fileRenamerVM;
             OptionsVM = optionsVM;
 
             SubscribeToChanges();
@@ -111,7 +108,6 @@ namespace FileCraft.ViewModels
             FileContentExportVM.StateChanging += OnStateChanging;
             TreeGeneratorVM.StateChanging += OnStateChanging;
             FolderContentExportVM.StateChanging += OnStateChanging;
-            FileRenamerVM.StateChanging += OnStateChanging;
             OptionsVM.StateChanging += OnStateChanging;
 
             _undoService.HistoryChanged += OnHistoryChanged;
@@ -198,7 +194,6 @@ namespace FileCraft.ViewModels
                 FileContentExport = saveData.FileContentExport,
                 FolderContentExport = saveData.FolderContentExport,
                 TreeGenerator = saveData.TreeGenerator,
-                FileRenamer = saveData.FileRenamer,
                 SettingsPage = saveData.SettingsPage
             };
 
@@ -258,8 +253,7 @@ namespace FileCraft.ViewModels
                     OutputFileName = TreeGeneratorVM.OutputFileName,
                     AppendTimestamp = TreeGeneratorVM.AppendTimestamp,
                     FolderTreeState = TreeGeneratorVM.FolderTreeManager.GetFolderStates()
-                },
-                FileRenamer = FileRenamerVM.GetSettings()
+                }
             };
         }
 
@@ -280,8 +274,6 @@ namespace FileCraft.ViewModels
             TreeGeneratorVM.FolderTreeManager.LoadTreeForPath(SourcePath, saveData.TreeGenerator.FolderTreeState);
             TreeGeneratorVM.OutputFileName = saveData.TreeGenerator.OutputFileName;
             TreeGeneratorVM.AppendTimestamp = saveData.TreeGenerator.AppendTimestamp;
-
-            FileRenamerVM.ApplySettings(saveData.FileRenamer);
 
             SelectedTabIndex = saveData.SelectedTabIndex;
             _isLoading = false;
