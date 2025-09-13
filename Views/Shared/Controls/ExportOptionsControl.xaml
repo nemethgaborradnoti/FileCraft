@@ -8,10 +8,11 @@
     <GroupBox Header="Export Options" Padding="5" Margin="0,0,10,0">
         <StackPanel Orientation="Horizontal">
             <TextBlock Text="File Name:" VerticalAlignment="Center" Margin="0,0,5,0"/>
-            <!-- The binding will resolve to the OutputFileName property on the DataContext (which should be an ExportViewModelBase derivative) -->
-            <TextBox Text="{Binding OutputFileName, UpdateSourceTrigger=PropertyChanged}" Width="150" VerticalAlignment="Center"/>
+            <TextBox Text="{Binding OutputFileName, UpdateSourceTrigger=PropertyChanged}" 
+                     Width="150" 
+                     VerticalAlignment="Center"
+                     Style="{StaticResource ModernTextBoxStyle}"/>
             <TextBlock Text=".txt" VerticalAlignment="Center" Margin="2,0,10,0" Foreground="Gray"/>
-            <!-- The binding will resolve to the AppendTimestamp property on the DataContext -->
             <CheckBox IsChecked="{Binding AppendTimestamp}" VerticalAlignment="Center">
                 <TextBlock Text="Append Timestamp" ToolTip="Adds _yyyy_MM_dd_HH_mm_ss to the file name."/>
             </CheckBox>

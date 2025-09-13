@@ -26,7 +26,7 @@
                             <DataTemplate>
                                 <Grid Margin="0,10">
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="95"/>
+                                        <ColumnDefinition Width="Auto"/>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
                                         <ColumnDefinition Width="Auto"/>
@@ -39,7 +39,7 @@
                                             ToolTip="Save current settings to this preset"
                                             Command="{Binding DataContext.SavePresetCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                             CommandParameter="{Binding}"
-                                            Width="90" Height="28"/>
+                                            Width="50" Height="28"/>
 
                                     <TextBlock Grid.Column="1" Text="{Binding PresetName}" VerticalAlignment="Center" Margin="5, 0" ToolTip="{Binding PresetName}">
                                         <TextBlock.Style>
@@ -75,12 +75,11 @@
                                     </Button>
 
                                     <Button Grid.Column="4"
-                                            Content="{Binding PresetNumber}"
-                                            ContentStringFormat="Load ({0})"
+                                            Content="Load"
                                             Command="{Binding DataContext.LoadPresetCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                             CommandParameter="{Binding}"
                                             IsEnabled="{Binding Exists}"
-                                            Width="90" Height="28" Margin="5,0,0,0"/>
+                                            Width="50" Height="28" Margin="5,0,0,0"/>
                                 </Grid>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
@@ -187,4 +186,3 @@
                    Margin="10"/>
     </Grid>
 </UserControl>
-

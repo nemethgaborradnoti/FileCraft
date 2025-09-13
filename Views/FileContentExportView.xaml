@@ -79,29 +79,28 @@
 
                     <TextBlock Grid.Column="0" Text="Search:" VerticalAlignment="Center" Margin="0,0,5,0"/>
 
-                    <TextBox Grid.Column="1"
-                             Text="{Binding SearchFilter, UpdateSourceTrigger=PropertyChanged}"
-                             Padding="3">
-                        <TextBox.Style>
-                            <Style TargetType="TextBox">
-                                <Setter Property="Foreground" Value="Gray"/>
-                                <Setter Property="Text" Value="Filter by file path..."/>
-                                <Style.Triggers>
-                                    <Trigger Property="IsFocused" Value="True">
-                                        <Setter Property="Foreground" Value="Black"/>
-                                        <Setter Property="Text" Value="{Binding SearchFilter, UpdateSourceTrigger=PropertyChanged}"/>
-                                    </Trigger>
-                                    <DataTrigger Binding="{Binding Text, RelativeSource={RelativeSource Self}}" Value="">
-                                        <Setter Property="Text" Value="Filter by file path..."/>
-                                        <Setter Property="Foreground" Value="Gray"/>
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding Text, RelativeSource={RelativeSource Self}}" Value="Filter by file path...">
-                                        <Setter Property="Foreground" Value="Gray"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </TextBox.Style>
-                    </TextBox>
+                    <Grid Grid.Column="1">
+                        <TextBox Style="{StaticResource ModernTextBoxStyle}"
+                                 Text="{Binding SearchFilter, UpdateSourceTrigger=PropertyChanged}" />
+
+                        <TextBlock IsHitTestVisible="False"
+                                   Text="Filter by file path..."
+                                   VerticalAlignment="Center"
+                                   HorizontalAlignment="Left"
+                                   Margin="10,0,0,0"
+                                   Foreground="{StaticResource GrayTextBrush}">
+                            <TextBlock.Style>
+                                <Style TargetType="{x:Type TextBlock}">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding SearchFilter}" Value="">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                    </Grid>
                 </Grid>
 
                 <Border Grid.Row="1" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1" Padding="4,2">

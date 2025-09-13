@@ -7,9 +7,9 @@
         xmlns:local="clr-namespace:FileCraft.Views.Shared"
         mc:Ignorable="d"
         Title="{Binding ActionName, Mode=OneWay}" 
-        SizeToContent="WidthAndHeight" 
+        SizeToContent="Height" 
         WindowStartupLocation="CenterOwner"
-        MinWidth="400" MaxWidth="600"
+        Width="500"
         WindowStyle="ToolWindow"
         ResizeMode="NoResize"
         d:DataContext="{d:DesignInstance Type=viewmodels:ConfirmationViewModel}">
