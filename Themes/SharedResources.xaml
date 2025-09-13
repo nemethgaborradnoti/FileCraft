@@ -302,7 +302,7 @@
                             <Setter Property="Panel.ZIndex" Value="1"/>
                             <Setter TargetName="mainBorder" Property="Background" Value="{StaticResource TabActiveBackgroundBrush}"/>
                             <Setter TargetName="mainBorder" Property="BorderThickness" Value="1,1,1,0"/>
-                            <Setter Property="Margin" Value="-2,-2,-2,0" />
+                            <Setter Property="Margin" Value="-4,-4,-4,0" />
                         </Trigger>
                         <MultiTrigger>
                             <MultiTrigger.Conditions>
@@ -334,7 +334,7 @@
                         <TabPanel x:Name="HeaderPanel"
                                   Grid.Row="0"
                                   IsItemsHost="true"
-                                  Margin="2,2,0,-1"
+                                  Margin="4,4,0,-1"
                                   KeyboardNavigation.TabIndex="1"
                                   Panel.ZIndex="1"/>
                         <Border x:Name="ContentPanel"
