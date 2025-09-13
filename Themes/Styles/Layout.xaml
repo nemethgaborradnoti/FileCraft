@@ -20,7 +20,7 @@
                         <Storyboard x:Key="TabHoverIn">
                             <ColorAnimation Storyboard.TargetName="mainBorder" 
                                             Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
-                                            To="{StaticResource SecondaryLighterColor}" Duration="0:0:0.1" />
+                                            To="{StaticResource TabHoverColor}" Duration="0:0:0.1" />
                         </Storyboard>
                         <Storyboard x:Key="TabHoverOut">
                             <ColorAnimation Storyboard.TargetName="mainBorder" 
@@ -55,10 +55,19 @@
                                     <Storyboard>
                                         <ColorAnimation Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
                                                         Storyboard.TargetName="mainBorder"
-                                                        To="White" Duration="0" />
+                                                        To="White" Duration="0:0:0.1" />
                                     </Storyboard>
                                 </BeginStoryboard>
                             </Trigger.EnterActions>
+                            <Trigger.ExitActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <ColorAnimation Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
+                                                        Storyboard.TargetName="mainBorder"
+                                                        To="{StaticResource LightGrayColor}" Duration="0:0:0.1" />
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </Trigger.ExitActions>
                         </Trigger>
                         <MultiTrigger>
                             <MultiTrigger.Conditions>

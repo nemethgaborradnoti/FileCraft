@@ -16,7 +16,6 @@
     <Color x:Key="PrimaryDarkerColor">#0069D9</Color>
 
     <Color x:Key="SecondaryColor">#ADB5BD</Color>
-    <Color x:Key="SecondaryLighterColor">#CED4DA</Color>
     <Color x:Key="SecondaryDarkerColor">#6C757D</Color>
 
     <Color x:Key="DangerColor">#DC3545</Color>
@@ -34,7 +33,6 @@
     <SolidColorBrush x:Key="PrimaryDarkerBrush" Color="{StaticResource PrimaryDarkerColor}"/>
 
     <SolidColorBrush x:Key="SecondaryBrush" Color="{StaticResource SecondaryColor}"/>
-    <SolidColorBrush x:Key="SecondaryLighterBrush" Color="{StaticResource SecondaryLighterColor}"/>
     <SolidColorBrush x:Key="SecondaryDarkerBrush" Color="{StaticResource SecondaryDarkerColor}"/>
 
     <SolidColorBrush x:Key="DangerBrush" Color="{StaticResource DangerColor}"/>
@@ -51,6 +49,8 @@
     <SolidColorBrush x:Key="TextBoxFocusBorderBrush" Color="{StaticResource PrimaryColor}"/>
     <SolidColorBrush x:Key="ComboBoxItemHighlightBrush" Color="#E6F2FF"/>
 
+    <Color x:Key="TabHoverColor">#D0D0D0</Color>
+    <SolidColorBrush x:Key="TabHoverBrush" Color="{StaticResource TabHoverColor}"/>
     <SolidColorBrush x:Key="TabInactiveBackgroundBrush" Color="{StaticResource LightGrayColor}"/>
     <SolidColorBrush x:Key="TabActiveBackgroundBrush" Color="White"/>
 
