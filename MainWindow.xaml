@@ -19,13 +19,13 @@
         </Grid.RowDefinitions>
 
         <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Left" Margin="5,0,5,5">
-            <Button Style="{StaticResource SquareIconButton}" ToolTip="Undo" Command="{Binding UndoCommand}" IsEnabled="{Binding CanUndo}">
+            <Button Style="{StaticResource BorderlessIconButton}" ToolTip="Undo" Command="{Binding UndoCommand}" IsEnabled="{Binding CanUndo}">
                 <Image Source="/Resources/arrow01.png" />
             </Button>
-            <Button Style="{StaticResource SquareIconButton}" ToolTip="Redo" Command="{Binding RedoCommand}" IsEnabled="{Binding CanRedo}">
+            <Button Style="{StaticResource BorderlessIconButton}" ToolTip="Redo" Command="{Binding RedoCommand}" IsEnabled="{Binding CanRedo}">
                 <Image Source="/Resources/arrow02.png" />
             </Button>
-            <Button Style="{StaticResource SquareIconButton}" ToolTip="Save current settings" Command="{Binding SaveCommand}" IsEnabled="{Binding HasUnsavedChanges}">
+            <Button Style="{StaticResource BorderlessIconButton}" ToolTip="Save current settings" Command="{Binding SaveCommand}" IsEnabled="{Binding HasUnsavedChanges}">
                 <Image Source="/Resources/save01.png" />
             </Button>
         </StackPanel>
@@ -66,7 +66,7 @@
                              ToolTip="{Binding DestinationPath}"/>
 
                     <Button Grid.Column="1" Content="Browse..." Margin="0,0,5,0" Command="{Binding SelectDestinationPathCommand}"/>
-                    <Button Grid.Column="2" Content="Clear" Command="{Binding ClearPathsCommand}" ToolTip="Clear both source and destination paths."/>
+                    <Button Grid.Column="2" Content="Clear" Command="{Binding ClearPathsCommand}" ToolTip="Clear both source and destination paths." Style="{StaticResource SecondaryButton}"/>
                 </Grid>
             </GroupBox>
         </Grid>
@@ -111,3 +111,4 @@
         </TabControl>
     </Grid>
 </Window>
+
