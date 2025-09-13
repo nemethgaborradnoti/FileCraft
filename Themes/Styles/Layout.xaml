@@ -16,6 +16,19 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type TabItem}">
+                    <ControlTemplate.Resources>
+                        <Storyboard x:Key="TabHoverIn">
+                            <ColorAnimation Storyboard.TargetName="mainBorder" 
+                                            Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
+                                            To="{StaticResource SecondaryLighterColor}" Duration="0:0:0.1" />
+                        </Storyboard>
+                        <Storyboard x:Key="TabHoverOut">
+                            <ColorAnimation Storyboard.TargetName="mainBorder" 
+                                            Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
+                                            To="{StaticResource LightGrayColor}" Duration="0:0:0.1"
+                                            FillBehavior="Stop"/>
+                        </Storyboard>
+                    </ControlTemplate.Resources>
                     <Grid x:Name="templateRoot" SnapsToDevicePixels="true">
                         <Border x:Name="mainBorder"
                                 BorderBrush="{StaticResource BorderBrush}"
@@ -35,16 +48,29 @@
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsSelected" Value="true">
                             <Setter Property="Panel.ZIndex" Value="1"/>
-                            <Setter TargetName="mainBorder" Property="Background" Value="{StaticResource TabActiveBackgroundBrush}"/>
                             <Setter TargetName="mainBorder" Property="BorderThickness" Value="1,1,1,0"/>
                             <Setter Property="Margin" Value="-4,-4,-4,0" />
+                            <Trigger.EnterActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <ColorAnimation Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
+                                                        Storyboard.TargetName="mainBorder"
+                                                        To="White" Duration="0" />
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </Trigger.EnterActions>
                         </Trigger>
                         <MultiTrigger>
                             <MultiTrigger.Conditions>
                                 <Condition Property="IsSelected" Value="false"/>
                                 <Condition Property="IsMouseOver" Value="true"/>
                             </MultiTrigger.Conditions>
-                            <Setter TargetName="mainBorder" Property="Background" Value="{StaticResource SecondaryLighterBrush}"/>
+                            <MultiTrigger.EnterActions>
+                                <BeginStoryboard Storyboard="{StaticResource TabHoverIn}"/>
+                            </MultiTrigger.EnterActions>
+                            <MultiTrigger.ExitActions>
+                                <BeginStoryboard Storyboard="{StaticResource TabHoverOut}"/>
+                            </MultiTrigger.ExitActions>
                         </MultiTrigger>
                         <Trigger Property="IsEnabled" Value="false">
                             <Setter Property="Opacity" Value="0.65"/>
