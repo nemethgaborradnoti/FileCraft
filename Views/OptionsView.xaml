@@ -88,7 +88,7 @@
                     <Button Content="Open Save Folder"
                             Command="{Binding OpenSaveFolderCommand}"
                             Margin="0,20,0,5"
-                            Style="{StaticResource SecondaryButton}"/>
+                            Style="{StaticResource WarningButton}"/>
 
                     <Button Content="Delete Current Save" 
                             Command="{Binding DeleteCurrentSaveCommand}"
