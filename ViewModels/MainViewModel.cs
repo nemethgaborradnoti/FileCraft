@@ -313,7 +313,6 @@ namespace FileCraft.ViewModels
 
             try
             {
-                OnStateChanging();
                 var currentSaveData = GetCurrentSaveData();
                 currentSaveData.PresetName = presetName;
 
@@ -332,7 +331,6 @@ namespace FileCraft.ViewModels
         {
             try
             {
-                OnStateChanging();
                 _saveService.UpdatePresetName(presetNumber, newName);
                 OptionsVM.CheckForExistingPresets();
                 _dialogService.ShowNotification("Success", $"Preset ({presetNumber}) renamed to '{newName}'.", DialogIconType.Success);
@@ -396,7 +394,6 @@ namespace FileCraft.ViewModels
 
             if (confirmed)
             {
-                OnStateChanging();
                 try
                 {
                     _saveService.DeletePreset(presetNumber);
@@ -475,3 +472,4 @@ namespace FileCraft.ViewModels
         }
     }
 }
+

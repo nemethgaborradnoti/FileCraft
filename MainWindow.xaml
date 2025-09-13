@@ -8,6 +8,7 @@
         xmlns:viewModels="clr-namespace:FileCraft.ViewModels"
         mc:Ignorable="d"
         Title="FileCraft" Height="800" Width="850"
+        MinHeight="200" MinWidth="250"
         d:DataContext="{d:DesignInstance Type=viewModels:MainViewModel, IsDesignTimeCreatable=False}">
 
     <Grid Margin="10">
@@ -110,3 +111,4 @@
         </TabControl>
     </Grid>
 </Window>
+

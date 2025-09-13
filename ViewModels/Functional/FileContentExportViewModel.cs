@@ -52,7 +52,6 @@ namespace FileCraft.ViewModels.Functional
             {
                 if (_searchFilter != value)
                 {
-                    OnStateChanging();
                     _searchFilter = value;
                     OnPropertyChanged();
                     _debounceTimer.Change(300, Timeout.Infinite);
