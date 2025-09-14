@@ -86,6 +86,7 @@ namespace FileCraft.ViewModels
 
             SubscribeToChanges();
 
+            OptionsVM.IgnoredFoldersChanged += OnIgnoredFoldersChanged;
             OptionsVM.PresetSaveRequested += OnPresetSaveRequested;
             OptionsVM.PresetRenameRequested += OnPresetRenameRequested;
             OptionsVM.PresetLoadRequested += OnPresetLoadRequested;
@@ -101,6 +102,13 @@ namespace FileCraft.ViewModels
 
             LoadData();
             HasUnsavedChanges = false;
+        }
+
+        private void OnIgnoredFoldersChanged()
+        {
+            FileContentExportVM.FolderTreeManager.RefreshTree();
+            TreeGeneratorVM.FolderTreeManager.RefreshTree();
+            FolderContentExportVM.FolderTreeManager.RefreshTree();
         }
 
         private void SubscribeToChanges()
@@ -253,6 +261,10 @@ namespace FileCraft.ViewModels
                     OutputFileName = TreeGeneratorVM.OutputFileName,
                     AppendTimestamp = TreeGeneratorVM.AppendTimestamp,
                     FolderTreeState = TreeGeneratorVM.FolderTreeManager.GetFolderStates()
+                },
+                SettingsPage = new SettingsPageSettings
+                {
+                    IgnoredFolders = _sharedStateService.IgnoredFolders
                 }
             };
         }
@@ -262,6 +274,8 @@ namespace FileCraft.ViewModels
             _isLoading = true;
             _sharedStateService.SourcePath = saveData.SourcePath;
             _sharedStateService.DestinationPath = saveData.DestinationPath;
+            _sharedStateService.IgnoredFolders = saveData.SettingsPage.IgnoredFolders ?? new();
+
             OnPropertyChanged(nameof(SourcePath));
             OnPropertyChanged(nameof(DestinationPath));
 

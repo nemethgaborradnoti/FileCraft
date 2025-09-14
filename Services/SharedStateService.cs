@@ -36,6 +36,20 @@ namespace FileCraft.Services
             }
         }
 
+        private List<string> _ignoredFolders = new();
+        public List<string> IgnoredFolders
+        {
+            get => _ignoredFolders;
+            set
+            {
+                if (_ignoredFolders != value)
+                {
+                    _ignoredFolders = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
         protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));

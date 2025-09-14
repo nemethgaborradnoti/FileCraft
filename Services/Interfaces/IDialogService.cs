@@ -10,5 +10,6 @@ namespace FileCraft.Services.Interfaces
         bool ShowCopyTreeConfirmation(string title, DialogIconType iconType, string sourceName, string? sourceIcon, int sourceCount, string destName, string? destIcon, int destCount);
         ExitConfirmationResult ShowExitConfirmation(string title, string message);
         string? ShowRenamePresetDialog(string currentName, int presetNumber);
+        string? ShowEditIgnoredFoldersDialog(string currentFolders);
     }
 }

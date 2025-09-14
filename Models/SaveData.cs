@@ -51,5 +51,6 @@
 
     public class SettingsPageSettings
     {
+        public List<string> IgnoredFolders { get; set; } = new();
     }
 }

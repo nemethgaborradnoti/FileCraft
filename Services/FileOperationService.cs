@@ -8,6 +8,13 @@ namespace FileCraft.Services
 {
     public class FileOperationService : IFileOperationService
     {
+        private readonly ISharedStateService _sharedStateService;
+
+        public FileOperationService(ISharedStateService sharedStateService)
+        {
+            _sharedStateService = sharedStateService;
+        }
+
         public async Task<string> ExportFolderContentsAsync(string destinationPath, IEnumerable<string> includedFolderPaths, string outputFileName, IEnumerable<string> selectedColumns)
         {
             Guard.AgainstNullOrWhiteSpace(destinationPath, nameof(destinationPath));
@@ -86,8 +93,11 @@ namespace FileCraft.Services
         {
             try
             {
+                var ignoredFolderNames = new HashSet<string>(_sharedStateService.IgnoredFolders, StringComparer.OrdinalIgnoreCase);
+
                 var subDirectories = Directory.GetDirectories(directoryPath)
                     .Where(d => !excludedFolderPaths.Contains(d))
+                    .Where(d => !ignoredFolderNames.Contains(new DirectoryInfo(d).Name))
                     .OrderBy(d => d)
                     .ToArray();
 

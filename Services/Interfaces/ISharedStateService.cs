@@ -6,5 +6,6 @@ namespace FileCraft.Services.Interfaces
     {
         string SourcePath { get; set; }
         string DestinationPath { get; set; }
+        List<string> IgnoredFolders { get; set; }
     }
 }
