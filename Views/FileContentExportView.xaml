@@ -73,34 +73,46 @@
 
                 <Grid Grid.Row="0" Margin="5,2,5,2">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
-                    <TextBlock Grid.Column="0" Text="Search:" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                    <DockPanel Grid.Column="0">
+                        <TextBlock Text="Search:" DockPanel.Dock="Left" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                        <Grid>
+                            <TextBox Style="{StaticResource ModernTextBoxStyle}"
+                                     Text="{Binding SearchFilter, UpdateSourceTrigger=PropertyChanged}" />
+                            <TextBlock IsHitTestVisible="False"
+                                       Text="Filter by file path..."
+                                       VerticalAlignment="Center"
+                                       HorizontalAlignment="Left"
+                                       Margin="10,0,0,0"
+                                       Foreground="{StaticResource GrayTextBrush}">
+                                <TextBlock.Style>
+                                    <Style TargetType="{x:Type TextBlock}">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding SearchFilter}" Value="">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </Grid>
+                    </DockPanel>
 
-                    <Grid Grid.Column="1">
-                        <TextBox Style="{StaticResource ModernTextBoxStyle}"
-                                 Text="{Binding SearchFilter, UpdateSourceTrigger=PropertyChanged}" />
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="10,0,0,0">
+                        <CheckBox Content="Show only selected"
+                                  IsChecked="{Binding IsShowingOnlySelected}"
+                                  VerticalAlignment="Center"/>
 
-                        <TextBlock IsHitTestVisible="False"
-                                   Text="Filter by file path..."
-                                   VerticalAlignment="Center"
-                                   HorizontalAlignment="Left"
-                                   Margin="10,0,0,0"
-                                   Foreground="{StaticResource GrayTextBrush}">
-                            <TextBlock.Style>
-                                <Style TargetType="{x:Type TextBlock}">
-                                    <Setter Property="Visibility" Value="Collapsed"/>
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding SearchFilter}" Value="">
-                                            <Setter Property="Visibility" Value="Visible"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </TextBlock.Style>
-                        </TextBlock>
-                    </Grid>
+                        <Button Content="Clear Filter" 
+                                Command="{Binding ClearFilterCommand}"
+                                IsEnabled="{Binding CanClearFilter}"
+                                Style="{StaticResource DangerButton}"
+                                Margin="10,0,0,0"/>
+                    </StackPanel>
                 </Grid>
 
                 <Border Grid.Row="1" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1" Padding="4,2">
@@ -148,3 +160,4 @@
         </StackPanel>
     </Grid>
 </UserControl>
+
