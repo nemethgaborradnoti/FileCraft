@@ -77,6 +77,16 @@ namespace FileCraft.Services
             return null;
         }
 
+        public string? ShowEditIgnoredFoldersDialog(string currentFolders)
+        {
+            var editWindow = new EditIgnoredFoldersWindow(currentFolders);
+            if (editWindow.ShowDialog() == true)
+            {
+                return editWindow.IgnoredFoldersText;
+            }
+            return null;
+        }
+
         private string GetIconPath(DialogIconType iconType)
         {
             return iconType switch

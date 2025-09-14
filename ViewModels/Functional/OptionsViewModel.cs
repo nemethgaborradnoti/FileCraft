@@ -82,6 +82,7 @@ namespace FileCraft.ViewModels.Functional
         private readonly ISaveService _saveService;
         private readonly IDialogService _dialogService;
         private readonly ISharedStateService _sharedStateService;
+        private List<string> _ignoredFolders = new();
         public string Version => "v2.0.0";
 
         public event Action<int>? PresetSaveRequested;
@@ -97,9 +98,25 @@ namespace FileCraft.ViewModels.Functional
         public ICommand DeleteCurrentSaveCommand { get; }
         public ICommand OpenSaveFolderCommand { get; }
         public ICommand CopyFolderTreeCommand { get; }
+        public ICommand EditIgnoredFoldersCommand { get; }
+        public ICommand RefreshIgnoredFoldersCommand { get; }
 
         public ObservableCollection<PresetSlotViewModel> PresetSlots { get; } = new();
         public ObservableCollection<TabItemViewModel> AllTabs { get; } = new();
+
+        private string _ignoredFoldersText = "No folders are ignored.";
+        public string IgnoredFoldersText
+        {
+            get => _ignoredFoldersText;
+            private set
+            {
+                if (_ignoredFoldersText != value)
+                {
+                    _ignoredFoldersText = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
 
         private TabItemViewModel? _selectedSourceTab;
         public TabItemViewModel? SelectedSourceTab
@@ -206,6 +223,9 @@ namespace FileCraft.ViewModels.Functional
 
             OpenSaveFolderCommand = new RelayCommand(_ => OpenSaveFolder());
             CopyFolderTreeCommand = new RelayCommand(_ => CopyFolderTree(), _ => CanCopyFolderTree());
+            EditIgnoredFoldersCommand = new RelayCommand(_ => EditIgnoredFolders());
+            RefreshIgnoredFoldersCommand = new RelayCommand(_ => UpdateIgnoredFoldersText());
+
 
             for (int i = 1; i <= 5; i++)
             {
@@ -220,6 +240,54 @@ namespace FileCraft.ViewModels.Functional
 
             SelectedSourceTab = AllTabs[0];
             SelectedDestinationTab = AllTabs[0];
+
+            UpdateIgnoredFoldersText();
+        }
+
+        public void ApplySettings(SettingsPageSettings settings)
+        {
+            _ignoredFolders = settings.IgnoredFolders ?? new List<string>();
+            UpdateIgnoredFoldersText();
+        }
+
+        public SettingsPageSettings GetSettings()
+        {
+            return new SettingsPageSettings
+            {
+                IgnoredFolders = _ignoredFolders
+            };
+        }
+
+        private void UpdateIgnoredFoldersText()
+        {
+            if (_ignoredFolders == null || !_ignoredFolders.Any())
+            {
+                IgnoredFoldersText = "No folders are ignored.";
+            }
+            else
+            {
+                IgnoredFoldersText = string.Join(", ", _ignoredFolders);
+            }
+        }
+
+        private void EditIgnoredFolders()
+        {
+            OnStateChanging();
+            string currentFoldersText = string.Join(", ", _ignoredFolders);
+            string? newFoldersText = _dialogService.ShowEditIgnoredFoldersDialog(currentFoldersText);
+
+            if (newFoldersText != null)
+            {
+                _ignoredFolders = newFoldersText
+                    .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                    .Select(line => line.Trim())
+                    .Where(line => !string.IsNullOrWhiteSpace(line))
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .OrderBy(name => name)
+                    .ToList();
+
+                UpdateIgnoredFoldersText();
+            }
         }
 
         private bool CanCopyFolderTree()
@@ -305,3 +373,4 @@ namespace FileCraft.ViewModels.Functional
         }
     }
 }
+

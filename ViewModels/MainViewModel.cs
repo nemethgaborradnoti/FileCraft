@@ -253,7 +253,8 @@ namespace FileCraft.ViewModels
                     OutputFileName = TreeGeneratorVM.OutputFileName,
                     AppendTimestamp = TreeGeneratorVM.AppendTimestamp,
                     FolderTreeState = TreeGeneratorVM.FolderTreeManager.GetFolderStates()
-                }
+                },
+                SettingsPage = OptionsVM.GetSettings()
             };
         }
 
@@ -274,6 +275,8 @@ namespace FileCraft.ViewModels
             TreeGeneratorVM.FolderTreeManager.LoadTreeForPath(SourcePath, saveData.TreeGenerator.FolderTreeState);
             TreeGeneratorVM.OutputFileName = saveData.TreeGenerator.OutputFileName;
             TreeGeneratorVM.AppendTimestamp = saveData.TreeGenerator.AppendTimestamp;
+
+            OptionsVM.ApplySettings(saveData.SettingsPage);
 
             SelectedTabIndex = saveData.SelectedTabIndex;
             _isLoading = false;
@@ -472,4 +475,3 @@ namespace FileCraft.ViewModels
         }
     }
 }
-
