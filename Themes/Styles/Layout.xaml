@@ -126,5 +126,21 @@
         </Setter>
     </Style>
 
-</ResourceDictionary>
+    <Style x:Key="CustomSeparatorStyle" TargetType="Separator">
+        <Setter Property="Background" Value="{StaticResource BorderBrush}" />
+        <Setter Property="Height" Value="1" />
+        <Setter Property="Margin" Value="0,4" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Separator">
+                    <Border Background="{TemplateBinding Background}"
+                            Height="{TemplateBinding Height}"
+                            SnapsToDevicePixels="True"/>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
 
+    <Style TargetType="Separator" BasedOn="{StaticResource CustomSeparatorStyle}"/>
+
+</ResourceDictionary>

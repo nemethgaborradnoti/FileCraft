@@ -15,7 +15,6 @@
     <None Remove="Resources\cancel01.png" />
     <None Remove="Resources\checked01.png" />
     <None Remove="Resources\delete01.png" />
-    <None Remove="Resources\edit01.png" />
     <None Remove="Resources\filecontent01.png" />
     <None Remove="Resources\foldercontent01.png" />
     <None Remove="Resources\info01.png" />
@@ -33,7 +32,6 @@
     <Resource Include="Resources\cancel01.png" />
     <Resource Include="Resources\checked01.png" />
     <Resource Include="Resources\delete01.png" />
-    <Resource Include="Resources\edit01.png" />
     <Resource Include="Resources\filecontent01.png" />
     <Resource Include="Resources\foldercontent01.png" />
     <Resource Include="Resources\info01.png" />

@@ -41,8 +41,8 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
-                    <Border BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1" Padding="4,2">
-                        <Grid>
+                    <StackPanel>
+                        <Grid Margin="4,2">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="*"/>
@@ -50,7 +50,8 @@
                             <CheckBox Grid.Column="0" IsChecked="{Binding AreAllExtensionsSelected}" IsThreeState="True" VerticalAlignment="Center"/>
                             <TextBlock Grid.Column="1" Text="Select all" FontWeight="SemiBold" Margin="5,0,0,0" VerticalAlignment="Center"/>
                         </Grid>
-                    </Border>
+                        <Separator/>
+                    </StackPanel>
                     <ListView Grid.Row="1" ItemsSource="{Binding AvailableExtensions}" ScrollViewer.HorizontalScrollBarVisibility="Disabled" BorderThickness="0"
                               ItemContainerStyle="{StaticResource SharedListViewItemStyle}">
                         <ListView.ItemTemplate>
@@ -115,8 +116,8 @@
                     </StackPanel>
                 </Grid>
 
-                <Border Grid.Row="1" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1" Padding="4,2">
-                    <Grid>
+                <StackPanel Grid.Row="1">
+                    <Grid Margin="4,2">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>
@@ -124,7 +125,8 @@
                         <CheckBox Grid.Column="0" IsChecked="{Binding AreAllFilesSelected}" IsThreeState="True" VerticalAlignment="Center"/>
                         <TextBlock Grid.Column="1" Text="Select all" FontWeight="SemiBold" Margin="5,0,0,0" VerticalAlignment="Center"/>
                     </Grid>
-                </Border>
+                    <Separator/>
+                </StackPanel>
 
                 <ListView Grid.Row="2" ItemsSource="{Binding FilteredSelectableFiles}" ScrollViewer.HorizontalScrollBarVisibility="Disabled" BorderThickness="0"
                           ItemContainerStyle="{StaticResource SharedListViewItemStyle}">
@@ -160,4 +162,3 @@
         </StackPanel>
     </Grid>
 </UserControl>
-
