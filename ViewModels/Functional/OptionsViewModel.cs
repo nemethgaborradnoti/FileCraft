@@ -82,7 +82,7 @@ namespace FileCraft.ViewModels.Functional
         private readonly ISaveService _saveService;
         private readonly IDialogService _dialogService;
         private readonly ISharedStateService _sharedStateService;
-        public string Version => "v2.0.0";
+        public string Version => "v2.1.0";
 
         public event Action? IgnoredFoldersChanged;
         public event Action<int>? PresetSaveRequested;
