@@ -31,6 +31,8 @@
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="border" Property="Background" Value="{StaticResource SecondaryBrush}" />
+                            <Setter TargetName="border" Property="BorderBrush" Value="{StaticResource SecondaryDarkerBrush}" />
                             <Setter Property="Opacity" Value="0.65"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
@@ -59,10 +61,6 @@
                     </Storyboard>
                 </BeginStoryboard>
             </EventTrigger>
-            <Trigger Property="IsEnabled" Value="False">
-                <Setter Property="Background" Value="{StaticResource SecondaryBrush}"/>
-                <Setter Property="BorderBrush" Value="{StaticResource SecondaryDarkerBrush}"/>
-            </Trigger>
         </Style.Triggers>
     </Style>
 
@@ -173,9 +171,14 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
-                    <Border Background="{TemplateBinding Background}" CornerRadius="3">
+                    <Border x:Name="border" Background="{TemplateBinding Background}" CornerRadius="3">
                         <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Opacity" Value="0.5"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
@@ -196,11 +199,7 @@
                     </Storyboard>
                 </BeginStoryboard>
             </EventTrigger>
-            <Trigger Property="IsEnabled" Value="False">
-                <Setter Property="Opacity" Value="0.5"/>
-            </Trigger>
         </Style.Triggers>
     </Style>
 
 </ResourceDictionary>
-
