@@ -41,33 +41,29 @@
                                                 CommandParameter="{Binding}"
                                                 Width="50" Height="32"/>
 
-                                        <TextBlock Grid.Column="1" Text="{Binding PresetName}" VerticalAlignment="Center" Margin="10, 0" ToolTip="{Binding PresetName}">
-                                            <TextBlock.InputBindings>
-                                                <MouseBinding MouseAction="LeftClick"
-                                                              Command="{Binding DataContext.EditPresetCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                              CommandParameter="{Binding}"/>
-                                            </TextBlock.InputBindings>
-                                            <TextBlock.Style>
-                                                <Style TargetType="TextBlock">
-                                                    <Setter Property="FontStyle" Value="Italic"/>
-                                                    <Setter Property="FontWeight" Value="Normal"/>
-                                                    <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding Exists}" Value="True">
-                                                            <Setter Property="FontStyle" Value="Normal"/>
-                                                            <Setter Property="FontWeight" Value="Bold"/>
-                                                            <Setter Property="Cursor" Value="Hand"/>
-                                                        </DataTrigger>
-                                                        <MultiDataTrigger>
-                                                            <MultiDataTrigger.Conditions>
-                                                                <Condition Binding="{Binding IsMouseOver, RelativeSource={RelativeSource Self}}" Value="True" />
-                                                                <Condition Binding="{Binding Exists}" Value="True" />
-                                                            </MultiDataTrigger.Conditions>
-                                                            <Setter Property="TextDecorations" Value="Underline"/>
-                                                        </MultiDataTrigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </TextBlock.Style>
-                                        </TextBlock>
+                                        <Border x:Name="PresetNameBorder" Grid.Column="1" Background="Transparent" CornerRadius="4" Margin="10,0" VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding PresetName}" VerticalAlignment="Center" Padding="5,2" ToolTip="{Binding PresetName}">
+                                                <TextBlock.InputBindings>
+                                                    <MouseBinding MouseAction="LeftClick"
+                                                                  Command="{Binding DataContext.EditPresetCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                                  CommandParameter="{Binding}"/>
+                                                </TextBlock.InputBindings>
+                                                <TextBlock.Style>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="FontStyle" Value="Italic"/>
+                                                        <Setter Property="FontWeight" Value="Normal"/>
+                                                        <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding Exists}" Value="True">
+                                                                <Setter Property="FontStyle" Value="Normal"/>
+                                                                <Setter Property="FontWeight" Value="Bold"/>
+                                                                <Setter Property="Cursor" Value="Hand"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
+                                            </TextBlock>
+                                        </Border>
 
                                         <Button Grid.Column="2"
                                                 Content="Load"
@@ -88,6 +84,39 @@
                                     </Grid>
                                     <Separator/>
                                 </StackPanel>
+                                <DataTemplate.Triggers>
+                                    <MultiDataTrigger>
+                                        <MultiDataTrigger.Conditions>
+                                            <Condition Binding="{Binding IsMouseOver, ElementName=PresetNameBorder}" Value="True" />
+                                            <Condition Binding="{Binding Exists}" Value="True" />
+                                        </MultiDataTrigger.Conditions>
+                                        <MultiDataTrigger.EnterActions>
+                                            <BeginStoryboard>
+                                                <Storyboard>
+                                                    <ColorAnimation Storyboard.TargetName="PresetNameBorder"
+                                                                    Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
+                                                                    To="{StaticResource PrimaryColor}" Duration="0:0:0.1"/>
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </MultiDataTrigger.EnterActions>
+                                        <MultiDataTrigger.ExitActions>
+                                            <BeginStoryboard>
+                                                <Storyboard>
+                                                    <ColorAnimation Storyboard.TargetName="PresetNameBorder"
+                                                                    Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
+                                                                    To="Transparent" Duration="0:0:0.1"/>
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </MultiDataTrigger.ExitActions>
+                                    </MultiDataTrigger>
+                                    <MultiDataTrigger>
+                                        <MultiDataTrigger.Conditions>
+                                            <Condition Binding="{Binding IsMouseOver, ElementName=PresetNameBorder}" Value="True" />
+                                            <Condition Binding="{Binding Exists}" Value="True" />
+                                        </MultiDataTrigger.Conditions>
+                                        <Setter TargetName="PresetNameBorder" Property="TextBlock.Foreground" Value="{StaticResource ButtonTextBrush}"/>
+                                    </MultiDataTrigger>
+                                </DataTemplate.Triggers>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
