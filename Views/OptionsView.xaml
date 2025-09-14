@@ -15,8 +15,8 @@
 
         <Grid Grid.Row="0">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="3*"/>
+                <ColumnDefinition Width="2*"/>
             </Grid.ColumnDefinitions>
 
             <GroupBox Grid.Column="0" Header="Manage Presets" Margin="5" Padding="10">
@@ -34,12 +34,12 @@
                                     </Grid.ColumnDefinitions>
 
                                     <Button Grid.Column="0"
-                                            Style="{StaticResource SquareIconButton}"
+                                            Content="Save"
+                                            Style="{StaticResource SuccessButton}"
                                             ToolTip="Save current settings to this preset"
                                             Command="{Binding DataContext.SavePresetCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                            CommandParameter="{Binding}">
-                                        <Image Source="/Resources/save03.png" />
-                                    </Button>
+                                            CommandParameter="{Binding}"
+                                            Width="50" Height="28"/>
 
                                     <TextBlock Grid.Column="1" Text="{Binding PresetName}" VerticalAlignment="Center" Margin="5, 0" ToolTip="{Binding PresetName}">
                                         <TextBlock.Style>
@@ -57,7 +57,7 @@
                                     </TextBlock>
 
                                     <Button Grid.Column="2"
-                                            Style="{StaticResource SquareIconButton}"
+                                            Style="{StaticResource BorderlessIconButton}"
                                             ToolTip="Edit preset name"
                                             Command="{Binding DataContext.EditPresetCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                             CommandParameter="{Binding}"
@@ -66,7 +66,7 @@
                                     </Button>
 
                                     <Button Grid.Column="3"
-                                            Style="{StaticResource SquareIconButton}"
+                                            Style="{StaticResource BorderlessIconButton}"
                                             ToolTip="Delete this preset"
                                             Command="{Binding DataContext.DeletePresetCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                             CommandParameter="{Binding}"
@@ -75,25 +75,11 @@
                                     </Button>
 
                                     <Button Grid.Column="4"
-                                            Content="{Binding PresetNumber}"
-                                            ContentStringFormat="Load ({0})"
+                                            Content="Load"
                                             Command="{Binding DataContext.LoadPresetCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                             CommandParameter="{Binding}"
                                             IsEnabled="{Binding Exists}"
-                                            Width="90" Height="28" Margin="5,0,0,0">
-                                        <Button.Style>
-                                            <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
-                                                <Setter Property="Background" Value="#FFE6E6E6"/>
-                                                <Setter Property="Foreground" Value="#FF888888"/>
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding Exists}" Value="True">
-                                                        <Setter Property="Background" Value="#9dbde4"/>
-                                                        <Setter Property="Foreground" Value="Black"/>
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </Button.Style>
-                                    </Button>
+                                            Width="50" Height="28" Margin="5,0,0,0"/>
                                 </Grid>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
@@ -102,96 +88,75 @@
                     <Button Content="Open Save Folder"
                             Command="{Binding OpenSaveFolderCommand}"
                             Margin="0,20,0,5"
-                            Padding="10,5"
-                            Background="#FFE0E0E0"/>
+                            Style="{StaticResource WarningButton}"/>
 
                     <Button Content="Delete Current Save" 
                             Command="{Binding DeleteCurrentSaveCommand}"
                             Margin="0,0,0,0"
-                            Padding="10,5"
-                            Background="#f15249"/>
+                            Style="{StaticResource DangerButton}"/>
                 </StackPanel>
             </GroupBox>
 
             <GroupBox Grid.Column="1" Header="Copy FolderTree content" Margin="5" Padding="10">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
+                <StackPanel>
+                    <TextBlock Text="Copy from this Tab:" Margin="0,0,0,2"/>
+                    <ComboBox ItemsSource="{Binding AllTabs}"
+                              SelectedItem="{Binding SelectedSourceTab}">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <Image Source="{Binding IconPath}" Width="20" Height="20" Margin="0,0,5,0" VerticalAlignment="Center">
+                                        <Image.Style>
+                                            <Style TargetType="Image">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IconPath}" Value="{x:Null}">
+                                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Image.Style>
+                                    </Image>
+                                    <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
 
-                    <Grid Grid.Row="0">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
+                    <TextBlock Text="Copy to this tab:" Margin="0,10,0,2"/>
+                    <ComboBox ItemsSource="{Binding AllTabs}"
+                              SelectedItem="{Binding SelectedDestinationTab}">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <Image Source="{Binding IconPath}" Width="20" Height="20" Margin="0,0,5,0" VerticalAlignment="Center">
+                                        <Image.Style>
+                                            <Style TargetType="Image">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IconPath}" Value="{x:Null}">
+                                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Image.Style>
+                                    </Image>
+                                    <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                        <ComboBox.ItemContainerStyle>
+                            <Style TargetType="ComboBoxItem">
+                                <Setter Property="IsEnabled" Value="{Binding IsSelectable}"/>
+                            </Style>
+                        </ComboBox.ItemContainerStyle>
+                    </ComboBox>
 
-                        <StackPanel Grid.Column="0">
-                            <TextBlock Text="Copy from this Tab:" Margin="0,0,0,2"/>
-                            <ComboBox ItemsSource="{Binding AllTabs}"
-                                      SelectedItem="{Binding SelectedSourceTab}">
-                                <ComboBox.ItemTemplate>
-                                    <DataTemplate>
-                                        <StackPanel Orientation="Horizontal">
-                                            <Image Source="{Binding IconPath}" Width="20" Height="20" Margin="0,0,5,0" VerticalAlignment="Center">
-                                                <Image.Style>
-                                                    <Style TargetType="Image">
-                                                        <Setter Property="Visibility" Value="Visible"/>
-                                                        <Style.Triggers>
-                                                            <DataTrigger Binding="{Binding IconPath}" Value="{x:Null}">
-                                                                <Setter Property="Visibility" Value="Collapsed"/>
-                                                            </DataTrigger>
-                                                        </Style.Triggers>
-                                                    </Style>
-                                                </Image.Style>
-                                            </Image>
-                                            <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
-                                        </StackPanel>
-                                    </DataTemplate>
-                                </ComboBox.ItemTemplate>
-                            </ComboBox>
-                        </StackPanel>
-
-                        <Button Grid.Column="1" 
-                                Content="Copy Folder Tree"
-                                Command="{Binding CopyFolderTreeCommand}"
-                                VerticalAlignment="Bottom"
-                                Margin="15,0,0,0"
-                                Padding="10,5"/>
-                    </Grid>
-
-                    <StackPanel Grid.Row="1" Margin="0,10,0,0">
-                        <TextBlock Text="Copy to this tab:" Margin="0,0,0,2"/>
-                        <ComboBox ItemsSource="{Binding AllTabs}"
-                                  SelectedItem="{Binding SelectedDestinationTab}">
-                            <ComboBox.ItemTemplate>
-                                <DataTemplate>
-                                    <StackPanel Orientation="Horizontal">
-                                        <Image Source="{Binding IconPath}" Width="20" Height="20" Margin="0,0,5,0" VerticalAlignment="Center">
-                                            <Image.Style>
-                                                <Style TargetType="Image">
-                                                    <Setter Property="Visibility" Value="Visible"/>
-                                                    <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding IconPath}" Value="{x:Null}">
-                                                            <Setter Property="Visibility" Value="Collapsed"/>
-                                                        </DataTrigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </Image.Style>
-                                        </Image>
-                                        <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
-                                    </StackPanel>
-                                </DataTemplate>
-                            </ComboBox.ItemTemplate>
-                            <ComboBox.ItemContainerStyle>
-                                <Style TargetType="ComboBoxItem">
-                                    <Setter Property="IsEnabled" Value="{Binding IsSelectable}"/>
-                                </Style>
-                            </ComboBox.ItemContainerStyle>
-                        </ComboBox>
-                    </StackPanel>
-                </Grid>
+                    <Button Content="Copy Folder Tree"
+                            Command="{Binding CopyFolderTreeCommand}"
+                            HorizontalAlignment="Left"
+                            Margin="0,15,0,0"/>
+                </StackPanel>
             </GroupBox>
         </Grid>
 

@@ -38,8 +38,6 @@
     <Resource Include="Resources\foldercontent01.png" />
     <Resource Include="Resources\info01.png" />
     <Resource Include="Resources\save01.png" />
-    <Resource Include="Resources\save02.png" />
-    <Resource Include="Resources\save03.png" />
     <Resource Include="Resources\settings01.png" />
     <Resource Include="Resources\treestructure01.png" />
     <Resource Include="Resources\warning01.png" />

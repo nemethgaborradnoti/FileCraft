@@ -299,7 +299,7 @@ namespace FileCraft.ViewModels.Functional
                 }
                 else
                 {
-                    slot.PresetName = "(<-- Save) Empty slot";
+                    slot.PresetName = "-- Empty --";
                 }
             }
         }
