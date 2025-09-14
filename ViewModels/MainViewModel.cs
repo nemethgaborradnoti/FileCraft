@@ -34,6 +34,7 @@ namespace FileCraft.ViewModels
 
         public bool CanUndo => _undoService.CanUndo;
         public bool CanRedo => _undoService.CanRedo;
+        public bool CanClearPaths => !string.IsNullOrWhiteSpace(SourcePath) || !string.IsNullOrWhiteSpace(DestinationPath);
 
         public string SourcePath => _sharedStateService.SourcePath;
         public string DestinationPath => _sharedStateService.DestinationPath;
@@ -93,7 +94,7 @@ namespace FileCraft.ViewModels
             OptionsVM.PresetDeleteRequested += OnPresetDeleteRequested;
             OptionsVM.CurrentSaveDeleteRequested += OnCurrentSaveDeleteRequested;
 
-            ClearPathsCommand = new RelayCommand(_ => ClearPaths());
+            ClearPathsCommand = new RelayCommand(_ => ClearPaths(), _ => CanClearPaths);
             SelectSourcePathCommand = new RelayCommand(_ => SelectPath(isSource: true));
             SelectDestinationPathCommand = new RelayCommand(_ => SelectPath(isSource: false));
             SaveCommand = new RelayCommand(_ => Save(), _ => HasUnsavedChanges);
@@ -168,6 +169,7 @@ namespace FileCraft.ViewModels
                     _sharedStateService.DestinationPath = selectedPath;
                 }
                 OnPropertyChanged(isSource ? nameof(SourcePath) : nameof(DestinationPath));
+                OnPropertyChanged(nameof(CanClearPaths));
             }
         }
 
@@ -176,8 +178,14 @@ namespace FileCraft.ViewModels
             OnStateChanging();
             _sharedStateService.SourcePath = string.Empty;
             _sharedStateService.DestinationPath = string.Empty;
+
+            FileContentExportVM.FolderTreeManager.LoadTreeForPath(string.Empty);
+            TreeGeneratorVM.FolderTreeManager.LoadTreeForPath(string.Empty);
+            FolderContentExportVM.FolderTreeManager.LoadTreeForPath(string.Empty);
+
             OnPropertyChanged(nameof(SourcePath));
             OnPropertyChanged(nameof(DestinationPath));
+            OnPropertyChanged(nameof(CanClearPaths));
         }
 
         private void LoadData()
@@ -278,6 +286,7 @@ namespace FileCraft.ViewModels
 
             OnPropertyChanged(nameof(SourcePath));
             OnPropertyChanged(nameof(DestinationPath));
+            OnPropertyChanged(nameof(CanClearPaths));
 
             FileContentExportVM.FolderTreeManager.LoadTreeForPath(SourcePath, saveData.FileContentExport.FolderTreeState);
             FileContentExportVM.ApplySettings(saveData.FileContentExport);

@@ -4,6 +4,7 @@ using FileCraft.Shared.Commands;
 using FileCraft.Shared.Helpers;
 using FileCraft.ViewModels.Shared;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
@@ -17,6 +18,7 @@ namespace FileCraft.ViewModels.Functional
         private readonly IFileQueryService _fileQueryService;
         private readonly Timer _debounceTimer;
         private string _searchFilter = string.Empty;
+        private bool _isShowingOnlySelected;
         private readonly ObservableCollection<SelectableFile> _allSelectableFiles = new();
         public ObservableCollection<SelectableFile> FilteredSelectableFiles { get; } = new();
         private int _totalFilesCount;
@@ -55,9 +57,27 @@ namespace FileCraft.ViewModels.Functional
                     _searchFilter = value;
                     OnPropertyChanged();
                     _debounceTimer.Change(300, Timeout.Infinite);
+                    OnPropertyChanged(nameof(CanClearFilter));
                 }
             }
         }
+
+        public bool IsShowingOnlySelected
+        {
+            get => _isShowingOnlySelected;
+            set
+            {
+                if (_isShowingOnlySelected != value)
+                {
+                    _isShowingOnlySelected = value;
+                    OnPropertyChanged();
+                    ApplyFileFilter();
+                    OnPropertyChanged(nameof(CanClearFilter));
+                }
+            }
+        }
+
+        public bool CanClearFilter => IsShowingOnlySelected || !string.IsNullOrWhiteSpace(SearchFilter);
 
         public bool? AreAllFilesSelected
         {
@@ -113,6 +133,7 @@ namespace FileCraft.ViewModels.Functional
         public ObservableCollection<FolderViewModel> RootFolders => FolderTreeManager.RootFolders;
 
         public ICommand ExportFileContentCommand { get; }
+        public ICommand ClearFilterCommand { get; }
 
         public FileContentExportViewModel(
             ISharedStateService sharedStateService,
@@ -130,10 +151,17 @@ namespace FileCraft.ViewModels.Functional
             FolderTreeManager.StateChanging += OnStateChanging;
 
             ExportFileContentCommand = new RelayCommand(async (_) => await ExportFileContentAsync(), (_) => CanExecuteOperation(this.OutputFileName) && _allSelectableFiles.Any(f => f.IsSelected));
+            ClearFilterCommand = new RelayCommand(_ => ClearFilter());
 
             OnFolderSelectionChanged();
             UpdateFileCounts();
             UpdateExtensionMasterState();
+        }
+
+        private void ClearFilter()
+        {
+            SearchFilter = string.Empty;
+            IsShowingOnlySelected = false;
         }
 
         public void ApplySettings(FileContentExportSettings settings)
@@ -211,9 +239,18 @@ namespace FileCraft.ViewModels.Functional
             System.Windows.Application.Current.Dispatcher.Invoke(() =>
             {
                 FilteredSelectableFiles.Clear();
-                var filtered = string.IsNullOrWhiteSpace(SearchFilter)
-                    ? _allSelectableFiles
-                    : _allSelectableFiles.Where(f => f.FullPath.IndexOf(SearchFilter, StringComparison.OrdinalIgnoreCase) >= 0);
+                IEnumerable<SelectableFile> filtered = _allSelectableFiles;
+
+                if (IsShowingOnlySelected)
+                {
+                    filtered = filtered.Where(f => f.IsSelected);
+                }
+
+                if (!string.IsNullOrWhiteSpace(SearchFilter))
+                {
+                    filtered = filtered.Where(f => f.FullPath.IndexOf(SearchFilter, StringComparison.OrdinalIgnoreCase) >= 0);
+                }
+
                 foreach (var file in filtered)
                     FilteredSelectableFiles.Add(file);
                 UpdateFileCounts();
@@ -290,6 +327,10 @@ namespace FileCraft.ViewModels.Functional
             if (e.PropertyName == nameof(SelectableFile.IsSelected))
             {
                 UpdateFileCounts();
+                if (IsShowingOnlySelected)
+                {
+                    ApplyFileFilter();
+                }
             }
         }
 
@@ -371,3 +412,4 @@ namespace FileCraft.ViewModels.Functional
         }
     }
 }
+
