@@ -26,12 +26,6 @@ This project is **open source** and contributions are welcome.
 * Choose from various file metadata attributes (e.g., **Name**, **Size**, **Creation Time**, **Last Write Time**).
 * Export the selected details into a structured `.txt` file.
 
-### 🔄 Sequential File Renamer
-
-* Rename all files within a specified folder in a **sequential, numbered format** (e.g., `0001.txt`, `0002.jpg`).
-* Optionally include folders in the renaming process.
-* A **preview** is available before executing the operation.
-
 ---
 
 ## 🚀 How to Contribute
