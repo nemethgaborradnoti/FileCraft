@@ -8,6 +8,13 @@ namespace FileCraft.Services
 {
     public class FileOperationService : IFileOperationService
     {
+        private readonly ISharedStateService _sharedStateService;
+
+        public FileOperationService(ISharedStateService sharedStateService)
+        {
+            _sharedStateService = sharedStateService;
+        }
+
         public async Task<string> ExportFolderContentsAsync(string destinationPath, IEnumerable<string> includedFolderPaths, string outputFileName, IEnumerable<string> selectedColumns)
         {
             Guard.AgainstNullOrWhiteSpace(destinationPath, nameof(destinationPath));
@@ -86,8 +93,11 @@ namespace FileCraft.Services
         {
             try
             {
+                var ignoredFolderNames = new HashSet<string>(_sharedStateService.IgnoredFolders, StringComparer.OrdinalIgnoreCase);
+
                 var subDirectories = Directory.GetDirectories(directoryPath)
                     .Where(d => !excludedFolderPaths.Contains(d))
+                    .Where(d => !ignoredFolderNames.Contains(new DirectoryInfo(d).Name))
                     .OrderBy(d => d)
                     .ToArray();
 
@@ -153,111 +163,6 @@ namespace FileCraft.Services
             await File.WriteAllTextAsync(outputFilePath, contentBuilder.ToString());
 
             return outputFilePath;
-        }
-
-        public async Task<string> RenameFilesAsync(string sourcePath, string destinationPath, string outputFileName, bool appendTimestamp, bool includeFolders)
-        {
-            Guard.AgainstNullOrWhiteSpace(sourcePath, nameof(sourcePath));
-            Guard.AgainstNonExistentDirectory(sourcePath, "The selected source folder does not exist.");
-            Guard.AgainstNullOrWhiteSpace(destinationPath, nameof(destinationPath));
-            Guard.AgainstNonExistentDirectory(destinationPath, "The selected destination folder does not exist.");
-            Guard.AgainstNullOrWhiteSpace(outputFileName, nameof(outputFileName));
-
-            var itemsToRename = new List<string>();
-            itemsToRename.AddRange(Directory.GetFiles(sourcePath, "*.*", SearchOption.TopDirectoryOnly));
-            if (includeFolders)
-            {
-                itemsToRename.AddRange(Directory.GetDirectories(sourcePath, "*", SearchOption.TopDirectoryOnly));
-            }
-
-            if (!itemsToRename.Any())
-            {
-                return "No items found in the source directory to rename.";
-            }
-
-            var sortedOriginalItems = itemsToRename.OrderBy(f => f).ToList();
-            var tempMappings = new Dictionary<string, string>();
-            var failedDuringTemp = new List<string>();
-
-            await Task.Run(() =>
-            {
-                foreach (var originalPath in sortedOriginalItems)
-                {
-                    try
-                    {
-                        string tempPath = Path.Combine(sourcePath, Guid.NewGuid().ToString() + ".tmp_fc");
-                        Directory.Move(originalPath, tempPath);
-                        tempMappings.Add(tempPath, originalPath);
-                    }
-                    catch
-                    {
-                        failedDuringTemp.Add(Path.GetFileName(originalPath));
-                    }
-                }
-            });
-
-            var logBuilder = new StringBuilder();
-            var failedFinal = new List<string>();
-            int successCount = 0;
-            int currentNumber = 1;
-
-            logBuilder.AppendLine($"--- SOURCE PATH ---");
-            logBuilder.AppendLine($"{sourcePath}");
-            logBuilder.AppendLine();
-            logBuilder.AppendLine("--- RENAME DETAILS ---");
-
-            var sortedTempItems = tempMappings.OrderBy(kvp => kvp.Value).ToList();
-
-            await Task.Run(() =>
-            {
-                foreach (var kvp in sortedTempItems)
-                {
-                    string tempPath = kvp.Key;
-                    string originalPath = kvp.Value;
-                    string originalName = Path.GetFileName(originalPath);
-                    try
-                    {
-                        bool isDirectory = File.GetAttributes(tempPath).HasFlag(FileAttributes.Directory);
-                        string extension = isDirectory ? "" : Path.GetExtension(originalPath);
-                        string finalName = $"{currentNumber:D4}{extension}";
-                        string finalPath = Path.Combine(sourcePath, finalName);
-
-                        Directory.Move(tempPath, finalPath);
-                        logBuilder.AppendLine($"{originalName} -> {finalName}");
-                        successCount++;
-                        currentNumber++;
-                    }
-                    catch (Exception ex)
-                    {
-                        failedFinal.Add($"{originalName} (Reason: {ex.Message})");
-                    }
-                }
-            });
-
-            var allFailed = failedDuringTemp.Select(f => $"{f} (Reason: Failed during temporary rename phase)").ToList();
-            allFailed.AddRange(failedFinal);
-
-            logBuilder.AppendLine("\n--- SUMMARY ---");
-            logBuilder.AppendLine($"Successfully renamed: {successCount}");
-            logBuilder.AppendLine($"Could not rename: {allFailed.Count}");
-
-            if (allFailed.Any())
-            {
-                logBuilder.AppendLine("\n--- FAILED ITEMS ---");
-                foreach (var failed in allFailed)
-                {
-                    logBuilder.AppendLine(failed);
-                }
-            }
-
-            string finalFileName = appendTimestamp
-                ? $"{outputFileName}_{DateTime.Now:yyyy_MM_dd_HH_mm_ss}"
-                : outputFileName;
-
-            string logFilePath = Path.Combine(destinationPath, $"{finalFileName}.txt");
-            await File.WriteAllTextAsync(logFilePath, logBuilder.ToString());
-
-            return logFilePath;
         }
     }
 }

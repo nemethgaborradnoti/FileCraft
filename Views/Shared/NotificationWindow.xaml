@@ -5,9 +5,9 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
         Title="Notification" 
-        SizeToContent="WidthAndHeight" 
+        SizeToContent="Height" 
         WindowStartupLocation="CenterOwner"
-        MinWidth="350" MaxWidth="500"
+        Width="450"
         MinHeight="150"
         WindowStyle="ToolWindow"
         ResizeMode="NoResize">

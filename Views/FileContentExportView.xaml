@@ -41,8 +41,8 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
-                    <Border BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1" Padding="4,2">
-                        <Grid>
+                    <StackPanel>
+                        <Grid Margin="4,2">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="*"/>
@@ -50,7 +50,8 @@
                             <CheckBox Grid.Column="0" IsChecked="{Binding AreAllExtensionsSelected}" IsThreeState="True" VerticalAlignment="Center"/>
                             <TextBlock Grid.Column="1" Text="Select all" FontWeight="SemiBold" Margin="5,0,0,0" VerticalAlignment="Center"/>
                         </Grid>
-                    </Border>
+                        <Separator/>
+                    </StackPanel>
                     <ListView Grid.Row="1" ItemsSource="{Binding AvailableExtensions}" ScrollViewer.HorizontalScrollBarVisibility="Disabled" BorderThickness="0"
                               ItemContainerStyle="{StaticResource SharedListViewItemStyle}">
                         <ListView.ItemTemplate>
@@ -73,39 +74,50 @@
 
                 <Grid Grid.Row="0" Margin="5,2,5,2">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
-                    <TextBlock Grid.Column="0" Text="Search:" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                    <DockPanel Grid.Column="0">
+                        <TextBlock Text="Search:" DockPanel.Dock="Left" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                        <Grid>
+                            <TextBox Style="{StaticResource ModernTextBoxStyle}"
+                                     Text="{Binding SearchFilter, UpdateSourceTrigger=PropertyChanged}" />
+                            <TextBlock IsHitTestVisible="False"
+                                       Text="Filter by file path..."
+                                       VerticalAlignment="Center"
+                                       HorizontalAlignment="Left"
+                                       Margin="10,0,0,0"
+                                       Foreground="{StaticResource GrayTextBrush}">
+                                <TextBlock.Style>
+                                    <Style TargetType="{x:Type TextBlock}">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding SearchFilter}" Value="">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </Grid>
+                    </DockPanel>
 
-                    <TextBox Grid.Column="1"
-                             Text="{Binding SearchFilter, UpdateSourceTrigger=PropertyChanged}"
-                             Padding="3">
-                        <TextBox.Style>
-                            <Style TargetType="TextBox">
-                                <Setter Property="Foreground" Value="Gray"/>
-                                <Setter Property="Text" Value="Filter by file path..."/>
-                                <Style.Triggers>
-                                    <Trigger Property="IsFocused" Value="True">
-                                        <Setter Property="Foreground" Value="Black"/>
-                                        <Setter Property="Text" Value="{Binding SearchFilter, UpdateSourceTrigger=PropertyChanged}"/>
-                                    </Trigger>
-                                    <DataTrigger Binding="{Binding Text, RelativeSource={RelativeSource Self}}" Value="">
-                                        <Setter Property="Text" Value="Filter by file path..."/>
-                                        <Setter Property="Foreground" Value="Gray"/>
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding Text, RelativeSource={RelativeSource Self}}" Value="Filter by file path...">
-                                        <Setter Property="Foreground" Value="Gray"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </TextBox.Style>
-                    </TextBox>
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="10,0,0,0">
+                        <CheckBox Content="Show only selected"
+                                  IsChecked="{Binding IsShowingOnlySelected}"
+                                  VerticalAlignment="Center"/>
+
+                        <Button Content="Clear Filter" 
+                                Command="{Binding ClearFilterCommand}"
+                                IsEnabled="{Binding CanClearFilter}"
+                                Style="{StaticResource DangerButton}"
+                                Margin="10,0,0,0"/>
+                    </StackPanel>
                 </Grid>
 
-                <Border Grid.Row="1" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1" Padding="4,2">
-                    <Grid>
+                <StackPanel Grid.Row="1">
+                    <Grid Margin="4,2">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>
@@ -113,7 +125,8 @@
                         <CheckBox Grid.Column="0" IsChecked="{Binding AreAllFilesSelected}" IsThreeState="True" VerticalAlignment="Center"/>
                         <TextBlock Grid.Column="1" Text="Select all" FontWeight="SemiBold" Margin="5,0,0,0" VerticalAlignment="Center"/>
                     </Grid>
-                </Border>
+                    <Separator/>
+                </StackPanel>
 
                 <ListView Grid.Row="2" ItemsSource="{Binding FilteredSelectableFiles}" ScrollViewer.HorizontalScrollBarVisibility="Disabled" BorderThickness="0"
                           ItemContainerStyle="{StaticResource SharedListViewItemStyle}">

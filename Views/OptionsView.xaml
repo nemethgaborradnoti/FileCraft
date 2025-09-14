@@ -15,8 +15,8 @@
 
         <Grid Grid.Row="0">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="3*"/>
+                <ColumnDefinition Width="2*"/>
             </Grid.ColumnDefinitions>
 
             <GroupBox Grid.Column="0" Header="Manage Presets" Margin="5" Padding="10">
@@ -24,77 +24,99 @@
                     <ItemsControl ItemsSource="{Binding PresetSlots}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Grid Margin="0,10">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
+                                <StackPanel>
+                                    <Grid Margin="0,8,0,2">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
 
-                                    <Button Grid.Column="0"
-                                            Style="{StaticResource SquareIconButton}"
-                                            ToolTip="Save current settings to this preset"
-                                            Command="{Binding DataContext.SavePresetCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                            CommandParameter="{Binding}">
-                                        <Image Source="/Resources/save03.png" />
-                                    </Button>
+                                        <Button Grid.Column="0"
+                                                Content="Save"
+                                                Style="{StaticResource SuccessButton}"
+                                                ToolTip="Save current settings to this preset"
+                                                Command="{Binding DataContext.SavePresetCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                CommandParameter="{Binding}"
+                                                Width="50" Height="32"/>
 
-                                    <TextBlock Grid.Column="1" Text="{Binding PresetName}" VerticalAlignment="Center" Margin="5, 0" ToolTip="{Binding PresetName}">
-                                        <TextBlock.Style>
-                                            <Style TargetType="TextBlock">
-                                                <Setter Property="FontStyle" Value="Italic"/>
-                                                <Setter Property="FontWeight" Value="Normal"/>
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding Exists}" Value="True">
-                                                        <Setter Property="FontStyle" Value="Normal"/>
-                                                        <Setter Property="FontWeight" Value="Bold"/>
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </TextBlock.Style>
-                                    </TextBlock>
+                                        <Border x:Name="PresetNameBorder" Grid.Column="1" Background="Transparent" CornerRadius="4" Margin="10,0" VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding PresetName}" VerticalAlignment="Center" Padding="5,2" ToolTip="{Binding PresetName}">
+                                                <TextBlock.InputBindings>
+                                                    <MouseBinding MouseAction="LeftClick"
+                                                                  Command="{Binding DataContext.EditPresetCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                                  CommandParameter="{Binding}"/>
+                                                </TextBlock.InputBindings>
+                                                <TextBlock.Style>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="FontStyle" Value="Italic"/>
+                                                        <Setter Property="FontWeight" Value="Normal"/>
+                                                        <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding Exists}" Value="True">
+                                                                <Setter Property="FontStyle" Value="Normal"/>
+                                                                <Setter Property="FontWeight" Value="Bold"/>
+                                                                <Setter Property="Cursor" Value="Hand"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
+                                            </TextBlock>
+                                        </Border>
 
-                                    <Button Grid.Column="2"
-                                            Style="{StaticResource SquareIconButton}"
-                                            ToolTip="Edit preset name"
-                                            Command="{Binding DataContext.EditPresetCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                            CommandParameter="{Binding}"
-                                            IsEnabled="{Binding Exists}">
-                                        <Image Source="/Resources/edit01.png" />
-                                    </Button>
+                                        <Button Grid.Column="2"
+                                                Content="Load"
+                                                Command="{Binding DataContext.LoadPresetCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                CommandParameter="{Binding}"
+                                                IsEnabled="{Binding Exists}"
+                                                Width="50" Height="32" Margin="5,0,0,0"/>
 
-                                    <Button Grid.Column="3"
-                                            Style="{StaticResource SquareIconButton}"
-                                            ToolTip="Delete this preset"
-                                            Command="{Binding DataContext.DeletePresetCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                            CommandParameter="{Binding}"
-                                            IsEnabled="{Binding Exists}">
-                                        <Image Source="/Resources/delete01.png" />
-                                    </Button>
-
-                                    <Button Grid.Column="4"
-                                            Content="{Binding PresetNumber}"
-                                            ContentStringFormat="Load ({0})"
-                                            Command="{Binding DataContext.LoadPresetCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                            CommandParameter="{Binding}"
-                                            IsEnabled="{Binding Exists}"
-                                            Width="90" Height="28" Margin="5,0,0,0">
-                                        <Button.Style>
-                                            <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
-                                                <Setter Property="Background" Value="#FFE6E6E6"/>
-                                                <Setter Property="Foreground" Value="#FF888888"/>
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding Exists}" Value="True">
-                                                        <Setter Property="Background" Value="#9dbde4"/>
-                                                        <Setter Property="Foreground" Value="Black"/>
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </Button.Style>
-                                    </Button>
-                                </Grid>
+                                        <Button Grid.Column="3"
+                                                Style="{StaticResource BorderlessIconButton}"
+                                                ToolTip="Delete this preset"
+                                                Command="{Binding DataContext.DeletePresetCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                CommandParameter="{Binding}"
+                                                IsEnabled="{Binding Exists}"
+                                                Width="32" Height="32" Margin="5,0,0,0">
+                                            <Image Source="/Resources/delete01.png" />
+                                        </Button>
+                                    </Grid>
+                                    <Separator/>
+                                </StackPanel>
+                                <DataTemplate.Triggers>
+                                    <MultiDataTrigger>
+                                        <MultiDataTrigger.Conditions>
+                                            <Condition Binding="{Binding IsMouseOver, ElementName=PresetNameBorder}" Value="True" />
+                                            <Condition Binding="{Binding Exists}" Value="True" />
+                                        </MultiDataTrigger.Conditions>
+                                        <MultiDataTrigger.EnterActions>
+                                            <BeginStoryboard>
+                                                <Storyboard>
+                                                    <ColorAnimation Storyboard.TargetName="PresetNameBorder"
+                                                                    Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
+                                                                    To="{StaticResource PrimaryColor}" Duration="0:0:0.1"/>
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </MultiDataTrigger.EnterActions>
+                                        <MultiDataTrigger.ExitActions>
+                                            <BeginStoryboard>
+                                                <Storyboard>
+                                                    <ColorAnimation Storyboard.TargetName="PresetNameBorder"
+                                                                    Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
+                                                                    To="Transparent" Duration="0:0:0.1"/>
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </MultiDataTrigger.ExitActions>
+                                    </MultiDataTrigger>
+                                    <MultiDataTrigger>
+                                        <MultiDataTrigger.Conditions>
+                                            <Condition Binding="{Binding IsMouseOver, ElementName=PresetNameBorder}" Value="True" />
+                                            <Condition Binding="{Binding Exists}" Value="True" />
+                                        </MultiDataTrigger.Conditions>
+                                        <Setter TargetName="PresetNameBorder" Property="TextBlock.Foreground" Value="{StaticResource ButtonTextBrush}"/>
+                                    </MultiDataTrigger>
+                                </DataTemplate.Triggers>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
@@ -102,67 +124,43 @@
                     <Button Content="Open Save Folder"
                             Command="{Binding OpenSaveFolderCommand}"
                             Margin="0,20,0,5"
-                            Padding="10,5"
-                            Background="#FFE0E0E0"/>
+                            Style="{StaticResource WarningButton}"/>
 
                     <Button Content="Delete Current Save" 
                             Command="{Binding DeleteCurrentSaveCommand}"
                             Margin="0,0,0,0"
-                            Padding="10,5"
-                            Background="#f15249"/>
+                            Style="{StaticResource DangerButton}"/>
                 </StackPanel>
             </GroupBox>
 
-            <GroupBox Grid.Column="1" Header="Copy FolderTree content" Margin="5" Padding="10">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
+            <DockPanel Grid.Column="1">
+                <GroupBox Header="Copy FolderTree content" Margin="5" Padding="10" DockPanel.Dock="Top">
+                    <StackPanel>
+                        <TextBlock Text="Copy from this Tab:" Margin="0,0,0,2"/>
+                        <ComboBox ItemsSource="{Binding AllTabs}"
+                                  SelectedItem="{Binding SelectedSourceTab}">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Image Source="{Binding IconPath}" Width="20" Height="20" Margin="0,0,5,0" VerticalAlignment="Center">
+                                            <Image.Style>
+                                                <Style TargetType="Image">
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IconPath}" Value="{x:Null}">
+                                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Image.Style>
+                                        </Image>
+                                        <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
 
-                    <Grid Grid.Row="0">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-
-                        <StackPanel Grid.Column="0">
-                            <TextBlock Text="Copy from this Tab:" Margin="0,0,0,2"/>
-                            <ComboBox ItemsSource="{Binding AllTabs}"
-                                      SelectedItem="{Binding SelectedSourceTab}">
-                                <ComboBox.ItemTemplate>
-                                    <DataTemplate>
-                                        <StackPanel Orientation="Horizontal">
-                                            <Image Source="{Binding IconPath}" Width="20" Height="20" Margin="0,0,5,0" VerticalAlignment="Center">
-                                                <Image.Style>
-                                                    <Style TargetType="Image">
-                                                        <Setter Property="Visibility" Value="Visible"/>
-                                                        <Style.Triggers>
-                                                            <DataTrigger Binding="{Binding IconPath}" Value="{x:Null}">
-                                                                <Setter Property="Visibility" Value="Collapsed"/>
-                                                            </DataTrigger>
-                                                        </Style.Triggers>
-                                                    </Style>
-                                                </Image.Style>
-                                            </Image>
-                                            <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
-                                        </StackPanel>
-                                    </DataTemplate>
-                                </ComboBox.ItemTemplate>
-                            </ComboBox>
-                        </StackPanel>
-
-                        <Button Grid.Column="1" 
-                                Content="Copy Folder Tree"
-                                Command="{Binding CopyFolderTreeCommand}"
-                                VerticalAlignment="Bottom"
-                                Margin="15,0,0,0"
-                                Padding="10,5"/>
-                    </Grid>
-
-                    <StackPanel Grid.Row="1" Margin="0,10,0,0">
-                        <TextBlock Text="Copy to this tab:" Margin="0,0,0,2"/>
+                        <TextBlock Text="Copy to this tab:" Margin="0,10,0,2"/>
                         <ComboBox ItemsSource="{Binding AllTabs}"
                                   SelectedItem="{Binding SelectedDestinationTab}">
                             <ComboBox.ItemTemplate>
@@ -190,9 +188,28 @@
                                 </Style>
                             </ComboBox.ItemContainerStyle>
                         </ComboBox>
+
+                        <Button Content="Copy Folder Tree"
+                                Command="{Binding CopyFolderTreeCommand}"
+                                HorizontalAlignment="Left"
+                                Margin="0,15,0,0"/>
                     </StackPanel>
-                </Grid>
-            </GroupBox>
+                </GroupBox>
+
+                <GroupBox Header="Ignore folders" Margin="5" Padding="10">
+                    <DockPanel>
+                        <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Margin="0,10,0,0">
+                            <Button Content="Edit folders" Command="{Binding EditIgnoredFoldersCommand}" Margin="0,0,5,0"/>
+                        </StackPanel>
+
+                        <Border BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="4" Background="{StaticResource TextBoxBackgroundBrush}">
+                            <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="5">
+                                <TextBlock Text="{Binding IgnoredFoldersText}" TextWrapping="Wrap" Foreground="{StaticResource GrayTextBrush}"/>
+                            </ScrollViewer>
+                        </Border>
+                    </DockPanel>
+                </GroupBox>
+            </DockPanel>
         </Grid>
 
         <TextBlock Grid.Row="1" Text="{Binding Version, StringFormat='Version {0}'}"
@@ -203,3 +220,4 @@
                    Margin="10"/>
     </Grid>
 </UserControl>
+

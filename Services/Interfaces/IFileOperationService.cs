@@ -9,7 +9,5 @@ namespace FileCraft.Services.Interfaces
         Task<string> ExportFolderContentsAsync(string destinationPath, IEnumerable<string> includedFolderPaths, string outputFileName, IEnumerable<string> selectedColumns);
 
         Task<string> ExportSelectedFileContentsAsync(string destinationPath, IEnumerable<SelectableFile> selectedFiles, string outputFileName);
-
-        Task<string> RenameFilesAsync(string sourcePath, string destinationPath, string outputFileName, bool appendTimestamp, bool includeFolders);
     }
 }

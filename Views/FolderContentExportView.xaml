@@ -40,8 +40,8 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
-                    <Border BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1" Padding="4,2">
-                        <Grid>
+                    <StackPanel>
+                        <Grid Margin="4,2">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="*"/>
@@ -49,7 +49,8 @@
                             <CheckBox Grid.Column="0" IsChecked="{Binding AreAllColumnsSelected}" IsThreeState="True" VerticalAlignment="Center"/>
                             <TextBlock Grid.Column="1" Text="Select all" FontWeight="SemiBold" Margin="5,0,0,0" VerticalAlignment="Center"/>
                         </Grid>
-                    </Border>
+                        <Separator/>
+                    </StackPanel>
                     <ListView Grid.Row="1" ItemsSource="{Binding AvailableColumns}" BorderThickness="0"
                               ItemContainerStyle="{StaticResource SharedListViewItemStyle}"
                               ScrollViewer.HorizontalScrollBarVisibility="Disabled">

@@ -38,7 +38,15 @@ namespace FileCraft
                     {
                         return;
                     }
-                    clickedElement = VisualTreeHelper.GetParent(clickedElement);
+
+                    if (clickedElement is Visual)
+                    {
+                        clickedElement = VisualTreeHelper.GetParent(clickedElement);
+                    }
+                    else
+                    {
+                        break;
+                    }
                 }
 
                 var focusedElement = Keyboard.FocusedElement as UIElement;

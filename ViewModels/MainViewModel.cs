@@ -34,6 +34,7 @@ namespace FileCraft.ViewModels
 
         public bool CanUndo => _undoService.CanUndo;
         public bool CanRedo => _undoService.CanRedo;
+        public bool CanClearPaths => !string.IsNullOrWhiteSpace(SourcePath) || !string.IsNullOrWhiteSpace(DestinationPath);
 
         public string SourcePath => _sharedStateService.SourcePath;
         public string DestinationPath => _sharedStateService.DestinationPath;
@@ -55,7 +56,6 @@ namespace FileCraft.ViewModels
         public FileContentExportViewModel FileContentExportVM { get; }
         public TreeGeneratorViewModel TreeGeneratorVM { get; }
         public FolderContentExportViewModel FolderContentExportVM { get; }
-        public FileRenamerViewModel FileRenamerVM { get; }
         public OptionsViewModel OptionsVM { get; }
 
         public ICommand ClearPathsCommand { get; }
@@ -73,7 +73,6 @@ namespace FileCraft.ViewModels
             FileContentExportViewModel fileContentExportVM,
             TreeGeneratorViewModel treeGeneratorVM,
             FolderContentExportViewModel folderContentExportVM,
-            FileRenamerViewModel fileRenamerVM,
             OptionsViewModel optionsVM)
         {
             _saveService = saveService;
@@ -84,18 +83,18 @@ namespace FileCraft.ViewModels
             FileContentExportVM = fileContentExportVM;
             TreeGeneratorVM = treeGeneratorVM;
             FolderContentExportVM = folderContentExportVM;
-            FileRenamerVM = fileRenamerVM;
             OptionsVM = optionsVM;
 
             SubscribeToChanges();
 
+            OptionsVM.IgnoredFoldersChanged += OnIgnoredFoldersChanged;
             OptionsVM.PresetSaveRequested += OnPresetSaveRequested;
             OptionsVM.PresetRenameRequested += OnPresetRenameRequested;
             OptionsVM.PresetLoadRequested += OnPresetLoadRequested;
             OptionsVM.PresetDeleteRequested += OnPresetDeleteRequested;
             OptionsVM.CurrentSaveDeleteRequested += OnCurrentSaveDeleteRequested;
 
-            ClearPathsCommand = new RelayCommand(_ => ClearPaths());
+            ClearPathsCommand = new RelayCommand(_ => ClearPaths(), _ => CanClearPaths);
             SelectSourcePathCommand = new RelayCommand(_ => SelectPath(isSource: true));
             SelectDestinationPathCommand = new RelayCommand(_ => SelectPath(isSource: false));
             SaveCommand = new RelayCommand(_ => Save(), _ => HasUnsavedChanges);
@@ -106,12 +105,18 @@ namespace FileCraft.ViewModels
             HasUnsavedChanges = false;
         }
 
+        private void OnIgnoredFoldersChanged()
+        {
+            FileContentExportVM.FolderTreeManager.RefreshTree();
+            TreeGeneratorVM.FolderTreeManager.RefreshTree();
+            FolderContentExportVM.FolderTreeManager.RefreshTree();
+        }
+
         private void SubscribeToChanges()
         {
             FileContentExportVM.StateChanging += OnStateChanging;
             TreeGeneratorVM.StateChanging += OnStateChanging;
             FolderContentExportVM.StateChanging += OnStateChanging;
-            FileRenamerVM.StateChanging += OnStateChanging;
             OptionsVM.StateChanging += OnStateChanging;
 
             _undoService.HistoryChanged += OnHistoryChanged;
@@ -164,6 +169,7 @@ namespace FileCraft.ViewModels
                     _sharedStateService.DestinationPath = selectedPath;
                 }
                 OnPropertyChanged(isSource ? nameof(SourcePath) : nameof(DestinationPath));
+                OnPropertyChanged(nameof(CanClearPaths));
             }
         }
 
@@ -172,8 +178,14 @@ namespace FileCraft.ViewModels
             OnStateChanging();
             _sharedStateService.SourcePath = string.Empty;
             _sharedStateService.DestinationPath = string.Empty;
+
+            FileContentExportVM.FolderTreeManager.LoadTreeForPath(string.Empty);
+            TreeGeneratorVM.FolderTreeManager.LoadTreeForPath(string.Empty);
+            FolderContentExportVM.FolderTreeManager.LoadTreeForPath(string.Empty);
+
             OnPropertyChanged(nameof(SourcePath));
             OnPropertyChanged(nameof(DestinationPath));
+            OnPropertyChanged(nameof(CanClearPaths));
         }
 
         private void LoadData()
@@ -198,7 +210,6 @@ namespace FileCraft.ViewModels
                 FileContentExport = saveData.FileContentExport,
                 FolderContentExport = saveData.FolderContentExport,
                 TreeGenerator = saveData.TreeGenerator,
-                FileRenamer = saveData.FileRenamer,
                 SettingsPage = saveData.SettingsPage
             };
 
@@ -259,7 +270,10 @@ namespace FileCraft.ViewModels
                     AppendTimestamp = TreeGeneratorVM.AppendTimestamp,
                     FolderTreeState = TreeGeneratorVM.FolderTreeManager.GetFolderStates()
                 },
-                FileRenamer = FileRenamerVM.GetSettings()
+                SettingsPage = new SettingsPageSettings
+                {
+                    IgnoredFolders = _sharedStateService.IgnoredFolders
+                }
             };
         }
 
@@ -268,8 +282,11 @@ namespace FileCraft.ViewModels
             _isLoading = true;
             _sharedStateService.SourcePath = saveData.SourcePath;
             _sharedStateService.DestinationPath = saveData.DestinationPath;
+            _sharedStateService.IgnoredFolders = saveData.SettingsPage.IgnoredFolders ?? new();
+
             OnPropertyChanged(nameof(SourcePath));
             OnPropertyChanged(nameof(DestinationPath));
+            OnPropertyChanged(nameof(CanClearPaths));
 
             FileContentExportVM.FolderTreeManager.LoadTreeForPath(SourcePath, saveData.FileContentExport.FolderTreeState);
             FileContentExportVM.ApplySettings(saveData.FileContentExport);
@@ -280,8 +297,6 @@ namespace FileCraft.ViewModels
             TreeGeneratorVM.FolderTreeManager.LoadTreeForPath(SourcePath, saveData.TreeGenerator.FolderTreeState);
             TreeGeneratorVM.OutputFileName = saveData.TreeGenerator.OutputFileName;
             TreeGeneratorVM.AppendTimestamp = saveData.TreeGenerator.AppendTimestamp;
-
-            FileRenamerVM.ApplySettings(saveData.FileRenamer);
 
             SelectedTabIndex = saveData.SelectedTabIndex;
             _isLoading = false;
@@ -321,7 +336,6 @@ namespace FileCraft.ViewModels
 
             try
             {
-                OnStateChanging();
                 var currentSaveData = GetCurrentSaveData();
                 currentSaveData.PresetName = presetName;
 
@@ -340,7 +354,6 @@ namespace FileCraft.ViewModels
         {
             try
             {
-                OnStateChanging();
                 _saveService.UpdatePresetName(presetNumber, newName);
                 OptionsVM.CheckForExistingPresets();
                 _dialogService.ShowNotification("Success", $"Preset ({presetNumber}) renamed to '{newName}'.", DialogIconType.Success);
@@ -404,7 +417,6 @@ namespace FileCraft.ViewModels
 
             if (confirmed)
             {
-                OnStateChanging();
                 try
                 {
                     _saveService.DeletePreset(presetNumber);
@@ -483,3 +495,4 @@ namespace FileCraft.ViewModels
         }
     }
 }
+
