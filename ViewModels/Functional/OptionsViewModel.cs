@@ -82,9 +82,9 @@ namespace FileCraft.ViewModels.Functional
         private readonly ISaveService _saveService;
         private readonly IDialogService _dialogService;
         private readonly ISharedStateService _sharedStateService;
-        private List<string> _ignoredFolders = new();
         public string Version => "v2.0.0";
 
+        public event Action? IgnoredFoldersChanged;
         public event Action<int>? PresetSaveRequested;
         public event Action<int, string>? PresetRenameRequested;
         public event Action<int>? PresetLoadRequested;
@@ -99,7 +99,6 @@ namespace FileCraft.ViewModels.Functional
         public ICommand OpenSaveFolderCommand { get; }
         public ICommand CopyFolderTreeCommand { get; }
         public ICommand EditIgnoredFoldersCommand { get; }
-        public ICommand RefreshIgnoredFoldersCommand { get; }
 
         public ObservableCollection<PresetSlotViewModel> PresetSlots { get; } = new();
         public ObservableCollection<TabItemViewModel> AllTabs { get; } = new();
@@ -173,6 +172,13 @@ namespace FileCraft.ViewModels.Functional
             _saveService = saveService;
             _dialogService = dialogService;
             _sharedStateService = sharedStateService;
+            _sharedStateService.PropertyChanged += (s, e) =>
+            {
+                if (e.PropertyName == nameof(ISharedStateService.IgnoredFolders))
+                {
+                    UpdateIgnoredFoldersText();
+                }
+            };
 
             SavePresetCommand = new RelayCommand(
                 execute: slot =>
@@ -224,8 +230,6 @@ namespace FileCraft.ViewModels.Functional
             OpenSaveFolderCommand = new RelayCommand(_ => OpenSaveFolder());
             CopyFolderTreeCommand = new RelayCommand(_ => CopyFolderTree(), _ => CanCopyFolderTree());
             EditIgnoredFoldersCommand = new RelayCommand(_ => EditIgnoredFolders());
-            RefreshIgnoredFoldersCommand = new RelayCommand(_ => UpdateIgnoredFoldersText());
-
 
             for (int i = 1; i <= 5; i++)
             {
@@ -244,41 +248,28 @@ namespace FileCraft.ViewModels.Functional
             UpdateIgnoredFoldersText();
         }
 
-        public void ApplySettings(SettingsPageSettings settings)
-        {
-            _ignoredFolders = settings.IgnoredFolders ?? new List<string>();
-            UpdateIgnoredFoldersText();
-        }
-
-        public SettingsPageSettings GetSettings()
-        {
-            return new SettingsPageSettings
-            {
-                IgnoredFolders = _ignoredFolders
-            };
-        }
-
         private void UpdateIgnoredFoldersText()
         {
-            if (_ignoredFolders == null || !_ignoredFolders.Any())
+            var ignoredFolders = _sharedStateService.IgnoredFolders;
+            if (ignoredFolders == null || !ignoredFolders.Any())
             {
                 IgnoredFoldersText = "No folders are ignored.";
             }
             else
             {
-                IgnoredFoldersText = string.Join(", ", _ignoredFolders);
+                IgnoredFoldersText = string.Join(", ", ignoredFolders);
             }
         }
 
         private void EditIgnoredFolders()
         {
             OnStateChanging();
-            string currentFoldersText = string.Join(", ", _ignoredFolders);
+            string currentFoldersText = string.Join(", ", _sharedStateService.IgnoredFolders);
             string? newFoldersText = _dialogService.ShowEditIgnoredFoldersDialog(currentFoldersText);
 
             if (newFoldersText != null)
             {
-                _ignoredFolders = newFoldersText
+                _sharedStateService.IgnoredFolders = newFoldersText
                     .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
                     .Select(line => line.Trim())
                     .Where(line => !string.IsNullOrWhiteSpace(line))
@@ -286,7 +277,7 @@ namespace FileCraft.ViewModels.Functional
                     .OrderBy(name => name)
                     .ToList();
 
-                UpdateIgnoredFoldersText();
+                IgnoredFoldersChanged?.Invoke();
             }
         }
 

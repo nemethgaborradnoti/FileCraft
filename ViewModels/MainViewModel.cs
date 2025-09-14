@@ -86,6 +86,7 @@ namespace FileCraft.ViewModels
 
             SubscribeToChanges();
 
+            OptionsVM.IgnoredFoldersChanged += OnIgnoredFoldersChanged;
             OptionsVM.PresetSaveRequested += OnPresetSaveRequested;
             OptionsVM.PresetRenameRequested += OnPresetRenameRequested;
             OptionsVM.PresetLoadRequested += OnPresetLoadRequested;
@@ -101,6 +102,13 @@ namespace FileCraft.ViewModels
 
             LoadData();
             HasUnsavedChanges = false;
+        }
+
+        private void OnIgnoredFoldersChanged()
+        {
+            FileContentExportVM.FolderTreeManager.RefreshTree();
+            TreeGeneratorVM.FolderTreeManager.RefreshTree();
+            FolderContentExportVM.FolderTreeManager.RefreshTree();
         }
 
         private void SubscribeToChanges()
@@ -254,7 +262,10 @@ namespace FileCraft.ViewModels
                     AppendTimestamp = TreeGeneratorVM.AppendTimestamp,
                     FolderTreeState = TreeGeneratorVM.FolderTreeManager.GetFolderStates()
                 },
-                SettingsPage = OptionsVM.GetSettings()
+                SettingsPage = new SettingsPageSettings
+                {
+                    IgnoredFolders = _sharedStateService.IgnoredFolders
+                }
             };
         }
 
@@ -263,6 +274,8 @@ namespace FileCraft.ViewModels
             _isLoading = true;
             _sharedStateService.SourcePath = saveData.SourcePath;
             _sharedStateService.DestinationPath = saveData.DestinationPath;
+            _sharedStateService.IgnoredFolders = saveData.SettingsPage.IgnoredFolders ?? new();
+
             OnPropertyChanged(nameof(SourcePath));
             OnPropertyChanged(nameof(DestinationPath));
 
@@ -275,8 +288,6 @@ namespace FileCraft.ViewModels
             TreeGeneratorVM.FolderTreeManager.LoadTreeForPath(SourcePath, saveData.TreeGenerator.FolderTreeState);
             TreeGeneratorVM.OutputFileName = saveData.TreeGenerator.OutputFileName;
             TreeGeneratorVM.AppendTimestamp = saveData.TreeGenerator.AppendTimestamp;
-
-            OptionsVM.ApplySettings(saveData.SettingsPage);
 
             SelectedTabIndex = saveData.SelectedTabIndex;
             _isLoading = false;
@@ -475,3 +486,4 @@ namespace FileCraft.ViewModels
         }
     }
 }
+

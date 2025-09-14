@@ -10,6 +10,7 @@ namespace FileCraft.ViewModels.Shared
     public class FolderTreeManager : BaseViewModel
     {
         private readonly IFolderTreeService _folderTreeService;
+        private readonly ISharedStateService _sharedStateService;
         private string _currentSourcePath = string.Empty;
 
         public event Action? FolderSelectionChanged;
@@ -25,9 +26,18 @@ namespace FileCraft.ViewModels.Shared
             }
         }
 
-        public FolderTreeManager(IFolderTreeService folderTreeService)
+        public FolderTreeManager(IFolderTreeService folderTreeService, ISharedStateService sharedStateService)
         {
             _folderTreeService = folderTreeService;
+            _sharedStateService = sharedStateService;
+        }
+
+        public void RefreshTree()
+        {
+            if (!string.IsNullOrWhiteSpace(_currentSourcePath))
+            {
+                LoadTreeForPath(_currentSourcePath);
+            }
         }
 
         public void LoadTreeForPath(string sourcePath, List<FolderState>? folderState = null)
@@ -39,10 +49,10 @@ namespace FileCraft.ViewModels.Shared
                 return;
             }
 
-            if (sourcePath == _currentSourcePath && folderState == null) return;
             _currentSourcePath = sourcePath;
 
-            var newTree = _folderTreeService.BuildFolderTree(sourcePath, HandleFolderStateChange, OnStateChanging);
+            var ignoredFoldersSet = new HashSet<string>(_sharedStateService.IgnoredFolders, StringComparer.OrdinalIgnoreCase);
+            var newTree = _folderTreeService.BuildFolderTree(sourcePath, ignoredFoldersSet, HandleFolderStateChange, OnStateChanging);
 
             if (folderState != null && newTree.Any())
             {
@@ -111,3 +121,4 @@ namespace FileCraft.ViewModels.Shared
         }
     }
 }
+
