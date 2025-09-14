@@ -220,7 +220,8 @@
                                     BorderBrush="{StaticResource BorderBrush}"
                                     BorderThickness="1"
                                     CornerRadius="4"
-                                    MaxHeight="{TemplateBinding MaxDropDownHeight}">
+                                    MaxHeight="{TemplateBinding MaxDropDownHeight}"
+                                    MinWidth="{Binding Path=ActualWidth, RelativeSource={RelativeSource TemplatedParent}}">
                                 <ScrollViewer x:Name="DropDownScrollViewer">
                                     <ItemsPresenter x:Name="ItemsPresenter" KeyboardNavigation.DirectionalNavigation="Contained" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
                                 </ScrollViewer>
@@ -270,5 +271,3 @@
     </Style>
 
 </ResourceDictionary>
-
-
