@@ -24,63 +24,70 @@
                     <ItemsControl ItemsSource="{Binding PresetSlots}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Grid Margin="0,10">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
+                                <StackPanel>
+                                    <Grid Margin="0,8,0,2">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
 
-                                    <Button Grid.Column="0"
-                                            Content="Save"
-                                            Style="{StaticResource SuccessButton}"
-                                            ToolTip="Save current settings to this preset"
-                                            Command="{Binding DataContext.SavePresetCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                            CommandParameter="{Binding}"
-                                            Width="50" Height="28"/>
+                                        <Button Grid.Column="0"
+                                                Content="Save"
+                                                Style="{StaticResource SuccessButton}"
+                                                ToolTip="Save current settings to this preset"
+                                                Command="{Binding DataContext.SavePresetCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                CommandParameter="{Binding}"
+                                                Width="50" Height="32"/>
 
-                                    <TextBlock Grid.Column="1" Text="{Binding PresetName}" VerticalAlignment="Center" Margin="5, 0" ToolTip="{Binding PresetName}">
-                                        <TextBlock.Style>
-                                            <Style TargetType="TextBlock">
-                                                <Setter Property="FontStyle" Value="Italic"/>
-                                                <Setter Property="FontWeight" Value="Normal"/>
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding Exists}" Value="True">
-                                                        <Setter Property="FontStyle" Value="Normal"/>
-                                                        <Setter Property="FontWeight" Value="Bold"/>
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </TextBlock.Style>
-                                    </TextBlock>
+                                        <TextBlock Grid.Column="1" Text="{Binding PresetName}" VerticalAlignment="Center" Margin="10, 0" ToolTip="{Binding PresetName}">
+                                            <TextBlock.InputBindings>
+                                                <MouseBinding MouseAction="LeftClick"
+                                                              Command="{Binding DataContext.EditPresetCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                              CommandParameter="{Binding}"/>
+                                            </TextBlock.InputBindings>
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="FontStyle" Value="Italic"/>
+                                                    <Setter Property="FontWeight" Value="Normal"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding Exists}" Value="True">
+                                                            <Setter Property="FontStyle" Value="Normal"/>
+                                                            <Setter Property="FontWeight" Value="Bold"/>
+                                                            <Setter Property="Cursor" Value="Hand"/>
+                                                        </DataTrigger>
+                                                        <MultiDataTrigger>
+                                                            <MultiDataTrigger.Conditions>
+                                                                <Condition Binding="{Binding IsMouseOver, RelativeSource={RelativeSource Self}}" Value="True" />
+                                                                <Condition Binding="{Binding Exists}" Value="True" />
+                                                            </MultiDataTrigger.Conditions>
+                                                            <Setter Property="TextDecorations" Value="Underline"/>
+                                                        </MultiDataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
 
-                                    <Button Grid.Column="2"
-                                            Style="{StaticResource BorderlessIconButton}"
-                                            ToolTip="Edit preset name"
-                                            Command="{Binding DataContext.EditPresetCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                            CommandParameter="{Binding}"
-                                            IsEnabled="{Binding Exists}">
-                                        <Image Source="/Resources/edit01.png" />
-                                    </Button>
+                                        <Button Grid.Column="2"
+                                                Content="Load"
+                                                Command="{Binding DataContext.LoadPresetCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                CommandParameter="{Binding}"
+                                                IsEnabled="{Binding Exists}"
+                                                Width="50" Height="32" Margin="5,0,0,0"/>
 
-                                    <Button Grid.Column="3"
-                                            Style="{StaticResource BorderlessIconButton}"
-                                            ToolTip="Delete this preset"
-                                            Command="{Binding DataContext.DeletePresetCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                            CommandParameter="{Binding}"
-                                            IsEnabled="{Binding Exists}">
-                                        <Image Source="/Resources/delete01.png" />
-                                    </Button>
-
-                                    <Button Grid.Column="4"
-                                            Content="Load"
-                                            Command="{Binding DataContext.LoadPresetCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                            CommandParameter="{Binding}"
-                                            IsEnabled="{Binding Exists}"
-                                            Width="50" Height="28" Margin="5,0,0,0"/>
-                                </Grid>
+                                        <Button Grid.Column="3"
+                                                Style="{StaticResource BorderlessIconButton}"
+                                                ToolTip="Delete this preset"
+                                                Command="{Binding DataContext.DeletePresetCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                CommandParameter="{Binding}"
+                                                IsEnabled="{Binding Exists}"
+                                                Width="32" Height="32" Margin="5,0,0,0">
+                                            <Image Source="/Resources/delete01.png" />
+                                        </Button>
+                                    </Grid>
+                                    <Separator/>
+                                </StackPanel>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
