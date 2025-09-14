@@ -36,7 +36,8 @@ namespace FileCraft.ViewModels.Shared
         {
             if (!string.IsNullOrWhiteSpace(_currentSourcePath))
             {
-                LoadTreeForPath(_currentSourcePath);
+                var currentState = GetFolderStates();
+                LoadTreeForPath(_currentSourcePath, currentState);
             }
         }
 
@@ -46,6 +47,11 @@ namespace FileCraft.ViewModels.Shared
             {
                 RootFolders = new ObservableCollection<FolderViewModel>();
                 _currentSourcePath = string.Empty;
+                return;
+            }
+
+            if (sourcePath == _currentSourcePath && folderState == null)
+            {
                 return;
             }
 
