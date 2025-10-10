@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
+using System.Text;
 using System.Windows.Input;
 using Timer = System.Threading.Timer;
 
@@ -398,8 +399,21 @@ namespace FileCraft.ViewModels.Functional
                 }
 
                 string finalFileName = GetFinalFileName(OutputFileName, AppendTimestamp);
-                string outputFilePath = await _fileOperationService.ExportSelectedFileContentsAsync(_sharedStateService.DestinationPath, selectedFiles, finalFileName);
-                _dialogService.ShowNotification("Success", $"File contents exported successfully!\n\n{selectedFiles.Count} files were processed.\nSaved to: {outputFilePath}", DialogIconType.Success);
+                var (outputFilePath, ignoredLines, ignoredChars) = await _fileOperationService.ExportSelectedFileContentsAsync(_sharedStateService.DestinationPath, selectedFiles, finalFileName);
+
+                var notificationMessage = new StringBuilder();
+                notificationMessage.AppendLine("File contents exported successfully!");
+                notificationMessage.AppendLine();
+                notificationMessage.AppendLine($"{selectedFiles.Count} files were processed.");
+
+                if (ignoredLines > 0)
+                {
+                    notificationMessage.AppendLine($"Ignored {ignoredLines} comment lines ({ignoredChars} characters).");
+                }
+
+                notificationMessage.AppendLine($"Saved to: {outputFilePath}");
+
+                _dialogService.ShowNotification("Success", notificationMessage.ToString(), DialogIconType.Success);
             }
             catch (Exception ex)
             {
@@ -412,4 +426,3 @@ namespace FileCraft.ViewModels.Functional
         }
     }
 }
-

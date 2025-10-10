@@ -126,7 +126,7 @@ namespace FileCraft.Services
             }
         }
 
-        public async Task<string> ExportSelectedFileContentsAsync(string destinationPath, IEnumerable<SelectableFile> selectedFiles, string outputFileName)
+        public async Task<(string FilePath, int IgnoredLines, int IgnoredChars)> ExportSelectedFileContentsAsync(string destinationPath, IEnumerable<SelectableFile> selectedFiles, string outputFileName)
         {
             Guard.AgainstNullOrWhiteSpace(destinationPath, nameof(destinationPath));
             Guard.AgainstNullOrWhiteSpace(outputFileName, nameof(outputFileName));
@@ -134,17 +134,57 @@ namespace FileCraft.Services
 
             var contentBuilder = new StringBuilder();
             var selectedFilesList = selectedFiles.ToList();
+            int totalIgnoredLines = 0;
+            int totalIgnoredChars = 0;
 
             for (int i = 0; i < selectedFilesList.Count; i++)
             {
                 var file = selectedFilesList[i];
                 try
                 {
-                    string fileContent = await File.ReadAllTextAsync(file.FullPath);
-
                     contentBuilder.AppendLine($"=== {file.RelativePath} file contains:");
                     contentBuilder.AppendLine();
-                    contentBuilder.AppendLine(fileContent);
+
+                    var lines = await File.ReadAllLinesAsync(file.FullPath);
+
+                    foreach (var line in lines)
+                    {
+                        int commentIndex = line.IndexOf("//");
+                        string finalLine = line;
+                        bool commentFoundAndRemoved = false;
+
+                        while (commentIndex != -1)
+                        {
+                            if (commentIndex > 0 && line[commentIndex - 1] == ':')
+                            {
+                                commentIndex = line.IndexOf("//", commentIndex + 1);
+                            }
+                            else
+                            {
+                                string codePart = line.Substring(0, commentIndex);
+                                string commentPart = line.Substring(commentIndex);
+
+                                totalIgnoredChars += commentPart.Length;
+                                commentFoundAndRemoved = true;
+                                finalLine = codePart;
+                                break;
+                            }
+                        }
+
+                        if (commentFoundAndRemoved)
+                        {
+                            totalIgnoredLines++;
+                        }
+
+                        if (string.IsNullOrWhiteSpace(finalLine) && commentFoundAndRemoved)
+                        {
+                            continue;
+                        }
+                        else
+                        {
+                            contentBuilder.AppendLine(finalLine.TrimEnd());
+                        }
+                    }
 
                     if (i < selectedFilesList.Count - 1)
                     {
@@ -161,8 +201,7 @@ namespace FileCraft.Services
 
             string outputFilePath = Path.Combine(destinationPath, $"{outputFileName}.txt");
             await File.WriteAllTextAsync(outputFilePath, contentBuilder.ToString());
-
-            return outputFilePath;
+            return (outputFilePath, totalIgnoredLines, totalIgnoredChars);
         }
     }
 }
