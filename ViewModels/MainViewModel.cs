@@ -272,7 +272,9 @@ namespace FileCraft.ViewModels
                 },
                 SettingsPage = new SettingsPageSettings
                 {
-                    IgnoredFolders = _sharedStateService.IgnoredFolders
+                    IgnoredFolders = _sharedStateService.IgnoredFolders,
+                    IgnoreNormalComments = _sharedStateService.IgnoreNormalComments,
+                    IgnoreXmlComments = _sharedStateService.IgnoreXmlComments
                 }
             };
         }
@@ -283,6 +285,8 @@ namespace FileCraft.ViewModels
             _sharedStateService.SourcePath = saveData.SourcePath;
             _sharedStateService.DestinationPath = saveData.DestinationPath;
             _sharedStateService.IgnoredFolders = saveData.SettingsPage.IgnoredFolders ?? new();
+            _sharedStateService.IgnoreNormalComments = saveData.SettingsPage.IgnoreNormalComments;
+            _sharedStateService.IgnoreXmlComments = saveData.SettingsPage.IgnoreXmlComments;
 
             OnPropertyChanged(nameof(SourcePath));
             OnPropertyChanged(nameof(DestinationPath));
@@ -495,4 +499,3 @@ namespace FileCraft.ViewModels
         }
     }
 }
-

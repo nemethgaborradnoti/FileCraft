@@ -70,6 +70,20 @@ namespace FileCraft.ViewModels.Functional
             }
         }
 
+        private DateTime? _lastModified;
+        public DateTime? LastModified
+        {
+            get => _lastModified;
+            set
+            {
+                if (_lastModified != value)
+                {
+                    _lastModified = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
         public PresetSlotViewModel(int number)
         {
             PresetNumber = number;
@@ -82,7 +96,9 @@ namespace FileCraft.ViewModels.Functional
         private readonly ISaveService _saveService;
         private readonly IDialogService _dialogService;
         private readonly ISharedStateService _sharedStateService;
-        public string Version => "v2.1.0";
+        private readonly IFileOperationService _fileOperationService;
+        private readonly FileContentExportViewModel _fileContentExportVM;
+        public string Version => "v3.0.0";
 
         public event Action? IgnoredFoldersChanged;
         public event Action<int>? PresetSaveRequested;
@@ -99,6 +115,7 @@ namespace FileCraft.ViewModels.Functional
         public ICommand OpenSaveFolderCommand { get; }
         public ICommand CopyFolderTreeCommand { get; }
         public ICommand EditIgnoredFoldersCommand { get; }
+        public ICommand PreviewIgnoredCommentsCommand { get; }
 
         public ObservableCollection<PresetSlotViewModel> PresetSlots { get; } = new();
         public ObservableCollection<TabItemViewModel> AllTabs { get; } = new();
@@ -165,6 +182,7 @@ namespace FileCraft.ViewModels.Functional
             ISaveService saveService,
             IDialogService dialogService,
             ISharedStateService sharedStateService,
+            IFileOperationService fileOperationService,
             FileContentExportViewModel fileContentExportVM,
             TreeGeneratorViewModel treeGeneratorVM,
             FolderContentExportViewModel folderContentExportVM)
@@ -172,6 +190,8 @@ namespace FileCraft.ViewModels.Functional
             _saveService = saveService;
             _dialogService = dialogService;
             _sharedStateService = sharedStateService;
+            _fileOperationService = fileOperationService;
+            _fileContentExportVM = fileContentExportVM;
             _sharedStateService.PropertyChanged += (s, e) =>
             {
                 if (e.PropertyName == nameof(ISharedStateService.IgnoredFolders))
@@ -230,6 +250,7 @@ namespace FileCraft.ViewModels.Functional
             OpenSaveFolderCommand = new RelayCommand(_ => OpenSaveFolder());
             CopyFolderTreeCommand = new RelayCommand(_ => CopyFolderTree(), _ => CanCopyFolderTree());
             EditIgnoredFoldersCommand = new RelayCommand(_ => EditIgnoredFolders());
+            PreviewIgnoredCommentsCommand = new RelayCommand(async _ => await PreviewIgnoredComments(), _ => CanPreview());
 
             for (int i = 1; i <= 5; i++)
             {
@@ -246,6 +267,59 @@ namespace FileCraft.ViewModels.Functional
             SelectedDestinationTab = AllTabs[0];
 
             UpdateIgnoredFoldersText();
+        }
+
+        public bool IgnoreNormalComments
+        {
+            get => _sharedStateService.IgnoreNormalComments;
+            set
+            {
+                if (_sharedStateService.IgnoreNormalComments != value)
+                {
+                    OnStateChanging();
+                    _sharedStateService.IgnoreNormalComments = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        public bool IgnoreXmlComments
+        {
+            get => _sharedStateService.IgnoreXmlComments;
+            set
+            {
+                if (_sharedStateService.IgnoreXmlComments != value)
+                {
+                    OnStateChanging();
+                    _sharedStateService.IgnoreXmlComments = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private async Task PreviewIgnoredComments()
+        {
+            var selectedFiles = _fileContentExportVM.GetSelectedFiles();
+            if (!selectedFiles.Any())
+            {
+                _dialogService.ShowNotification("Info", "No files are selected in the 'File Content Export' tab.", DialogIconType.Info);
+                return;
+            }
+
+            try
+            {
+                string previewContent = await _fileOperationService.GetIgnoredCommentsPreviewAsync(selectedFiles, _sharedStateService.IgnoreNormalComments, _sharedStateService.IgnoreXmlComments);
+                _dialogService.ShowPreview("Ignored Comments Preview", previewContent);
+            }
+            catch (Exception ex)
+            {
+                _dialogService.ShowNotification("Error", $"An error occurred while generating the preview:\n{ex.Message}", DialogIconType.Error);
+            }
+        }
+
+        private bool CanPreview()
+        {
+            return _fileContentExportVM.SelectedFilesCount > 0 && (_sharedStateService.IgnoreNormalComments || _sharedStateService.IgnoreXmlComments);
         }
 
         private void UpdateIgnoredFoldersText()
@@ -351,6 +425,7 @@ namespace FileCraft.ViewModels.Functional
                 if (slot.Exists)
                 {
                     slot.PresetName = _saveService.GetPresetName(slot.PresetNumber);
+                    slot.LastModified = _saveService.GetPresetLastModifiedDate(slot.PresetNumber);
                     if (string.IsNullOrWhiteSpace(slot.PresetName))
                     {
                         slot.PresetName = "Unnamed Preset";
@@ -359,9 +434,9 @@ namespace FileCraft.ViewModels.Functional
                 else
                 {
                     slot.PresetName = "-- Empty --";
+                    slot.LastModified = null;
                 }
             }
         }
     }
 }
-

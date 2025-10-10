@@ -41,29 +41,48 @@
                                                 CommandParameter="{Binding}"
                                                 Width="50" Height="32"/>
 
-                                        <Border x:Name="PresetNameBorder" Grid.Column="1" Background="Transparent" CornerRadius="4" Margin="10,0" VerticalAlignment="Center">
-                                            <TextBlock Text="{Binding PresetName}" VerticalAlignment="Center" Padding="5,2" ToolTip="{Binding PresetName}">
-                                                <TextBlock.InputBindings>
-                                                    <MouseBinding MouseAction="LeftClick"
-                                                                  Command="{Binding DataContext.EditPresetCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                                  CommandParameter="{Binding}"/>
-                                                </TextBlock.InputBindings>
+                                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="10,0">
+                                            <Border x:Name="PresetNameBorder" Background="Transparent" CornerRadius="4" Padding="5,2">
+                                                <TextBlock Text="{Binding PresetName}" ToolTip="{Binding PresetName}">
+                                                    <TextBlock.InputBindings>
+                                                        <MouseBinding MouseAction="LeftClick"
+                                                                      Command="{Binding DataContext.EditPresetCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                                      CommandParameter="{Binding}"/>
+                                                    </TextBlock.InputBindings>
+                                                    <TextBlock.Style>
+                                                        <Style TargetType="TextBlock">
+                                                            <Setter Property="FontSize" Value="14"/>
+                                                            <Setter Property="FontStyle" Value="Italic"/>
+                                                            <Setter Property="FontWeight" Value="Normal"/>
+                                                            <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding Exists}" Value="True">
+                                                                    <Setter Property="FontStyle" Value="Normal"/>
+                                                                    <Setter Property="FontWeight" Value="Bold"/>
+                                                                    <Setter Property="Cursor" Value="Hand"/>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </TextBlock.Style>
+                                                </TextBlock>
+                                            </Border>
+                                            <TextBlock Text="{Binding LastModified, StringFormat='Last modified: {0:yyyy-MM-dd HH:mm}'}"
+                                                       FontStyle="Italic"
+                                                       FontSize="11"
+                                                       Foreground="{StaticResource GrayTextBrush}"
+                                                       Margin="5,0,0,0">
                                                 <TextBlock.Style>
                                                     <Style TargetType="TextBlock">
-                                                        <Setter Property="FontStyle" Value="Italic"/>
-                                                        <Setter Property="FontWeight" Value="Normal"/>
-                                                        <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
+                                                        <Setter Property="Visibility" Value="Collapsed"/>
                                                         <Style.Triggers>
                                                             <DataTrigger Binding="{Binding Exists}" Value="True">
-                                                                <Setter Property="FontStyle" Value="Normal"/>
-                                                                <Setter Property="FontWeight" Value="Bold"/>
-                                                                <Setter Property="Cursor" Value="Hand"/>
+                                                                <Setter Property="Visibility" Value="Visible"/>
                                                             </DataTrigger>
                                                         </Style.Triggers>
                                                     </Style>
                                                 </TextBlock.Style>
                                             </TextBlock>
-                                        </Border>
+                                        </StackPanel>
 
                                         <Button Grid.Column="2"
                                                 Content="Load"
@@ -133,8 +152,8 @@
                 </StackPanel>
             </GroupBox>
 
-            <DockPanel Grid.Column="1">
-                <GroupBox Header="Copy FolderTree content" Margin="5" Padding="10" DockPanel.Dock="Top">
+            <StackPanel Grid.Column="1">
+                <GroupBox Header="Copy FolderTree content" Margin="5" Padding="10">
                     <StackPanel>
                         <TextBlock Text="Copy from this Tab:" Margin="0,0,0,2"/>
                         <ComboBox ItemsSource="{Binding AllTabs}"
@@ -196,6 +215,14 @@
                     </StackPanel>
                 </GroupBox>
 
+                <GroupBox Header="File Content Export Settings" Margin="5" Padding="10">
+                    <StackPanel>
+                        <CheckBox Content="Ignore comments '//'" IsChecked="{Binding IgnoreNormalComments}" Margin="0,0,0,5"/>
+                        <CheckBox Content="Ignore comments '///'" IsChecked="{Binding IgnoreXmlComments}"/>
+                        <Button Content="Preview" Command="{Binding PreviewIgnoredCommentsCommand}" HorizontalAlignment="Left" Margin="0,10,0,0"/>
+                    </StackPanel>
+                </GroupBox>
+
                 <GroupBox Header="Ignore folders" Margin="5" Padding="10">
                     <DockPanel>
                         <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Margin="0,10,0,0">
@@ -209,7 +236,7 @@
                         </Border>
                     </DockPanel>
                 </GroupBox>
-            </DockPanel>
+            </StackPanel>
         </Grid>
 
         <TextBlock Grid.Row="1" Text="{Binding Version, StringFormat='Version {0}'}"
@@ -220,4 +247,3 @@
                    Margin="10"/>
     </Grid>
 </UserControl>
-

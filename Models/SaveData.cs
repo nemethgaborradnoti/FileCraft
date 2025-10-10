@@ -3,6 +3,7 @@
     public class SaveData
     {
         public string PresetName { get; set; } = string.Empty;
+        public DateTime? LastModified { get; set; }
         public string SourcePath { get; set; } = string.Empty;
         public string DestinationPath { get; set; } = string.Empty;
         public int SelectedTabIndex { get; set; } = 0;
@@ -51,6 +52,8 @@
 
     public class SettingsPageSettings
     {
-        public List<string> IgnoredFolders { get; set; } = new();
+        public List<string> IgnoredFolders { get; set; } = new() { "bin", "obj" };
+        public bool IgnoreNormalComments { get; set; } = false;
+        public bool IgnoreXmlComments { get; set; } = false;
     }
 }
