@@ -3,6 +3,7 @@
     public class SaveData
     {
         public string PresetName { get; set; } = string.Empty;
+        public DateTime? LastModified { get; set; }
         public string SourcePath { get; set; } = string.Empty;
         public string DestinationPath { get; set; } = string.Empty;
         public int SelectedTabIndex { get; set; } = 0;

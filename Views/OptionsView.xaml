@@ -41,29 +41,47 @@
                                                 CommandParameter="{Binding}"
                                                 Width="50" Height="32"/>
 
-                                        <Border x:Name="PresetNameBorder" Grid.Column="1" Background="Transparent" CornerRadius="4" Margin="10,0" VerticalAlignment="Center">
-                                            <TextBlock Text="{Binding PresetName}" VerticalAlignment="Center" Padding="5,2" ToolTip="{Binding PresetName}">
-                                                <TextBlock.InputBindings>
-                                                    <MouseBinding MouseAction="LeftClick"
-                                                                  Command="{Binding DataContext.EditPresetCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                                  CommandParameter="{Binding}"/>
-                                                </TextBlock.InputBindings>
+                                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="10,0">
+                                            <Border x:Name="PresetNameBorder" Background="Transparent" CornerRadius="4" Padding="5,2">
+                                                <TextBlock Text="{Binding PresetName}" ToolTip="{Binding PresetName}">
+                                                    <TextBlock.InputBindings>
+                                                        <MouseBinding MouseAction="LeftClick"
+                                                                      Command="{Binding DataContext.EditPresetCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                                      CommandParameter="{Binding}"/>
+                                                    </TextBlock.InputBindings>
+                                                    <TextBlock.Style>
+                                                        <Style TargetType="TextBlock">
+                                                            <Setter Property="FontStyle" Value="Italic"/>
+                                                            <Setter Property="FontWeight" Value="Normal"/>
+                                                            <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding Exists}" Value="True">
+                                                                    <Setter Property="FontStyle" Value="Normal"/>
+                                                                    <Setter Property="FontWeight" Value="Bold"/>
+                                                                    <Setter Property="Cursor" Value="Hand"/>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </TextBlock.Style>
+                                                </TextBlock>
+                                            </Border>
+                                            <TextBlock Text="{Binding LastModified, StringFormat='Last modified: {0:yyyy-MM-dd HH:mm}'}"
+                                                       FontStyle="Italic"
+                                                       FontSize="11"
+                                                       Foreground="{StaticResource GrayTextBrush}"
+                                                       Margin="5,0,0,0">
                                                 <TextBlock.Style>
                                                     <Style TargetType="TextBlock">
-                                                        <Setter Property="FontStyle" Value="Italic"/>
-                                                        <Setter Property="FontWeight" Value="Normal"/>
-                                                        <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
+                                                        <Setter Property="Visibility" Value="Collapsed"/>
                                                         <Style.Triggers>
                                                             <DataTrigger Binding="{Binding Exists}" Value="True">
-                                                                <Setter Property="FontStyle" Value="Normal"/>
-                                                                <Setter Property="FontWeight" Value="Bold"/>
-                                                                <Setter Property="Cursor" Value="Hand"/>
+                                                                <Setter Property="Visibility" Value="Visible"/>
                                                             </DataTrigger>
                                                         </Style.Triggers>
                                                     </Style>
                                                 </TextBlock.Style>
                                             </TextBlock>
-                                        </Border>
+                                        </StackPanel>
 
                                         <Button Grid.Column="2"
                                                 Content="Load"

@@ -70,6 +70,20 @@ namespace FileCraft.ViewModels.Functional
             }
         }
 
+        private DateTime? _lastModified;
+        public DateTime? LastModified
+        {
+            get => _lastModified;
+            set
+            {
+                if (_lastModified != value)
+                {
+                    _lastModified = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
         public PresetSlotViewModel(int number)
         {
             PresetNumber = number;
@@ -411,6 +425,7 @@ namespace FileCraft.ViewModels.Functional
                 if (slot.Exists)
                 {
                     slot.PresetName = _saveService.GetPresetName(slot.PresetNumber);
+                    slot.LastModified = _saveService.GetPresetLastModifiedDate(slot.PresetNumber);
                     if (string.IsNullOrWhiteSpace(slot.PresetName))
                     {
                         slot.PresetName = "Unnamed Preset";
@@ -419,6 +434,7 @@ namespace FileCraft.ViewModels.Functional
                 else
                 {
                     slot.PresetName = "-- Empty --";
+                    slot.LastModified = null;
                 }
             }
         }
