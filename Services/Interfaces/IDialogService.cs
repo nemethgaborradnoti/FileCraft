@@ -11,5 +11,6 @@ namespace FileCraft.Services.Interfaces
         ExitConfirmationResult ShowExitConfirmation(string title, string message);
         string? ShowRenamePresetDialog(string currentName, int presetNumber);
         string? ShowEditIgnoredFoldersDialog(string currentFolders);
+        void ShowPreview(string title, string content);
     }
 }

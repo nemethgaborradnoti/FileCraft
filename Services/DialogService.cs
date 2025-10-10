@@ -87,6 +87,12 @@ namespace FileCraft.Services
             return null;
         }
 
+        public void ShowPreview(string title, string content)
+        {
+            var previewWindow = new PreviewWindow(title, content);
+            previewWindow.ShowDialog();
+        }
+
         private string GetIconPath(DialogIconType iconType)
         {
             return iconType switch

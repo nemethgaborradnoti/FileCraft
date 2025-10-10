@@ -50,6 +50,34 @@ namespace FileCraft.Services
             }
         }
 
+        private bool _ignoreNormalComments = true;
+        public bool IgnoreNormalComments
+        {
+            get => _ignoreNormalComments;
+            set
+            {
+                if (_ignoreNormalComments != value)
+                {
+                    _ignoreNormalComments = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private bool _ignoreXmlComments = true;
+        public bool IgnoreXmlComments
+        {
+            get => _ignoreXmlComments;
+            set
+            {
+                if (_ignoreXmlComments != value)
+                {
+                    _ignoreXmlComments = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
         protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));

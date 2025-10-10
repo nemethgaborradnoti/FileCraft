@@ -52,5 +52,7 @@
     public class SettingsPageSettings
     {
         public List<string> IgnoredFolders { get; set; } = new();
+        public bool IgnoreNormalComments { get; set; } = true;
+        public bool IgnoreXmlComments { get; set; } = true;
     }
 }
