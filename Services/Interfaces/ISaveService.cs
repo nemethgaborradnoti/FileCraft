@@ -10,6 +10,7 @@ namespace FileCraft.Services.Interfaces
         SaveData? LoadFromPreset(int presetNumber);
         bool CheckPresetExists(int presetNumber);
         string GetPresetName(int presetNumber);
+        DateTime? GetPresetLastModifiedDate(int presetNumber);
         void UpdatePresetName(int presetNumber, string newName);
         void DeletePreset(int presetNumber);
         void DeleteSaveData();

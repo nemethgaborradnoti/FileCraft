@@ -67,6 +67,7 @@ namespace FileCraft.Services
         public void SaveAsPreset(SaveData saveData, int presetNumber)
         {
             Guard.AgainstNull(saveData, nameof(saveData));
+            saveData.LastModified = DateTime.Now;
             string presetFilePath = GetPresetFilePath(presetNumber);
             try
             {
@@ -111,6 +112,12 @@ namespace FileCraft.Services
         {
             var presetData = LoadFromPreset(presetNumber);
             return presetData?.PresetName ?? string.Empty;
+        }
+
+        public DateTime? GetPresetLastModifiedDate(int presetNumber)
+        {
+            var presetData = LoadFromPreset(presetNumber);
+            return presetData?.LastModified;
         }
 
         public void UpdatePresetName(int presetNumber, string newName)
