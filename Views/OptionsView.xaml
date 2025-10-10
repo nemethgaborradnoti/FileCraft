@@ -133,8 +133,8 @@
                 </StackPanel>
             </GroupBox>
 
-            <DockPanel Grid.Column="1">
-                <GroupBox Header="Copy FolderTree content" Margin="5" Padding="10" DockPanel.Dock="Top">
+            <StackPanel Grid.Column="1">
+                <GroupBox Header="Copy FolderTree content" Margin="5" Padding="10">
                     <StackPanel>
                         <TextBlock Text="Copy from this Tab:" Margin="0,0,0,2"/>
                         <ComboBox ItemsSource="{Binding AllTabs}"
@@ -196,6 +196,13 @@
                     </StackPanel>
                 </GroupBox>
 
+                <GroupBox Header="File Content Export Settings" Margin="5" Padding="10">
+                    <StackPanel>
+                        <CheckBox Content="Ignore comments '//'" IsChecked="{Binding IgnoreNormalComments}" Margin="0,0,0,5"/>
+                        <CheckBox Content="Ignore comments '///'" IsChecked="{Binding IgnoreXmlComments}"/>
+                    </StackPanel>
+                </GroupBox>
+
                 <GroupBox Header="Ignore folders" Margin="5" Padding="10">
                     <DockPanel>
                         <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Margin="0,10,0,0">
@@ -209,7 +216,7 @@
                         </Border>
                     </DockPanel>
                 </GroupBox>
-            </DockPanel>
+            </StackPanel>
         </Grid>
 
         <TextBlock Grid.Row="1" Text="{Binding Version, StringFormat='Version {0}'}"
@@ -220,4 +227,3 @@
                    Margin="10"/>
     </Grid>
 </UserControl>
-

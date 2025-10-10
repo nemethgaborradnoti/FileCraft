@@ -126,7 +126,41 @@ namespace FileCraft.Services
             }
         }
 
-        public async Task<(string FilePath, int IgnoredLines, int IgnoredChars)> ExportSelectedFileContentsAsync(string destinationPath, IEnumerable<SelectableFile> selectedFiles, string outputFileName)
+        private int FindActualCommentIndex(string line)
+        {
+            bool inDoubleQuotes = false;
+            bool inSingleQuotes = false;
+
+            for (int i = 0; i < line.Length; i++)
+            {
+                char c = line[i];
+
+                if (c == '"' && (i == 0 || line[i - 1] != '\\'))
+                {
+                    inDoubleQuotes = !inDoubleQuotes;
+                }
+                else if (c == '\'' && (i == 0 || line[i - 1] != '\\'))
+                {
+                    inSingleQuotes = !inSingleQuotes;
+                }
+
+                if (!inDoubleQuotes && !inSingleQuotes)
+                {
+                    if (i + 1 < line.Length && line[i] == '/' && line[i + 1] == '/')
+                    {
+                        if (i > 0 && line[i - 1] == ':')
+                        {
+                            continue;
+                        }
+                        return i;
+                    }
+                }
+            }
+            return -1;
+        }
+
+
+        public async Task<(string FilePath, int NormalCommentLines, int NormalCommentChars, int XmlCommentLines, int XmlCommentChars)> ExportSelectedFileContentsAsync(string destinationPath, IEnumerable<SelectableFile> selectedFiles, string outputFileName, bool ignoreNormalComments, bool ignoreXmlComments)
         {
             Guard.AgainstNullOrWhiteSpace(destinationPath, nameof(destinationPath));
             Guard.AgainstNullOrWhiteSpace(outputFileName, nameof(outputFileName));
@@ -134,8 +168,10 @@ namespace FileCraft.Services
 
             var contentBuilder = new StringBuilder();
             var selectedFilesList = selectedFiles.ToList();
-            int totalIgnoredLines = 0;
-            int totalIgnoredChars = 0;
+            int totalNormalCommentLines = 0;
+            int totalNormalCommentChars = 0;
+            int totalXmlCommentLines = 0;
+            int totalXmlCommentChars = 0;
 
             for (int i = 0; i < selectedFilesList.Count; i++)
             {
@@ -149,34 +185,36 @@ namespace FileCraft.Services
 
                     foreach (var line in lines)
                     {
-                        int commentIndex = line.IndexOf("//");
                         string finalLine = line;
-                        bool commentFoundAndRemoved = false;
+                        bool commentRemoved = false;
 
-                        while (commentIndex != -1)
+                        int commentIndex = FindActualCommentIndex(line);
+
+                        if (commentIndex != -1)
                         {
-                            if (commentIndex > 0 && line[commentIndex - 1] == ':')
-                            {
-                                commentIndex = line.IndexOf("//", commentIndex + 1);
-                            }
-                            else
+                            bool isXmlComment = commentIndex + 2 < line.Length && line[commentIndex + 2] == '/';
+
+                            if (ignoreXmlComments && isXmlComment)
                             {
                                 string codePart = line.Substring(0, commentIndex);
                                 string commentPart = line.Substring(commentIndex);
-
-                                totalIgnoredChars += commentPart.Length;
-                                commentFoundAndRemoved = true;
+                                totalXmlCommentChars += commentPart.Length;
+                                totalXmlCommentLines++;
                                 finalLine = codePart;
-                                break;
+                                commentRemoved = true;
+                            }
+                            else if (ignoreNormalComments && !isXmlComment)
+                            {
+                                string codePart = line.Substring(0, commentIndex);
+                                string commentPart = line.Substring(commentIndex);
+                                totalNormalCommentChars += commentPart.Length;
+                                totalNormalCommentLines++;
+                                finalLine = codePart;
+                                commentRemoved = true;
                             }
                         }
 
-                        if (commentFoundAndRemoved)
-                        {
-                            totalIgnoredLines++;
-                        }
-
-                        if (string.IsNullOrWhiteSpace(finalLine) && commentFoundAndRemoved)
+                        if (commentRemoved && string.IsNullOrWhiteSpace(finalLine))
                         {
                             continue;
                         }
@@ -201,7 +239,7 @@ namespace FileCraft.Services
 
             string outputFilePath = Path.Combine(destinationPath, $"{outputFileName}.txt");
             await File.WriteAllTextAsync(outputFilePath, contentBuilder.ToString());
-            return (outputFilePath, totalIgnoredLines, totalIgnoredChars);
+            return (outputFilePath, totalNormalCommentLines, totalNormalCommentChars, totalXmlCommentLines, totalXmlCommentChars);
         }
     }
 }

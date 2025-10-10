@@ -399,18 +399,35 @@ namespace FileCraft.ViewModels.Functional
                 }
 
                 string finalFileName = GetFinalFileName(OutputFileName, AppendTimestamp);
-                var (outputFilePath, ignoredLines, ignoredChars) = await _fileOperationService.ExportSelectedFileContentsAsync(_sharedStateService.DestinationPath, selectedFiles, finalFileName);
+                var (outputFilePath, normalLines, normalChars, xmlLines, xmlChars) = await _fileOperationService.ExportSelectedFileContentsAsync(
+                    _sharedStateService.DestinationPath,
+                    selectedFiles,
+                    finalFileName,
+                    _sharedStateService.IgnoreNormalComments,
+                    _sharedStateService.IgnoreXmlComments);
 
                 var notificationMessage = new StringBuilder();
-                notificationMessage.AppendLine("File contents exported successfully!");
-                notificationMessage.AppendLine();
-                notificationMessage.AppendLine($"{selectedFiles.Count} files were processed.");
+                notificationMessage.AppendLine($"File contents exported successfully! ({selectedFiles.Count} files processed)");
 
-                if (ignoredLines > 0)
+                int totalIgnoredLines = normalLines + xmlLines;
+                int totalIgnoredChars = normalChars + xmlChars;
+
+                if (totalIgnoredLines > 0)
                 {
-                    notificationMessage.AppendLine($"Ignored {ignoredLines} comment lines ({ignoredChars} characters).");
+                    notificationMessage.AppendLine();
+                    notificationMessage.AppendLine("Ignored parts:");
+                    if (normalLines > 0)
+                    {
+                        notificationMessage.AppendLine($"\"//\" - {normalLines} lines ({normalChars} characters).");
+                    }
+                    if (xmlLines > 0)
+                    {
+                        notificationMessage.AppendLine($"\"///\" - {xmlLines} lines ({xmlChars} characters).");
+                    }
+                    notificationMessage.AppendLine($"Total: {totalIgnoredLines} lines ({totalIgnoredChars} characters).");
                 }
 
+                notificationMessage.AppendLine();
                 notificationMessage.AppendLine($"Saved to: {outputFilePath}");
 
                 _dialogService.ShowNotification("Success", notificationMessage.ToString(), DialogIconType.Success);

@@ -248,6 +248,34 @@ namespace FileCraft.ViewModels.Functional
             UpdateIgnoredFoldersText();
         }
 
+        public bool IgnoreNormalComments
+        {
+            get => _sharedStateService.IgnoreNormalComments;
+            set
+            {
+                if (_sharedStateService.IgnoreNormalComments != value)
+                {
+                    OnStateChanging();
+                    _sharedStateService.IgnoreNormalComments = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        public bool IgnoreXmlComments
+        {
+            get => _sharedStateService.IgnoreXmlComments;
+            set
+            {
+                if (_sharedStateService.IgnoreXmlComments != value)
+                {
+                    OnStateChanging();
+                    _sharedStateService.IgnoreXmlComments = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
         private void UpdateIgnoredFoldersText()
         {
             var ignoredFolders = _sharedStateService.IgnoredFolders;
@@ -364,4 +392,3 @@ namespace FileCraft.ViewModels.Functional
         }
     }
 }
-
