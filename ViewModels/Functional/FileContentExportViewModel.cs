@@ -17,6 +17,7 @@ namespace FileCraft.ViewModels.Functional
     public class FileContentExportViewModel : ExportViewModelBase
     {
         private readonly IFileQueryService _fileQueryService;
+        private readonly ISharedStateService _sharedStateService;
         private readonly Timer _debounceTimer;
         private string _searchFilter = string.Empty;
         private bool _isShowingOnlySelected;
@@ -145,6 +146,7 @@ namespace FileCraft.ViewModels.Functional
             : base(sharedStateService, fileOperationService, dialogService, folderTreeManager)
         {
             _fileQueryService = fileQueryService;
+            _sharedStateService = sharedStateService;
             _debounceTimer = new Timer(OnDebounceTimerElapsed, null, Timeout.Infinite, Timeout.Infinite);
 
             FolderTreeManager.PropertyChanged += OnFolderTreeManagerPropertyChanged;
@@ -193,6 +195,11 @@ namespace FileCraft.ViewModels.Functional
         public List<string> GetSelectedFilePaths()
         {
             return _allSelectableFiles.Where(f => f.IsSelected).Select(f => f.FullPath).ToList();
+        }
+
+        public List<SelectableFile> GetSelectedFiles()
+        {
+            return _allSelectableFiles.Where(f => f.IsSelected).ToList();
         }
 
         public List<string> GetSelectedExtensions()
@@ -399,36 +406,25 @@ namespace FileCraft.ViewModels.Functional
                 }
 
                 string finalFileName = GetFinalFileName(OutputFileName, AppendTimestamp);
+
                 var (outputFilePath, normalLines, normalChars, xmlLines, xmlChars) = await _fileOperationService.ExportSelectedFileContentsAsync(
-                    _sharedStateService.DestinationPath,
-                    selectedFiles,
-                    finalFileName,
-                    _sharedStateService.IgnoreNormalComments,
-                    _sharedStateService.IgnoreXmlComments);
+                    _sharedStateService.DestinationPath, selectedFiles, finalFileName, _sharedStateService.IgnoreNormalComments, _sharedStateService.IgnoreXmlComments);
 
                 var notificationMessage = new StringBuilder();
-                notificationMessage.AppendLine($"File contents exported successfully! ({selectedFiles.Count} files processed)");
+                notificationMessage.AppendLine($"File contents exported successfully! ({selectedFiles.Count} files)");
+                notificationMessage.AppendLine($"Saved to: {outputFilePath}");
 
-                int totalIgnoredLines = normalLines + xmlLines;
-                int totalIgnoredChars = normalChars + xmlChars;
-
-                if (totalIgnoredLines > 0)
+                if ((normalLines > 0 || xmlLines > 0))
                 {
                     notificationMessage.AppendLine();
                     notificationMessage.AppendLine("Ignored parts:");
                     if (normalLines > 0)
-                    {
                         notificationMessage.AppendLine($"\"//\" - {normalLines} lines ({normalChars} characters).");
-                    }
                     if (xmlLines > 0)
-                    {
                         notificationMessage.AppendLine($"\"///\" - {xmlLines} lines ({xmlChars} characters).");
-                    }
-                    notificationMessage.AppendLine($"Total: {totalIgnoredLines} lines ({totalIgnoredChars} characters).");
-                }
 
-                notificationMessage.AppendLine();
-                notificationMessage.AppendLine($"Saved to: {outputFilePath}");
+                    notificationMessage.AppendLine($"Total: {normalLines + xmlLines} lines ({normalChars + xmlChars} characters).");
+                }
 
                 _dialogService.ShowNotification("Success", notificationMessage.ToString(), DialogIconType.Success);
             }

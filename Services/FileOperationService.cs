@@ -241,5 +241,62 @@ namespace FileCraft.Services
             await File.WriteAllTextAsync(outputFilePath, contentBuilder.ToString());
             return (outputFilePath, totalNormalCommentLines, totalNormalCommentChars, totalXmlCommentLines, totalXmlCommentChars);
         }
+
+        public async Task<string> GetIgnoredCommentsPreviewAsync(IEnumerable<SelectableFile> selectedFiles, bool ignoreNormalComments, bool ignoreXmlComments)
+        {
+            Guard.AgainstNullOrEmpty(selectedFiles, nameof(selectedFiles), "No files were selected for preview.");
+
+            var previewBuilder = new StringBuilder();
+            var selectedFilesList = selectedFiles.ToList();
+
+            foreach (var file in selectedFilesList)
+            {
+                var fileComments = new List<string>();
+                try
+                {
+                    var lines = await File.ReadAllLinesAsync(file.FullPath);
+
+                    foreach (var line in lines)
+                    {
+                        int commentIndex = FindActualCommentIndex(line);
+
+                        if (commentIndex != -1)
+                        {
+                            bool isXmlComment = commentIndex + 2 < line.Length && line[commentIndex + 2] == '/';
+                            string commentPart = line.Substring(commentIndex);
+
+                            if ((ignoreXmlComments && isXmlComment) || (ignoreNormalComments && !isXmlComment))
+                            {
+                                fileComments.Add(line);
+                            }
+                        }
+                    }
+                }
+                catch (Exception)
+                {
+                }
+
+                if (fileComments.Any())
+                {
+                    if (previewBuilder.Length > 0)
+                    {
+                        previewBuilder.AppendLine();
+                        previewBuilder.AppendLine();
+                    }
+                    previewBuilder.AppendLine($"{file.RelativePath} ({fileComments.Count} lines)");
+                    foreach (var comment in fileComments)
+                    {
+                        previewBuilder.AppendLine(comment);
+                    }
+                }
+            }
+
+            if (previewBuilder.Length == 0)
+            {
+                return "No comments to ignore were found in the selected files based on the current settings.";
+            }
+
+            return previewBuilder.ToString();
+        }
     }
 }
