@@ -51,6 +51,7 @@
                                                     </TextBlock.InputBindings>
                                                     <TextBlock.Style>
                                                         <Style TargetType="TextBlock">
+                                                            <Setter Property="FontSize" Value="14"/>
                                                             <Setter Property="FontStyle" Value="Italic"/>
                                                             <Setter Property="FontWeight" Value="Normal"/>
                                                             <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
