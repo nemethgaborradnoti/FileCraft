@@ -1,13 +1,11 @@
 ﻿using FileCraft.Models;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Media.Imaging;
 using Application = System.Windows.Application;
 using FileCraft.ViewModels.Shared;
 
@@ -20,6 +18,7 @@ namespace FileCraft.Views.Shared
         private readonly Dictionary<string, SelectableFile> _allAvailableFilesLookup;
         public ObservableCollection<FoundFileViewModel> FilteredFoundFiles { get; } = new();
         private readonly List<FoundFileViewModel> _allFoundFileViewModelsCache = new();
+        private readonly string _infoIconPath;
 
         private bool? _areAllFoundFilesSelected = false;
         private bool _isUpdatingSelectAll = false;
@@ -42,7 +41,7 @@ namespace FileCraft.Views.Shared
             }
         }
 
-        public BulkSearchWindow(IEnumerable<SelectableFile> allFiles)
+        public BulkSearchWindow(IEnumerable<SelectableFile> allFiles, string infoIconPath)
         {
             InitializeComponent();
             Owner = Application.Current.MainWindow;
@@ -51,6 +50,7 @@ namespace FileCraft.Views.Shared
                 f => f.RelativePath,
                 f => f,
                 StringComparer.OrdinalIgnoreCase);
+            _infoIconPath = infoIconPath;
 
             InputTotalTextBlock.Text = "Total lines: 0";
             FoundTotalTextBlock.Text = "Total found: 0";
@@ -147,7 +147,7 @@ namespace FileCraft.Views.Shared
             {
                 ActionName = "Apply Bulk Search",
                 Message = "Apply bulk search changes?",
-                IconPath = (Application.Current.FindResource("IconInfo") as BitmapImage)?.UriSource.ToString() ?? string.Empty
+                IconPath = _infoIconPath
             };
             var confirmationWindow = new ConfirmationWindow(viewModel);
 
