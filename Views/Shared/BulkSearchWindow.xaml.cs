@@ -51,12 +51,16 @@ namespace FileCraft.Views.Shared
                 f => f.RelativePath,
                 f => f,
                 StringComparer.OrdinalIgnoreCase);
+
+            InputTotalTextBlock.Text = "Total lines: 0";
+            FoundTotalTextBlock.Text = "Total found: 0";
         }
 
         private void InputTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             var matchedFiles = new HashSet<SelectableFile>();
             var countBuilder = new StringBuilder();
+            int inputLinesWithMatches = 0;
 
             int lineCount = InputTextBox.LineCount;
             for (int i = 0; i < lineCount; i++)
@@ -78,10 +82,16 @@ namespace FileCraft.Views.Shared
                     }
                 }
 
+                if (count > 0)
+                {
+                    inputLinesWithMatches++;
+                }
+
                 countBuilder.AppendLine(count > 0 ? count.ToString() : string.Empty);
             }
 
             CountTextBlock.Text = countBuilder.ToString();
+            InputTotalTextBlock.Text = $"Total lines: {inputLinesWithMatches}";
 
             FilteredFoundFiles.Clear();
             foreach (var file in matchedFiles.OrderBy(f => f.RelativePath))
@@ -95,6 +105,7 @@ namespace FileCraft.Views.Shared
                 FilteredFoundFiles.Add(vm);
             }
 
+            FoundTotalTextBlock.Text = $"Total found: {FilteredFoundFiles.Count}";
             UpdateSelectAllState();
         }
 

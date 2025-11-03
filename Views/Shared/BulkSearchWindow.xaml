@@ -16,6 +16,7 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
         <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Text="Input Paths (one per line):" FontWeight="SemiBold" Margin="0,0,0,5"/>
@@ -99,8 +100,23 @@
             </Grid>
         </Border>
 
+        <Grid Grid.Row="2" Grid.ColumnSpan="3" Margin="5,5,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="0.05*"/>
+                <ColumnDefinition Width="0.475*"/>
+                <ColumnDefinition Width="0.475*"/>
+            </Grid.ColumnDefinitions>
 
-        <Grid Grid.Row="2" Grid.ColumnSpan="3" Margin="0,15,0,0">
+            <TextBlock Grid.Column="1" x:Name="InputTotalTextBlock"
+                       HorizontalAlignment="Right" FontWeight="SemiBold"
+                       Text="Total lines: 0" Margin="5,0,5,0"/>
+
+            <TextBlock Grid.Column="2" x:Name="FoundTotalTextBlock"
+                       HorizontalAlignment="Right" FontWeight="SemiBold"
+                       Text="Total found: 0" Margin="5,0,0,0"/>
+        </Grid>
+
+        <Grid Grid.Row="3" Grid.ColumnSpan="3" Margin="0,15,0,0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>

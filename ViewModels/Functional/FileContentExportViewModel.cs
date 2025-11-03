@@ -171,10 +171,10 @@ namespace FileCraft.ViewModels.Functional
 
         private void BulkSearch()
         {
-            OnStateChanging();
             bool confirmed = _dialogService.ShowBulkSearchDialog(_allSelectableFiles);
             if (confirmed)
             {
+                OnStateChanging();
                 ApplyFileFilter();
             }
         }
