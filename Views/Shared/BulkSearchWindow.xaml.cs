@@ -1,0 +1,163 @@
+﻿using FileCraft.Models;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Windows;
+using System.Windows.Controls;
+using Application = System.Windows.Application;
+
+namespace FileCraft.Views.Shared
+{
+    public partial class BulkSearchWindow : Window, INotifyPropertyChanged
+    {
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        private readonly Dictionary<string, SelectableFile> _allAvailableFilesLookup;
+        public ObservableCollection<FoundFileViewModel> FoundFiles { get; } = new();
+        public IEnumerable<string>? SelectedPaths { get; private set; }
+
+        private bool? _areAllFoundFilesSelected = false;
+        private bool _isUpdatingSelectAll = false;
+
+        public bool? AreAllFoundFilesSelected
+        {
+            get => _areAllFoundFilesSelected;
+            set
+            {
+                if (_areAllFoundFilesSelected != value && value.HasValue)
+                {
+                    _areAllFoundFilesSelected = value;
+                    _isUpdatingSelectAll = true;
+                    foreach (var file in FoundFiles)
+                    {
+                        file.IsSelected = value.Value;
+                    }
+                    _isUpdatingSelectAll = false;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        public BulkSearchWindow(IEnumerable<SelectableFile> allFiles)
+        {
+            InitializeComponent();
+            Owner = Application.Current.MainWindow;
+            DataContext = this;
+            _allAvailableFilesLookup = allFiles.ToDictionary(
+                f => f.RelativePath,
+                f => f,
+                StringComparer.OrdinalIgnoreCase);
+        }
+
+        private void InputTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            var searchTerms = InputTextBox.Text
+                .Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)
+                .Select(term => term.Trim())
+                .Where(term => !string.IsNullOrEmpty(term))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList();
+
+            var matchedFiles = new HashSet<SelectableFile>();
+
+            if (searchTerms.Any())
+            {
+                foreach (var file in _allAvailableFilesLookup.Values)
+                {
+                    foreach (var term in searchTerms)
+                    {
+                        if (file.RelativePath.IndexOf(term, StringComparison.OrdinalIgnoreCase) >= 0)
+                        {
+                            matchedFiles.Add(file);
+                            break;
+                        }
+                    }
+                }
+            }
+
+            FoundFiles.Clear();
+            foreach (var file in matchedFiles.OrderBy(f => f.RelativePath))
+            {
+                FoundFiles.Add(new FoundFileViewModel(file.RelativePath, UpdateSelectAllState));
+            }
+
+            UpdateSelectAllState();
+        }
+
+        private void UpdateSelectAllState()
+        {
+            if (_isUpdatingSelectAll) return;
+
+            int selectedCount = FoundFiles.Count(f => f.IsSelected);
+            if (selectedCount == 0)
+            {
+                _areAllFoundFilesSelected = false;
+            }
+            else if (selectedCount == FoundFiles.Count && FoundFiles.Count > 0)
+            {
+                _areAllFoundFilesSelected = true;
+            }
+            else
+            {
+                _areAllFoundFilesSelected = null;
+            }
+            OnPropertyChanged(nameof(AreAllFoundFilesSelected));
+        }
+
+        private void AddButton_Click(object sender, RoutedEventArgs e)
+        {
+            SelectedPaths = FoundFiles.Where(f => f.IsSelected).Select(f => f.RelativePath).ToList();
+            this.DialogResult = true;
+            this.Close();
+        }
+
+        private void CancelButton_Click(object sender, RoutedEventArgs e)
+        {
+            this.DialogResult = false;
+            this.Close();
+        }
+
+        protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+    }
+
+    public class FoundFileViewModel : INotifyPropertyChanged
+    {
+        public event PropertyChangedEventHandler? PropertyChanged;
+        private readonly Action _onSelectionChanged;
+        private bool _isSelected;
+
+        public string RelativePath { get; }
+
+        public bool IsSelected
+        {
+            get => _isSelected;
+            set
+            {
+                if (_isSelected != value)
+                {
+                    _isSelected = value;
+                    OnPropertyChanged();
+                    _onSelectionChanged?.Invoke();
+                }
+            }
+        }
+
+        public FoundFileViewModel(string relativePath, Action onSelectionChanged)
+        {
+            RelativePath = relativePath;
+            _onSelectionChanged = onSelectionChanged;
+            _isSelected = false;
+        }
+
+        protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+    }
+}

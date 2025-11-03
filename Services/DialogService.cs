@@ -2,6 +2,7 @@
 using FileCraft.Services.Interfaces;
 using FileCraft.ViewModels.Shared;
 using FileCraft.Views.Shared;
+using System.Collections.Generic;
 
 namespace FileCraft.Services
 {
@@ -91,6 +92,16 @@ namespace FileCraft.Services
         {
             var previewWindow = new PreviewWindow(title, content);
             previewWindow.ShowDialog();
+        }
+
+        public IEnumerable<string>? ShowBulkSearchDialog(IEnumerable<SelectableFile> allFiles)
+        {
+            var bulkSearchWindow = new BulkSearchWindow(allFiles);
+            if (bulkSearchWindow.ShowDialog() == true)
+            {
+                return bulkSearchWindow.SelectedPaths;
+            }
+            return null;
         }
 
         private string GetIconPath(DialogIconType iconType)

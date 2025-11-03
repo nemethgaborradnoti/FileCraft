@@ -136,6 +136,7 @@ namespace FileCraft.ViewModels.Functional
 
         public ICommand ExportFileContentCommand { get; }
         public ICommand ClearFilterCommand { get; }
+        public ICommand BulkSearchCommand { get; }
 
         public FileContentExportViewModel(
             ISharedStateService sharedStateService,
@@ -155,6 +156,7 @@ namespace FileCraft.ViewModels.Functional
 
             ExportFileContentCommand = new RelayCommand(async (_) => await ExportFileContentAsync(), (_) => CanExecuteOperation(this.OutputFileName) && _allSelectableFiles.Any(f => f.IsSelected));
             ClearFilterCommand = new RelayCommand(_ => ClearFilter());
+            BulkSearchCommand = new RelayCommand(_ => BulkSearch(), _ => _allSelectableFiles.Any());
 
             OnFolderSelectionChanged();
             UpdateFileCounts();
@@ -165,6 +167,27 @@ namespace FileCraft.ViewModels.Functional
         {
             SearchFilter = string.Empty;
             IsShowingOnlySelected = false;
+        }
+
+        private void BulkSearch()
+        {
+            var pathsToAdd = _dialogService.ShowBulkSearchDialog(_allSelectableFiles);
+            if (pathsToAdd != null && pathsToAdd.Any())
+            {
+                OnStateChanging();
+                var pathsSet = new HashSet<string>(pathsToAdd, StringComparer.OrdinalIgnoreCase);
+
+                foreach (var file in _allSelectableFiles)
+                {
+                    if (pathsSet.Contains(file.RelativePath))
+                    {
+                        file.PropertyChanged -= OnFileSelectionChanged;
+                        file.SetIsSelectedInternal(true);
+                        file.PropertyChanged += OnFileSelectionChanged;
+                    }
+                }
+                ApplyFileFilter();
+            }
         }
 
         public void ApplySettings(FileContentExportSettings settings)
