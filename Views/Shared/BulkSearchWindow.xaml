@@ -21,20 +21,25 @@
         <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Text="Input Paths (one per line):" FontWeight="SemiBold" Margin="0,0,0,5"/>
         <TextBlock Grid.Row="0" Grid.Column="2" Text="Found Paths:" FontWeight="SemiBold" Margin="0,0,0,5"/>
 
-        <ScrollViewer x:Name="CountScrollViewer"
-                      Grid.Row="1" Grid.Column="0"
-                      VerticalScrollBarVisibility="Hidden"
-                      HorizontalScrollBarVisibility="Hidden"
-                      Focusable="False"
-                      Margin="0,0,5,0">
-            <TextBlock x:Name="CountTextBlock"
-                       FontFamily="Consolas"
-                       TextAlignment="Right"
-                       VerticalAlignment="Top"
-                       Margin="0,5,5,5"
-                       Padding="5,0,0,0"
-                       Foreground="{StaticResource GrayTextBrush}"/>
-        </ScrollViewer>
+        <Border Grid.Row="1" Grid.Column="0"
+                Margin="0,0,5,0"
+                BorderBrush="{StaticResource BorderBrush}"
+                BorderThickness="1"
+                CornerRadius="4"
+                Background="{StaticResource TextBoxBackgroundBrush}">
+            <ScrollViewer x:Name="CountScrollViewer"
+                          VerticalScrollBarVisibility="Hidden"
+                          HorizontalScrollBarVisibility="Hidden"
+                          Focusable="False">
+                <TextBlock x:Name="CountTextBlock"
+                           FontFamily="Consolas"
+                           TextAlignment="Right"
+                           VerticalAlignment="Top"
+                           Margin="0,5,5,5"
+                           Padding="5,0,0,0"
+                           Foreground="{StaticResource GrayTextBrush}"/>
+            </ScrollViewer>
+        </Border>
 
         <TextBox x:Name="InputTextBox"
                  Grid.Row="1" Grid.Column="1"
@@ -50,43 +55,49 @@
                  ScrollViewer.ScrollChanged="InputTextBox_ScrollChanged"
                  Margin="5,0,5,0"/>
 
-        <Grid Grid.Row="1" Grid.Column="2" Margin="5,0,0,0">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
+        <Border Grid.Row="1" Grid.Column="2"
+                Margin="5,0,0,0"
+                BorderBrush="{StaticResource BorderBrush}"
+                BorderThickness="1"
+                CornerRadius="4"
+                Background="{StaticResource TextBoxBackgroundBrush}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
 
-            <StackPanel Grid.Row="0">
-                <Grid Margin="4,2">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    <CheckBox Grid.Column="0"
-                              IsChecked="{Binding AreAllFoundFilesSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                              IsThreeState="True"
-                              VerticalAlignment="Center"/>
-                    <TextBlock Grid.Column="1" Text="Select all" FontWeight="SemiBold" Margin="5,0,0,0" VerticalAlignment="Center"/>
-                </Grid>
-                <Separator/>
-            </StackPanel>
+                <StackPanel Grid.Row="0">
+                    <Grid Margin="4,2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <CheckBox Grid.Column="0"
+                                  IsChecked="{Binding AreAllFoundFilesSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                  IsThreeState="True"
+                                  VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="1" Text="Select all" FontWeight="SemiBold" Margin="5,0,0,0" VerticalAlignment="Center"/>
+                    </Grid>
+                    <Separator/>
+                </StackPanel>
 
-            <ListView Grid.Row="1"
-                      ItemsSource="{Binding FoundFiles}"
-                      ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                      BorderThickness="0"
-                      Background="{StaticResource TextBoxBackgroundBrush}"
-                      Margin="1"
-                      ItemContainerStyle="{StaticResource SharedListViewItemStyle}">
-                <ListView.ItemTemplate>
-                    <DataTemplate>
-                        <CheckBox IsChecked="{Binding IsSelected}" VerticalAlignment="Center">
-                            <TextBlock Text="{Binding RelativePath}" TextTrimming="CharacterEllipsis"/>
-                        </CheckBox>
-                    </DataTemplate>
-                </ListView.ItemTemplate>
-            </ListView>
-        </Grid>
+                <ListView Grid.Row="1"
+                          ItemsSource="{Binding FoundFiles}"
+                          ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                          BorderThickness="0"
+                          Background="{StaticResource TransparentBrush}"
+                          ItemContainerStyle="{StaticResource SharedListViewItemStyle}">
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <CheckBox IsChecked="{Binding IsSelected}" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding RelativePath}" TextTrimming="CharacterEllipsis"/>
+                            </CheckBox>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+            </Grid>
+        </Border>
 
 
         <StackPanel Grid.Row="2" Grid.ColumnSpan="3" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,15,0,0">
