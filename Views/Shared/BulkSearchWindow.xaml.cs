@@ -30,14 +30,13 @@ namespace FileCraft.Views.Shared
             {
                 bool selectAll = _areAllFoundFilesSelected != true;
 
-                _areAllFoundFilesSelected = selectAll;
                 _isUpdatingSelectAll = true;
                 foreach (var file in FilteredFoundFiles)
                 {
                     file.IsSelected = selectAll;
                 }
                 _isUpdatingSelectAll = false;
-                OnPropertyChanged();
+                UpdateSelectAllState();
             }
         }
 
@@ -53,7 +52,7 @@ namespace FileCraft.Views.Shared
             _infoIconPath = infoIconPath;
 
             InputTotalTextBlock.Text = "Total lines: 0";
-            FoundTotalTextBlock.Text = "Total found: 0";
+            UpdateTotals();
         }
 
         private void InputTextBox_TextChanged(object sender, TextChangedEventArgs e)
@@ -105,7 +104,6 @@ namespace FileCraft.Views.Shared
                 FilteredFoundFiles.Add(vm);
             }
 
-            FoundTotalTextBlock.Text = $"Total found: {FilteredFoundFiles.Count}";
             UpdateSelectAllState();
         }
 
@@ -119,6 +117,14 @@ namespace FileCraft.Views.Shared
             {
                 CountScrollViewer.ScrollToHorizontalOffset(e.HorizontalOffset);
             }
+        }
+
+        private void UpdateTotals()
+        {
+            int totalFound = FilteredFoundFiles.Count;
+            int totalChanged = FilteredFoundFiles.Count(f => f.IsSelected != f.OriginalIsSelected);
+
+            FoundTotalTextBlock.Text = $"Total found: {totalFound} | Total changed: {totalChanged}";
         }
 
         private void UpdateSelectAllState()
@@ -139,6 +145,7 @@ namespace FileCraft.Views.Shared
                 _areAllFoundFilesSelected = null;
             }
             OnPropertyChanged(nameof(AreAllFoundFilesSelected));
+            UpdateTotals();
         }
 
         private void ApplyButton_Click(object sender, RoutedEventArgs e)
