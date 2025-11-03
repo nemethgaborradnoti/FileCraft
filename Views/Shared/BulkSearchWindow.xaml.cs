@@ -62,13 +62,14 @@ namespace FileCraft.Views.Shared
             {
                 string line = InputTextBox.GetLineText(i);
                 string term = line.Trim();
+                string normalizedTerm = term.Replace('/', '\\');
                 int count = 0;
 
-                if (!string.IsNullOrEmpty(term))
+                if (!string.IsNullOrEmpty(normalizedTerm))
                 {
                     foreach (var file in _allAvailableFilesLookup.Values)
                     {
-                        if (file.RelativePath.IndexOf(term, StringComparison.OrdinalIgnoreCase) >= 0)
+                        if (file.RelativePath.IndexOf(normalizedTerm, StringComparison.OrdinalIgnoreCase) >= 0)
                         {
                             count++;
                             matchedFiles.Add(file);

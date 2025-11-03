@@ -268,7 +268,8 @@ namespace FileCraft.ViewModels.Functional
 
                 if (!string.IsNullOrWhiteSpace(SearchFilter))
                 {
-                    filtered = filtered.Where(f => f.FullPath.IndexOf(SearchFilter, StringComparison.OrdinalIgnoreCase) >= 0);
+                    string normalizedFilter = SearchFilter.Replace('/', '\\');
+                    filtered = filtered.Where(f => f.FullPath.IndexOf(normalizedFilter, StringComparison.OrdinalIgnoreCase) >= 0);
                 }
 
                 foreach (var file in filtered)
