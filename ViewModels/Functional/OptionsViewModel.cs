@@ -388,6 +388,8 @@ namespace FileCraft.ViewModels.Functional
                 OnStateChanging();
                 var sourceState = sourceManager.GetFolderStates();
                 destManager.LoadTreeForPath(_sharedStateService.SourcePath, sourceState);
+                SelectedSourceTab = AllTabs[0];
+                SelectedDestinationTab = AllTabs[0];
                 _dialogService.ShowNotification("Success", "Folder tree copied successfully.", DialogIconType.Success);
             }
         }
