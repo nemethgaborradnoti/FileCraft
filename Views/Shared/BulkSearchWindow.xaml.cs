@@ -1,4 +1,5 @@
 ﻿using FileCraft.Models;
+using FileCraft.ViewModels.Shared;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -141,17 +142,28 @@ namespace FileCraft.Views.Shared
             OnPropertyChanged(nameof(AreAllFoundFilesSelected));
         }
 
-        private void ConfirmButton_Click(object sender, RoutedEventArgs e)
+        private void ApplyButton_Click(object sender, RoutedEventArgs e)
         {
-            foreach (var vm in _allFoundFileViewModelsCache)
+            var viewModel = new ConfirmationViewModel
             {
-                if (vm.IsSelected != vm.OriginalIsSelected)
+                ActionName = "Apply Bulk Search",
+                Message = "Apply bulk search changes?",
+                IconPath = "pack://application:,,,/Resources/info01.png"
+            };
+            var confirmationWindow = new ConfirmationWindow(viewModel);
+
+            if (confirmationWindow.ShowDialog() == true)
+            {
+                foreach (var vm in _allFoundFileViewModelsCache)
                 {
-                    vm.BackingFile.IsSelected = vm.IsSelected;
+                    if (vm.IsSelected != vm.OriginalIsSelected)
+                    {
+                        vm.BackingFile.IsSelected = vm.IsSelected;
+                    }
                 }
+                this.DialogResult = true;
+                this.Close();
             }
-            this.DialogResult = true;
-            this.Close();
         }
 
         private void CancelButton_Click(object sender, RoutedEventArgs e)

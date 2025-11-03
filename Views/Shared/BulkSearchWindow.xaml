@@ -131,7 +131,7 @@
                     MinWidth="80"/>
 
             <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
-                <Button Content="Confirm" x:Name="ConfirmButton" IsDefault="True" MinWidth="80" Margin="0,0,10,0" Click="ConfirmButton_Click"/>
+                <Button Content="Apply" x:Name="ApplyButton" IsDefault="True" MinWidth="80" Margin="0,0,10,0" Click="ApplyButton_Click"/>
                 <Button Content="Cancel" IsCancel="True" MinWidth="80" Click="CancelButton_Click" Style="{StaticResource SecondaryButton}"/>
             </StackPanel>
         </Grid>
