@@ -66,14 +66,15 @@ namespace FileCraft.Services
 
         public ExitConfirmationResult ShowExitConfirmation(string title, string message)
         {
-            var confirmationWindow = new ExitConfirmationWindow(title, message);
+            string iconPath = GetIconPath(DialogIconType.Warning);
+            var confirmationWindow = new ExitConfirmationWindow(title, message, iconPath);
             confirmationWindow.ShowDialog();
             return confirmationWindow.Result;
         }
 
         public string? ShowRenamePresetDialog(string currentName, int presetNumber)
         {
-            var renameWindow = new RenamePresetWindow(currentName, presetNumber);
+            var renameWindow = new RenamePresetWindow(currentName, presetNumber, this);
             if (renameWindow.ShowDialog() == true)
             {
                 return renameWindow.NewPresetName;
