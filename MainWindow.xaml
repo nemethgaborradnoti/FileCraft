@@ -9,6 +9,7 @@
         mc:Ignorable="d"
         Title="FileCraft" Height="800" Width="850"
         MinHeight="200" MinWidth="250"
+        WindowStartupLocation="CenterScreen"
         d:DataContext="{d:DesignInstance Type=viewModels:MainViewModel, IsDesignTimeCreatable=False}">
 
     <Grid Margin="10">
