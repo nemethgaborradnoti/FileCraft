@@ -22,7 +22,7 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <Image Grid.Column="0" Source="pack://application:,,,/Resources/warning01.png" Width="48" Height="48" Margin="0,0,15,0" VerticalAlignment="Center"/>
+            <Image Grid.Column="0" Source="{StaticResource IconWarning}" Width="48" Height="48" Margin="0,0,15,0" VerticalAlignment="Center"/>
 
             <TextBlock x:Name="MessageTextBlock"
                        Grid.Column="1"

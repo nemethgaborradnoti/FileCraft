@@ -1,4 +1,5 @@
 ﻿using System.Windows;
+using System.Windows.Media.Imaging;
 
 namespace FileCraft.Views.Shared
 {
@@ -26,7 +27,8 @@ namespace FileCraft.Views.Shared
             }
             else
             {
-                var notification = new NotificationWindow("Invalid Input", "Preset name cannot be empty.", "pack://application:,,,/Resources/warning01.png");
+                string iconPath = (System.Windows.Application.Current.FindResource("IconWarning") as BitmapImage)?.UriSource.ToString() ?? string.Empty;
+                var notification = new NotificationWindow("Invalid Input", "Preset name cannot be empty.", iconPath);
                 notification.ShowDialog();
             }
         }

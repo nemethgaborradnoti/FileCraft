@@ -3,6 +3,9 @@ using FileCraft.Services.Interfaces;
 using FileCraft.ViewModels.Shared;
 using FileCraft.Views.Shared;
 using System.Collections.Generic;
+using System.Windows;
+using System.Windows.Media.Imaging;
+using Application = System.Windows.Application;
 
 namespace FileCraft.Services
 {
@@ -102,14 +105,21 @@ namespace FileCraft.Services
 
         private string GetIconPath(DialogIconType iconType)
         {
-            return iconType switch
+            string key = iconType switch
             {
-                DialogIconType.Info => "pack://application:,,,/Resources/info01.png",
-                DialogIconType.Warning => "pack://application:,,,/Resources/warning01.png",
-                DialogIconType.Success => "pack://application:,,,/Resources/checked01.png",
-                DialogIconType.Error => "pack://application:,,,/Resources/cancel01.png",
+                DialogIconType.Info => "IconInfo",
+                DialogIconType.Warning => "IconWarning",
+                DialogIconType.Success => "IconSuccess",
+                DialogIconType.Error => "IconError",
                 _ => throw new ArgumentOutOfRangeException(nameof(iconType), $"Not supported icon type: {iconType}")
             };
+
+            if (Application.Current.FindResource(key) is BitmapImage image)
+            {
+                return image.UriSource.ToString();
+            }
+
+            return string.Empty;
         }
     }
 }

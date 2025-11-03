@@ -1,7 +1,4 @@
 ﻿using FileCraft.Models;
-using FileCraft.ViewModels.Shared;
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
@@ -10,7 +7,9 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media.Imaging;
 using Application = System.Windows.Application;
+using FileCraft.ViewModels.Shared;
 
 namespace FileCraft.Views.Shared
 {
@@ -148,7 +147,7 @@ namespace FileCraft.Views.Shared
             {
                 ActionName = "Apply Bulk Search",
                 Message = "Apply bulk search changes?",
-                IconPath = "pack://application:,,,/Resources/info01.png"
+                IconPath = (Application.Current.FindResource("IconInfo") as BitmapImage)?.UriSource.ToString() ?? string.Empty
             };
             var confirmationWindow = new ConfirmationWindow(viewModel);
 
