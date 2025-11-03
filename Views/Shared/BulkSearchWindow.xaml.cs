@@ -5,6 +5,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using Application = System.Windows.Application;
@@ -54,29 +55,32 @@ namespace FileCraft.Views.Shared
 
         private void InputTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
-            var searchTerms = InputTextBox.Text
-                .Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)
-                .Select(term => term.Trim())
-                .Where(term => !string.IsNullOrEmpty(term))
-                .Distinct(StringComparer.OrdinalIgnoreCase)
-                .ToList();
-
             var matchedFiles = new HashSet<SelectableFile>();
+            var countBuilder = new StringBuilder();
 
-            if (searchTerms.Any())
+            int lineCount = InputTextBox.LineCount;
+            for (int i = 0; i < lineCount; i++)
             {
-                foreach (var file in _allAvailableFilesLookup.Values)
+                string line = InputTextBox.GetLineText(i);
+                string term = line.Trim();
+                int count = 0;
+
+                if (!string.IsNullOrEmpty(term))
                 {
-                    foreach (var term in searchTerms)
+                    foreach (var file in _allAvailableFilesLookup.Values)
                     {
                         if (file.RelativePath.IndexOf(term, StringComparison.OrdinalIgnoreCase) >= 0)
                         {
+                            count++;
                             matchedFiles.Add(file);
-                            break;
                         }
                     }
                 }
+
+                countBuilder.AppendLine(count > 0 ? count.ToString() : string.Empty);
             }
+
+            CountTextBlock.Text = countBuilder.ToString();
 
             FoundFiles.Clear();
             foreach (var file in matchedFiles.OrderBy(f => f.RelativePath))
@@ -85,6 +89,18 @@ namespace FileCraft.Views.Shared
             }
 
             UpdateSelectAllState();
+        }
+
+        private void InputTextBox_ScrollChanged(object sender, ScrollChangedEventArgs e)
+        {
+            if (e.VerticalChange != 0)
+            {
+                CountScrollViewer.ScrollToVerticalOffset(e.VerticalOffset);
+            }
+            if (e.HorizontalChange != 0)
+            {
+                CountScrollViewer.ScrollToHorizontalOffset(e.HorizontalOffset);
+            }
         }
 
         private void UpdateSelectAllState()

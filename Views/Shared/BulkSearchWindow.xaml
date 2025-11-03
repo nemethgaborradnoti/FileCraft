@@ -8,9 +8,9 @@
         MinWidth="400" MinHeight="300">
     <Grid Margin="15">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="0.05*"/>
+            <ColumnDefinition Width="0.475*"/>
+            <ColumnDefinition Width="0.475*"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -18,11 +18,26 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <TextBlock Grid.Row="0" Grid.Column="0" Text="Input Paths (one per line):" FontWeight="SemiBold" Margin="0,0,0,5"/>
+        <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Text="Input Paths (one per line):" FontWeight="SemiBold" Margin="0,0,0,5"/>
         <TextBlock Grid.Row="0" Grid.Column="2" Text="Found Paths:" FontWeight="SemiBold" Margin="0,0,0,5"/>
 
+        <ScrollViewer x:Name="CountScrollViewer"
+                      Grid.Row="1" Grid.Column="0"
+                      VerticalScrollBarVisibility="Hidden"
+                      HorizontalScrollBarVisibility="Hidden"
+                      Focusable="False"
+                      Margin="0,0,5,0">
+            <TextBlock x:Name="CountTextBlock"
+                       FontFamily="Consolas"
+                       TextAlignment="Right"
+                       VerticalAlignment="Top"
+                       Margin="0,5,5,5"
+                       Padding="5,0,0,0"
+                       Foreground="{StaticResource GrayTextBrush}"/>
+        </ScrollViewer>
+
         <TextBox x:Name="InputTextBox"
-                 Grid.Row="1" Grid.Column="0"
+                 Grid.Row="1" Grid.Column="1"
                  AcceptsReturn="True"
                  VerticalScrollBarVisibility="Auto"
                  HorizontalScrollBarVisibility="Auto"
@@ -31,11 +46,11 @@
                  BorderThickness="1"
                  Padding="5"
                  VerticalContentAlignment="Top"
-                 TextChanged="InputTextBox_TextChanged"/>
+                 TextChanged="InputTextBox_TextChanged"
+                 ScrollViewer.ScrollChanged="InputTextBox_ScrollChanged"
+                 Margin="5,0,5,0"/>
 
-        <Separator Grid.Row="1" Grid.Column="1" Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" Margin="10,0"/>
-
-        <Grid Grid.Row="1" Grid.Column="2">
+        <Grid Grid.Row="1" Grid.Column="2" Margin="5,0,0,0">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
@@ -47,9 +62,9 @@
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <CheckBox Grid.Column="0" 
-                              IsChecked="{Binding AreAllFoundFilesSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                              IsThreeState="True" 
+                    <CheckBox Grid.Column="0"
+                              IsChecked="{Binding AreAllFoundFilesSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                              IsThreeState="True"
                               VerticalAlignment="Center"/>
                     <TextBlock Grid.Column="1" Text="Select all" FontWeight="SemiBold" Margin="5,0,0,0" VerticalAlignment="Center"/>
                 </Grid>
@@ -57,8 +72,8 @@
             </StackPanel>
 
             <ListView Grid.Row="1"
-                      ItemsSource="{Binding FoundFiles}" 
-                      ScrollViewer.HorizontalScrollBarVisibility="Disabled" 
+                      ItemsSource="{Binding FoundFiles}"
+                      ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                       BorderThickness="0"
                       Background="{StaticResource TextBoxBackgroundBrush}"
                       Margin="1"
