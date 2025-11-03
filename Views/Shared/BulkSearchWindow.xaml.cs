@@ -6,6 +6,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using Application = System.Windows.Application;
@@ -146,6 +147,23 @@ namespace FileCraft.Views.Shared
         {
             this.DialogResult = false;
             this.Close();
+        }
+
+        private void RemoveWhitespacesButton_Click(object sender, RoutedEventArgs e)
+        {
+            string currentText = InputTextBox.Text;
+            if (string.IsNullOrEmpty(currentText))
+            {
+                return;
+            }
+
+            var lines = currentText.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+
+            var processedLines = lines
+                .Select(line => Regex.Replace(line, @"\s+", ""))
+                .Where(line => !string.IsNullOrEmpty(line));
+
+            InputTextBox.Text = string.Join(Environment.NewLine, processedLines);
         }
 
         protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
