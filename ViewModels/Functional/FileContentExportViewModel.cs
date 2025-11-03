@@ -136,6 +136,7 @@ namespace FileCraft.ViewModels.Functional
 
         public ICommand ExportFileContentCommand { get; }
         public ICommand ClearFilterCommand { get; }
+        public ICommand BulkSearchCommand { get; }
 
         public FileContentExportViewModel(
             ISharedStateService sharedStateService,
@@ -155,6 +156,7 @@ namespace FileCraft.ViewModels.Functional
 
             ExportFileContentCommand = new RelayCommand(async (_) => await ExportFileContentAsync(), (_) => CanExecuteOperation(this.OutputFileName) && _allSelectableFiles.Any(f => f.IsSelected));
             ClearFilterCommand = new RelayCommand(_ => ClearFilter());
+            BulkSearchCommand = new RelayCommand(_ => BulkSearch(), _ => _allSelectableFiles.Any());
 
             OnFolderSelectionChanged();
             UpdateFileCounts();
@@ -165,6 +167,16 @@ namespace FileCraft.ViewModels.Functional
         {
             SearchFilter = string.Empty;
             IsShowingOnlySelected = false;
+        }
+
+        private void BulkSearch()
+        {
+            bool confirmed = _dialogService.ShowBulkSearchDialog(_allSelectableFiles);
+            if (confirmed)
+            {
+                OnStateChanging();
+                ApplyFileFilter();
+            }
         }
 
         public void ApplySettings(FileContentExportSettings settings)
@@ -256,7 +268,8 @@ namespace FileCraft.ViewModels.Functional
 
                 if (!string.IsNullOrWhiteSpace(SearchFilter))
                 {
-                    filtered = filtered.Where(f => f.FullPath.IndexOf(SearchFilter, StringComparison.OrdinalIgnoreCase) >= 0);
+                    string normalizedFilter = SearchFilter.Replace('/', '\\');
+                    filtered = filtered.Where(f => f.FullPath.IndexOf(normalizedFilter, StringComparison.OrdinalIgnoreCase) >= 0);
                 }
 
                 foreach (var file in filtered)

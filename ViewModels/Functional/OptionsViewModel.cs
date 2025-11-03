@@ -259,9 +259,9 @@ namespace FileCraft.ViewModels.Functional
             CheckForExistingPresets();
 
             AllTabs.Add(new TabItemViewModel("-- None --", null, null));
-            AllTabs.Add(new TabItemViewModel("File Content Export", "/Resources/filecontent01.png", fileContentExportVM.FolderTreeManager));
-            AllTabs.Add(new TabItemViewModel("Tree Generator", "/Resources/treestructure01.png", treeGeneratorVM.FolderTreeManager));
-            AllTabs.Add(new TabItemViewModel("Folder Content Export", "/Resources/foldercontent01.png", folderContentExportVM.FolderTreeManager));
+            AllTabs.Add(new TabItemViewModel("File Content Export", _dialogService.GetIconPath("IconFileContent"), fileContentExportVM.FolderTreeManager));
+            AllTabs.Add(new TabItemViewModel("Tree Generator", _dialogService.GetIconPath("IconTreeStructure"), treeGeneratorVM.FolderTreeManager));
+            AllTabs.Add(new TabItemViewModel("Folder Content Export", _dialogService.GetIconPath("IconFolderContent"), folderContentExportVM.FolderTreeManager));
 
             SelectedSourceTab = AllTabs[0];
             SelectedDestinationTab = AllTabs[0];

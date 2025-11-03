@@ -6,13 +6,16 @@ namespace FileCraft.Views.Shared
     public partial class ExitConfirmationWindow : Window
     {
         public ExitConfirmationResult Result { get; private set; } = ExitConfirmationResult.Cancel;
+        public string IconPath { get; }
 
-        public ExitConfirmationWindow(string title, string message)
+        public ExitConfirmationWindow(string title, string message, string iconPath)
         {
             InitializeComponent();
             Owner = System.Windows.Application.Current.MainWindow;
             this.Title = title;
             MessageTextBlock.Text = message;
+            IconPath = iconPath;
+            DataContext = this;
         }
 
         private void SaveButton_Click(object sender, RoutedEventArgs e)

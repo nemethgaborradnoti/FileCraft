@@ -104,6 +104,11 @@
                     </DockPanel>
 
                     <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="10,0,0,0">
+                        <Button Content="Bulk Search"
+                                Command="{Binding BulkSearchCommand}"
+                                Style="{StaticResource WarningButton}"
+                                Margin="0,0,10,0"/>
+                        
                         <CheckBox Content="Show only selected"
                                   IsChecked="{Binding IsShowingOnlySelected}"
                                   VerticalAlignment="Center"/>

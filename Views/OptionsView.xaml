@@ -98,7 +98,7 @@
                                                 CommandParameter="{Binding}"
                                                 IsEnabled="{Binding Exists}"
                                                 Width="32" Height="32" Margin="5,0,0,0">
-                                            <Image Source="/Resources/delete01.png" />
+                                            <Image Source="{StaticResource IconDelete}" />
                                         </Button>
                                     </Grid>
                                     <Separator/>

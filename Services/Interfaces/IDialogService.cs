@@ -1,4 +1,5 @@
 ﻿using FileCraft.Models;
+using System.Collections.Generic;
 
 namespace FileCraft.Services.Interfaces
 {
@@ -12,5 +13,7 @@ namespace FileCraft.Services.Interfaces
         string? ShowRenamePresetDialog(string currentName, int presetNumber);
         string? ShowEditIgnoredFoldersDialog(string currentFolders);
         void ShowPreview(string title, string content);
+        bool ShowBulkSearchDialog(IEnumerable<SelectableFile> allFiles);
+        string? GetIconPath(string resourceKey);
     }
 }
