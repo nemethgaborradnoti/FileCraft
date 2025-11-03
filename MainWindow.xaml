@@ -21,13 +21,13 @@
 
         <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Left" Margin="5,0,5,5">
             <Button Style="{StaticResource BorderlessIconButton}" ToolTip="Undo" Command="{Binding UndoCommand}" IsEnabled="{Binding CanUndo}">
-                <Image Source="/Resources/arrow01.png" />
+                <Image Source="{StaticResource IconUndo}" />
             </Button>
             <Button Style="{StaticResource BorderlessIconButton}" ToolTip="Redo" Command="{Binding RedoCommand}" IsEnabled="{Binding CanRedo}">
-                <Image Source="/Resources/arrow02.png" />
+                <Image Source="{StaticResource IconRedo}" />
             </Button>
             <Button Style="{StaticResource BorderlessIconButton}" ToolTip="Save current settings" Command="{Binding SaveCommand}" IsEnabled="{Binding HasUnsavedChanges}">
-                <Image Source="/Resources/save01.png" />
+                <Image Source="{StaticResource IconSave}" />
             </Button>
         </StackPanel>
 
@@ -76,7 +76,7 @@
             <TabItem>
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal">
-                        <Image Source="/Resources/filecontent01.png" Width="28" Height="28" Margin="0,0,5,0" VerticalAlignment="Center"/>
+                        <Image Source="{StaticResource IconFileContent}" Width="28" Height="28" Margin="0,0,5,0" VerticalAlignment="Center"/>
                         <TextBlock Text="File Content Export" VerticalAlignment="Center"/>
                     </StackPanel>
                 </TabItem.Header>
@@ -85,7 +85,7 @@
             <TabItem>
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal">
-                        <Image Source="/Resources/treestructure01.png" Width="28" Height="28" Margin="0,0,5,0" VerticalAlignment="Center"/>
+                        <Image Source="{StaticResource IconTreeStructure}" Width="28" Height="28" Margin="0,0,5,0" VerticalAlignment="Center"/>
                         <TextBlock Text="Tree Generator" VerticalAlignment="Center"/>
                     </StackPanel>
                 </TabItem.Header>
@@ -94,7 +94,7 @@
             <TabItem>
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal">
-                        <Image Source="/Resources/foldercontent01.png" Width="28" Height="28" Margin="0,0,5,0" VerticalAlignment="Center"/>
+                        <Image Source="{StaticResource IconFolderContent}" Width="28" Height="28" Margin="0,0,5,0" VerticalAlignment="Center"/>
                         <TextBlock Text="Folder Content Export" VerticalAlignment="Center"/>
                     </StackPanel>
                 </TabItem.Header>
@@ -103,7 +103,7 @@
             <TabItem>
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal">
-                        <Image Source="/Resources/settings01.png" Width="28" Height="28" Margin="0,0,5,0" VerticalAlignment="Center"/>
+                        <Image Source="{StaticResource IconSettings}" Width="28" Height="28" Margin="0,0,5,0" VerticalAlignment="Center"/>
                         <TextBlock Text="Options" VerticalAlignment="Center"/>
                     </StackPanel>
                 </TabItem.Header>

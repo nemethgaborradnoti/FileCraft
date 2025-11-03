@@ -2,6 +2,10 @@
 using FileCraft.Services.Interfaces;
 using FileCraft.ViewModels.Shared;
 using FileCraft.Views.Shared;
+using System.Collections.Generic;
+using System.Windows;
+using System.Windows.Media.Imaging;
+using Application = System.Windows.Application;
 
 namespace FileCraft.Services
 {
@@ -24,8 +28,8 @@ namespace FileCraft.Services
 
         public void ShowNotification(string title, string message, DialogIconType iconType)
         {
-            string iconPath = GetIconPath(iconType);
-            var notificationWindow = new NotificationWindow(title, message, iconPath);
+            string? iconPath = GetIconPath(iconType);
+            var notificationWindow = new NotificationWindow(title, message, iconPath ?? string.Empty);
             notificationWindow.ShowDialog();
         }
 
@@ -36,7 +40,7 @@ namespace FileCraft.Services
                 ActionName = title,
                 Message = message,
                 FilesAffected = filesAffected,
-                IconPath = GetIconPath(iconType)
+                IconPath = GetIconPath(iconType) ?? string.Empty
             };
             var confirmationWindow = new ConfirmationWindow(viewModel);
             return confirmationWindow.ShowDialog() ?? false;
@@ -47,7 +51,7 @@ namespace FileCraft.Services
             var viewModel = new ConfirmationViewModel
             {
                 ActionName = title,
-                IconPath = GetIconPath(iconType),
+                IconPath = GetIconPath(iconType) ?? string.Empty,
                 IsCopyTreeMessage = true,
                 SourceTabName = sourceName,
                 SourceTabIcon = sourceIcon,
@@ -62,14 +66,15 @@ namespace FileCraft.Services
 
         public ExitConfirmationResult ShowExitConfirmation(string title, string message)
         {
-            var confirmationWindow = new ExitConfirmationWindow(title, message);
+            string iconPath = GetIconPath(DialogIconType.Warning) ?? string.Empty;
+            var confirmationWindow = new ExitConfirmationWindow(title, message, iconPath);
             confirmationWindow.ShowDialog();
             return confirmationWindow.Result;
         }
 
         public string? ShowRenamePresetDialog(string currentName, int presetNumber)
         {
-            var renameWindow = new RenamePresetWindow(currentName, presetNumber);
+            var renameWindow = new RenamePresetWindow(currentName, presetNumber, this);
             if (renameWindow.ShowDialog() == true)
             {
                 return renameWindow.NewPresetName;
@@ -93,16 +98,34 @@ namespace FileCraft.Services
             previewWindow.ShowDialog();
         }
 
-        private string GetIconPath(DialogIconType iconType)
+        public bool ShowBulkSearchDialog(IEnumerable<SelectableFile> allFiles)
         {
-            return iconType switch
+            string infoIconPath = GetIconPath(DialogIconType.Info) ?? string.Empty;
+            var bulkSearchWindow = new BulkSearchWindow(allFiles, infoIconPath);
+            return bulkSearchWindow.ShowDialog() ?? false;
+        }
+
+        public string? GetIconPath(string resourceKey)
+        {
+            if (Application.Current.FindResource(resourceKey) is BitmapImage image)
             {
-                DialogIconType.Info => "pack://application:,,,/Resources/info01.png",
-                DialogIconType.Warning => "pack://application:,,,/Resources/warning01.png",
-                DialogIconType.Success => "pack://application:,,,/Resources/checked01.png",
-                DialogIconType.Error => "pack://application:,,,/Resources/cancel01.png",
+                return image.UriSource.ToString();
+            }
+            return null;
+        }
+
+        private string? GetIconPath(DialogIconType iconType)
+        {
+            string key = iconType switch
+            {
+                DialogIconType.Info => "IconInfo",
+                DialogIconType.Warning => "IconWarning",
+                DialogIconType.Success => "IconSuccess",
+                DialogIconType.Error => "IconError",
                 _ => throw new ArgumentOutOfRangeException(nameof(iconType), $"Not supported icon type: {iconType}")
             };
+
+            return GetIconPath(key);
         }
     }
 }

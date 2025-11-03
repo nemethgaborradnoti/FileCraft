@@ -1,17 +1,21 @@
-﻿using System.Windows;
+﻿using FileCraft.Models;
+using FileCraft.Services.Interfaces;
+using System.Windows;
 
 namespace FileCraft.Views.Shared
 {
     public partial class RenamePresetWindow : Window
     {
         public string NewPresetName { get; private set; } = string.Empty;
+        private readonly IDialogService _dialogService;
 
-        public RenamePresetWindow(string currentName, int presetNumber)
+        public RenamePresetWindow(string currentName, int presetNumber, IDialogService dialogService)
         {
             InitializeComponent();
             Owner = System.Windows.Application.Current.MainWindow;
             PromptText.Text = $"Preset {presetNumber} name:";
             NameTextBox.Text = currentName;
+            _dialogService = dialogService;
             NameTextBox.Focus();
             NameTextBox.SelectAll();
         }
@@ -26,8 +30,10 @@ namespace FileCraft.Views.Shared
             }
             else
             {
-                var notification = new NotificationWindow("Invalid Input", "Preset name cannot be empty.", "pack://application:,,,/Resources/warning01.png");
-                notification.ShowDialog();
+                _dialogService.ShowNotification(
+                    "Invalid Input",
+                    "Preset name cannot be empty.",
+                    DialogIconType.Warning);
             }
         }
 
