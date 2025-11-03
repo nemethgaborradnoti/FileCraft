@@ -83,7 +83,7 @@
                 </StackPanel>
 
                 <ListView Grid.Row="1"
-                          ItemsSource="{Binding FoundFiles}"
+                          ItemsSource="{Binding FilteredFoundFiles}"
                           ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                           BorderThickness="0"
                           Background="{StaticResource TransparentBrush}"
@@ -101,7 +101,7 @@
 
 
         <StackPanel Grid.Row="2" Grid.ColumnSpan="3" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,15,0,0">
-            <Button Content="Add" x:Name="AddButton" IsDefault="True" MinWidth="80" Margin="0,0,10,0" Click="AddButton_Click"/>
+            <Button Content="Confirm" x:Name="ConfirmButton" IsDefault="True" MinWidth="80" Margin="0,0,10,0" Click="ConfirmButton_Click"/>
             <Button Content="Cancel" IsCancel="True" MinWidth="80" Click="CancelButton_Click" Style="{StaticResource SecondaryButton}"/>
         </StackPanel>
     </Grid>

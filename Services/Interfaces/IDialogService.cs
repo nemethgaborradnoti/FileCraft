@@ -13,6 +13,6 @@ namespace FileCraft.Services.Interfaces
         string? ShowRenamePresetDialog(string currentName, int presetNumber);
         string? ShowEditIgnoredFoldersDialog(string currentFolders);
         void ShowPreview(string title, string content);
-        IEnumerable<string>? ShowBulkSearchDialog(IEnumerable<SelectableFile> allFiles);
+        bool ShowBulkSearchDialog(IEnumerable<SelectableFile> allFiles);
     }
 }

@@ -94,14 +94,10 @@ namespace FileCraft.Services
             previewWindow.ShowDialog();
         }
 
-        public IEnumerable<string>? ShowBulkSearchDialog(IEnumerable<SelectableFile> allFiles)
+        public bool ShowBulkSearchDialog(IEnumerable<SelectableFile> allFiles)
         {
             var bulkSearchWindow = new BulkSearchWindow(allFiles);
-            if (bulkSearchWindow.ShowDialog() == true)
-            {
-                return bulkSearchWindow.SelectedPaths;
-            }
-            return null;
+            return bulkSearchWindow.ShowDialog() ?? false;
         }
 
         private string GetIconPath(DialogIconType iconType)

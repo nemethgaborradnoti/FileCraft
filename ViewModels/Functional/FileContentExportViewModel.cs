@@ -171,21 +171,10 @@ namespace FileCraft.ViewModels.Functional
 
         private void BulkSearch()
         {
-            var pathsToAdd = _dialogService.ShowBulkSearchDialog(_allSelectableFiles);
-            if (pathsToAdd != null && pathsToAdd.Any())
+            OnStateChanging();
+            bool confirmed = _dialogService.ShowBulkSearchDialog(_allSelectableFiles);
+            if (confirmed)
             {
-                OnStateChanging();
-                var pathsSet = new HashSet<string>(pathsToAdd, StringComparer.OrdinalIgnoreCase);
-
-                foreach (var file in _allSelectableFiles)
-                {
-                    if (pathsSet.Contains(file.RelativePath))
-                    {
-                        file.PropertyChanged -= OnFileSelectionChanged;
-                        file.SetIsSelectedInternal(true);
-                        file.PropertyChanged += OnFileSelectionChanged;
-                    }
-                }
                 ApplyFileFilter();
             }
         }

@@ -17,8 +17,8 @@ namespace FileCraft.Views.Shared
         public event PropertyChangedEventHandler? PropertyChanged;
 
         private readonly Dictionary<string, SelectableFile> _allAvailableFilesLookup;
-        public ObservableCollection<FoundFileViewModel> FoundFiles { get; } = new();
-        public IEnumerable<string>? SelectedPaths { get; private set; }
+        public ObservableCollection<FoundFileViewModel> FilteredFoundFiles { get; } = new();
+        private readonly List<FoundFileViewModel> _allFoundFileViewModelsCache = new();
 
         private bool? _areAllFoundFilesSelected = false;
         private bool _isUpdatingSelectAll = false;
@@ -28,17 +28,16 @@ namespace FileCraft.Views.Shared
             get => _areAllFoundFilesSelected;
             set
             {
-                if (_areAllFoundFilesSelected != value && value.HasValue)
+                bool selectAll = _areAllFoundFilesSelected != true;
+
+                _areAllFoundFilesSelected = selectAll;
+                _isUpdatingSelectAll = true;
+                foreach (var file in FilteredFoundFiles)
                 {
-                    _areAllFoundFilesSelected = value;
-                    _isUpdatingSelectAll = true;
-                    foreach (var file in FoundFiles)
-                    {
-                        file.IsSelected = value.Value;
-                    }
-                    _isUpdatingSelectAll = false;
-                    OnPropertyChanged();
+                    file.IsSelected = selectAll;
                 }
+                _isUpdatingSelectAll = false;
+                OnPropertyChanged();
             }
         }
 
@@ -82,10 +81,16 @@ namespace FileCraft.Views.Shared
 
             CountTextBlock.Text = countBuilder.ToString();
 
-            FoundFiles.Clear();
+            FilteredFoundFiles.Clear();
             foreach (var file in matchedFiles.OrderBy(f => f.RelativePath))
             {
-                FoundFiles.Add(new FoundFileViewModel(file.RelativePath, UpdateSelectAllState));
+                var vm = _allFoundFileViewModelsCache.FirstOrDefault(v => v.BackingFile == file);
+                if (vm == null)
+                {
+                    vm = new FoundFileViewModel(file, UpdateSelectAllState);
+                    _allFoundFileViewModelsCache.Add(vm);
+                }
+                FilteredFoundFiles.Add(vm);
             }
 
             UpdateSelectAllState();
@@ -107,12 +112,12 @@ namespace FileCraft.Views.Shared
         {
             if (_isUpdatingSelectAll) return;
 
-            int selectedCount = FoundFiles.Count(f => f.IsSelected);
+            int selectedCount = FilteredFoundFiles.Count(f => f.IsSelected);
             if (selectedCount == 0)
             {
                 _areAllFoundFilesSelected = false;
             }
-            else if (selectedCount == FoundFiles.Count && FoundFiles.Count > 0)
+            else if (selectedCount == FilteredFoundFiles.Count && FilteredFoundFiles.Count > 0)
             {
                 _areAllFoundFilesSelected = true;
             }
@@ -123,9 +128,15 @@ namespace FileCraft.Views.Shared
             OnPropertyChanged(nameof(AreAllFoundFilesSelected));
         }
 
-        private void AddButton_Click(object sender, RoutedEventArgs e)
+        private void ConfirmButton_Click(object sender, RoutedEventArgs e)
         {
-            SelectedPaths = FoundFiles.Where(f => f.IsSelected).Select(f => f.RelativePath).ToList();
+            foreach (var vm in _allFoundFileViewModelsCache)
+            {
+                if (vm.IsSelected != vm.OriginalIsSelected)
+                {
+                    vm.BackingFile.IsSelected = vm.IsSelected;
+                }
+            }
             this.DialogResult = true;
             this.Close();
         }
@@ -147,8 +158,10 @@ namespace FileCraft.Views.Shared
         public event PropertyChangedEventHandler? PropertyChanged;
         private readonly Action _onSelectionChanged;
         private bool _isSelected;
+        public SelectableFile BackingFile { get; }
+        public bool OriginalIsSelected { get; }
 
-        public string RelativePath { get; }
+        public string RelativePath => BackingFile.RelativePath;
 
         public bool IsSelected
         {
@@ -164,11 +177,12 @@ namespace FileCraft.Views.Shared
             }
         }
 
-        public FoundFileViewModel(string relativePath, Action onSelectionChanged)
+        public FoundFileViewModel(SelectableFile backingFile, Action onSelectionChanged)
         {
-            RelativePath = relativePath;
+            BackingFile = backingFile;
+            OriginalIsSelected = backingFile.IsSelected;
+            _isSelected = backingFile.IsSelected;
             _onSelectionChanged = onSelectionChanged;
-            _isSelected = false;
         }
 
         protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
