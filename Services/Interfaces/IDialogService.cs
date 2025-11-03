@@ -14,5 +14,6 @@ namespace FileCraft.Services.Interfaces
         string? ShowEditIgnoredFoldersDialog(string currentFolders);
         void ShowPreview(string title, string content);
         bool ShowBulkSearchDialog(IEnumerable<SelectableFile> allFiles);
+        string? GetIconPath(string resourceKey);
     }
 }
