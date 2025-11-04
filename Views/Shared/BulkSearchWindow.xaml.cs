@@ -1,6 +1,8 @@
 ﻿using FileCraft.Models;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -193,6 +195,34 @@ namespace FileCraft.Views.Shared
                 .Where(line => !string.IsNullOrEmpty(line));
 
             InputTextBox.Text = string.Join(Environment.NewLine, processedLines);
+        }
+
+        private void BreakIntoLinesButton_Click(object sender, RoutedEventArgs e)
+        {
+            string currentText = InputTextBox.Text;
+            if (string.IsNullOrEmpty(currentText))
+            {
+                return;
+            }
+
+            char delimiter = BySemicolonRadioButton.IsChecked == true ? ';' : ' ';
+
+            var lines = currentText.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+
+            var newLines = new List<string>();
+            foreach (var line in lines)
+            {
+                var parts = line.Split(new[] { delimiter }, StringSplitOptions.RemoveEmptyEntries);
+                foreach (var part in parts)
+                {
+                    string trimmedPart = part.Trim();
+                    if (!string.IsNullOrEmpty(trimmedPart))
+                    {
+                        newLines.Add(trimmedPart);
+                    }
+                }
+            }
+            InputTextBox.Text = string.Join(Environment.NewLine, newLines);
         }
 
         protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
