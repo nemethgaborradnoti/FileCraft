@@ -122,17 +122,39 @@
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
 
-            <Button Grid.Column="0"
-                    Content="Remove whitespaces"
-                    x:Name="RemoveWhitespacesButton"
-                    Click="RemoveWhitespacesButton_Click"
-                    Style="{StaticResource WarningButton}"
-                    HorizontalAlignment="Left"
-                    MinWidth="80"/>
+            <StackPanel Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Left">
+                <Button Content="Remove whitespaces"
+                        x:Name="RemoveWhitespacesButton"
+                        Click="RemoveWhitespacesButton_Click"
+                        Style="{StaticResource WarningButton}"
+                        Height="32"
+                        MinWidth="80"/>
+
+                <Button Content="Break into lines"
+                        x:Name="BreakIntoLinesButton"
+                        Click="BreakIntoLinesButton_Click"
+                        Style="{StaticResource WarningButton}"
+                        Height="32"
+                        MinWidth="80"
+                        Margin="10,0,0,0"/>
+
+                <RadioButton x:Name="BySpaceRadioButton"
+                             Content="By space"
+                             GroupName="BreakDelimiter"
+                             IsChecked="True"
+                             VerticalAlignment="Center"
+                             Margin="10,0,0,0"/>
+
+                <RadioButton x:Name="BySemicolonRadioButton"
+                             Content="By ';'"
+                             GroupName="BreakDelimiter"
+                             VerticalAlignment="Center"
+                             Margin="5,0,0,0"/>
+            </StackPanel>
 
             <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
-                <Button Content="Apply" x:Name="ApplyButton" IsDefault="True" MinWidth="80" Margin="0,0,10,0" Click="ApplyButton_Click"/>
-                <Button Content="Cancel" IsCancel="True" MinWidth="80" Click="CancelButton_Click" Style="{StaticResource SecondaryButton}"/>
+                <Button Content="Apply" x:Name="ApplyButton" IsDefault="True" Height="32" MinWidth="80" Margin="0,0,10,0" Click="ApplyButton_Click"/>
+                <Button Content="Cancel" IsCancel="True" Height="32" MinWidth="80" Click="CancelButton_Click" Style="{StaticResource SecondaryButton}"/>
             </StackPanel>
         </Grid>
     </Grid>
