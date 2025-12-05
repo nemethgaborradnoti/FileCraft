@@ -10,12 +10,21 @@ using System.Windows.Input;
 
 namespace FileCraft.ViewModels.Functional
 {
+    public enum FolderContentFullscreenState
+    {
+        None,
+        Folders,
+        Details
+    }
+
     public class FolderContentExportViewModel : ExportViewModelBase
     {
         private string _outputFileName = string.Empty;
         private bool _appendTimestamp;
         private bool? _areAllColumnsSelected;
         private int _affectedFilesCount;
+
+        public FullscreenManager<FolderContentFullscreenState> FullscreenManager { get; }
 
         public string OutputFileName
         {
@@ -77,6 +86,8 @@ namespace FileCraft.ViewModels.Functional
             FolderTreeManager folderTreeManager)
             : base(sharedStateService, fileOperationService, dialogService, folderTreeManager)
         {
+            FullscreenManager = new FullscreenManager<FolderContentFullscreenState>(FolderContentFullscreenState.None);
+
             FolderTreeManager.FolderSelectionChanged += UpdateAffectedFilesCount;
             FolderTreeManager.StateChanging += OnStateChanging;
             FolderTreeManager.PropertyChanged += (s, e) =>

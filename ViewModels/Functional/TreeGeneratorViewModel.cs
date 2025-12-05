@@ -7,11 +7,19 @@ using System.Windows.Input;
 
 namespace FileCraft.ViewModels.Functional
 {
+    public enum TreeGeneratorFullscreenState
+    {
+        None,
+        Folders
+    }
+
     public class TreeGeneratorViewModel : ExportViewModelBase
     {
         private string _outputFileName = string.Empty;
         private bool _appendTimestamp;
         private int _includedFoldersCount;
+
+        public FullscreenManager<TreeGeneratorFullscreenState> FullscreenManager { get; }
 
         public string OutputFileName
         {
@@ -61,6 +69,8 @@ namespace FileCraft.ViewModels.Functional
             FolderTreeManager folderTreeManager)
             : base(sharedStateService, fileOperationService, dialogService, folderTreeManager)
         {
+            FullscreenManager = new FullscreenManager<TreeGeneratorFullscreenState>(TreeGeneratorFullscreenState.None);
+
             FolderTreeManager.FolderSelectionChanged += UpdateIncludedFoldersCount;
             FolderTreeManager.StateChanging += OnStateChanging;
             FolderTreeManager.PropertyChanged += (s, e) =>

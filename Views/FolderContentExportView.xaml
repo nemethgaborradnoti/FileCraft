@@ -1,26 +1,99 @@
 ﻿<UserControl x:Class="FileCraft.Views.FolderContentExportView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:viewmodels="clr-namespace:FileCraft.ViewModels.Functional"
              xmlns:controls="clr-namespace:FileCraft.Views.Shared.Controls"
-             mc:Ignorable="d" 
+             xmlns:local="clr-namespace:FileCraft.ViewModels.Functional"
+             mc:Ignorable="d"
              d:DataContext="{d:DesignInstance Type=viewmodels:FolderContentExportViewModel, IsDesignTimeCreatable=False}"
              d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.Resources>
+        <Style x:Key="HeaderStackPanelStyle" TargetType="StackPanel">
+            <Setter Property="Orientation" Value="Horizontal"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+    </UserControl.Resources>
+
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
+            <RowDefinition>
+                <RowDefinition.Style>
+                    <Style TargetType="RowDefinition">
+                        <Setter Property="Height" Value="*"/>
+                    </Style>
+                </RowDefinition.Style>
+            </RowDefinition>
+            <RowDefinition>
+                <RowDefinition.Style>
+                    <Style TargetType="RowDefinition">
+                        <Setter Property="Height" Value="Auto"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding FullscreenManager.CurrentState}" Value="Folders">
+                                <Setter Property="Height" Value="0"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding FullscreenManager.CurrentState}" Value="Details">
+                                <Setter Property="Height" Value="0"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </RowDefinition.Style>
+            </RowDefinition>
         </Grid.RowDefinitions>
 
         <Grid Grid.Row="0">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="7*"/>
-                <ColumnDefinition Width="3*"/>
+                <ColumnDefinition>
+                    <ColumnDefinition.Style>
+                        <Style TargetType="ColumnDefinition">
+                            <Setter Property="Width" Value="7*"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding FullscreenManager.CurrentState}" Value="Details">
+                                    <Setter Property="Width" Value="0"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding FullscreenManager.CurrentState}" Value="Folders">
+                                    <Setter Property="Width" Value="*"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ColumnDefinition.Style>
+                </ColumnDefinition>
+                <ColumnDefinition>
+                    <ColumnDefinition.Style>
+                        <Style TargetType="ColumnDefinition">
+                            <Setter Property="Width" Value="3*"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding FullscreenManager.CurrentState}" Value="Folders">
+                                    <Setter Property="Width" Value="0"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding FullscreenManager.CurrentState}" Value="Details">
+                                    <Setter Property="Width" Value="*"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ColumnDefinition.Style>
+                </ColumnDefinition>
             </Grid.ColumnDefinitions>
 
-            <GroupBox Grid.Column="0" Header="Folders to Include">
+            <GroupBox Grid.Column="0">
+                <GroupBox.Header>
+                    <StackPanel Style="{StaticResource HeaderStackPanelStyle}">
+                        <TextBlock Text="Folders to Include" VerticalAlignment="Center" FontWeight="SemiBold"/>
+                        <Button Command="{Binding FullscreenManager.ToggleCommand}"
+                                CommandParameter="{x:Static local:FolderContentFullscreenState.Folders}">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource FullscreenButtonStyle}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding FullscreenManager.CurrentState}" Value="Folders">
+                                            <Setter Property="Tag" Value="Active"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                    </StackPanel>
+                </GroupBox.Header>
                 <TreeView ItemsSource="{Binding RootFolders}" BorderThickness="0"
                           ItemContainerStyle="{StaticResource SharedTreeViewItemStyle}">
                     <TreeView.ItemTemplate>
@@ -34,7 +107,24 @@
                 </TreeView>
             </GroupBox>
 
-            <GroupBox Grid.Column="1" Header="Select details">
+            <GroupBox Grid.Column="1">
+                <GroupBox.Header>
+                    <StackPanel Style="{StaticResource HeaderStackPanelStyle}">
+                        <TextBlock Text="Select details" VerticalAlignment="Center" FontWeight="SemiBold"/>
+                        <Button Command="{Binding FullscreenManager.ToggleCommand}"
+                                CommandParameter="{x:Static local:FolderContentFullscreenState.Details}">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource FullscreenButtonStyle}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding FullscreenManager.CurrentState}" Value="Details">
+                                            <Setter Property="Tag" Value="Active"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                    </StackPanel>
+                </GroupBox.Header>
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -73,7 +163,7 @@
                 </TextBlock>
             </StackPanel>
             <controls:ExportOptionsControl DataContext="{Binding}" />
-            <Button Content="Export Folder Contents" 
+            <Button Content="Export Folder Contents"
                     Command="{Binding ExportFolderContentsCommand}"/>
         </StackPanel>
     </Grid>
