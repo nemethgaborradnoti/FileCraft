@@ -29,6 +29,7 @@ namespace FileCraft.ViewModels.Functional
         private readonly Timer _debounceTimer;
         private string _searchFilter = string.Empty;
         private bool _isShowingOnlySelected;
+        private bool _isShowingOnlyUnselected;
         private readonly ObservableCollection<SelectableFile> _allSelectableFiles = new();
         public ObservableCollection<SelectableFile> FilteredSelectableFiles { get; } = new();
         private int _totalFilesCount;
@@ -83,13 +84,36 @@ namespace FileCraft.ViewModels.Functional
                 {
                     _isShowingOnlySelected = value;
                     OnPropertyChanged();
+                    if (_isShowingOnlySelected)
+                    {
+                        IsShowingOnlyUnselected = false;
+                    }
                     ApplyFileFilter();
                     OnPropertyChanged(nameof(CanClearFilter));
                 }
             }
         }
 
-        public bool CanClearFilter => IsShowingOnlySelected || !string.IsNullOrWhiteSpace(SearchFilter);
+        public bool IsShowingOnlyUnselected
+        {
+            get => _isShowingOnlyUnselected;
+            set
+            {
+                if (_isShowingOnlyUnselected != value)
+                {
+                    _isShowingOnlyUnselected = value;
+                    OnPropertyChanged();
+                    if (_isShowingOnlyUnselected)
+                    {
+                        IsShowingOnlySelected = false;
+                    }
+                    ApplyFileFilter();
+                    OnPropertyChanged(nameof(CanClearFilter));
+                }
+            }
+        }
+
+        public bool CanClearFilter => IsShowingOnlySelected || IsShowingOnlyUnselected || !string.IsNullOrWhiteSpace(SearchFilter);
 
         public bool? AreAllFilesSelected
         {
@@ -231,6 +255,7 @@ namespace FileCraft.ViewModels.Functional
         {
             SearchFilter = string.Empty;
             IsShowingOnlySelected = false;
+            IsShowingOnlyUnselected = false;
         }
 
         private void BulkSearch()
@@ -329,6 +354,10 @@ namespace FileCraft.ViewModels.Functional
                 {
                     filtered = filtered.Where(f => f.IsSelected);
                 }
+                else if (IsShowingOnlyUnselected)
+                {
+                    filtered = filtered.Where(f => !f.IsSelected);
+                }
 
                 if (!string.IsNullOrWhiteSpace(SearchFilter))
                 {
@@ -412,7 +441,7 @@ namespace FileCraft.ViewModels.Functional
             if (e.PropertyName == nameof(SelectableFile.IsSelected))
             {
                 UpdateFileCounts();
-                if (IsShowingOnlySelected)
+                if (IsShowingOnlySelected || IsShowingOnlyUnselected)
                 {
                     ApplyFileFilter();
                 }

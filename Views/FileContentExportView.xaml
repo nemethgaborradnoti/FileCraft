@@ -9,20 +9,16 @@
              d:DataContext="{d:DesignInstance Type=viewmodels:FileContentExportViewModel, IsDesignTimeCreatable=False}"
              d:DesignHeight="600" d:DesignWidth="800">
     <UserControl.Resources>
-        <!-- Stílus a fix szürke, vastag betűs teljes képernyő gombokhoz -->
         <Style x:Key="FullscreenButtonStyle" TargetType="Button">
             <Setter Property="Width" Value="24"/>
             <Setter Property="Height" Value="24"/>
             <Setter Property="Margin" Value="10,0,0,0"/>
-            <!-- Bal oldali margó a címtől való távolságért -->
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Background" Value="#E0E0E0"/>
-            <!-- Fix szürke háttér -->
             <Setter Property="BorderBrush" Value="#999999"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Foreground" Value="#333333"/>
             <Setter Property="FontWeight" Value="Bold"/>
-            <!-- Vastag betű -->
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="Padding" Value="0"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
@@ -41,7 +37,6 @@
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter TargetName="border" Property="Background" Value="#C0C0C0"/>
-                                <!-- Sötétebb szürke hover -->
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
                                 <Setter TargetName="border" Property="Background" Value="#A0A0A0"/>
@@ -136,7 +131,6 @@
                 <GroupBox.Header>
                     <StackPanel Style="{StaticResource HeaderStackPanelStyle}">
                         <TextBlock Text="Folders to Include" VerticalAlignment="Center" FontWeight="SemiBold"/>
-                        <!-- Gomb stílusa: csak a <Button.Style> taget használjuk a konfliktus elkerülése érdekében -->
                         <Button Command="{Binding ToggleFullscreenCommand}"
                                 CommandParameter="Folders">
                             <Button.Style>
@@ -194,10 +188,17 @@
                               Text="Select Extensions..."
                               StaysOpenOnEdit="True"
                               MaxDropDownHeight="250">
+                        <ComboBox.ItemContainerStyle>
+                            <Style TargetType="ComboBoxItem">
+                                <Setter Property="Focusable" Value="False"/>
+                                <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                                <Setter Property="VerticalContentAlignment" Value="Stretch"/>
+                            </Style>
+                        </ComboBox.ItemContainerStyle>
                         <ComboBox.ItemTemplate>
                             <DataTemplate>
-                                <CheckBox IsChecked="{Binding IsSelected}" 
-                                          Content="{Binding Name}" 
+                                <CheckBox IsChecked="{Binding IsSelected}"
+                                          Content="{Binding Name}"
                                           Margin="2"
                                           HorizontalAlignment="Stretch"
                                           VerticalAlignment="Stretch"
@@ -272,9 +273,13 @@
                                 Style="{StaticResource WarningButton}"
                                 Margin="0,0,10,0"/>
 
-                        <CheckBox Content="Show only selected"
-                                  IsChecked="{Binding IsShowingOnlySelected}"
-                                  VerticalAlignment="Center"/>
+                        <StackPanel VerticalAlignment="Center">
+                            <CheckBox Content="Show only selected"
+                                      IsChecked="{Binding IsShowingOnlySelected}"
+                                      Margin="0,0,0,2"/>
+                            <CheckBox Content="Show only unselected"
+                                      IsChecked="{Binding IsShowingOnlyUnselected}"/>
+                        </StackPanel>
 
                         <Button Content="Clear Filter"
                                 Command="{Binding ClearFilterCommand}"
