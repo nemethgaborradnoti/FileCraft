@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -177,6 +178,7 @@ namespace FileCraft.ViewModels.Functional
                 {
                     _currentFullscreenState = value;
                     OnPropertyChanged();
+                    UpdateIgnoredFilesText();
                 }
             }
         }
@@ -548,9 +550,11 @@ namespace FileCraft.ViewModels.Functional
             else
             {
                 var sb = new StringBuilder();
+                bool isFullscreen = CurrentFullscreenState == ExportFullscreenState.Extensions;
+
                 foreach (var path in _ignoredCommentFilePaths.OrderBy(p => p))
                 {
-                    sb.AppendLine(path);
+                    sb.AppendLine(isFullscreen ? path : Path.GetFileName(path));
                 }
                 IgnoredFilesText = sb.ToString().TrimEnd();
             }

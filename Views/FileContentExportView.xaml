@@ -110,7 +110,7 @@
                 <ColumnDefinition>
                     <ColumnDefinition.Style>
                         <Style TargetType="ColumnDefinition">
-                            <Setter Property="Width" Value="7*"/>
+                            <Setter Property="Width" Value="6*"/>
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding CurrentFullscreenState}" Value="Folders">
                                     <Setter Property="Width" Value="*"/>
@@ -125,7 +125,7 @@
                 <ColumnDefinition>
                     <ColumnDefinition.Style>
                         <Style TargetType="ColumnDefinition">
-                            <Setter Property="Width" Value="3*"/>
+                            <Setter Property="Width" Value="4*"/>
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding CurrentFullscreenState}" Value="Folders">
                                     <Setter Property="Width" Value="0"/>
