@@ -78,6 +78,9 @@
                             <DataTrigger Binding="{Binding CurrentFullscreenState}" Value="Folders">
                                 <Setter Property="Height" Value="0"/>
                             </DataTrigger>
+                            <DataTrigger Binding="{Binding CurrentFullscreenState}" Value="Extensions">
+                                <Setter Property="Height" Value="0"/>
+                            </DataTrigger>
                         </Style.Triggers>
                     </Style>
                 </RowDefinition.Style>
@@ -91,6 +94,9 @@
                                 <Setter Property="Height" Value="0"/>
                             </DataTrigger>
                             <DataTrigger Binding="{Binding CurrentFullscreenState}" Value="Files">
+                                <Setter Property="Height" Value="0"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding CurrentFullscreenState}" Value="Extensions">
                                 <Setter Property="Height" Value="0"/>
                             </DataTrigger>
                         </Style.Triggers>
@@ -109,6 +115,9 @@
                                 <DataTrigger Binding="{Binding CurrentFullscreenState}" Value="Folders">
                                     <Setter Property="Width" Value="*"/>
                                 </DataTrigger>
+                                <DataTrigger Binding="{Binding CurrentFullscreenState}" Value="Extensions">
+                                    <Setter Property="Width" Value="0"/>
+                                </DataTrigger>
                             </Style.Triggers>
                         </Style>
                     </ColumnDefinition.Style>
@@ -120,6 +129,9 @@
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding CurrentFullscreenState}" Value="Folders">
                                     <Setter Property="Width" Value="0"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding CurrentFullscreenState}" Value="Extensions">
+                                    <Setter Property="Width" Value="*"/>
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>
@@ -159,14 +171,31 @@
                 </TreeView>
             </GroupBox>
 
-            <GroupBox Grid.Column="1" Header="File extensions to include">
+            <GroupBox Grid.Column="1">
+                <GroupBox.Header>
+                    <StackPanel Style="{StaticResource HeaderStackPanelStyle}">
+                        <TextBlock Text="File extensions to include" VerticalAlignment="Center" FontWeight="SemiBold"/>
+                        <Button Command="{Binding ToggleFullscreenCommand}"
+                                CommandParameter="Extensions">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource FullscreenButtonStyle}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding CurrentFullscreenState}" Value="Extensions">
+                                            <Setter Property="Content" Value="↶"/>
+                                            <Setter Property="ToolTip" Value="Exit Fullscreen"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                    </StackPanel>
+                </GroupBox.Header>
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
                     <Border Grid.Row="0"
@@ -215,8 +244,7 @@
                             BorderThickness="1"
                             CornerRadius="4"
                             Background="{StaticResource TextBoxBackgroundBrush}"
-                            Margin="0,0,0,5"
-                            Height="100">
+                            Margin="0,0,0,5">
                         <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="5">
                             <TextBlock Text="{Binding IgnoredFilesText}"
                                        TextWrapping="Wrap"

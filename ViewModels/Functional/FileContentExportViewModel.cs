@@ -19,7 +19,8 @@ namespace FileCraft.ViewModels.Functional
     {
         None,
         Folders,
-        Files
+        Files,
+        Extensions
     }
 
     public class FileContentExportViewModel : ExportViewModelBase
