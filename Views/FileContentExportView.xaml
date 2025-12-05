@@ -5,65 +5,11 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:viewmodels="clr-namespace:FileCraft.ViewModels.Functional"
              xmlns:controls="clr-namespace:FileCraft.Views.Shared.Controls"
+             xmlns:local="clr-namespace:FileCraft.ViewModels.Functional"
              mc:Ignorable="d"
              d:DataContext="{d:DesignInstance Type=viewmodels:FileContentExportViewModel, IsDesignTimeCreatable=False}"
              d:DesignHeight="600" d:DesignWidth="800">
     <UserControl.Resources>
-        <Style x:Key="FullscreenButtonStyle" TargetType="Button">
-            <Setter Property="Width" Value="24"/>
-            <Setter Property="Height" Value="24"/>
-            <Setter Property="Margin" Value="10,0,0,0"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Background" Value="#E0E0E0"/>
-            <Setter Property="BorderBrush" Value="#999999"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Foreground" Value="#333333"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="FontSize" Value="16"/>
-            <Setter Property="Padding" Value="0"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
-            <Setter Property="Content" Value="⤢"/>
-            <Setter Property="ToolTip" Value="Fullscreen"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="border"
-                                Background="{TemplateBinding Background}"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="3">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <!-- Default Hover/Pressed (Gray) -->
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="#C0C0C0"/>
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="#A0A0A0"/>
-                            </Trigger>
-
-                            <!-- Warning Hover/Pressed (Yellow/Orange) - triggered when Tag is 'Warning' -->
-                            <MultiTrigger>
-                                <MultiTrigger.Conditions>
-                                    <Condition Property="IsMouseOver" Value="True"/>
-                                    <Condition Property="Tag" Value="Warning"/>
-                                </MultiTrigger.Conditions>
-                                <Setter TargetName="border" Property="Background" Value="{StaticResource WarningDarkerBrush}"/>
-                            </MultiTrigger>
-                            <MultiTrigger>
-                                <MultiTrigger.Conditions>
-                                    <Condition Property="IsPressed" Value="True"/>
-                                    <Condition Property="Tag" Value="Warning"/>
-                                </MultiTrigger.Conditions>
-                                <Setter TargetName="border" Property="Background" Value="#C69500"/>
-                            </MultiTrigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
         <Style x:Key="HeaderStackPanelStyle" TargetType="StackPanel">
             <Setter Property="Orientation" Value="Horizontal"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
@@ -77,7 +23,7 @@
                     <Style TargetType="RowDefinition">
                         <Setter Property="Height" Value="*"/>
                         <Style.Triggers>
-                            <DataTrigger Binding="{Binding CurrentFullscreenState}" Value="Files">
+                            <DataTrigger Binding="{Binding FullscreenManager.CurrentState}" Value="Files">
                                 <Setter Property="Height" Value="0"/>
                             </DataTrigger>
                         </Style.Triggers>
@@ -89,13 +35,13 @@
                     <Style TargetType="RowDefinition">
                         <Setter Property="Height" Value="240"/>
                         <Style.Triggers>
-                            <DataTrigger Binding="{Binding CurrentFullscreenState}" Value="Files">
+                            <DataTrigger Binding="{Binding FullscreenManager.CurrentState}" Value="Files">
                                 <Setter Property="Height" Value="*"/>
                             </DataTrigger>
-                            <DataTrigger Binding="{Binding CurrentFullscreenState}" Value="Folders">
+                            <DataTrigger Binding="{Binding FullscreenManager.CurrentState}" Value="Folders">
                                 <Setter Property="Height" Value="0"/>
                             </DataTrigger>
-                            <DataTrigger Binding="{Binding CurrentFullscreenState}" Value="Extensions">
+                            <DataTrigger Binding="{Binding FullscreenManager.CurrentState}" Value="Extensions">
                                 <Setter Property="Height" Value="0"/>
                             </DataTrigger>
                         </Style.Triggers>
@@ -107,13 +53,13 @@
                     <Style TargetType="RowDefinition">
                         <Setter Property="Height" Value="Auto"/>
                         <Style.Triggers>
-                            <DataTrigger Binding="{Binding CurrentFullscreenState}" Value="Folders">
+                            <DataTrigger Binding="{Binding FullscreenManager.CurrentState}" Value="Folders">
                                 <Setter Property="Height" Value="0"/>
                             </DataTrigger>
-                            <DataTrigger Binding="{Binding CurrentFullscreenState}" Value="Files">
+                            <DataTrigger Binding="{Binding FullscreenManager.CurrentState}" Value="Files">
                                 <Setter Property="Height" Value="0"/>
                             </DataTrigger>
-                            <DataTrigger Binding="{Binding CurrentFullscreenState}" Value="Extensions">
+                            <DataTrigger Binding="{Binding FullscreenManager.CurrentState}" Value="Extensions">
                                 <Setter Property="Height" Value="0"/>
                             </DataTrigger>
                         </Style.Triggers>
@@ -129,10 +75,10 @@
                         <Style TargetType="ColumnDefinition">
                             <Setter Property="Width" Value="6*"/>
                             <Style.Triggers>
-                                <DataTrigger Binding="{Binding CurrentFullscreenState}" Value="Folders">
+                                <DataTrigger Binding="{Binding FullscreenManager.CurrentState}" Value="Folders">
                                     <Setter Property="Width" Value="*"/>
                                 </DataTrigger>
-                                <DataTrigger Binding="{Binding CurrentFullscreenState}" Value="Extensions">
+                                <DataTrigger Binding="{Binding FullscreenManager.CurrentState}" Value="Extensions">
                                     <Setter Property="Width" Value="0"/>
                                 </DataTrigger>
                             </Style.Triggers>
@@ -144,10 +90,10 @@
                         <Style TargetType="ColumnDefinition">
                             <Setter Property="Width" Value="4*"/>
                             <Style.Triggers>
-                                <DataTrigger Binding="{Binding CurrentFullscreenState}" Value="Folders">
+                                <DataTrigger Binding="{Binding FullscreenManager.CurrentState}" Value="Folders">
                                     <Setter Property="Width" Value="0"/>
                                 </DataTrigger>
-                                <DataTrigger Binding="{Binding CurrentFullscreenState}" Value="Extensions">
+                                <DataTrigger Binding="{Binding FullscreenManager.CurrentState}" Value="Extensions">
                                     <Setter Property="Width" Value="*"/>
                                 </DataTrigger>
                             </Style.Triggers>
@@ -160,17 +106,13 @@
                 <GroupBox.Header>
                     <StackPanel Style="{StaticResource HeaderStackPanelStyle}">
                         <TextBlock Text="Folders to Include" VerticalAlignment="Center" FontWeight="SemiBold"/>
-                        <Button Command="{Binding ToggleFullscreenCommand}"
-                                CommandParameter="Folders">
+                        <Button Command="{Binding FullscreenManager.ToggleCommand}"
+                                CommandParameter="{x:Static local:ExportFullscreenState.Folders}">
                             <Button.Style>
                                 <Style TargetType="Button" BasedOn="{StaticResource FullscreenButtonStyle}">
                                     <Style.Triggers>
-                                        <DataTrigger Binding="{Binding CurrentFullscreenState}" Value="Folders">
-                                            <Setter Property="Content" Value="↶"/>
-                                            <Setter Property="ToolTip" Value="Exit Fullscreen"/>
-                                            <Setter Property="Background" Value="{StaticResource WarningBrush}"/>
-                                            <Setter Property="BorderBrush" Value="{StaticResource WarningDarkerBrush}"/>
-                                            <Setter Property="Tag" Value="Warning"/>
+                                        <DataTrigger Binding="{Binding FullscreenManager.CurrentState}" Value="Folders">
+                                            <Setter Property="Tag" Value="Active"/>
                                         </DataTrigger>
                                     </Style.Triggers>
                                 </Style>
@@ -195,17 +137,13 @@
                 <GroupBox.Header>
                     <StackPanel Style="{StaticResource HeaderStackPanelStyle}">
                         <TextBlock Text="File extensions to include" VerticalAlignment="Center" FontWeight="SemiBold"/>
-                        <Button Command="{Binding ToggleFullscreenCommand}"
-                                CommandParameter="Extensions">
+                        <Button Command="{Binding FullscreenManager.ToggleCommand}"
+                                CommandParameter="{x:Static local:ExportFullscreenState.Extensions}">
                             <Button.Style>
                                 <Style TargetType="Button" BasedOn="{StaticResource FullscreenButtonStyle}">
                                     <Style.Triggers>
-                                        <DataTrigger Binding="{Binding CurrentFullscreenState}" Value="Extensions">
-                                            <Setter Property="Content" Value="↶"/>
-                                            <Setter Property="ToolTip" Value="Exit Fullscreen"/>
-                                            <Setter Property="Background" Value="{StaticResource WarningBrush}"/>
-                                            <Setter Property="BorderBrush" Value="{StaticResource WarningDarkerBrush}"/>
-                                            <Setter Property="Tag" Value="Warning"/>
+                                        <DataTrigger Binding="{Binding FullscreenManager.CurrentState}" Value="Extensions">
+                                            <Setter Property="Tag" Value="Active"/>
                                         </DataTrigger>
                                     </Style.Triggers>
                                 </Style>
@@ -287,17 +225,13 @@
             <GroupBox.Header>
                 <StackPanel Style="{StaticResource HeaderStackPanelStyle}">
                     <TextBlock Text="Files to Export" VerticalAlignment="Center" FontWeight="SemiBold"/>
-                    <Button Command="{Binding ToggleFullscreenCommand}"
-                            CommandParameter="Files">
+                    <Button Command="{Binding FullscreenManager.ToggleCommand}"
+                            CommandParameter="{x:Static local:ExportFullscreenState.Files}">
                         <Button.Style>
                             <Style TargetType="Button" BasedOn="{StaticResource FullscreenButtonStyle}">
                                 <Style.Triggers>
-                                    <DataTrigger Binding="{Binding CurrentFullscreenState}" Value="Files">
-                                        <Setter Property="Content" Value="↶"/>
-                                        <Setter Property="ToolTip" Value="Exit Fullscreen"/>
-                                        <Setter Property="Background" Value="{StaticResource WarningBrush}"/>
-                                        <Setter Property="BorderBrush" Value="{StaticResource WarningDarkerBrush}"/>
-                                        <Setter Property="Tag" Value="Warning"/>
+                                    <DataTrigger Binding="{Binding FullscreenManager.CurrentState}" Value="Files">
+                                        <Setter Property="Tag" Value="Active"/>
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>

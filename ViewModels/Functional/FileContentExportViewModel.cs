@@ -37,10 +37,12 @@ namespace FileCraft.ViewModels.Functional
         private bool? _areAllExtensionsSelected;
         private string _outputFileName = string.Empty;
         private bool _appendTimestamp;
-        private ExportFullscreenState _currentFullscreenState = ExportFullscreenState.None;
         private string _selectedExtensionsText = "No extensions selected.";
         private string _ignoredFilesText = "No files selected to ignore comments.";
         private HashSet<string> _ignoredCommentFilePaths = new(StringComparer.OrdinalIgnoreCase);
+
+        // Replaced local logic with FullscreenManager
+        public FullscreenManager<ExportFullscreenState> FullscreenManager { get; }
 
         public int TotalFilesCount
         {
@@ -165,20 +167,6 @@ namespace FileCraft.ViewModels.Functional
             }
         }
 
-        public ExportFullscreenState CurrentFullscreenState
-        {
-            get => _currentFullscreenState;
-            set
-            {
-                if (_currentFullscreenState != value)
-                {
-                    _currentFullscreenState = value;
-                    OnPropertyChanged();
-                    UpdateIgnoredFilesText();
-                }
-            }
-        }
-
         public string SelectedExtensionsText
         {
             get => _selectedExtensionsText;
@@ -211,7 +199,6 @@ namespace FileCraft.ViewModels.Functional
         public ICommand ExportFileContentCommand { get; }
         public ICommand ClearFilterCommand { get; }
         public ICommand BulkSearchCommand { get; }
-        public ICommand ToggleFullscreenCommand { get; }
         public ICommand ConfigureIgnoredCommentsCommand { get; }
 
         public FileContentExportViewModel(
@@ -226,6 +213,9 @@ namespace FileCraft.ViewModels.Functional
             _sharedStateService = sharedStateService;
             _debounceTimer = new Timer(OnDebounceTimerElapsed, null, Timeout.Infinite, Timeout.Infinite);
 
+            FullscreenManager = new FullscreenManager<ExportFullscreenState>(ExportFullscreenState.None);
+            FullscreenManager.PropertyChanged += OnFullscreenStateChanged;
+
             FolderTreeManager.PropertyChanged += OnFolderTreeManagerPropertyChanged;
             FolderTreeManager.FolderSelectionChanged += OnFolderSelectionChanged;
             FolderTreeManager.StateChanging += OnStateChanging;
@@ -233,7 +223,6 @@ namespace FileCraft.ViewModels.Functional
             ExportFileContentCommand = new RelayCommand(async (_) => await ExportFileContentAsync(), (_) => CanExecuteOperation(this.OutputFileName) && _allSelectableFiles.Any(f => f.IsSelected));
             ClearFilterCommand = new RelayCommand(_ => ClearFilter());
             BulkSearchCommand = new RelayCommand(_ => BulkSearch(), _ => _allSelectableFiles.Any());
-            ToggleFullscreenCommand = new RelayCommand(ToggleFullscreen);
             ConfigureIgnoredCommentsCommand = new RelayCommand(_ => ConfigureIgnoredComments(), _ => _allSelectableFiles.Any(f => f.IsSelected));
 
             OnFolderSelectionChanged();
@@ -241,29 +230,11 @@ namespace FileCraft.ViewModels.Functional
             UpdateExtensionMasterState();
         }
 
-        private void ToggleFullscreen(object? parameter)
+        private void OnFullscreenStateChanged(object? sender, PropertyChangedEventArgs e)
         {
-            if (parameter is string stateStr && Enum.TryParse<ExportFullscreenState>(stateStr, out var state))
+            if (e.PropertyName == nameof(FullscreenManager.CurrentState))
             {
-                if (CurrentFullscreenState == state)
-                {
-                    CurrentFullscreenState = ExportFullscreenState.None;
-                }
-                else
-                {
-                    CurrentFullscreenState = state;
-                }
-            }
-            else if (parameter is ExportFullscreenState enumState)
-            {
-                if (CurrentFullscreenState == enumState)
-                {
-                    CurrentFullscreenState = ExportFullscreenState.None;
-                }
-                else
-                {
-                    CurrentFullscreenState = enumState;
-                }
+                UpdateIgnoredFilesText();
             }
         }
 
@@ -546,7 +517,7 @@ namespace FileCraft.ViewModels.Functional
             else
             {
                 var sb = new StringBuilder();
-                bool isFullscreen = CurrentFullscreenState == ExportFullscreenState.Extensions;
+                bool isFullscreen = FullscreenManager.CurrentState == ExportFullscreenState.Extensions;
 
                 foreach (var path in _ignoredCommentFilePaths.OrderBy(p => p))
                 {

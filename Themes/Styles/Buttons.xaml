@@ -202,4 +202,60 @@
         </Style.Triggers>
     </Style>
 
+    <!-- Generic Fullscreen Button Style -->
+    <Style x:Key="FullscreenButtonStyle" TargetType="Button">
+        <Setter Property="Width" Value="24"/>
+        <Setter Property="Height" Value="24"/>
+        <Setter Property="Margin" Value="10,0,0,0"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Background" Value="#E0E0E0"/>
+        <Setter Property="BorderBrush" Value="#999999"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Foreground" Value="#333333"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="FontSize" Value="16"/>
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="Content" Value="⤢"/>
+        <Setter Property="ToolTip" Value="Fullscreen"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="border"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="3">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <!-- Default Hover/Pressed (Gray) -->
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="border" Property="Background" Value="#C0C0C0"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="border" Property="Background" Value="#A0A0A0"/>
+                        </Trigger>
+
+                        <!-- Active State (When Tag is 'Active') -->
+                        <Trigger Property="Tag" Value="Active">
+                            <Setter Property="Content" Value="↶"/>
+                            <Setter Property="ToolTip" Value="Exit Fullscreen"/>
+                            <Setter Property="Background" Value="{StaticResource WarningBrush}"/>
+                            <Setter Property="BorderBrush" Value="{StaticResource WarningDarkerBrush}"/>
+                        </Trigger>
+
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsMouseOver" Value="True"/>
+                                <Condition Property="Tag" Value="Active"/>
+                            </MultiTrigger.Conditions>
+                            <Setter TargetName="border" Property="Background" Value="{StaticResource WarningDarkerBrush}"/>
+                        </MultiTrigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
 </ResourceDictionary>
