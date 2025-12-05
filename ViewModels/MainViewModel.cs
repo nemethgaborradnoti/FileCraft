@@ -340,8 +340,22 @@ namespace FileCraft.ViewModels
 
                 var relativeSaveData = MakePathsRelative(currentSaveData, SourcePath);
                 _saveService.SaveAsPreset(relativeSaveData, presetNumber);
-                _dialogService.ShowNotification("Success", $"Preset '{presetName}' saved successfully to slot {presetNumber}.", DialogIconType.Success);
+
                 OptionsVM.CheckForExistingPresets();
+
+                if (!exists)
+                {
+                    string? newName = _dialogService.ShowRenamePresetDialog(presetName, presetNumber);
+                    if (!string.IsNullOrWhiteSpace(newName) && newName != presetName)
+                    {
+                        _saveService.UpdatePresetName(presetNumber, newName);
+                        OptionsVM.CheckForExistingPresets();
+                        _dialogService.ShowNotification("Success", $"Preset saved and renamed to '{newName}'.", DialogIconType.Success);
+                        return;
+                    }
+                }
+
+                _dialogService.ShowNotification("Success", $"Preset '{presetName}' saved successfully to slot {presetNumber}.", DialogIconType.Success);
             }
             catch (System.Exception ex)
             {
