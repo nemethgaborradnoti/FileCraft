@@ -8,7 +8,6 @@ namespace FileCraft.Services.Interfaces
 
         Task<string> ExportFolderContentsAsync(string destinationPath, IEnumerable<string> includedFolderPaths, string outputFileName, IEnumerable<string> selectedColumns);
 
-        Task<(string FilePath, int NormalCommentLines, int NormalCommentChars, int XmlCommentLines, int XmlCommentChars)> ExportSelectedFileContentsAsync(string destinationPath, IEnumerable<SelectableFile> selectedFiles, string outputFileName, bool ignoreNormalComments, bool ignoreXmlComments);
-        Task<string> GetIgnoredCommentsPreviewAsync(IEnumerable<SelectableFile> selectedFiles, bool ignoreNormalComments, bool ignoreXmlComments);
+        Task<(string FilePath, int XmlCommentLines, int XmlCommentChars)> ExportSelectedFileContentsAsync(string destinationPath, IEnumerable<SelectableFile> selectedFiles, string outputFileName, ISet<string> filesToIgnoreXmlComments);
     }
 }

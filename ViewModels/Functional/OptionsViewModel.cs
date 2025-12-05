@@ -115,7 +115,6 @@ namespace FileCraft.ViewModels.Functional
         public ICommand OpenSaveFolderCommand { get; }
         public ICommand CopyFolderTreeCommand { get; }
         public ICommand EditIgnoredFoldersCommand { get; }
-        public ICommand PreviewIgnoredCommentsCommand { get; }
 
         public ObservableCollection<PresetSlotViewModel> PresetSlots { get; } = new();
         public ObservableCollection<TabItemViewModel> AllTabs { get; } = new();
@@ -250,7 +249,6 @@ namespace FileCraft.ViewModels.Functional
             OpenSaveFolderCommand = new RelayCommand(_ => OpenSaveFolder());
             CopyFolderTreeCommand = new RelayCommand(_ => CopyFolderTree(), _ => CanCopyFolderTree());
             EditIgnoredFoldersCommand = new RelayCommand(_ => EditIgnoredFolders());
-            PreviewIgnoredCommentsCommand = new RelayCommand(async _ => await PreviewIgnoredComments(), _ => CanPreview());
 
             for (int i = 1; i <= 5; i++)
             {
@@ -267,59 +265,6 @@ namespace FileCraft.ViewModels.Functional
             SelectedDestinationTab = AllTabs[0];
 
             UpdateIgnoredFoldersText();
-        }
-
-        public bool IgnoreNormalComments
-        {
-            get => _sharedStateService.IgnoreNormalComments;
-            set
-            {
-                if (_sharedStateService.IgnoreNormalComments != value)
-                {
-                    OnStateChanging();
-                    _sharedStateService.IgnoreNormalComments = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
-
-        public bool IgnoreXmlComments
-        {
-            get => _sharedStateService.IgnoreXmlComments;
-            set
-            {
-                if (_sharedStateService.IgnoreXmlComments != value)
-                {
-                    OnStateChanging();
-                    _sharedStateService.IgnoreXmlComments = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
-
-        private async Task PreviewIgnoredComments()
-        {
-            var selectedFiles = _fileContentExportVM.GetSelectedFiles();
-            if (!selectedFiles.Any())
-            {
-                _dialogService.ShowNotification("Info", "No files are selected in the 'File Content Export' tab.", DialogIconType.Info);
-                return;
-            }
-
-            try
-            {
-                string previewContent = await _fileOperationService.GetIgnoredCommentsPreviewAsync(selectedFiles, _sharedStateService.IgnoreNormalComments, _sharedStateService.IgnoreXmlComments);
-                _dialogService.ShowPreview("Ignored Comments Preview", previewContent);
-            }
-            catch (Exception ex)
-            {
-                _dialogService.ShowNotification("Error", $"An error occurred while generating the preview:\n{ex.Message}", DialogIconType.Error);
-            }
-        }
-
-        private bool CanPreview()
-        {
-            return _fileContentExportVM.SelectedFilesCount > 0 && (_sharedStateService.IgnoreNormalComments || _sharedStateService.IgnoreXmlComments);
         }
 
         private void UpdateIgnoredFoldersText()

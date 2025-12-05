@@ -255,6 +255,7 @@ namespace FileCraft.ViewModels
                     AppendTimestamp = FileContentExportVM.AppendTimestamp,
                     SelectedExtensions = FileContentExportVM.GetSelectedExtensions(),
                     SelectedFilePaths = FileContentExportVM.GetSelectedFilePaths(),
+                    IgnoredCommentFilePaths = FileContentExportVM.GetIgnoredCommentFilePaths(),
                     FolderTreeState = FileContentExportVM.FolderTreeManager.GetFolderStates()
                 },
                 FolderContentExport = new FolderContentExportSettings
@@ -272,9 +273,7 @@ namespace FileCraft.ViewModels
                 },
                 SettingsPage = new SettingsPageSettings
                 {
-                    IgnoredFolders = _sharedStateService.IgnoredFolders,
-                    IgnoreNormalComments = _sharedStateService.IgnoreNormalComments,
-                    IgnoreXmlComments = _sharedStateService.IgnoreXmlComments
+                    IgnoredFolders = _sharedStateService.IgnoredFolders
                 }
             };
         }
@@ -285,8 +284,6 @@ namespace FileCraft.ViewModels
             _sharedStateService.SourcePath = saveData.SourcePath;
             _sharedStateService.DestinationPath = saveData.DestinationPath;
             _sharedStateService.IgnoredFolders = saveData.SettingsPage.IgnoredFolders ?? new();
-            _sharedStateService.IgnoreNormalComments = saveData.SettingsPage.IgnoreNormalComments;
-            _sharedStateService.IgnoreXmlComments = saveData.SettingsPage.IgnoreXmlComments;
 
             OnPropertyChanged(nameof(SourcePath));
             OnPropertyChanged(nameof(DestinationPath));
@@ -476,6 +473,7 @@ namespace FileCraft.ViewModels
 
             relativeData.FileContentExport.FolderTreeState = absoluteData.FileContentExport.FolderTreeState.Select(s => new FolderState { FullPath = Path.GetRelativePath(basePath, s.FullPath), IsSelected = s.IsSelected, IsExpanded = s.IsExpanded }).ToList();
             relativeData.FileContentExport.SelectedFilePaths = absoluteData.FileContentExport.SelectedFilePaths.Select(p => Path.GetRelativePath(basePath, p)).ToList();
+            relativeData.FileContentExport.IgnoredCommentFilePaths = absoluteData.FileContentExport.IgnoredCommentFilePaths.Select(p => Path.GetRelativePath(basePath, p)).ToList();
 
             relativeData.FolderContentExport.FolderTreeState = absoluteData.FolderContentExport.FolderTreeState.Select(s => new FolderState { FullPath = Path.GetRelativePath(basePath, s.FullPath), IsSelected = s.IsSelected, IsExpanded = s.IsExpanded }).ToList();
             relativeData.TreeGenerator.FolderTreeState = absoluteData.TreeGenerator.FolderTreeState.Select(s => new FolderState { FullPath = Path.GetRelativePath(basePath, s.FullPath), IsSelected = s.IsSelected, IsExpanded = s.IsExpanded }).ToList();
@@ -491,6 +489,7 @@ namespace FileCraft.ViewModels
 
             absoluteData.FileContentExport.FolderTreeState = relativeData.FileContentExport.FolderTreeState.Select(s => new FolderState { FullPath = Path.GetFullPath(Path.Combine(basePath, s.FullPath)), IsSelected = s.IsSelected, IsExpanded = s.IsExpanded }).ToList();
             absoluteData.FileContentExport.SelectedFilePaths = relativeData.FileContentExport.SelectedFilePaths.Select(p => Path.GetFullPath(Path.Combine(basePath, p))).ToList();
+            absoluteData.FileContentExport.IgnoredCommentFilePaths = relativeData.FileContentExport.IgnoredCommentFilePaths.Select(p => Path.GetFullPath(Path.Combine(basePath, p))).ToList();
 
             absoluteData.FolderContentExport.FolderTreeState = relativeData.FolderContentExport.FolderTreeState.Select(s => new FolderState { FullPath = Path.GetFullPath(Path.Combine(basePath, s.FullPath)), IsSelected = s.IsSelected, IsExpanded = s.IsExpanded }).ToList();
             absoluteData.TreeGenerator.FolderTreeState = relativeData.TreeGenerator.FolderTreeState.Select(s => new FolderState { FullPath = Path.GetFullPath(Path.Combine(basePath, s.FullPath)), IsSelected = s.IsSelected, IsExpanded = s.IsExpanded }).ToList();

@@ -160,7 +160,7 @@ namespace FileCraft.Services
         }
 
 
-        public async Task<(string FilePath, int NormalCommentLines, int NormalCommentChars, int XmlCommentLines, int XmlCommentChars)> ExportSelectedFileContentsAsync(string destinationPath, IEnumerable<SelectableFile> selectedFiles, string outputFileName, bool ignoreNormalComments, bool ignoreXmlComments)
+        public async Task<(string FilePath, int XmlCommentLines, int XmlCommentChars)> ExportSelectedFileContentsAsync(string destinationPath, IEnumerable<SelectableFile> selectedFiles, string outputFileName, ISet<string> filesToIgnoreXmlComments)
         {
             Guard.AgainstNullOrWhiteSpace(destinationPath, nameof(destinationPath));
             Guard.AgainstNullOrWhiteSpace(outputFileName, nameof(outputFileName));
@@ -168,8 +168,6 @@ namespace FileCraft.Services
 
             var contentBuilder = new StringBuilder();
             var selectedFilesList = selectedFiles.ToList();
-            int totalNormalCommentLines = 0;
-            int totalNormalCommentChars = 0;
             int totalXmlCommentLines = 0;
             int totalXmlCommentChars = 0;
 
@@ -182,35 +180,30 @@ namespace FileCraft.Services
                     contentBuilder.AppendLine();
 
                     var lines = await File.ReadAllLinesAsync(file.FullPath);
+                    bool shouldIgnoreXmlComments = filesToIgnoreXmlComments.Contains(file.RelativePath);
 
                     foreach (var line in lines)
                     {
                         string finalLine = line;
                         bool commentRemoved = false;
 
-                        int commentIndex = FindActualCommentIndex(line);
-
-                        if (commentIndex != -1)
+                        if (shouldIgnoreXmlComments)
                         {
-                            bool isXmlComment = commentIndex + 2 < line.Length && line[commentIndex + 2] == '/';
+                            int commentIndex = FindActualCommentIndex(line);
 
-                            if (ignoreXmlComments && isXmlComment)
+                            if (commentIndex != -1)
                             {
-                                string codePart = line.Substring(0, commentIndex);
-                                string commentPart = line.Substring(commentIndex);
-                                totalXmlCommentChars += commentPart.Length;
-                                totalXmlCommentLines++;
-                                finalLine = codePart;
-                                commentRemoved = true;
-                            }
-                            else if (ignoreNormalComments && !isXmlComment)
-                            {
-                                string codePart = line.Substring(0, commentIndex);
-                                string commentPart = line.Substring(commentIndex);
-                                totalNormalCommentChars += commentPart.Length;
-                                totalNormalCommentLines++;
-                                finalLine = codePart;
-                                commentRemoved = true;
+                                bool isXmlComment = commentIndex + 2 < line.Length && line[commentIndex + 2] == '/';
+
+                                if (isXmlComment)
+                                {
+                                    string codePart = line.Substring(0, commentIndex);
+                                    string commentPart = line.Substring(commentIndex);
+                                    totalXmlCommentChars += commentPart.Length;
+                                    totalXmlCommentLines++;
+                                    finalLine = codePart;
+                                    commentRemoved = true;
+                                }
                             }
                         }
 
@@ -239,64 +232,7 @@ namespace FileCraft.Services
 
             string outputFilePath = Path.Combine(destinationPath, $"{outputFileName}.txt");
             await File.WriteAllTextAsync(outputFilePath, contentBuilder.ToString());
-            return (outputFilePath, totalNormalCommentLines, totalNormalCommentChars, totalXmlCommentLines, totalXmlCommentChars);
-        }
-
-        public async Task<string> GetIgnoredCommentsPreviewAsync(IEnumerable<SelectableFile> selectedFiles, bool ignoreNormalComments, bool ignoreXmlComments)
-        {
-            Guard.AgainstNullOrEmpty(selectedFiles, nameof(selectedFiles), "No files were selected for preview.");
-
-            var previewBuilder = new StringBuilder();
-            var selectedFilesList = selectedFiles.ToList();
-
-            foreach (var file in selectedFilesList)
-            {
-                var fileComments = new List<string>();
-                try
-                {
-                    var lines = await File.ReadAllLinesAsync(file.FullPath);
-
-                    foreach (var line in lines)
-                    {
-                        int commentIndex = FindActualCommentIndex(line);
-
-                        if (commentIndex != -1)
-                        {
-                            bool isXmlComment = commentIndex + 2 < line.Length && line[commentIndex + 2] == '/';
-                            string commentPart = line.Substring(commentIndex);
-
-                            if ((ignoreXmlComments && isXmlComment) || (ignoreNormalComments && !isXmlComment))
-                            {
-                                fileComments.Add(line);
-                            }
-                        }
-                    }
-                }
-                catch (Exception)
-                {
-                }
-
-                if (fileComments.Any())
-                {
-                    if (previewBuilder.Length > 0)
-                    {
-                        previewBuilder.AppendLine();
-                        previewBuilder.AppendLine();
-                    }
-                    previewBuilder.AppendLine($"{file.RelativePath} ({fileComments.Count} lines)");
-                    foreach (var comment in fileComments)
-                    {
-                        previewBuilder.AppendLine(comment);
-                    }
-                }
-            }
-
-            if (previewBuilder.Length == 0)
-            {
-                return "No comments to ignore were found in the selected files based on the current settings.";
-            }
-
-            return previewBuilder.ToString();
+            return (outputFilePath, totalXmlCommentLines, totalXmlCommentChars);
         }
     }
 }

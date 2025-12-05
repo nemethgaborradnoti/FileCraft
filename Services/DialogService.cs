@@ -105,6 +105,16 @@ namespace FileCraft.Services
             return bulkSearchWindow.ShowDialog() ?? false;
         }
 
+        public IEnumerable<string>? ShowIgnoredCommentsDialog(IEnumerable<SelectableFile> selectedFiles, IEnumerable<string> previouslyIgnoredFiles)
+        {
+            var window = new IgnoredCommentsWindow(selectedFiles, previouslyIgnoredFiles);
+            if (window.ShowDialog() == true)
+            {
+                return window.GetIgnoredFilePaths();
+            }
+            return null;
+        }
+
         public string? GetIconPath(string resourceKey)
         {
             if (Application.Current.FindResource(resourceKey) is BitmapImage image)

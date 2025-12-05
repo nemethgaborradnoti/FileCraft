@@ -23,6 +23,7 @@
     {
         public List<string> SelectedExtensions { get; set; } = new();
         public List<string> SelectedFilePaths { get; set; } = new();
+        public List<string> IgnoredCommentFilePaths { get; set; } = new();
         public List<FolderState> FolderTreeState { get; set; } = new();
 
         public FileContentExportSettings()
@@ -53,7 +54,5 @@
     public class SettingsPageSettings
     {
         public List<string> IgnoredFolders { get; set; } = new() { "bin", "obj" };
-        public bool IgnoreNormalComments { get; set; } = false;
-        public bool IgnoreXmlComments { get; set; } = false;
     }
 }

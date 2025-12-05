@@ -164,6 +164,8 @@
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
 
@@ -187,7 +189,8 @@
                               IsReadOnly="True"
                               Text="Select Extensions..."
                               StaysOpenOnEdit="True"
-                              MaxDropDownHeight="250">
+                              MaxDropDownHeight="200"
+                              Margin="0,0,0,10">
                         <ComboBox.ItemContainerStyle>
                             <Style TargetType="ComboBoxItem">
                                 <Setter Property="Focusable" Value="False"/>
@@ -206,6 +209,25 @@
                             </DataTemplate>
                         </ComboBox.ItemTemplate>
                     </ComboBox>
+
+                    <Border Grid.Row="2"
+                            BorderBrush="{StaticResource BorderBrush}"
+                            BorderThickness="1"
+                            CornerRadius="4"
+                            Background="{StaticResource TextBoxBackgroundBrush}"
+                            Margin="0,0,0,5"
+                            Height="100">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="5">
+                            <TextBlock Text="{Binding IgnoredFilesText}"
+                                       TextWrapping="Wrap"
+                                       Foreground="{StaticResource GrayTextBrush}"/>
+                        </ScrollViewer>
+                    </Border>
+
+                    <Button Grid.Row="3"
+                            Content="Ignore comment on these files"
+                            Command="{Binding ConfigureIgnoredCommentsCommand}"
+                            ToolTip="Select files to ignore '///' comments."/>
                 </Grid>
             </GroupBox>
         </Grid>

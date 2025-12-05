@@ -41,6 +41,8 @@ namespace FileCraft.ViewModels.Functional
         private bool _appendTimestamp;
         private ExportFullscreenState _currentFullscreenState = ExportFullscreenState.None;
         private string _selectedExtensionsText = "No extensions selected.";
+        private string _ignoredFilesText = "No files selected to ignore comments.";
+        private HashSet<string> _ignoredCommentFilePaths = new(StringComparer.OrdinalIgnoreCase);
 
         public int TotalFilesCount
         {
@@ -191,6 +193,19 @@ namespace FileCraft.ViewModels.Functional
             }
         }
 
+        public string IgnoredFilesText
+        {
+            get => _ignoredFilesText;
+            set
+            {
+                if (_ignoredFilesText != value)
+                {
+                    _ignoredFilesText = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
         public ObservableCollection<SelectableItemViewModel> AvailableExtensions { get; } = new ObservableCollection<SelectableItemViewModel>();
         public ObservableCollection<FolderViewModel> RootFolders => FolderTreeManager.RootFolders;
 
@@ -198,6 +213,7 @@ namespace FileCraft.ViewModels.Functional
         public ICommand ClearFilterCommand { get; }
         public ICommand BulkSearchCommand { get; }
         public ICommand ToggleFullscreenCommand { get; }
+        public ICommand ConfigureIgnoredCommentsCommand { get; }
 
         public FileContentExportViewModel(
             ISharedStateService sharedStateService,
@@ -219,6 +235,7 @@ namespace FileCraft.ViewModels.Functional
             ClearFilterCommand = new RelayCommand(_ => ClearFilter());
             BulkSearchCommand = new RelayCommand(_ => BulkSearch(), _ => _allSelectableFiles.Any());
             ToggleFullscreenCommand = new RelayCommand(ToggleFullscreen);
+            ConfigureIgnoredCommentsCommand = new RelayCommand(_ => ConfigureIgnoredComments(), _ => _allSelectableFiles.Any(f => f.IsSelected));
 
             OnFolderSelectionChanged();
             UpdateFileCounts();
@@ -268,6 +285,24 @@ namespace FileCraft.ViewModels.Functional
             }
         }
 
+        private void ConfigureIgnoredComments()
+        {
+            var selectedFiles = _allSelectableFiles.Where(f => f.IsSelected).ToList();
+            if (!selectedFiles.Any())
+            {
+                _dialogService.ShowNotification("Information", "Please select files for export first.", DialogIconType.Info);
+                return;
+            }
+
+            var result = _dialogService.ShowIgnoredCommentsDialog(selectedFiles, _ignoredCommentFilePaths);
+            if (result != null)
+            {
+                OnStateChanging();
+                _ignoredCommentFilePaths = new HashSet<string>(result, StringComparer.OrdinalIgnoreCase);
+                UpdateIgnoredFilesText();
+            }
+        }
+
         public void ApplySettings(FileContentExportSettings settings)
         {
             OutputFileName = settings.OutputFileName;
@@ -288,14 +323,22 @@ namespace FileCraft.ViewModels.Functional
                 fileVM.IsSelected = loadedSelectedFilePaths.Contains(fileVM.FullPath);
             }
 
+            _ignoredCommentFilePaths = new HashSet<string>(settings.IgnoredCommentFilePaths ?? new List<string>(), StringComparer.OrdinalIgnoreCase);
+
             UpdateFileCounts();
             UpdateExtensionMasterState();
             ApplyFileFilter();
+            UpdateIgnoredFilesText();
         }
 
         public List<string> GetSelectedFilePaths()
         {
             return _allSelectableFiles.Where(f => f.IsSelected).Select(f => f.FullPath).ToList();
+        }
+
+        public List<string> GetIgnoredCommentFilePaths()
+        {
+            return _ignoredCommentFilePaths.ToList();
         }
 
         public List<SelectableFile> GetSelectedFiles()
@@ -495,6 +538,23 @@ namespace FileCraft.ViewModels.Functional
             }
         }
 
+        private void UpdateIgnoredFilesText()
+        {
+            if (_ignoredCommentFilePaths.Count == 0)
+            {
+                IgnoredFilesText = "No files selected to ignore comments.";
+            }
+            else
+            {
+                var sb = new StringBuilder();
+                foreach (var path in _ignoredCommentFilePaths.OrderBy(p => p))
+                {
+                    sb.AppendLine(path);
+                }
+                IgnoredFilesText = sb.ToString().TrimEnd();
+            }
+        }
+
         private List<FolderViewModel> GetSelectedFoldersForFileListing()
         {
             if (!RootFolders.Any()) return new List<FolderViewModel>();
@@ -527,23 +587,18 @@ namespace FileCraft.ViewModels.Functional
 
                 string finalFileName = GetFinalFileName(OutputFileName, AppendTimestamp);
 
-                var (outputFilePath, normalLines, normalChars, xmlLines, xmlChars) = await _fileOperationService.ExportSelectedFileContentsAsync(
-                    _sharedStateService.DestinationPath, selectedFiles, finalFileName, _sharedStateService.IgnoreNormalComments, _sharedStateService.IgnoreXmlComments);
+                var (outputFilePath, xmlLines, xmlChars) = await _fileOperationService.ExportSelectedFileContentsAsync(
+                    _sharedStateService.DestinationPath, selectedFiles, finalFileName, _ignoredCommentFilePaths);
 
                 var notificationMessage = new StringBuilder();
                 notificationMessage.AppendLine($"File contents exported successfully! ({selectedFiles.Count} files)");
                 notificationMessage.AppendLine($"Saved to: {outputFilePath}");
 
-                if ((normalLines > 0 || xmlLines > 0))
+                if (xmlLines > 0)
                 {
                     notificationMessage.AppendLine();
                     notificationMessage.AppendLine("Ignored parts:");
-                    if (normalLines > 0)
-                        notificationMessage.AppendLine($"\"//\" - {normalLines} lines ({normalChars} characters).");
-                    if (xmlLines > 0)
-                        notificationMessage.AppendLine($"\"///\" - {xmlLines} lines ({xmlChars} characters).");
-
-                    notificationMessage.AppendLine($"Total: {normalLines + xmlLines} lines ({normalChars + xmlChars} characters).");
+                    notificationMessage.AppendLine($"\"///\" - {xmlLines} lines ({xmlChars} characters).");
                 }
 
                 _dialogService.ShowNotification("Success", notificationMessage.ToString(), DialogIconType.Success);
