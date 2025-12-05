@@ -14,6 +14,14 @@ using Timer = System.Threading.Timer;
 
 namespace FileCraft.ViewModels.Functional
 {
+    public enum ExportFullscreenState
+    {
+        None,
+        Folders,
+        Extensions,
+        Files
+    }
+
     public class FileContentExportViewModel : ExportViewModelBase
     {
         private readonly IFileQueryService _fileQueryService;
@@ -30,6 +38,7 @@ namespace FileCraft.ViewModels.Functional
         private bool? _areAllExtensionsSelected;
         private string _outputFileName = string.Empty;
         private bool _appendTimestamp;
+        private ExportFullscreenState _currentFullscreenState = ExportFullscreenState.None;
 
         public int TotalFilesCount
         {
@@ -131,12 +140,26 @@ namespace FileCraft.ViewModels.Functional
             }
         }
 
+        public ExportFullscreenState CurrentFullscreenState
+        {
+            get => _currentFullscreenState;
+            set
+            {
+                if (_currentFullscreenState != value)
+                {
+                    _currentFullscreenState = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
         public ObservableCollection<SelectableItemViewModel> AvailableExtensions { get; } = new ObservableCollection<SelectableItemViewModel>();
         public ObservableCollection<FolderViewModel> RootFolders => FolderTreeManager.RootFolders;
 
         public ICommand ExportFileContentCommand { get; }
         public ICommand ClearFilterCommand { get; }
         public ICommand BulkSearchCommand { get; }
+        public ICommand ToggleFullscreenCommand { get; }
 
         public FileContentExportViewModel(
             ISharedStateService sharedStateService,
@@ -157,10 +180,37 @@ namespace FileCraft.ViewModels.Functional
             ExportFileContentCommand = new RelayCommand(async (_) => await ExportFileContentAsync(), (_) => CanExecuteOperation(this.OutputFileName) && _allSelectableFiles.Any(f => f.IsSelected));
             ClearFilterCommand = new RelayCommand(_ => ClearFilter());
             BulkSearchCommand = new RelayCommand(_ => BulkSearch(), _ => _allSelectableFiles.Any());
+            ToggleFullscreenCommand = new RelayCommand(ToggleFullscreen);
 
             OnFolderSelectionChanged();
             UpdateFileCounts();
             UpdateExtensionMasterState();
+        }
+
+        private void ToggleFullscreen(object? parameter)
+        {
+            if (parameter is string stateStr && Enum.TryParse<ExportFullscreenState>(stateStr, out var state))
+            {
+                if (CurrentFullscreenState == state)
+                {
+                    CurrentFullscreenState = ExportFullscreenState.None;
+                }
+                else
+                {
+                    CurrentFullscreenState = state;
+                }
+            }
+            else if (parameter is ExportFullscreenState enumState)
+            {
+                if (CurrentFullscreenState == enumState)
+                {
+                    CurrentFullscreenState = ExportFullscreenState.None;
+                }
+                else
+                {
+                    CurrentFullscreenState = enumState;
+                }
+            }
         }
 
         private void ClearFilter()
