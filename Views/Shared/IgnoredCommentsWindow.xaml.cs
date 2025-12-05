@@ -6,11 +6,30 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using Application = System.Windows.Application;
+using Timer = System.Threading.Timer;
+
 namespace FileCraft.Views.Shared
 {
     public partial class IgnoredCommentsWindow : Window, INotifyPropertyChanged
     {
-        public ObservableCollection<IgnoredFileViewModel> Files { get; } = new();
+        private readonly List<IgnoredFileViewModel> _allFiles = new();
+        public ObservableCollection<IgnoredFileViewModel> FilteredFiles { get; } = new();
+        private readonly Timer _debounceTimer;
+
+        private string _searchFilter = string.Empty;
+        public string SearchFilter
+        {
+            get => _searchFilter;
+            set
+            {
+                if (_searchFilter != value)
+                {
+                    _searchFilter = value;
+                    OnPropertyChanged();
+                    _debounceTimer.Change(300, Timeout.Infinite);
+                }
+            }
+        }
 
         private bool? _areAllSelected;
         public bool? AreAllSelected
@@ -18,15 +37,8 @@ namespace FileCraft.Views.Shared
             get => _areAllSelected;
             set
             {
-                if (_areAllSelected != value)
-                {
-                    _areAllSelected = value;
-                    OnPropertyChanged();
-                    if (_areAllSelected.HasValue)
-                    {
-                        UpdateAllSelection(_areAllSelected.Value);
-                    }
-                }
+                bool selectAll = _areAllSelected != true;
+                UpdateAllSelection(selectAll);
             }
         }
 
@@ -53,6 +65,7 @@ namespace FileCraft.Views.Shared
             InitializeComponent();
             DataContext = this;
             Owner = System.Windows.Application.Current.MainWindow;
+            _debounceTimer = new Timer(OnDebounceTimerElapsed, null, Timeout.Infinite, Timeout.Infinite);
 
             var ignoredSet = new HashSet<string>(previouslyIgnoredFiles, StringComparer.OrdinalIgnoreCase);
 
@@ -61,11 +74,29 @@ namespace FileCraft.Views.Shared
                 bool isIgnored = ignoredSet.Contains(file.RelativePath);
                 var vm = new IgnoredFileViewModel(file.RelativePath, file.FullPath, isIgnored);
                 vm.PropertyChanged += OnFilePropertyChanged;
-                Files.Add(vm);
+                _allFiles.Add(vm);
             }
 
-            UpdateMasterSelection();
+            ApplyFilter();
             UpdateTotalCount();
+        }
+
+        private void OnDebounceTimerElapsed(object? state)
+        {
+            Application.Current.Dispatcher.Invoke(ApplyFilter);
+        }
+
+        private void ApplyFilter()
+        {
+            FilteredFiles.Clear();
+            foreach (var file in _allFiles)
+            {
+                if (string.IsNullOrWhiteSpace(SearchFilter) || file.RelativePath.IndexOf(SearchFilter, StringComparison.OrdinalIgnoreCase) >= 0)
+                {
+                    FilteredFiles.Add(file);
+                }
+            }
+            UpdateMasterSelection();
         }
 
         private void OnFilePropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -80,7 +111,7 @@ namespace FileCraft.Views.Shared
         private void UpdateAllSelection(bool isSelected)
         {
             _isUpdatingSelection = true;
-            foreach (var file in Files)
+            foreach (var file in FilteredFiles)
             {
                 file.IsSelected = isSelected;
             }
@@ -93,37 +124,43 @@ namespace FileCraft.Views.Shared
         {
             if (_isUpdatingSelection) return;
 
-            _isUpdatingSelection = true;
-            if (Files.All(f => f.IsSelected))
+            bool? newState = null;
+
+            if (FilteredFiles.Count == 0)
             {
-                AreAllSelected = true;
+                newState = false;
             }
-            else if (Files.All(f => !f.IsSelected))
+            else if (FilteredFiles.All(f => f.IsSelected))
             {
-                AreAllSelected = false;
+                newState = true;
             }
-            else
+            else if (FilteredFiles.All(f => !f.IsSelected))
             {
-                AreAllSelected = null;
+                newState = false;
             }
-            _isUpdatingSelection = false;
+
+            if (_areAllSelected != newState)
+            {
+                _areAllSelected = newState;
+                OnPropertyChanged(nameof(AreAllSelected));
+            }
         }
 
         private void UpdateTotalCount()
         {
-            long total = Files.Where(f => f.IsSelected).Sum(f => (long)f.CommentCount);
+            long total = _allFiles.Where(f => f.IsSelected).Sum(f => (long)f.CommentCount);
             var nfi = new NumberFormatInfo { NumberGroupSeparator = " ", NumberDecimalDigits = 0 };
             TotalCountsDisplay = $"Total: {total.ToString("N0", nfi)}";
         }
 
         public IEnumerable<string> GetIgnoredFilePaths()
         {
-            return Files.Where(f => f.IsSelected).Select(f => f.RelativePath);
+            return _allFiles.Where(f => f.IsSelected).Select(f => f.RelativePath);
         }
 
         private async void CountCommentsButton_Click(object sender, RoutedEventArgs e)
         {
-            foreach (var file in Files)
+            foreach (var file in _allFiles)
             {
                 file.CommentCountDisplay = "...";
                 file.CommentCount = 0;
@@ -132,7 +169,7 @@ namespace FileCraft.Views.Shared
 
             await Task.Run(() =>
             {
-                foreach (var file in Files)
+                foreach (var file in _allFiles)
                 {
                     try
                     {

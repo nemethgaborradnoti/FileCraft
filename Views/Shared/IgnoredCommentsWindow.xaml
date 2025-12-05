@@ -14,8 +14,34 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <TextBlock Grid.Row="0" Text="Select the files where XML comments ('///') should be ignored during export."
-                   TextWrapping="Wrap" Margin="0,0,0,10"/>
+        <!-- Search Filter Row -->
+        <Grid Grid.Row="0" Margin="0,0,0,10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Text="Search:" VerticalAlignment="Center" Margin="0,0,5,0"/>
+            <Grid Grid.Column="1">
+                <TextBox Text="{Binding SearchFilter, UpdateSourceTrigger=PropertyChanged}" 
+                         Style="{StaticResource ModernTextBoxStyle}"/>
+                <TextBlock IsHitTestVisible="False" 
+                           Text="Filter by path..." 
+                           Foreground="{StaticResource GrayTextBrush}" 
+                           Margin="10,0,0,0" 
+                           VerticalAlignment="Center">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding SearchFilter}" Value="">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+            </Grid>
+        </Grid>
 
         <StackPanel Grid.Row="1">
             <Grid Margin="4,2">
@@ -34,7 +60,7 @@
         </StackPanel>
 
         <Border Grid.Row="2" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="4">
-            <ListView x:Name="FilesListView" ItemsSource="{Binding Files}" BorderThickness="0"
+            <ListView x:Name="FilesListView" ItemsSource="{Binding FilteredFiles}" BorderThickness="0"
                       ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                       ItemContainerStyle="{StaticResource SharedListViewItemStyle}">
                 <ListView.ItemTemplate>
