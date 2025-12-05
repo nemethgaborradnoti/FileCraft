@@ -5,7 +5,6 @@ using FileCraft.ViewModels.Shared;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Windows.Input;
 
 namespace FileCraft.ViewModels.Functional

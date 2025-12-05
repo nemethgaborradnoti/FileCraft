@@ -2,9 +2,7 @@
 using FileCraft.Services.Interfaces;
 using FileCraft.Shared.Commands;
 using FileCraft.ViewModels.Shared;
-using System;
 using System.Collections.ObjectModel;
-using System.Linq;
 using System.Windows.Input;
 
 namespace FileCraft.ViewModels.Functional
