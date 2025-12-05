@@ -9,6 +9,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Windows.Input;
 using Timer = System.Threading.Timer;
 
@@ -18,7 +19,6 @@ namespace FileCraft.ViewModels.Functional
     {
         None,
         Folders,
-        Extensions,
         Files
     }
 
@@ -39,6 +39,7 @@ namespace FileCraft.ViewModels.Functional
         private string _outputFileName = string.Empty;
         private bool _appendTimestamp;
         private ExportFullscreenState _currentFullscreenState = ExportFullscreenState.None;
+        private string _selectedExtensionsText = "No extensions selected.";
 
         public int TotalFilesCount
         {
@@ -148,6 +149,19 @@ namespace FileCraft.ViewModels.Functional
                 if (_currentFullscreenState != value)
                 {
                     _currentFullscreenState = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        public string SelectedExtensionsText
+        {
+            get => _selectedExtensionsText;
+            set
+            {
+                if (_selectedExtensionsText != value)
+                {
+                    _selectedExtensionsText = value;
                     OnPropertyChanged();
                 }
             }
@@ -435,6 +449,20 @@ namespace FileCraft.ViewModels.Functional
             {
                 _areAllExtensionsSelected = newSelectionState;
                 OnPropertyChanged(nameof(AreAllExtensionsSelected));
+            }
+            UpdateSelectedExtensionsText();
+        }
+
+        private void UpdateSelectedExtensionsText()
+        {
+            var selected = AvailableExtensions.Where(e => e.IsSelected).Select(e => e.Name).ToList();
+            if (selected.Count == 0)
+            {
+                SelectedExtensionsText = "No extensions selected.";
+            }
+            else
+            {
+                SelectedExtensionsText = string.Join(", ", selected);
             }
         }
 

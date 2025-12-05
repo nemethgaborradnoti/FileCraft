@@ -9,19 +9,20 @@
              d:DataContext="{d:DesignInstance Type=viewmodels:FileContentExportViewModel, IsDesignTimeCreatable=False}"
              d:DesignHeight="600" d:DesignWidth="800">
     <UserControl.Resources>
-        <!-- Custom style for the fixed gray fullscreen buttons -->
+        <!-- Stílus a fix szürke, vastag betűs teljes képernyő gombokhoz -->
         <Style x:Key="FullscreenButtonStyle" TargetType="Button">
             <Setter Property="Width" Value="24"/>
             <Setter Property="Height" Value="24"/>
             <Setter Property="Margin" Value="10,0,0,0"/>
+            <!-- Bal oldali margó a címtől való távolságért -->
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Background" Value="#E0E0E0"/>
-            <!-- Fixed Gray Background -->
+            <!-- Fix szürke háttér -->
             <Setter Property="BorderBrush" Value="#999999"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Foreground" Value="#333333"/>
             <Setter Property="FontWeight" Value="Bold"/>
-            <!-- Bold text -->
+            <!-- Vastag betű -->
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="Padding" Value="0"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
@@ -40,7 +41,7 @@
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter TargetName="border" Property="Background" Value="#C0C0C0"/>
-                                <!-- Darker on hover -->
+                                <!-- Sötétebb szürke hover -->
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
                                 <Setter TargetName="border" Property="Background" Value="#A0A0A0"/>
@@ -82,9 +83,6 @@
                             <DataTrigger Binding="{Binding CurrentFullscreenState}" Value="Folders">
                                 <Setter Property="Height" Value="0"/>
                             </DataTrigger>
-                            <DataTrigger Binding="{Binding CurrentFullscreenState}" Value="Extensions">
-                                <Setter Property="Height" Value="0"/>
-                            </DataTrigger>
                         </Style.Triggers>
                     </Style>
                 </RowDefinition.Style>
@@ -95,9 +93,6 @@
                         <Setter Property="Height" Value="Auto"/>
                         <Style.Triggers>
                             <DataTrigger Binding="{Binding CurrentFullscreenState}" Value="Folders">
-                                <Setter Property="Height" Value="0"/>
-                            </DataTrigger>
-                            <DataTrigger Binding="{Binding CurrentFullscreenState}" Value="Extensions">
                                 <Setter Property="Height" Value="0"/>
                             </DataTrigger>
                             <DataTrigger Binding="{Binding CurrentFullscreenState}" Value="Files">
@@ -119,9 +114,6 @@
                                 <DataTrigger Binding="{Binding CurrentFullscreenState}" Value="Folders">
                                     <Setter Property="Width" Value="*"/>
                                 </DataTrigger>
-                                <DataTrigger Binding="{Binding CurrentFullscreenState}" Value="Extensions">
-                                    <Setter Property="Width" Value="0"/>
-                                </DataTrigger>
                             </Style.Triggers>
                         </Style>
                     </ColumnDefinition.Style>
@@ -131,9 +123,6 @@
                         <Style TargetType="ColumnDefinition">
                             <Setter Property="Width" Value="3*"/>
                             <Style.Triggers>
-                                <DataTrigger Binding="{Binding CurrentFullscreenState}" Value="Extensions">
-                                    <Setter Property="Width" Value="*"/>
-                                </DataTrigger>
                                 <DataTrigger Binding="{Binding CurrentFullscreenState}" Value="Folders">
                                     <Setter Property="Width" Value="0"/>
                                 </DataTrigger>
@@ -147,6 +136,7 @@
                 <GroupBox.Header>
                     <StackPanel Style="{StaticResource HeaderStackPanelStyle}">
                         <TextBlock Text="Folders to Include" VerticalAlignment="Center" FontWeight="SemiBold"/>
+                        <!-- Gomb stílusa: csak a <Button.Style> taget használjuk a konfliktus elkerülése érdekében -->
                         <Button Command="{Binding ToggleFullscreenCommand}"
                                 CommandParameter="Folders">
                             <Button.Style>
@@ -175,49 +165,46 @@
                 </TreeView>
             </GroupBox>
 
-            <GroupBox Grid.Column="1">
-                <GroupBox.Header>
-                    <StackPanel Style="{StaticResource HeaderStackPanelStyle}">
-                        <TextBlock Text="File extensions to include" VerticalAlignment="Center" FontWeight="SemiBold"/>
-                        <Button Command="{Binding ToggleFullscreenCommand}"
-                                CommandParameter="Extensions">
-                            <Button.Style>
-                                <Style TargetType="Button" BasedOn="{StaticResource FullscreenButtonStyle}">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding CurrentFullscreenState}" Value="Extensions">
-                                            <Setter Property="Content" Value="↶"/>
-                                            <Setter Property="ToolTip" Value="Exit Fullscreen"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Button.Style>
-                        </Button>
-                    </StackPanel>
-                </GroupBox.Header>
+            <GroupBox Grid.Column="1" Header="File extensions to include">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
-                    <StackPanel>
-                        <Grid Margin="4,2">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <CheckBox Grid.Column="0" IsChecked="{Binding AreAllExtensionsSelected}" IsThreeState="True" VerticalAlignment="Center"/>
-                            <TextBlock Grid.Column="1" Text="Select all" FontWeight="SemiBold" Margin="5,0,0,0" VerticalAlignment="Center"/>
-                        </Grid>
-                        <Separator/>
-                    </StackPanel>
-                    <ListView Grid.Row="1" ItemsSource="{Binding AvailableExtensions}" ScrollViewer.HorizontalScrollBarVisibility="Disabled" BorderThickness="0"
-                              ItemContainerStyle="{StaticResource SharedListViewItemStyle}">
-                        <ListView.ItemTemplate>
+
+                    <Border Grid.Row="0"
+                            BorderBrush="{StaticResource BorderBrush}"
+                            BorderThickness="1"
+                            CornerRadius="4"
+                            Background="{StaticResource TextBoxBackgroundBrush}"
+                            Margin="0,0,0,5"
+                            MaxHeight="80">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="5">
+                            <TextBlock Text="{Binding SelectedExtensionsText}"
+                                       TextWrapping="Wrap"
+                                       Foreground="{StaticResource GrayTextBrush}"/>
+                        </ScrollViewer>
+                    </Border>
+
+                    <ComboBox Grid.Row="1"
+                              ItemsSource="{Binding AvailableExtensions}"
+                              IsEditable="True"
+                              IsReadOnly="True"
+                              Text="Select Extensions..."
+                              StaysOpenOnEdit="True"
+                              MaxDropDownHeight="250">
+                        <ComboBox.ItemTemplate>
                             <DataTemplate>
-                                <CheckBox IsChecked="{Binding IsSelected}" Content="{Binding Name}" VerticalAlignment="Center"/>
+                                <CheckBox IsChecked="{Binding IsSelected}" 
+                                          Content="{Binding Name}" 
+                                          Margin="2"
+                                          HorizontalAlignment="Stretch"
+                                          VerticalAlignment="Stretch"
+                                          Background="Transparent"/>
                             </DataTemplate>
-                        </ListView.ItemTemplate>
-                    </ListView>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
                 </Grid>
             </GroupBox>
         </Grid>
