@@ -46,20 +46,20 @@
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
 
-                            <TextBlock Grid.Column="0" 
-                                       Text="{Binding CommentCountDisplay}" 
-                                       HorizontalAlignment="Right" 
-                                       Margin="0,0,15,0" 
+                            <TextBlock Grid.Column="0"
+                                       Text="{Binding CommentCountDisplay}"
+                                       HorizontalAlignment="Right"
+                                       Margin="0,0,15,0"
                                        VerticalAlignment="Center"
                                        Foreground="{StaticResource GrayTextBrush}"
                                        FontFamily="Consolas"/>
 
                             <CheckBox Grid.Column="1" IsChecked="{Binding IsSelected}" VerticalAlignment="Center"/>
 
-                            <TextBlock Grid.Column="2" 
-                                       Text="{Binding RelativePath}" 
-                                       TextTrimming="CharacterEllipsis" 
-                                       VerticalAlignment="Center" 
+                            <TextBlock Grid.Column="2"
+                                       Text="{Binding RelativePath}"
+                                       TextTrimming="CharacterEllipsis"
+                                       VerticalAlignment="Center"
                                        Margin="5,0,0,0"/>
                         </Grid>
                     </DataTemplate>
@@ -73,12 +73,18 @@
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
 
-            <Button Grid.Column="0" 
-                    Content="Count comments" 
-                    Click="CountCommentsButton_Click" 
-                    HorizontalAlignment="Left"
-                    MinWidth="120"
-                    Style="{StaticResource WarningButton}"/>
+            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                <Button Content="Count comments"
+                        Click="CountCommentsButton_Click"
+                        MinWidth="120"
+                        Style="{StaticResource WarningButton}"/>
+
+                <TextBlock Text="{Binding TotalCountsDisplay}"
+                           VerticalAlignment="Center"
+                           Margin="15,0,0,0"
+                           FontWeight="Bold"
+                           FontSize="14"/>
+            </StackPanel>
 
             <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
                 <Button Content="Save" IsDefault="True" Click="SaveButton_Click" MinWidth="80" Margin="0,0,10,0"/>

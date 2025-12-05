@@ -1,11 +1,11 @@
 ﻿using FileCraft.Models;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Globalization;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using Application = System.Windows.Application;
-
 namespace FileCraft.Views.Shared
 {
     public partial class IgnoredCommentsWindow : Window, INotifyPropertyChanged
@@ -26,6 +26,20 @@ namespace FileCraft.Views.Shared
                     {
                         UpdateAllSelection(_areAllSelected.Value);
                     }
+                }
+            }
+        }
+
+        private string _totalCountsDisplay = "Total: 0";
+        public string TotalCountsDisplay
+        {
+            get => _totalCountsDisplay;
+            set
+            {
+                if (_totalCountsDisplay != value)
+                {
+                    _totalCountsDisplay = value;
+                    OnPropertyChanged();
                 }
             }
         }
@@ -51,6 +65,7 @@ namespace FileCraft.Views.Shared
             }
 
             UpdateMasterSelection();
+            UpdateTotalCount();
         }
 
         private void OnFilePropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -58,6 +73,7 @@ namespace FileCraft.Views.Shared
             if (e.PropertyName == nameof(IgnoredFileViewModel.IsSelected))
             {
                 UpdateMasterSelection();
+                UpdateTotalCount();
             }
         }
 
@@ -70,6 +86,7 @@ namespace FileCraft.Views.Shared
             }
             _isUpdatingSelection = false;
             UpdateMasterSelection();
+            UpdateTotalCount();
         }
 
         private void UpdateMasterSelection()
@@ -92,6 +109,13 @@ namespace FileCraft.Views.Shared
             _isUpdatingSelection = false;
         }
 
+        private void UpdateTotalCount()
+        {
+            long total = Files.Where(f => f.IsSelected).Sum(f => (long)f.CommentCount);
+            var nfi = new NumberFormatInfo { NumberGroupSeparator = " ", NumberDecimalDigits = 0 };
+            TotalCountsDisplay = $"Total: {total.ToString("N0", nfi)}";
+        }
+
         public IEnumerable<string> GetIgnoredFilePaths()
         {
             return Files.Where(f => f.IsSelected).Select(f => f.RelativePath);
@@ -102,7 +126,9 @@ namespace FileCraft.Views.Shared
             foreach (var file in Files)
             {
                 file.CommentCountDisplay = "...";
+                file.CommentCount = 0;
             }
+            UpdateTotalCount();
 
             await Task.Run(() =>
             {
@@ -126,7 +152,12 @@ namespace FileCraft.Views.Shared
                                     }
                                 }
                             }
-                            Application.Current.Dispatcher.Invoke(() => file.CommentCountDisplay = totalChars.ToString());
+                            int finalCount = totalChars;
+                            Application.Current.Dispatcher.Invoke(() =>
+                            {
+                                file.CommentCount = finalCount;
+                                file.CommentCountDisplay = finalCount.ToString();
+                            });
                         }
                         else
                         {
@@ -139,6 +170,8 @@ namespace FileCraft.Views.Shared
                     }
                 }
             });
+
+            UpdateTotalCount();
         }
 
         private void SaveButton_Click(object sender, RoutedEventArgs e)
@@ -163,6 +196,7 @@ namespace FileCraft.Views.Shared
     {
         public string RelativePath { get; }
         public string FullPath { get; }
+        public int CommentCount { get; set; }
 
         private bool _isSelected;
         public bool IsSelected
