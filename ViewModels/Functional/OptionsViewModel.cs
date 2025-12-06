@@ -6,13 +6,18 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Windows.Input;
+using Fonts;
+
+using Brush = System.Windows.Media.Brush;
+using Application = System.Windows.Application;
 
 namespace FileCraft.ViewModels.Functional
 {
     public class TabItemViewModel : BaseViewModel
     {
         public string Name { get; }
-        public string? IconPath { get; }
+        public string? Icon { get; }
+        public Brush? IconBrush { get; }
         public FolderTreeManager? FolderTreeManager { get; }
 
         private bool _isSelectable = true;
@@ -29,10 +34,11 @@ namespace FileCraft.ViewModels.Functional
             }
         }
 
-        public TabItemViewModel(string name, string? iconPath, FolderTreeManager? folderTreeManager)
+        public TabItemViewModel(string name, string? icon, Brush? iconBrush, FolderTreeManager? folderTreeManager)
         {
             Name = name;
-            IconPath = iconPath;
+            Icon = icon;
+            IconBrush = iconBrush;
             FolderTreeManager = folderTreeManager;
         }
     }
@@ -255,10 +261,16 @@ namespace FileCraft.ViewModels.Functional
             }
             CheckForExistingPresets();
 
-            AllTabs.Add(new TabItemViewModel("-- None --", null, null));
-            AllTabs.Add(new TabItemViewModel("File Content Export", _dialogService.GetIconPath("IconFileContent"), fileContentExportVM.FolderTreeManager));
-            AllTabs.Add(new TabItemViewModel("Tree Generator", _dialogService.GetIconPath("IconTreeStructure"), treeGeneratorVM.FolderTreeManager));
-            AllTabs.Add(new TabItemViewModel("Folder Content Export", _dialogService.GetIconPath("IconFolderContent"), folderContentExportVM.FolderTreeManager));
+            // Setup Brushes
+            var folderBrush = Application.Current.FindResource("FolderIconBrush") as Brush;
+            var treeBrush = Application.Current.FindResource("TreeIconBrush") as Brush;
+            var primaryBrush = Application.Current.FindResource("PrimaryBrush") as Brush;
+            var secondaryBrush = Application.Current.FindResource("SecondaryBrush") as Brush;
+
+            AllTabs.Add(new TabItemViewModel("-- None --", null, null, null));
+            AllTabs.Add(new TabItemViewModel("File Content Export", MaterialIcons.topic, folderBrush, fileContentExportVM.FolderTreeManager));
+            AllTabs.Add(new TabItemViewModel("Tree Generator", MaterialIcons.park, treeBrush, treeGeneratorVM.FolderTreeManager));
+            AllTabs.Add(new TabItemViewModel("Folder Content Export", MaterialIcons.dns, primaryBrush, folderContentExportVM.FolderTreeManager));
 
             SelectedSourceTab = AllTabs[0];
             SelectedDestinationTab = AllTabs[0];
@@ -321,10 +333,10 @@ namespace FileCraft.ViewModels.Functional
                 title: "Copy Folder Tree",
                 iconType: DialogIconType.Warning,
                 sourceName: SelectedSourceTab.Name,
-                sourceIcon: SelectedSourceTab.IconPath,
+                sourceIcon: SelectedSourceTab.Icon, // Changed from IconPath
                 sourceCount: sourceFolderCount,
                 destName: SelectedDestinationTab.Name,
-                destIcon: SelectedDestinationTab.IconPath,
+                destIcon: SelectedDestinationTab.Icon, // Changed from IconPath
                 destCount: destFolderCount);
 
             if (confirmed)

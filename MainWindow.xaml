@@ -82,7 +82,7 @@
             <TabItem>
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal">
-                        <Image Source="{StaticResource IconFileContent}" Width="28" Height="28" Margin="0,0,5,0" VerticalAlignment="Center"/>
+                        <TextBlock Text="{x:Static icons:MaterialIcons.topic}" FontFamily="{StaticResource MaterialIcons}" Foreground="{StaticResource FolderIconBrush}" FontSize="28" Margin="0,0,5,0" VerticalAlignment="Center"/>
                         <TextBlock Text="File Content Export" VerticalAlignment="Center"/>
                     </StackPanel>
                 </TabItem.Header>
@@ -91,7 +91,7 @@
             <TabItem>
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal">
-                        <Image Source="{StaticResource IconTreeStructure}" Width="28" Height="28" Margin="0,0,5,0" VerticalAlignment="Center"/>
+                        <TextBlock Text="{x:Static icons:MaterialIcons.park}" FontFamily="{StaticResource MaterialIcons}" Foreground="{StaticResource TreeIconBrush}" FontSize="28" Margin="0,0,5,0" VerticalAlignment="Center"/>
                         <TextBlock Text="Tree Generator" VerticalAlignment="Center"/>
                     </StackPanel>
                 </TabItem.Header>
@@ -100,7 +100,7 @@
             <TabItem>
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal">
-                        <Image Source="{StaticResource IconFolderContent}" Width="28" Height="28" Margin="0,0,5,0" VerticalAlignment="Center"/>
+                        <TextBlock Text="{x:Static icons:MaterialIcons.dns}" FontFamily="{StaticResource MaterialIcons}" Foreground="{StaticResource PrimaryBrush}" FontSize="28" Margin="0,0,5,0" VerticalAlignment="Center"/>
                         <TextBlock Text="Folder Content Export" VerticalAlignment="Center"/>
                     </StackPanel>
                 </TabItem.Header>
@@ -109,7 +109,7 @@
             <TabItem>
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal">
-                        <Image Source="{StaticResource IconSettings}" Width="28" Height="28" Margin="0,0,5,0" VerticalAlignment="Center"/>
+                        <TextBlock Text="{x:Static icons:MaterialIcons.settings}" FontFamily="{StaticResource MaterialIcons}" Foreground="{StaticResource GrayTextBrush}" FontSize="28" Margin="0,0,5,0" VerticalAlignment="Center"/>
                         <TextBlock Text="Options" VerticalAlignment="Center"/>
                     </StackPanel>
                 </TabItem.Header>

@@ -164,18 +164,21 @@
                             <ComboBox.ItemTemplate>
                                 <DataTemplate>
                                     <StackPanel Orientation="Horizontal">
-                                        <Image Source="{Binding IconPath}" Width="20" Height="20" Margin="0,0,5,0" VerticalAlignment="Center">
-                                            <Image.Style>
-                                                <Style TargetType="Image">
+                                        <TextBlock Text="{Binding Icon}" 
+                                                   FontFamily="{StaticResource MaterialIcons}" 
+                                                   Foreground="{Binding IconBrush}"
+                                                   FontSize="20" Margin="0,0,5,0" VerticalAlignment="Center">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
                                                     <Setter Property="Visibility" Value="Visible"/>
                                                     <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding IconPath}" Value="{x:Null}">
+                                                        <DataTrigger Binding="{Binding Icon}" Value="{x:Null}">
                                                             <Setter Property="Visibility" Value="Collapsed"/>
                                                         </DataTrigger>
                                                     </Style.Triggers>
                                                 </Style>
-                                            </Image.Style>
-                                        </Image>
+                                            </TextBlock.Style>
+                                        </TextBlock>
                                         <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </DataTemplate>
@@ -188,18 +191,21 @@
                             <ComboBox.ItemTemplate>
                                 <DataTemplate>
                                     <StackPanel Orientation="Horizontal">
-                                        <Image Source="{Binding IconPath}" Width="20" Height="20" Margin="0,0,5,0" VerticalAlignment="Center">
-                                            <Image.Style>
-                                                <Style TargetType="Image">
+                                        <TextBlock Text="{Binding Icon}" 
+                                                   FontFamily="{StaticResource MaterialIcons}" 
+                                                   Foreground="{Binding IconBrush}"
+                                                   FontSize="20" Margin="0,0,5,0" VerticalAlignment="Center">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
                                                     <Setter Property="Visibility" Value="Visible"/>
                                                     <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding IconPath}" Value="{x:Null}">
+                                                        <DataTrigger Binding="{Binding Icon}" Value="{x:Null}">
                                                             <Setter Property="Visibility" Value="Collapsed"/>
                                                         </DataTrigger>
                                                     </Style.Triggers>
                                                 </Style>
-                                            </Image.Style>
-                                        </Image>
+                                            </TextBlock.Style>
+                                        </TextBlock>
                                         <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </DataTemplate>
