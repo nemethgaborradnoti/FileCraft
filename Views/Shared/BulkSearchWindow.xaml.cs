@@ -54,7 +54,7 @@ namespace FileCraft.Views.Shared
             _iconGlyph = iconGlyph;
             _iconBrush = iconBrush;
 
-            InputTotalTextBlock.Text = "Total lines: 0";
+            InputTotalTextBlock.Text = $"{GetString("BulkSearch_TotalLinesLabel")} 0";
             UpdateTotals();
         }
 
@@ -93,7 +93,7 @@ namespace FileCraft.Views.Shared
             }
 
             CountTextBlock.Text = countBuilder.ToString();
-            InputTotalTextBlock.Text = $"Total lines: {inputLinesWithMatches}";
+            InputTotalTextBlock.Text = $"{GetString("BulkSearch_TotalLinesLabel")} {inputLinesWithMatches}";
 
             FilteredFoundFiles.Clear();
             foreach (var file in matchedFiles.OrderBy(f => f.RelativePath))
@@ -127,7 +127,7 @@ namespace FileCraft.Views.Shared
             int totalFound = FilteredFoundFiles.Count;
             int totalChanged = FilteredFoundFiles.Count(f => f.IsSelected != f.OriginalIsSelected);
 
-            FoundTotalTextBlock.Text = $"Total found: {totalFound} | Total changed: {totalChanged}";
+            FoundTotalTextBlock.Text = $"{GetString("BulkSearch_TotalFoundLabel")} {totalFound} | {GetString("BulkSearch_TotalChangedLabel")} {totalChanged}";
         }
 
         private void UpdateSelectAllState()
@@ -155,8 +155,8 @@ namespace FileCraft.Views.Shared
         {
             var viewModel = new ConfirmationViewModel
             {
-                ActionName = "Apply Bulk Search",
-                Message = "Apply bulk search changes?",
+                ActionName = GetString("BulkSearch_ApplyTitle"),
+                Message = GetString("BulkSearch_ApplyMessage"),
                 IconGlyph = _iconGlyph,
                 IconBrush = _iconBrush
             };
@@ -225,6 +225,11 @@ namespace FileCraft.Views.Shared
                 }
             }
             InputTextBox.Text = string.Join(Environment.NewLine, newLines);
+        }
+
+        private string GetString(string key)
+        {
+            return Application.Current.TryFindResource(key) as string ?? key;
         }
 
         protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)

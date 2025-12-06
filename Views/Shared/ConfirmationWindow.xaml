@@ -46,7 +46,7 @@
                 <TextBlock TextAlignment="Left" Margin="0,10,0,0"
                            Visibility="{Binding FilesAffected, Converter={StaticResource NullToVisibilityConverter}}">
                     <Run Text="{Binding FilesAffected, Mode=OneWay}"/>
-                    <Run Text="files affected."/>
+                    <Run Text="{DynamicResource Confirmation_FilesAffectedLabel}"/>
                 </TextBlock>
             </StackPanel>
 
@@ -61,7 +61,7 @@
                         </Style.Triggers>
                     </Style>
                 </StackPanel.Style>
-                <TextBlock Text="Are you sure you want to copy the folder tree of" TextWrapping="Wrap" />
+                <TextBlock Text="{DynamicResource Confirmation_CopyTree_Part1}" TextWrapping="Wrap" />
                 <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
                     <TextBlock Text="{Binding SourceTabIcon}" FontFamily="{StaticResource MaterialIcons}" Foreground="{StaticResource GrayTextBrush}" FontSize="20" Margin="0,0,5,0" VerticalAlignment="Center"/>
                     <TextBlock VerticalAlignment="Center">
@@ -69,7 +69,7 @@
                         <Run Text="{Binding SourceFolderCount, StringFormat='({0} folders)'}"/>
                     </TextBlock>
                 </StackPanel>
-                <TextBlock Text="to" Margin="0,5,0,5"/>
+                <TextBlock Text="{DynamicResource Confirmation_CopyTree_Part2}" Margin="0,5,0,5"/>
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="{Binding DestinationTabIcon}" FontFamily="{StaticResource MaterialIcons}" Foreground="{StaticResource GrayTextBrush}" FontSize="20" Margin="0,0,5,0" VerticalAlignment="Center"/>
                     <TextBlock VerticalAlignment="Center">
@@ -81,8 +81,8 @@
         </Grid>
 
         <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right">
-            <Button Content="Yes" Click="YesButton_Click" IsDefault="True" MinWidth="80" Margin="2,2,10,2"/>
-            <Button Content="Cancel" Click="CancelButton_Click" IsCancel="True" MinWidth="80" Style="{StaticResource SecondaryButton}"/>
+            <Button Content="{DynamicResource Confirmation_YesButton}" Click="YesButton_Click" IsDefault="True" MinWidth="80" Margin="2,2,10,2"/>
+            <Button Content="{DynamicResource Confirmation_CancelButton}" Click="CancelButton_Click" IsCancel="True" MinWidth="80" Style="{StaticResource SecondaryButton}"/>
         </StackPanel>
     </Grid>
 </Window>

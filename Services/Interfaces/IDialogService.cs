@@ -11,7 +11,6 @@ namespace FileCraft.Services.Interfaces
         ExitConfirmationResult ShowExitConfirmation(string title, string message);
         string? ShowRenamePresetDialog(string currentName, int presetNumber);
         string? ShowEditIgnoredFoldersDialog(string currentFolders);
-        void ShowPreview(string title, string content);
         bool ShowBulkSearchDialog(IEnumerable<SelectableFile> allFiles);
         IEnumerable<string>? ShowIgnoredCommentsDialog(IEnumerable<SelectableFile> selectedFiles, IEnumerable<string> previouslyIgnoredFiles);
     }

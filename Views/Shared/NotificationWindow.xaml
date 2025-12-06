@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="Notification"
+        Title="{DynamicResource Notification_Title}"
         SizeToContent="Height"
         WindowStartupLocation="CenterOwner"
         Width="450"
@@ -36,7 +36,7 @@
 
         <Button x:Name="OkButton"
                 Grid.Row="1"
-                Content="OK"
+                Content="{DynamicResource Notification_OkButton}"
                 Click="OkButton_Click"
                 IsDefault="True"
                 HorizontalAlignment="Center"

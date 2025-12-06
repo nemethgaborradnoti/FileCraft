@@ -100,4 +100,56 @@
     <system:String x:Key="FolderContent_ErrorTitle">Error</system:String>
     <system:String x:Key="FolderContent_ErrorMessage">An unexpected error occurred:</system:String>
 
+    <system:String x:Key="ExportOptions_Header">Export Options</system:String>
+    <system:String x:Key="ExportOptions_FileNameLabel">File Name:</system:String>
+    <system:String x:Key="ExportOptions_AppendTimestampLabel">Append Timestamp</system:String>
+    <system:String x:Key="ExportOptions_AppendTimestampTooltip">Adds _yyyy_MM_dd_HH_mm_ss to the file name.</system:String>
+
+    <system:String x:Key="BulkSearch_Title">Bulk Search</system:String>
+    <system:String x:Key="BulkSearch_InputPathsLabel">Input Paths (one per line):</system:String>
+    <system:String x:Key="BulkSearch_FoundPathsLabel">Found Paths:</system:String>
+    <system:String x:Key="BulkSearch_SelectAll">Select all</system:String>
+    <system:String x:Key="BulkSearch_TotalLinesLabel">Total lines:</system:String>
+    <system:String x:Key="BulkSearch_TotalFoundLabel">Total found:</system:String>
+    <system:String x:Key="BulkSearch_TotalChangedLabel">Total changed:</system:String>
+    <system:String x:Key="BulkSearch_RemoveWhitespacesButton">Remove whitespaces</system:String>
+    <system:String x:Key="BulkSearch_BreakIntoLinesButton">Break into lines</system:String>
+    <system:String x:Key="BulkSearch_BySpaceRadio">By space</system:String>
+    <system:String x:Key="BulkSearch_BySemicolonRadio">By ';'</system:String>
+    <system:String x:Key="BulkSearch_ApplyButton">Apply</system:String>
+    <system:String x:Key="BulkSearch_CancelButton">Cancel</system:String>
+    <system:String x:Key="BulkSearch_ApplyTitle">Apply Bulk Search</system:String>
+    <system:String x:Key="BulkSearch_ApplyMessage">Apply bulk search changes?</system:String>
+
+    <system:String x:Key="Confirmation_FilesAffectedLabel">files affected.</system:String>
+    <system:String x:Key="Confirmation_CopyTree_Part1">Are you sure you want to copy the folder tree of</system:String>
+    <system:String x:Key="Confirmation_CopyTree_Part2">to</system:String>
+    <system:String x:Key="Confirmation_YesButton">Yes</system:String>
+    <system:String x:Key="Confirmation_CancelButton">Cancel</system:String>
+
+    <system:String x:Key="EditIgnored_Title">Edit Ignored Folders</system:String>
+    <system:String x:Key="EditIgnored_Instruction">Enter the names of the folders to ignore, separated by commas.</system:String>
+    <system:String x:Key="EditIgnored_OkButton">OK</system:String>
+    <system:String x:Key="EditIgnored_CancelButton">Cancel</system:String>
+
+    <system:String x:Key="ExitConfirmation_Title">Confirm Exit</system:String>
+    <system:String x:Key="ExitConfirmation_SaveButton">Save</system:String>
+    <system:String x:Key="ExitConfirmation_DontSaveButton">Don't Save</system:String>
+    <system:String x:Key="ExitConfirmation_CancelButton">Cancel</system:String>
+
+    <system:String x:Key="IgnoredComments_Title">Select files to ignore '///' comments</system:String>
+    <system:String x:Key="IgnoredComments_SearchLabel">Search:</system:String>
+    <system:String x:Key="IgnoredComments_FilterPlaceholder">Filter by path...</system:String>
+    <system:String x:Key="IgnoredComments_CharsHeader">Chars</system:String>
+    <system:String x:Key="IgnoredComments_SelectAll">Select all</system:String>
+    <system:String x:Key="IgnoredComments_CountButton">Count comments</system:String>
+    <system:String x:Key="IgnoredComments_TotalLabel">Total:</system:String>
+    <system:String x:Key="IgnoredComments_SaveButton">Save</system:String>
+    <system:String x:Key="IgnoredComments_CancelButton">Cancel</system:String>
+    <system:String x:Key="IgnoredComments_StatusNA">N/A</system:String>
+    <system:String x:Key="IgnoredComments_StatusErr">Err</system:String>
+
+    <system:String x:Key="Notification_Title">Notification</system:String>
+    <system:String x:Key="Notification_OkButton">OK</system:String>
+
 </ResourceDictionary>

@@ -1,4 +1,5 @@
 ﻿using FileCraft.Models;
+using FileCraft.Shared.Helpers;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Globalization;
@@ -40,7 +41,7 @@ namespace FileCraft.Views.Shared
             }
         }
 
-        private string _totalCountsDisplay = "Total: 0";
+        private string _totalCountsDisplay = "";
         public string TotalCountsDisplay
         {
             get => _totalCountsDisplay;
@@ -64,6 +65,9 @@ namespace FileCraft.Views.Shared
             DataContext = this;
             Owner = System.Windows.Application.Current.MainWindow;
             _debounceTimer = new Timer(OnDebounceTimerElapsed, null, Timeout.Infinite, Timeout.Infinite);
+
+            // Initialize display with localized string
+            _totalCountsDisplay = $"{ResourceHelper.GetString("IgnoredComments_TotalLabel")} 0";
 
             var ignoredSet = new HashSet<string>(previouslyIgnoredFiles, StringComparer.OrdinalIgnoreCase);
 
@@ -148,7 +152,7 @@ namespace FileCraft.Views.Shared
         {
             long total = _allFiles.Where(f => f.IsSelected).Sum(f => (long)f.CommentCount);
             var nfi = new NumberFormatInfo { NumberGroupSeparator = " ", NumberDecimalDigits = 0 };
-            TotalCountsDisplay = $"Total: {total.ToString("N0", nfi)}";
+            TotalCountsDisplay = $"{ResourceHelper.GetString("IgnoredComments_TotalLabel")} {total.ToString("N0", nfi)}";
         }
 
         public IEnumerable<string> GetIgnoredFilePaths()
@@ -196,12 +200,12 @@ namespace FileCraft.Views.Shared
                         }
                         else
                         {
-                            Application.Current.Dispatcher.Invoke(() => file.CommentCountDisplay = "N/A");
+                            Application.Current.Dispatcher.Invoke(() => file.CommentCountDisplay = ResourceHelper.GetString("IgnoredComments_StatusNA"));
                         }
                     }
                     catch
                     {
-                        Application.Current.Dispatcher.Invoke(() => file.CommentCountDisplay = "Err");
+                        Application.Current.Dispatcher.Invoke(() => file.CommentCountDisplay = ResourceHelper.GetString("IgnoredComments_StatusErr"));
                     }
                 }
             });
