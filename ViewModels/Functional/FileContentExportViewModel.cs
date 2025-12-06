@@ -8,7 +8,6 @@ using System.ComponentModel;
 using System.IO;
 using System.Text;
 using System.Windows.Input;
-using Timer = System.Threading.Timer;
 
 namespace FileCraft.ViewModels.Functional
 {
@@ -37,11 +36,10 @@ namespace FileCraft.ViewModels.Functional
         private bool? _areAllExtensionsSelected;
         private string _outputFileName = string.Empty;
         private bool _appendTimestamp;
-        private string _selectedExtensionsText = "No extensions selected.";
-        private string _ignoredFilesText = "No files selected to ignore comments.";
+        private string _selectedExtensionsText = string.Empty;
+        private string _ignoredFilesText = string.Empty;
         private HashSet<string> _ignoredCommentFilePaths = new(StringComparer.OrdinalIgnoreCase);
 
-        // Replaced local logic with FullscreenManager
         public FullscreenManager<ExportFullscreenState> FullscreenManager { get; }
 
         public int TotalFilesCount
@@ -225,9 +223,17 @@ namespace FileCraft.ViewModels.Functional
             BulkSearchCommand = new RelayCommand(_ => BulkSearch(), _ => _allSelectableFiles.Any());
             ConfigureIgnoredCommentsCommand = new RelayCommand(_ => ConfigureIgnoredComments(), _ => _allSelectableFiles.Any(f => f.IsSelected));
 
+            _selectedExtensionsText = GetString("FileContent_NoExtensionsSelected");
+            _ignoredFilesText = GetString("FileContent_NoIgnoredFiles");
+
             OnFolderSelectionChanged();
             UpdateFileCounts();
             UpdateExtensionMasterState();
+        }
+
+        private string GetString(string key)
+        {
+            return Application.Current.TryFindResource(key) as string ?? key;
         }
 
         private void OnFullscreenStateChanged(object? sender, PropertyChangedEventArgs e)
@@ -260,7 +266,10 @@ namespace FileCraft.ViewModels.Functional
             var selectedFiles = _allSelectableFiles.Where(f => f.IsSelected).ToList();
             if (!selectedFiles.Any())
             {
-                _dialogService.ShowNotification("Information", "Please select files for export first.", DialogIconType.Info);
+                _dialogService.ShowNotification(
+                    GetString("FileContent_InfoTitle"),
+                    GetString("FileContent_SelectFilesFirst"),
+                    DialogIconType.Info);
                 return;
             }
 
@@ -358,7 +367,7 @@ namespace FileCraft.ViewModels.Functional
 
         private void ApplyFileFilter()
         {
-            System.Windows.Application.Current.Dispatcher.Invoke(() =>
+            Application.Current.Dispatcher.Invoke(() =>
             {
                 FilteredSelectableFiles.Clear();
                 IEnumerable<SelectableFile> filtered = _allSelectableFiles;
@@ -405,7 +414,7 @@ namespace FileCraft.ViewModels.Functional
             var extensions = _fileQueryService.GetAvailableExtensions(selectedFolders);
             var previouslySelected = new HashSet<string>(GetSelectedExtensions());
 
-            System.Windows.Application.Current.Dispatcher.Invoke(() =>
+            Application.Current.Dispatcher.Invoke(() =>
             {
                 foreach (var ext in AvailableExtensions)
                     ext.PropertyChanged -= OnExtensionSelectionChanged;
@@ -428,7 +437,7 @@ namespace FileCraft.ViewModels.Functional
             var files = _fileQueryService.GetFilesByExtensions(_sharedStateService.SourcePath, selectedFolders, selectedExtensions);
             var previouslySelectedFiles = new HashSet<string>(_allSelectableFiles.Where(f => f.IsSelected).Select(f => f.FullPath));
 
-            System.Windows.Application.Current.Dispatcher.Invoke(() =>
+            Application.Current.Dispatcher.Invoke(() =>
             {
                 foreach (var file in _allSelectableFiles)
                     file.PropertyChanged -= OnFileSelectionChanged;
@@ -500,7 +509,7 @@ namespace FileCraft.ViewModels.Functional
             var selected = AvailableExtensions.Where(e => e.IsSelected).Select(e => e.Name).ToList();
             if (selected.Count == 0)
             {
-                SelectedExtensionsText = "No extensions selected.";
+                SelectedExtensionsText = GetString("FileContent_NoExtensionsSelected");
             }
             else
             {
@@ -512,7 +521,7 @@ namespace FileCraft.ViewModels.Functional
         {
             if (_ignoredCommentFilePaths.Count == 0)
             {
-                IgnoredFilesText = "No files selected to ignore comments.";
+                IgnoredFilesText = GetString("FileContent_NoIgnoredFiles");
             }
             else
             {
@@ -541,13 +550,18 @@ namespace FileCraft.ViewModels.Functional
                 var selectedFiles = _allSelectableFiles.Where(f => f.IsSelected).ToList();
                 if (!selectedFiles.Any())
                 {
-                    _dialogService.ShowNotification("Information", "No files were selected. Please select at least one file to export.", DialogIconType.Info);
+                    _dialogService.ShowNotification(
+                        GetString("FileContent_InfoTitle"),
+                        GetString("FileContent_NoFilesToExport"),
+                        DialogIconType.Info);
                     return;
                 }
 
-                string message = $"Are you sure you want to export file contents to the following path?\n{_sharedStateService.DestinationPath}";
+                string messageFormat = GetString("FileContent_ConfirmExportMessage");
+                string message = $"{messageFormat}\n{_sharedStateService.DestinationPath}";
+
                 bool confirmed = _dialogService.ShowConfirmation(
-                    title: "Export File Contents",
+                    title: GetString("FileContent_ExportTitle"),
                     message: message,
                     iconType: DialogIconType.Info,
                     filesAffected: selectedFiles.Count);
@@ -563,21 +577,32 @@ namespace FileCraft.ViewModels.Functional
                     _sharedStateService.DestinationPath, selectedFiles, finalFileName, _ignoredCommentFilePaths);
 
                 var notificationMessage = new StringBuilder();
-                notificationMessage.AppendLine($"File contents exported successfully! ({selectedFiles.Count} files)");
-                notificationMessage.AppendLine($"Saved to: {outputFilePath}");
+                string successMsg = string.Format(GetString("FileContent_ExportSuccessMessage"), selectedFiles.Count);
+                notificationMessage.AppendLine(successMsg);
+
+                string savedToMsg = string.Format(GetString("FileContent_SavedTo"), outputFilePath);
+                notificationMessage.AppendLine(savedToMsg);
 
                 if (xmlLines > 0)
                 {
                     notificationMessage.AppendLine();
-                    notificationMessage.AppendLine("Ignored parts:");
-                    notificationMessage.AppendLine($"\"///\" - {xmlLines} lines ({xmlChars} characters).");
+                    notificationMessage.AppendLine(GetString("FileContent_IgnoredParts"));
+                    string stats = string.Format(GetString("FileContent_IgnoredStats"), xmlLines, xmlChars);
+                    notificationMessage.AppendLine(stats);
                 }
 
-                _dialogService.ShowNotification("Success", notificationMessage.ToString(), DialogIconType.Success);
+                _dialogService.ShowNotification(
+                    GetString("FileContent_SuccessTitle"),
+                    notificationMessage.ToString(),
+                    DialogIconType.Success);
             }
             catch (Exception ex)
             {
-                _dialogService.ShowNotification("Error", $"An unexpected error occurred during export:\n\n{ex.Message}", DialogIconType.Error);
+                string errorMsg = string.Format(GetString("FileContent_ExportErrorMessage"), ex.Message);
+                _dialogService.ShowNotification(
+                    GetString("FileContent_ErrorTitle"),
+                    errorMsg,
+                    DialogIconType.Error);
             }
             finally
             {

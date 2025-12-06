@@ -1,0 +1,103 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:system="clr-namespace:System;assembly=mscorlib">
+
+    <system:String x:Key="UndoTooltip">Undo</system:String>
+    <system:String x:Key="RedoTooltip">Redo</system:String>
+    <system:String x:Key="SaveSettingsTooltip">Save current settings</system:String>
+
+    <system:String x:Key="SourceFolderHeader">Source Folder</system:String>
+    <system:String x:Key="DestinationFolderHeader">Destination Folder</system:String>
+
+    <system:String x:Key="BrowseButton">Browse...</system:String>
+    <system:String x:Key="ClearButton">Clear</system:String>
+    <system:String x:Key="ClearPathsTooltip">Clear both source and destination paths.</system:String>
+
+    <system:String x:Key="TabFileContentExport">File Content Export</system:String>
+    <system:String x:Key="TabTreeGenerator">Tree Generator</system:String>
+    <system:String x:Key="TabFolderContentExport">Folder Content Export</system:String>
+    <system:String x:Key="TabOptions">Options</system:String>
+
+    <system:String x:Key="ManagePresetsHeader">Manage Presets</system:String>
+    <system:String x:Key="SaveButtonText">Save</system:String>
+    <system:String x:Key="SavePresetTooltip">Save current settings to this preset</system:String>
+    <system:String x:Key="LoadButtonText">Load</system:String>
+    <system:String x:Key="DeletePresetTooltip">Delete this preset</system:String>
+    <system:String x:Key="LastModifiedLabel">Last modified:</system:String>
+
+    <system:String x:Key="OpenSaveFolderButton">Open Save Folder</system:String>
+    <system:String x:Key="DeleteCurrentSaveButton">Delete Current Save</system:String>
+
+    <system:String x:Key="CopyFolderTreeContentHeader">Copy FolderTree content</system:String>
+    <system:String x:Key="CopyFromTabLabel">Copy from this Tab:</system:String>
+    <system:String x:Key="CopyToTabLabel">Copy to this tab:</system:String>
+    <system:String x:Key="CopyFolderTreeButton">Copy Folder Tree</system:String>
+
+    <system:String x:Key="IgnoreFoldersHeader">Ignore folders</system:String>
+    <system:String x:Key="EditFoldersButton">Edit folders</system:String>
+
+    <system:String x:Key="VersionLabel">Version</system:String>
+
+    <system:String x:Key="FileContent_FoldersHeader">Folders to Include</system:String>
+    <system:String x:Key="FileContent_ExtensionsHeader">File extensions to include</system:String>
+    <system:String x:Key="FileContent_SelectExtensionsPlaceholder">Select Extensions...</system:String>
+    <system:String x:Key="FileContent_IgnoreCommentsButton">Ignore comment on these files</system:String>
+    <system:String x:Key="FileContent_IgnoreCommentsTooltip">Select files to ignore '///' comments.</system:String>
+    <system:String x:Key="FileContent_FilesHeader">Files to Export</system:String>
+    <system:String x:Key="FileContent_SearchLabel">Search:</system:String>
+    <system:String x:Key="FileContent_FilterPlaceholder">Filter by file path...</system:String>
+    <system:String x:Key="FileContent_BulkSearchButton">Bulk Search</system:String>
+    <system:String x:Key="FileContent_ShowOnlySelected">Show only selected</system:String>
+    <system:String x:Key="FileContent_ShowOnlyUnselected">Show only unselected</system:String>
+    <system:String x:Key="FileContent_ClearFilterButton">Clear Filter</system:String>
+    <system:String x:Key="FileContent_SelectAll">Select all</system:String>
+    <system:String x:Key="FileContent_TotalFilesLabel">Total files:</system:String>
+    <system:String x:Key="FileContent_FilteredFilesLabel">Filtered:</system:String>
+    <system:String x:Key="FileContent_SelectedFilesLabel">Selected:</system:String>
+    <system:String x:Key="FileContent_ExportButton">Export File Contents</system:String>
+
+    <system:String x:Key="FileContent_NoExtensionsSelected">No extensions selected.</system:String>
+    <system:String x:Key="FileContent_NoIgnoredFiles">No files selected to ignore comments.</system:String>
+    <system:String x:Key="FileContent_InfoTitle">Information</system:String>
+    <system:String x:Key="FileContent_SelectFilesFirst">Please select files for export first.</system:String>
+    <system:String x:Key="FileContent_NoFilesToExport">No files were selected. Please select at least one file to export.</system:String>
+    <system:String x:Key="FileContent_ConfirmExportMessage">Are you sure you want to export file contents to the following path?</system:String>
+    <system:String x:Key="FileContent_ExportTitle">Export File Contents</system:String>
+    <system:String x:Key="FileContent_ExportSuccessMessage">File contents exported successfully!</system:String>
+    <system:String x:Key="FileContent_SavedTo">Saved to:</system:String>
+    <system:String x:Key="FileContent_IgnoredParts">Ignored parts:</system:String>
+    <system:String x:Key="FileContent_IgnoredStats">lines (characters).</system:String>
+    <system:String x:Key="FileContent_SuccessTitle">Success</system:String>
+    <system:String x:Key="FileContent_ErrorTitle">Error</system:String>
+    <system:String x:Key="FileContent_ExportErrorMessage">An unexpected error occurred during export:</system:String>
+
+    <system:String x:Key="TreeGen_FoldersHeader">Folders to Include</system:String>
+    <system:String x:Key="TreeGen_FoldersAffectedLabel">Folders affected:</system:String>
+    <system:String x:Key="TreeGen_GenerateButton">Generate Tree Structure</system:String>
+
+    <system:String x:Key="TreeGen_ConfirmGenerateMessage">Are you sure you want to generate the tree structure to the following path?</system:String>
+    <system:String x:Key="TreeGen_GenerateTitle">Generate Tree Structure</system:String>
+    <system:String x:Key="TreeGen_SuccessMessage">Tree structure file was created successfully!</system:String>
+    <system:String x:Key="TreeGen_SavedTo">Saved to:</system:String>
+    <system:String x:Key="TreeGen_SuccessTitle">Success</system:String>
+    <system:String x:Key="TreeGen_ErrorTitle">Error</system:String>
+    <system:String x:Key="TreeGen_ErrorMessage">An unexpected error occurred:</system:String>
+
+    <system:String x:Key="FolderContent_FoldersHeader">Folders to Include</system:String>
+    <system:String x:Key="FolderContent_DetailsHeader">Select details</system:String>
+    <system:String x:Key="FolderContent_SelectAll">Select all</system:String>
+    <system:String x:Key="FolderContent_FilesAffectedLabel">Files affected:</system:String>
+    <system:String x:Key="FolderContent_ExportButton">Export Folder Contents</system:String>
+
+    <system:String x:Key="FolderContent_InfoTitle">Information</system:String>
+    <system:String x:Key="FolderContent_NoFoldersSelected">No folders were selected. Please select at least one folder.</system:String>
+    <system:String x:Key="FolderContent_NoColumnsSelected">No columns were selected. Please select at least one column to export.</system:String>
+    <system:String x:Key="FolderContent_ConfirmExportMessage">Are you sure you want to export folder contents to the following path?</system:String>
+    <system:String x:Key="FolderContent_ExportTitle">Export Folder Contents</system:String>
+    <system:String x:Key="FolderContent_SuccessTitle">Success</system:String>
+    <system:String x:Key="FolderContent_SuccessMessage">Folder contents exported successfully!</system:String>
+    <system:String x:Key="FolderContent_SavedTo">Saved to:</system:String>
+    <system:String x:Key="FolderContent_ErrorTitle">Error</system:String>
+    <system:String x:Key="FolderContent_ErrorMessage">An unexpected error occurred:</system:String>
+
+</ResourceDictionary>

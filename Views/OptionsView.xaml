@@ -20,7 +20,7 @@
                 <ColumnDefinition Width="2*"/>
             </Grid.ColumnDefinitions>
 
-            <GroupBox Grid.Column="0" Header="Manage Presets" Margin="5" Padding="10">
+            <GroupBox Grid.Column="0" Header="{DynamicResource ManagePresetsHeader}" Margin="5" Padding="10">
                 <StackPanel>
                     <ItemsControl ItemsSource="{Binding PresetSlots}">
                         <ItemsControl.ItemTemplate>
@@ -35,9 +35,9 @@
                                         </Grid.ColumnDefinitions>
 
                                         <Button Grid.Column="0"
-                                                Content="Save"
+                                                Content="{DynamicResource SaveButtonText}"
                                                 Style="{StaticResource SuccessButton}"
-                                                ToolTip="Save current settings to this preset"
+                                                ToolTip="{DynamicResource SavePresetTooltip}"
                                                 Command="{Binding DataContext.SavePresetCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                 CommandParameter="{Binding}"
                                                 Width="50" Height="32"/>
@@ -67,11 +67,12 @@
                                                     </TextBlock.Style>
                                                 </TextBlock>
                                             </Border>
-                                            <TextBlock Text="{Binding LastModified, StringFormat='Last modified: {0:yyyy-MM-dd HH:mm}'}"
-                                                       FontStyle="Italic"
+                                            <TextBlock FontStyle="Italic"
                                                        FontSize="11"
                                                        Foreground="{StaticResource GrayTextBrush}"
                                                        Margin="5,0,0,0">
+                                                <Run Text="{DynamicResource LastModifiedLabel}"/>
+                                                <Run Text="{Binding LastModified, StringFormat='{}{0:yyyy-MM-dd HH:mm}'}"/>
                                                 <TextBlock.Style>
                                                     <Style TargetType="TextBlock">
                                                         <Setter Property="Visibility" Value="Collapsed"/>
@@ -86,7 +87,7 @@
                                         </StackPanel>
 
                                         <Button Grid.Column="2"
-                                                Content="Load"
+                                                Content="{DynamicResource LoadButtonText}"
                                                 Command="{Binding DataContext.LoadPresetCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                 CommandParameter="{Binding}"
                                                 IsEnabled="{Binding Exists}"
@@ -94,7 +95,7 @@
 
                                         <Button Grid.Column="3"
                                                 Style="{StaticResource BorderlessIconButton}"
-                                                ToolTip="Delete this preset"
+                                                ToolTip="{DynamicResource DeletePresetTooltip}"
                                                 Command="{Binding DataContext.DeletePresetCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                 CommandParameter="{Binding}"
                                                 IsEnabled="{Binding Exists}"
@@ -143,12 +144,12 @@
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
 
-                    <Button Content="Open Save Folder"
+                    <Button Content="{DynamicResource OpenSaveFolderButton}"
                             Command="{Binding OpenSaveFolderCommand}"
                             Margin="0,20,0,5"
                             Style="{StaticResource WarningButton}"/>
 
-                    <Button Content="Delete Current Save"
+                    <Button Content="{DynamicResource DeleteCurrentSaveButton}"
                             Command="{Binding DeleteCurrentSaveCommand}"
                             Margin="0,0,0,0"
                             Style="{StaticResource DangerButton}"/>
@@ -156,16 +157,16 @@
             </GroupBox>
 
             <StackPanel Grid.Column="1">
-                <GroupBox Header="Copy FolderTree content" Margin="5" Padding="10">
+                <GroupBox Header="{DynamicResource CopyFolderTreeContentHeader}" Margin="5" Padding="10">
                     <StackPanel>
-                        <TextBlock Text="Copy from this Tab:" Margin="0,0,0,2"/>
+                        <TextBlock Text="{DynamicResource CopyFromTabLabel}" Margin="0,0,0,2"/>
                         <ComboBox ItemsSource="{Binding AllTabs}"
                                   SelectedItem="{Binding SelectedSourceTab}">
                             <ComboBox.ItemTemplate>
                                 <DataTemplate>
                                     <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="{Binding Icon}" 
-                                                   FontFamily="{StaticResource MaterialIcons}" 
+                                        <TextBlock Text="{Binding Icon}"
+                                                   FontFamily="{StaticResource MaterialIcons}"
                                                    Foreground="{Binding IconBrush}"
                                                    FontSize="20" Margin="0,0,5,0" VerticalAlignment="Center">
                                             <TextBlock.Style>
@@ -185,14 +186,14 @@
                             </ComboBox.ItemTemplate>
                         </ComboBox>
 
-                        <TextBlock Text="Copy to this tab:" Margin="0,10,0,2"/>
+                        <TextBlock Text="{DynamicResource CopyToTabLabel}" Margin="0,10,0,2"/>
                         <ComboBox ItemsSource="{Binding AllTabs}"
                                   SelectedItem="{Binding SelectedDestinationTab}">
                             <ComboBox.ItemTemplate>
                                 <DataTemplate>
                                     <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="{Binding Icon}" 
-                                                   FontFamily="{StaticResource MaterialIcons}" 
+                                        <TextBlock Text="{Binding Icon}"
+                                                   FontFamily="{StaticResource MaterialIcons}"
                                                    Foreground="{Binding IconBrush}"
                                                    FontSize="20" Margin="0,0,5,0" VerticalAlignment="Center">
                                             <TextBlock.Style>
@@ -217,17 +218,17 @@
                             </ComboBox.ItemContainerStyle>
                         </ComboBox>
 
-                        <Button Content="Copy Folder Tree"
+                        <Button Content="{DynamicResource CopyFolderTreeButton}"
                                 Command="{Binding CopyFolderTreeCommand}"
                                 HorizontalAlignment="Left"
                                 Margin="0,15,0,0"/>
                     </StackPanel>
                 </GroupBox>
 
-                <GroupBox Header="Ignore folders" Margin="5" Padding="10">
+                <GroupBox Header="{DynamicResource IgnoreFoldersHeader}" Margin="5" Padding="10">
                     <DockPanel>
                         <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Margin="0,10,0,0">
-                            <Button Content="Edit folders" Command="{Binding EditIgnoredFoldersCommand}" Margin="0,0,5,0"/>
+                            <Button Content="{DynamicResource EditFoldersButton}" Command="{Binding EditIgnoredFoldersCommand}" Margin="0,0,5,0"/>
                         </StackPanel>
 
                         <Border BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="4" Background="{StaticResource TextBoxBackgroundBrush}">
@@ -240,11 +241,14 @@
             </StackPanel>
         </Grid>
 
-        <TextBlock Grid.Row="1" Text="{Binding Version, StringFormat='Version {0}'}"
+        <TextBlock Grid.Row="1"
                    HorizontalAlignment="Center"
                    VerticalAlignment="Bottom"
                    FontSize="12"
                    Foreground="Gray"
-                   Margin="10"/>
+                   Margin="10">
+            <Run Text="{DynamicResource VersionLabel}"/>
+            <Run Text="{Binding Version, Mode=OneWay}"/>
+        </TextBlock>
     </Grid>
 </UserControl>

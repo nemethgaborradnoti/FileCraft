@@ -1,7 +1,4 @@
-﻿using Brush = System.Windows.Media.Brush;
-using Brushes = System.Windows.Media.Brushes;
-
-namespace FileCraft.ViewModels.Shared
+﻿namespace FileCraft.ViewModels.Shared
 {
     public class ConfirmationViewModel : BaseViewModel
     {

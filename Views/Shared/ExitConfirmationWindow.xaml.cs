@@ -1,6 +1,5 @@
 ﻿using FileCraft.Models;
 using System.Windows;
-using Brush = System.Windows.Media.Brush;
 
 namespace FileCraft.Views.Shared
 {
@@ -13,7 +12,7 @@ namespace FileCraft.Views.Shared
         public ExitConfirmationWindow(string title, string message, string iconGlyph, Brush iconBrush)
         {
             InitializeComponent();
-            Owner = System.Windows.Application.Current.MainWindow;
+            Owner = Application.Current.MainWindow;
             this.Title = title;
             MessageTextBlock.Text = message;
             IconGlyph = iconGlyph;

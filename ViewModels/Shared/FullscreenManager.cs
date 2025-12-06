@@ -36,12 +36,10 @@ namespace FileCraft.ViewModels.Shared
             {
                 if (EqualityComparer<T>.Default.Equals(CurrentState, targetState))
                 {
-                    // If clicking the currently active state, revert to default (None)
                     CurrentState = _defaultState;
                 }
                 else
                 {
-                    // Switch to the new state
                     CurrentState = targetState;
                 }
             }

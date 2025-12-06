@@ -5,8 +5,6 @@ using System.Globalization;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Windows;
-using Application = System.Windows.Application;
-using Timer = System.Threading.Timer;
 
 namespace FileCraft.Views.Shared
 {

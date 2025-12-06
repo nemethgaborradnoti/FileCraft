@@ -105,7 +105,7 @@
             <GroupBox Grid.Column="0">
                 <GroupBox.Header>
                     <StackPanel Style="{StaticResource HeaderStackPanelStyle}">
-                        <TextBlock Text="Folders to Include" VerticalAlignment="Center" FontWeight="SemiBold"/>
+                        <TextBlock Text="{DynamicResource FileContent_FoldersHeader}" VerticalAlignment="Center" FontWeight="SemiBold"/>
                         <Button Command="{Binding FullscreenManager.ToggleCommand}"
                                 CommandParameter="{x:Static local:ExportFullscreenState.Folders}">
                             <Button.Style>
@@ -136,7 +136,7 @@
             <GroupBox Grid.Column="1">
                 <GroupBox.Header>
                     <StackPanel Style="{StaticResource HeaderStackPanelStyle}">
-                        <TextBlock Text="File extensions to include" VerticalAlignment="Center" FontWeight="SemiBold"/>
+                        <TextBlock Text="{DynamicResource FileContent_ExtensionsHeader}" VerticalAlignment="Center" FontWeight="SemiBold"/>
                         <Button Command="{Binding FullscreenManager.ToggleCommand}"
                                 CommandParameter="{x:Static local:ExportFullscreenState.Extensions}">
                             <Button.Style>
@@ -177,7 +177,7 @@
                               ItemsSource="{Binding AvailableExtensions}"
                               IsEditable="True"
                               IsReadOnly="True"
-                              Text="Select Extensions..."
+                              Text="{DynamicResource FileContent_SelectExtensionsPlaceholder}"
                               StaysOpenOnEdit="True"
                               MaxDropDownHeight="200"
                               Margin="0,0,0,10">
@@ -214,9 +214,9 @@
                     </Border>
 
                     <Button Grid.Row="3"
-                            Content="Ignore comment on these files"
+                            Content="{DynamicResource FileContent_IgnoreCommentsButton}"
                             Command="{Binding ConfigureIgnoredCommentsCommand}"
-                            ToolTip="Select files to ignore '///' comments."/>
+                            ToolTip="{DynamicResource FileContent_IgnoreCommentsTooltip}"/>
                 </Grid>
             </GroupBox>
         </Grid>
@@ -224,7 +224,7 @@
         <GroupBox Grid.Row="1">
             <GroupBox.Header>
                 <StackPanel Style="{StaticResource HeaderStackPanelStyle}">
-                    <TextBlock Text="Files to Export" VerticalAlignment="Center" FontWeight="SemiBold"/>
+                    <TextBlock Text="{DynamicResource FileContent_FilesHeader}" VerticalAlignment="Center" FontWeight="SemiBold"/>
                     <Button Command="{Binding FullscreenManager.ToggleCommand}"
                             CommandParameter="{x:Static local:ExportFullscreenState.Files}">
                         <Button.Style>
@@ -253,12 +253,12 @@
                     </Grid.ColumnDefinitions>
 
                     <DockPanel Grid.Column="0">
-                        <TextBlock Text="Search:" DockPanel.Dock="Left" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                        <TextBlock Text="{DynamicResource FileContent_SearchLabel}" DockPanel.Dock="Left" VerticalAlignment="Center" Margin="0,0,5,0"/>
                         <Grid>
                             <TextBox Style="{StaticResource ModernTextBoxStyle}"
                                      Text="{Binding SearchFilter, UpdateSourceTrigger=PropertyChanged}" />
                             <TextBlock IsHitTestVisible="False"
-                                       Text="Filter by file path..."
+                                       Text="{DynamicResource FileContent_FilterPlaceholder}"
                                        VerticalAlignment="Center"
                                        HorizontalAlignment="Left"
                                        Margin="10,0,0,0"
@@ -278,20 +278,20 @@
                     </DockPanel>
 
                     <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="10,0,0,0">
-                        <Button Content="Bulk Search"
+                        <Button Content="{DynamicResource FileContent_BulkSearchButton}"
                                 Command="{Binding BulkSearchCommand}"
                                 Style="{StaticResource WarningButton}"
                                 Margin="0,0,10,0"/>
 
                         <StackPanel VerticalAlignment="Center">
-                            <CheckBox Content="Show only selected"
+                            <CheckBox Content="{DynamicResource FileContent_ShowOnlySelected}"
                                       IsChecked="{Binding IsShowingOnlySelected}"
                                       Margin="0,0,0,2"/>
-                            <CheckBox Content="Show only unselected"
+                            <CheckBox Content="{DynamicResource FileContent_ShowOnlyUnselected}"
                                       IsChecked="{Binding IsShowingOnlyUnselected}"/>
                         </StackPanel>
 
-                        <Button Content="Clear Filter"
+                        <Button Content="{DynamicResource FileContent_ClearFilterButton}"
                                 Command="{Binding ClearFilterCommand}"
                                 IsEnabled="{Binding CanClearFilter}"
                                 Style="{StaticResource DangerButton}"
@@ -306,7 +306,7 @@
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <CheckBox Grid.Column="0" IsChecked="{Binding AreAllFilesSelected}" IsThreeState="True" VerticalAlignment="Center"/>
-                        <TextBlock Grid.Column="1" Text="Select all" FontWeight="SemiBold" Margin="5,0,0,0" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="1" Text="{DynamicResource FileContent_SelectAll}" FontWeight="SemiBold" Margin="5,0,0,0" VerticalAlignment="Center"/>
                     </Grid>
                     <Separator/>
                 </StackPanel>
@@ -327,20 +327,20 @@
         <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="10">
             <StackPanel VerticalAlignment="Center" Margin="0,0,20,0">
                 <TextBlock>
-                    <Run Text="Total files:" FontWeight="Bold"/>
+                    <Run Text="{DynamicResource FileContent_TotalFilesLabel}" FontWeight="Bold"/>
                     <Run Text="{Binding TotalFilesCount, Mode=OneWay}"/>
                 </TextBlock>
                 <TextBlock>
-                    <Run Text="Filtered:" FontWeight="Bold"/>
+                    <Run Text="{DynamicResource FileContent_FilteredFilesLabel}" FontWeight="Bold"/>
                     <Run Text="{Binding AvailableFilesCount, Mode=OneWay}"/>
                 </TextBlock>
                 <TextBlock>
-                    <Run Text="Selected:" FontWeight="Bold"/>
+                    <Run Text="{DynamicResource FileContent_SelectedFilesLabel}" FontWeight="Bold"/>
                     <Run Text="{Binding SelectedFilesCount, Mode=OneWay}"/>
                 </TextBlock>
             </StackPanel>
             <controls:ExportOptionsControl DataContext="{Binding}" />
-            <Button Content="Export File Contents"
+            <Button Content="{DynamicResource FileContent_ExportButton}"
                     Command="{Binding ExportFileContentCommand}"/>
         </StackPanel>
     </Grid>

@@ -6,9 +6,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
-using Application = System.Windows.Application;
 using FileCraft.ViewModels.Shared;
-using Brush = System.Windows.Media.Brush;
 
 namespace FileCraft.Views.Shared
 {

@@ -12,7 +12,7 @@ namespace FileCraft.Views.Shared
         public RenamePresetWindow(string currentName, int presetNumber, IDialogService dialogService)
         {
             InitializeComponent();
-            Owner = System.Windows.Application.Current.MainWindow;
+            Owner = Application.Current.MainWindow;
             PromptText.Text = $"Preset {presetNumber} name:";
             NameTextBox.Text = currentName;
             _dialogService = dialogService;

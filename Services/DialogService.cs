@@ -3,10 +3,6 @@ using FileCraft.Services.Interfaces;
 using FileCraft.ViewModels.Shared;
 using FileCraft.Views.Shared;
 using Fonts;
-using System.Windows.Media.Imaging;
-using Application = System.Windows.Application;
-using Brush = System.Windows.Media.Brush;
-using Brushes = System.Windows.Media.Brushes;
 
 namespace FileCraft.Services
 {

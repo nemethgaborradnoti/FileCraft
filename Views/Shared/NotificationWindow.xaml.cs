@@ -1,6 +1,4 @@
 ﻿using System.Windows;
-using Application = System.Windows.Application;
-using Brush = System.Windows.Media.Brush;
 
 namespace FileCraft.Views.Shared
 {

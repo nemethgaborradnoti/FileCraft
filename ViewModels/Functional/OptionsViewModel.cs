@@ -8,9 +8,6 @@ using System.IO;
 using System.Windows.Input;
 using Fonts;
 
-using Brush = System.Windows.Media.Brush;
-using Application = System.Windows.Application;
-
 namespace FileCraft.ViewModels.Functional
 {
     public class TabItemViewModel : BaseViewModel
@@ -333,10 +330,10 @@ namespace FileCraft.ViewModels.Functional
                 title: "Copy Folder Tree",
                 iconType: DialogIconType.Warning,
                 sourceName: SelectedSourceTab.Name,
-                sourceIcon: SelectedSourceTab.Icon, // Changed from IconPath
+                sourceIcon: SelectedSourceTab.Icon,
                 sourceCount: sourceFolderCount,
                 destName: SelectedDestinationTab.Name,
-                destIcon: SelectedDestinationTab.Icon, // Changed from IconPath
+                destIcon: SelectedDestinationTab.Icon,
                 destCount: destFolderCount);
 
             if (confirmed)

@@ -42,7 +42,7 @@
         <GroupBox Grid.Row="0">
             <GroupBox.Header>
                 <StackPanel Style="{StaticResource HeaderStackPanelStyle}">
-                    <TextBlock Text="Folders to Include" VerticalAlignment="Center" FontWeight="SemiBold"/>
+                    <TextBlock Text="{DynamicResource TreeGen_FoldersHeader}" VerticalAlignment="Center" FontWeight="SemiBold"/>
                     <Button Command="{Binding FullscreenManager.ToggleCommand}"
                             CommandParameter="{x:Static local:TreeGeneratorFullscreenState.Folders}">
                         <Button.Style>
@@ -73,12 +73,12 @@
         <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="10">
             <StackPanel VerticalAlignment="Center" Margin="0,0,20,0">
                 <TextBlock>
-                    <Run Text="Folders affected:" FontWeight="Bold"/>
+                    <Run Text="{DynamicResource TreeGen_FoldersAffectedLabel}" FontWeight="Bold"/>
                     <Run Text="{Binding IncludedFoldersCount, Mode=OneWay}"/>
                 </TextBlock>
             </StackPanel>
             <controls:ExportOptionsControl DataContext="{Binding}" />
-            <Button Content="Generate Tree Structure"
+            <Button Content="{DynamicResource TreeGen_GenerateButton}"
                     Command="{Binding GenerateTreeStructureCommand}"/>
         </StackPanel>
     </Grid>

@@ -86,6 +86,11 @@ namespace FileCraft.ViewModels.Functional
             UpdateIncludedFoldersCount();
         }
 
+        private string GetString(string key)
+        {
+            return Application.Current.TryFindResource(key) as string ?? key;
+        }
+
         private void UpdateIncludedFoldersCount()
         {
             var allNodes = RootFolders.Any() ? RootFolders[0].GetAllNodes() : Enumerable.Empty<FolderViewModel>();
@@ -103,9 +108,11 @@ namespace FileCraft.ViewModels.Functional
                     allNodes.Where(n => n.IsSelected == false).Select(n => n.FullPath),
                     StringComparer.OrdinalIgnoreCase);
 
-                string message = $"Are you sure you want to generate the tree structure to the following path?\n{_sharedStateService.DestinationPath}";
+                string messageFormat = GetString("TreeGen_ConfirmGenerateMessage");
+                string message = $"{messageFormat}\n{_sharedStateService.DestinationPath}";
+
                 bool confirmed = _dialogService.ShowConfirmation(
-                    title: "Generate Tree Structure",
+                    title: GetString("TreeGen_GenerateTitle"),
                     message: message,
                     iconType: DialogIconType.Info,
                     filesAffected: IncludedFoldersCount);
@@ -117,11 +124,22 @@ namespace FileCraft.ViewModels.Functional
 
                 string finalFileName = GetFinalFileName(OutputFileName, AppendTimestamp);
                 string outputFilePath = await _fileOperationService.GenerateTreeStructureAsync(_sharedStateService.SourcePath, _sharedStateService.DestinationPath, excludedFolderPaths, finalFileName);
-                _dialogService.ShowNotification("Success", $"Tree structure file was created successfully!\n\nSaved to: {outputFilePath}", DialogIconType.Success);
+
+                string successMsg = GetString("TreeGen_SuccessMessage");
+                string savedToMsg = GetString("TreeGen_SavedTo");
+
+                _dialogService.ShowNotification(
+                    GetString("TreeGen_SuccessTitle"),
+                    $"{successMsg}\n\n{savedToMsg} {outputFilePath}",
+                    DialogIconType.Success);
             }
             catch (Exception ex)
             {
-                _dialogService.ShowNotification("Error", $"An unexpected error occurred:\n\n{ex.Message}", DialogIconType.Error);
+                string errorMsg = GetString("TreeGen_ErrorMessage");
+                _dialogService.ShowNotification(
+                    GetString("TreeGen_ErrorTitle"),
+                    $"{errorMsg}\n\n{ex.Message}",
+                    DialogIconType.Error);
             }
             finally
             {

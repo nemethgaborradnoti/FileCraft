@@ -20,17 +20,17 @@
         </Grid.RowDefinitions>
 
         <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Left" Margin="5,0,5,5">
-            <Button Style="{StaticResource BorderlessIconButton}" ToolTip="Undo" Command="{Binding UndoCommand}" IsEnabled="{Binding CanUndo}" Padding="0">
+            <Button Style="{StaticResource BorderlessIconButton}" ToolTip="{DynamicResource UndoTooltip}" Command="{Binding UndoCommand}" IsEnabled="{Binding CanUndo}" Padding="0">
                 <Viewbox>
                     <TextBlock Text="{x:Static icons:MaterialIcons.keyboard_arrow_left}" FontFamily="{StaticResource MaterialIcons}" Foreground="{StaticResource TextBrush}" />
                 </Viewbox>
             </Button>
-            <Button Style="{StaticResource BorderlessIconButton}" ToolTip="Redo" Command="{Binding RedoCommand}" IsEnabled="{Binding CanRedo}" Padding="0">
+            <Button Style="{StaticResource BorderlessIconButton}" ToolTip="{DynamicResource RedoTooltip}" Command="{Binding RedoCommand}" IsEnabled="{Binding CanRedo}" Padding="0">
                 <Viewbox>
                     <TextBlock Text="{x:Static icons:MaterialIcons.keyboard_arrow_right}" FontFamily="{StaticResource MaterialIcons}" Foreground="{StaticResource TextBrush}" />
                 </Viewbox>
             </Button>
-            <Button Style="{StaticResource BorderlessIconButton}" ToolTip="Save current settings" Command="{Binding SaveCommand}" IsEnabled="{Binding HasUnsavedChanges}" Padding="0">
+            <Button Style="{StaticResource BorderlessIconButton}" ToolTip="{DynamicResource SaveSettingsTooltip}" Command="{Binding SaveCommand}" IsEnabled="{Binding HasUnsavedChanges}" Padding="0">
                 <Viewbox>
                     <TextBlock Text="{x:Static icons:MaterialIcons.save}" FontFamily="{StaticResource MaterialIcons}" Foreground="{StaticResource TextBrush}" />
                 </Viewbox>
@@ -43,7 +43,7 @@
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
-            <GroupBox Grid.Column="0" Header="Source Folder" Margin="0,0,5,0">
+            <GroupBox Grid.Column="0" Header="{DynamicResource SourceFolderHeader}" Margin="0,0,5,0">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
@@ -55,11 +55,11 @@
                              Text="{Binding SourcePath, Mode=OneWay}"
                              ToolTip="{Binding SourcePath}"/>
 
-                    <Button Grid.Column="1" Content="Browse..." Command="{Binding SelectSourcePathCommand}"/>
+                    <Button Grid.Column="1" Content="{DynamicResource BrowseButton}" Command="{Binding SelectSourcePathCommand}"/>
                 </Grid>
             </GroupBox>
 
-            <GroupBox Grid.Column="1" Header="Destination Folder" Margin="5,0,0,0">
+            <GroupBox Grid.Column="1" Header="{DynamicResource DestinationFolderHeader}" Margin="5,0,0,0">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
@@ -72,8 +72,8 @@
                              Text="{Binding DestinationPath, Mode=OneWay}"
                              ToolTip="{Binding DestinationPath}"/>
 
-                    <Button Grid.Column="1" Content="Browse..." Command="{Binding SelectDestinationPathCommand}"/>
-                    <Button Grid.Column="2" Content="Clear" Command="{Binding ClearPathsCommand}" ToolTip="Clear both source and destination paths." Style="{StaticResource WarningButton}"/>
+                    <Button Grid.Column="1" Content="{DynamicResource BrowseButton}" Command="{Binding SelectDestinationPathCommand}"/>
+                    <Button Grid.Column="2" Content="{DynamicResource ClearButton}" Command="{Binding ClearPathsCommand}" ToolTip="{DynamicResource ClearPathsTooltip}" Style="{StaticResource WarningButton}"/>
                 </Grid>
             </GroupBox>
         </Grid>
@@ -83,7 +83,7 @@
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="{x:Static icons:MaterialIcons.topic}" FontFamily="{StaticResource MaterialIcons}" Foreground="{StaticResource FolderIconBrush}" FontSize="28" Margin="0,0,5,0" VerticalAlignment="Center"/>
-                        <TextBlock Text="File Content Export" VerticalAlignment="Center"/>
+                        <TextBlock Text="{DynamicResource TabFileContentExport}" VerticalAlignment="Center"/>
                     </StackPanel>
                 </TabItem.Header>
                 <views:FileContentExportView DataContext="{Binding FileContentExportVM}"/>
@@ -92,7 +92,7 @@
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="{x:Static icons:MaterialIcons.park}" FontFamily="{StaticResource MaterialIcons}" Foreground="{StaticResource TreeIconBrush}" FontSize="28" Margin="0,0,5,0" VerticalAlignment="Center"/>
-                        <TextBlock Text="Tree Generator" VerticalAlignment="Center"/>
+                        <TextBlock Text="{DynamicResource TabTreeGenerator}" VerticalAlignment="Center"/>
                     </StackPanel>
                 </TabItem.Header>
                 <views:TreeGeneratorView DataContext="{Binding TreeGeneratorVM}"/>
@@ -101,7 +101,7 @@
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="{x:Static icons:MaterialIcons.dns}" FontFamily="{StaticResource MaterialIcons}" Foreground="{StaticResource PrimaryBrush}" FontSize="28" Margin="0,0,5,0" VerticalAlignment="Center"/>
-                        <TextBlock Text="Folder Content Export" VerticalAlignment="Center"/>
+                        <TextBlock Text="{DynamicResource TabFolderContentExport}" VerticalAlignment="Center"/>
                     </StackPanel>
                 </TabItem.Header>
                 <views:FolderContentExportView DataContext="{Binding FolderContentExportVM}"/>
@@ -110,7 +110,7 @@
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="{x:Static icons:MaterialIcons.settings}" FontFamily="{StaticResource MaterialIcons}" Foreground="{StaticResource GrayTextBrush}" FontSize="28" Margin="0,0,5,0" VerticalAlignment="Center"/>
-                        <TextBlock Text="Options" VerticalAlignment="Center"/>
+                        <TextBlock Text="{DynamicResource TabOptions}" VerticalAlignment="Center"/>
                     </StackPanel>
                 </TabItem.Header>
                 <views:OptionsView DataContext="{Binding OptionsVM}"/>

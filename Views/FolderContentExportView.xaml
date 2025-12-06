@@ -79,7 +79,7 @@
             <GroupBox Grid.Column="0">
                 <GroupBox.Header>
                     <StackPanel Style="{StaticResource HeaderStackPanelStyle}">
-                        <TextBlock Text="Folders to Include" VerticalAlignment="Center" FontWeight="SemiBold"/>
+                        <TextBlock Text="{DynamicResource FolderContent_FoldersHeader}" VerticalAlignment="Center" FontWeight="SemiBold"/>
                         <Button Command="{Binding FullscreenManager.ToggleCommand}"
                                 CommandParameter="{x:Static local:FolderContentFullscreenState.Folders}">
                             <Button.Style>
@@ -110,7 +110,7 @@
             <GroupBox Grid.Column="1">
                 <GroupBox.Header>
                     <StackPanel Style="{StaticResource HeaderStackPanelStyle}">
-                        <TextBlock Text="Select details" VerticalAlignment="Center" FontWeight="SemiBold"/>
+                        <TextBlock Text="{DynamicResource FolderContent_DetailsHeader}" VerticalAlignment="Center" FontWeight="SemiBold"/>
                         <Button Command="{Binding FullscreenManager.ToggleCommand}"
                                 CommandParameter="{x:Static local:FolderContentFullscreenState.Details}">
                             <Button.Style>
@@ -137,7 +137,7 @@
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
                             <CheckBox Grid.Column="0" IsChecked="{Binding AreAllColumnsSelected}" IsThreeState="True" VerticalAlignment="Center"/>
-                            <TextBlock Grid.Column="1" Text="Select all" FontWeight="SemiBold" Margin="5,0,0,0" VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="1" Text="{DynamicResource FolderContent_SelectAll}" FontWeight="SemiBold" Margin="5,0,0,0" VerticalAlignment="Center"/>
                         </Grid>
                         <Separator/>
                     </StackPanel>
@@ -158,12 +158,12 @@
         <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="10">
             <StackPanel VerticalAlignment="Center" Margin="0,0,20,0">
                 <TextBlock>
-                    <Run Text="Files affected:" FontWeight="Bold"/>
+                    <Run Text="{DynamicResource FolderContent_FilesAffectedLabel}" FontWeight="Bold"/>
                     <Run Text="{Binding AffectedFilesCount, Mode=OneWay}"/>
                 </TextBlock>
             </StackPanel>
             <controls:ExportOptionsControl DataContext="{Binding}" />
-            <Button Content="Export Folder Contents"
+            <Button Content="{DynamicResource FolderContent_ExportButton}"
                     Command="{Binding ExportFolderContentsCommand}"/>
         </StackPanel>
     </Grid>

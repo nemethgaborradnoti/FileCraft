@@ -1,5 +1,4 @@
 ﻿using FileCraft.ViewModels.Shared;
-using System;
 using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
@@ -12,7 +11,7 @@ namespace FileCraft.Views.Shared
         {
             InitializeComponent();
             DataContext = viewModel;
-            Owner = System.Windows.Application.Current.MainWindow;
+            Owner = Application.Current.MainWindow;
         }
 
         private void YesButton_Click(object sender, RoutedEventArgs e)
