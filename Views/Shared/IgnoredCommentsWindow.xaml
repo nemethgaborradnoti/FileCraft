@@ -22,12 +22,12 @@
             </Grid.ColumnDefinitions>
             <TextBlock Text="Search:" VerticalAlignment="Center" Margin="0,0,5,0"/>
             <Grid Grid.Column="1">
-                <TextBox Text="{Binding SearchFilter, UpdateSourceTrigger=PropertyChanged}" 
+                <TextBox Text="{Binding SearchFilter, UpdateSourceTrigger=PropertyChanged}"
                          Style="{StaticResource ModernTextBoxStyle}"/>
-                <TextBlock IsHitTestVisible="False" 
-                           Text="Filter by path..." 
-                           Foreground="{StaticResource GrayTextBrush}" 
-                           Margin="10,0,0,0" 
+                <TextBlock IsHitTestVisible="False"
+                           Text="Filter by path..."
+                           Foreground="{StaticResource GrayTextBrush}"
+                           Margin="10,0,0,0"
                            VerticalAlignment="Center">
                     <TextBlock.Style>
                         <Style TargetType="TextBlock">
@@ -113,7 +113,7 @@
             </StackPanel>
 
             <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
-                <Button Content="Save" IsDefault="True" Click="SaveButton_Click" MinWidth="80" Margin="0,0,10,0"/>
+                <Button Content="Save" IsDefault="True" Click="SaveButton_Click" MinWidth="80" Margin="2,2,10,2"/>
                 <Button Content="Cancel" IsCancel="True" Click="CancelButton_Click" MinWidth="80" Style="{StaticResource SecondaryButton}"/>
             </StackPanel>
         </Grid>
