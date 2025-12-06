@@ -16,7 +16,5 @@
     <!-- Toolbar/Action Icons -->
     <BitmapImage x:Key="IconSave" UriSource="pack://application:,,,/Resources/save01.png"/>
     <BitmapImage x:Key="IconDelete" UriSource="pack://application:,,,/Resources/delete01.png"/>
-    <BitmapImage x:Key="IconUndo" UriSource="pack://application:,,,/Resources/arrow01.png"/>
-    <BitmapImage x:Key="IconRedo" UriSource="pack://application:,,,/Resources/arrow02.png"/>
 
 </ResourceDictionary>

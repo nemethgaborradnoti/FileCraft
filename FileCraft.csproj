@@ -19,6 +19,7 @@
     <None Remove="Resources\delete01.png" />
     <None Remove="Resources\filecontent01.png" />
     <None Remove="Resources\foldercontent01.png" />
+    <None Remove="Resources\Fonts\MaterialIcons-Regular.ttf" />
     <None Remove="Resources\info01.png" />
     <None Remove="Resources\save01.png" />
     <None Remove="Resources\save02.png" />
@@ -37,6 +38,7 @@
     <Resource Include="Resources\delete01.png" />
     <Resource Include="Resources\filecontent01.png" />
     <Resource Include="Resources\foldercontent01.png" />
+    <Resource Include="Resources\Fonts\MaterialIcons-Regular.ttf" />
     <Resource Include="Resources\info01.png" />
     <Resource Include="Resources\save01.png" />
     <Resource Include="Resources\settings01.png" />

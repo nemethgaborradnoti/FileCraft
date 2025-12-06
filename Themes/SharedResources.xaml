@@ -10,4 +10,6 @@
         <ResourceDictionary Source="/Themes/Styles/Icons.xaml" />
     </ResourceDictionary.MergedDictionaries>
 
+    <FontFamily x:Key="MaterialIcons">pack://application:,,,/Resources/Fonts/MaterialIcons-Regular.ttf#Material Icons</FontFamily>
+
 </ResourceDictionary>
