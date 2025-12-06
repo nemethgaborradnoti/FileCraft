@@ -206,7 +206,7 @@ namespace FileCraft.ViewModels.Functional
                 if (!includedFolderPaths.Any())
                 {
                     _dialogService.ShowNotification(
-                        ResourceHelper.GetString("FolderContent_InfoTitle"),
+                        ResourceHelper.GetString("Common_InfoTitle"),
                         ResourceHelper.GetString("FolderContent_NoFoldersSelected"),
                         DialogIconType.Info);
                     return;
@@ -216,7 +216,7 @@ namespace FileCraft.ViewModels.Functional
                 if (!selectedColumns.Any())
                 {
                     _dialogService.ShowNotification(
-                        ResourceHelper.GetString("FolderContent_InfoTitle"),
+                        ResourceHelper.GetString("Common_InfoTitle"),
                         ResourceHelper.GetString("FolderContent_NoColumnsSelected"),
                         DialogIconType.Info);
                     return;
@@ -240,10 +240,10 @@ namespace FileCraft.ViewModels.Functional
                 string outputFilePath = await _fileOperationService.ExportFolderContentsAsync(_sharedStateService.DestinationPath, includedFolderPaths, finalFileName, selectedColumns);
 
                 string successMsg = ResourceHelper.GetString("FolderContent_SuccessMessage");
-                string savedToMsg = ResourceHelper.GetString("FolderContent_SavedTo");
+                string savedToMsg = ResourceHelper.GetString("Common_SavedTo");
 
                 _dialogService.ShowNotification(
-                    ResourceHelper.GetString("FolderContent_SuccessTitle"),
+                    ResourceHelper.GetString("Common_SuccessTitle"),
                     $"{successMsg}\n\n{savedToMsg} {outputFilePath}",
                     DialogIconType.Success);
             }
@@ -251,7 +251,7 @@ namespace FileCraft.ViewModels.Functional
             {
                 string errorMsg = ResourceHelper.GetString("FolderContent_ErrorMessage");
                 _dialogService.ShowNotification(
-                    ResourceHelper.GetString("FolderContent_ErrorTitle"),
+                    ResourceHelper.GetString("Common_ErrorTitle"),
                     $"{errorMsg}\n\n{ex.Message}",
                     DialogIconType.Error);
             }

@@ -262,7 +262,7 @@ namespace FileCraft.ViewModels.Functional
             if (!selectedFiles.Any())
             {
                 _dialogService.ShowNotification(
-                    ResourceHelper.GetString("FileContent_InfoTitle"),
+                    ResourceHelper.GetString("Common_InfoTitle"),
                     ResourceHelper.GetString("FileContent_SelectFilesFirst"),
                     DialogIconType.Info);
                 return;
@@ -546,7 +546,7 @@ namespace FileCraft.ViewModels.Functional
                 if (!selectedFiles.Any())
                 {
                     _dialogService.ShowNotification(
-                        ResourceHelper.GetString("FileContent_InfoTitle"),
+                        ResourceHelper.GetString("Common_InfoTitle"),
                         ResourceHelper.GetString("FileContent_NoFilesToExport"),
                         DialogIconType.Info);
                     return;
@@ -575,7 +575,7 @@ namespace FileCraft.ViewModels.Functional
                 string successMsg = string.Format(ResourceHelper.GetString("FileContent_ExportSuccessMessage"), selectedFiles.Count);
                 notificationMessage.AppendLine(successMsg);
 
-                string savedToMsg = string.Format(ResourceHelper.GetString("FileContent_SavedTo"), outputFilePath);
+                string savedToMsg = string.Format(ResourceHelper.GetString("Common_SavedTo"), outputFilePath);
                 notificationMessage.AppendLine(savedToMsg);
 
                 if (xmlLines > 0)
@@ -587,7 +587,7 @@ namespace FileCraft.ViewModels.Functional
                 }
 
                 _dialogService.ShowNotification(
-                    ResourceHelper.GetString("FileContent_SuccessTitle"),
+                    ResourceHelper.GetString("Common_SuccessTitle"),
                     notificationMessage.ToString(),
                     DialogIconType.Success);
             }
@@ -595,7 +595,7 @@ namespace FileCraft.ViewModels.Functional
             {
                 string errorMsg = string.Format(ResourceHelper.GetString("FileContent_ExportErrorMessage"), ex.Message);
                 _dialogService.ShowNotification(
-                    ResourceHelper.GetString("FileContent_ErrorTitle"),
+                    ResourceHelper.GetString("Common_ErrorTitle"),
                     errorMsg,
                     DialogIconType.Error);
             }

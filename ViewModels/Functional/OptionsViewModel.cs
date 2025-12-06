@@ -345,7 +345,7 @@ namespace FileCraft.ViewModels.Functional
                 SelectedSourceTab = AllTabs[0];
                 SelectedDestinationTab = AllTabs[0];
                 _dialogService.ShowNotification(
-                    ResourceHelper.GetString("MainVM_SuccessTitle"),
+                    ResourceHelper.GetString("Common_SuccessTitle"),
                     ResourceHelper.GetString("Options_CopyTreeSuccess"),
                     DialogIconType.Success);
             }
@@ -368,7 +368,7 @@ namespace FileCraft.ViewModels.Functional
                 else
                 {
                     _dialogService.ShowNotification(
-                        ResourceHelper.GetString("MainVM_ErrorTitle"),
+                        ResourceHelper.GetString("Common_ErrorTitle"),
                         ResourceHelper.GetString("Options_OpenSaveError_NotFound"),
                         DialogIconType.Error);
                 }
@@ -376,7 +376,7 @@ namespace FileCraft.ViewModels.Functional
             catch (Exception ex)
             {
                 _dialogService.ShowNotification(
-                    ResourceHelper.GetString("MainVM_ErrorTitle"),
+                    ResourceHelper.GetString("Common_ErrorTitle"),
                     string.Format(ResourceHelper.GetString("Options_OpenSaveError_Exception"), ex.Message),
                     DialogIconType.Error);
             }

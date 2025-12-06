@@ -42,7 +42,7 @@
         <GroupBox Grid.Row="0">
             <GroupBox.Header>
                 <StackPanel Style="{StaticResource HeaderStackPanelStyle}">
-                    <TextBlock Text="{DynamicResource TreeGen_FoldersHeader}" VerticalAlignment="Center" FontWeight="SemiBold"/>
+                    <TextBlock Text="{DynamicResource Common_FoldersHeader}" VerticalAlignment="Center" FontWeight="SemiBold"/>
                     <Button Command="{Binding FullscreenManager.ToggleCommand}"
                             CommandParameter="{x:Static local:TreeGeneratorFullscreenState.Folders}">
                         <Button.Style>

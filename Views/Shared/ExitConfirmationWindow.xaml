@@ -34,9 +34,9 @@
         </Grid>
 
         <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right">
-            <Button Content="{DynamicResource ExitConfirmation_SaveButton}" Click="SaveButton_Click" IsDefault="True" MinWidth="90" Margin="2,2,10,2"/>
+            <Button Content="{DynamicResource Common_SaveButton}" Click="SaveButton_Click" IsDefault="True" MinWidth="90" Margin="2,2,10,2"/>
             <Button Content="{DynamicResource ExitConfirmation_DontSaveButton}" Click="DontSaveButton_Click" MinWidth="90" Margin="2,2,10,2" Style="{StaticResource DangerButton}"/>
-            <Button Content="{DynamicResource ExitConfirmation_CancelButton}" Click="CancelButton_Click" IsCancel="True" MinWidth="90" Style="{StaticResource SecondaryButton}"/>
+            <Button Content="{DynamicResource Common_CancelButton}" Click="CancelButton_Click" IsCancel="True" MinWidth="90" Style="{StaticResource SecondaryButton}"/>
         </StackPanel>
     </Grid>
 </Window>

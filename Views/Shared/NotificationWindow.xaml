@@ -36,7 +36,7 @@
 
         <Button x:Name="OkButton"
                 Grid.Row="1"
-                Content="{DynamicResource Notification_OkButton}"
+                Content="{DynamicResource Common_OkButton}"
                 Click="OkButton_Click"
                 IsDefault="True"
                 HorizontalAlignment="Center"

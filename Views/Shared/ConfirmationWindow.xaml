@@ -81,8 +81,8 @@
         </Grid>
 
         <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right">
-            <Button Content="{DynamicResource Confirmation_YesButton}" Click="YesButton_Click" IsDefault="True" MinWidth="80" Margin="2,2,10,2"/>
-            <Button Content="{DynamicResource Confirmation_CancelButton}" Click="CancelButton_Click" IsCancel="True" MinWidth="80" Style="{StaticResource SecondaryButton}"/>
+            <Button Content="{DynamicResource Common_YesButton}" Click="YesButton_Click" IsDefault="True" MinWidth="80" Margin="2,2,10,2"/>
+            <Button Content="{DynamicResource Common_CancelButton}" Click="CancelButton_Click" IsCancel="True" MinWidth="80" Style="{StaticResource SecondaryButton}"/>
         </StackPanel>
     </Grid>
 </Window>

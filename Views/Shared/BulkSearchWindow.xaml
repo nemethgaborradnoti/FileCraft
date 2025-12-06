@@ -78,7 +78,7 @@
                                   IsChecked="{Binding AreAllFoundFilesSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                   IsThreeState="True"
                                   VerticalAlignment="Center"/>
-                        <TextBlock Grid.Column="1" Text="{DynamicResource BulkSearch_SelectAll}" FontWeight="SemiBold" Margin="5,0,0,0" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="1" Text="{DynamicResource Common_SelectAll}" FontWeight="SemiBold" Margin="5,0,0,0" VerticalAlignment="Center"/>
                     </Grid>
                     <Separator/>
                 </StackPanel>
@@ -154,7 +154,7 @@
 
             <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
                 <Button Content="{DynamicResource BulkSearch_ApplyButton}" x:Name="ApplyButton" IsDefault="True" Height="32" MinWidth="80" Margin="0,0,10,0" Click="ApplyButton_Click"/>
-                <Button Content="{DynamicResource BulkSearch_CancelButton}" IsCancel="True" Height="32" MinWidth="80" Click="CancelButton_Click" Style="{StaticResource SecondaryButton}"/>
+                <Button Content="{DynamicResource Common_CancelButton}" IsCancel="True" Height="32" MinWidth="80" Click="CancelButton_Click" Style="{StaticResource SecondaryButton}"/>
             </StackPanel>
         </Grid>
     </Grid>

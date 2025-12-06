@@ -105,7 +105,7 @@
             <GroupBox Grid.Column="0">
                 <GroupBox.Header>
                     <StackPanel Style="{StaticResource HeaderStackPanelStyle}">
-                        <TextBlock Text="{DynamicResource FileContent_FoldersHeader}" VerticalAlignment="Center" FontWeight="SemiBold"/>
+                        <TextBlock Text="{DynamicResource Common_FoldersHeader}" VerticalAlignment="Center" FontWeight="SemiBold"/>
                         <Button Command="{Binding FullscreenManager.ToggleCommand}"
                                 CommandParameter="{x:Static local:ExportFullscreenState.Folders}">
                             <Button.Style>
@@ -253,12 +253,12 @@
                     </Grid.ColumnDefinitions>
 
                     <DockPanel Grid.Column="0">
-                        <TextBlock Text="{DynamicResource FileContent_SearchLabel}" DockPanel.Dock="Left" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                        <TextBlock Text="{DynamicResource Common_SearchLabel}" DockPanel.Dock="Left" VerticalAlignment="Center" Margin="0,0,5,0"/>
                         <Grid>
                             <TextBox Style="{StaticResource ModernTextBoxStyle}"
                                      Text="{Binding SearchFilter, UpdateSourceTrigger=PropertyChanged}" />
                             <TextBlock IsHitTestVisible="False"
-                                       Text="{DynamicResource FileContent_FilterPlaceholder}"
+                                       Text="{DynamicResource Common_FilterPlaceholder}"
                                        VerticalAlignment="Center"
                                        HorizontalAlignment="Left"
                                        Margin="10,0,0,0"
@@ -306,7 +306,7 @@
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <CheckBox Grid.Column="0" IsChecked="{Binding AreAllFilesSelected}" IsThreeState="True" VerticalAlignment="Center"/>
-                        <TextBlock Grid.Column="1" Text="{DynamicResource FileContent_SelectAll}" FontWeight="SemiBold" Margin="5,0,0,0" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="1" Text="{DynamicResource Common_SelectAll}" FontWeight="SemiBold" Margin="5,0,0,0" VerticalAlignment="Center"/>
                     </Grid>
                     <Separator/>
                 </StackPanel>

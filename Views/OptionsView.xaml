@@ -35,7 +35,7 @@
                                         </Grid.ColumnDefinitions>
 
                                         <Button Grid.Column="0"
-                                                Content="{DynamicResource SaveButtonText}"
+                                                Content="{DynamicResource Common_SaveButton}"
                                                 Style="{StaticResource SuccessButton}"
                                                 ToolTip="{DynamicResource SavePresetTooltip}"
                                                 Command="{Binding DataContext.SavePresetCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
@@ -87,7 +87,7 @@
                                         </StackPanel>
 
                                         <Button Grid.Column="2"
-                                                Content="{DynamicResource LoadButtonText}"
+                                                Content="{DynamicResource Common_LoadButton}"
                                                 Command="{Binding DataContext.LoadPresetCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                 CommandParameter="{Binding}"
                                                 IsEnabled="{Binding Exists}"
@@ -247,7 +247,7 @@
                    FontSize="12"
                    Foreground="Gray"
                    Margin="10">
-            <Run Text="{DynamicResource VersionLabel}"/>
+            <Run Text="{DynamicResource Common_VersionLabel}"/>
             <Run Text="{Binding Version, Mode=OneWay}"/>
         </TextBlock>
     </Grid>

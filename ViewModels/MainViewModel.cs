@@ -215,7 +215,7 @@ namespace FileCraft.ViewModels
             _saveService.Save(dataToPersist);
             HasUnsavedChanges = false;
             _dialogService.ShowNotification(
-                ResourceHelper.GetString("MainVM_SuccessTitle"),
+                ResourceHelper.GetString("Common_SuccessTitle"),
                 ResourceHelper.GetString("MainVM_SettingsSaved"),
                 DialogIconType.Success);
         }
@@ -310,7 +310,7 @@ namespace FileCraft.ViewModels
             if (string.IsNullOrWhiteSpace(SourcePath) || !Directory.Exists(SourcePath))
             {
                 _dialogService.ShowNotification(
-                    ResourceHelper.GetString("MainVM_WarningTitle"),
+                    ResourceHelper.GetString("Common_WarningTitle"),
                     ResourceHelper.GetString("Preset_SelectSourceFirst"),
                     DialogIconType.Warning);
                 return;
@@ -358,7 +358,7 @@ namespace FileCraft.ViewModels
                         _saveService.UpdatePresetName(presetNumber, newName);
                         OptionsVM.CheckForExistingPresets();
                         _dialogService.ShowNotification(
-                            ResourceHelper.GetString("MainVM_SuccessTitle"),
+                            ResourceHelper.GetString("Common_SuccessTitle"),
                             string.Format(ResourceHelper.GetString("Preset_SavedAndRenamed"), newName),
                             DialogIconType.Success);
                         return;
@@ -366,14 +366,14 @@ namespace FileCraft.ViewModels
                 }
 
                 _dialogService.ShowNotification(
-                    ResourceHelper.GetString("MainVM_SuccessTitle"),
+                    ResourceHelper.GetString("Common_SuccessTitle"),
                     string.Format(ResourceHelper.GetString("Preset_SavedSuccess"), presetName, presetNumber),
                     DialogIconType.Success);
             }
             catch (System.Exception ex)
             {
                 _dialogService.ShowNotification(
-                    ResourceHelper.GetString("MainVM_ErrorTitle"),
+                    ResourceHelper.GetString("Common_ErrorTitle"),
                     string.Format(ResourceHelper.GetString("Preset_SaveError"), presetNumber, ex.Message),
                     DialogIconType.Error);
             }
@@ -386,14 +386,14 @@ namespace FileCraft.ViewModels
                 _saveService.UpdatePresetName(presetNumber, newName);
                 OptionsVM.CheckForExistingPresets();
                 _dialogService.ShowNotification(
-                    ResourceHelper.GetString("MainVM_SuccessTitle"),
+                    ResourceHelper.GetString("Common_SuccessTitle"),
                     string.Format(ResourceHelper.GetString("Preset_RenamedSuccess"), presetNumber, newName),
                     DialogIconType.Success);
             }
             catch (Exception ex)
             {
                 _dialogService.ShowNotification(
-                    ResourceHelper.GetString("MainVM_ErrorTitle"),
+                    ResourceHelper.GetString("Common_ErrorTitle"),
                     string.Format(ResourceHelper.GetString("Preset_RenameError"), presetNumber, ex.Message),
                     DialogIconType.Error);
             }
@@ -404,7 +404,7 @@ namespace FileCraft.ViewModels
             if (string.IsNullOrWhiteSpace(SourcePath) || !Directory.Exists(SourcePath))
             {
                 _dialogService.ShowNotification(
-                    ResourceHelper.GetString("MainVM_WarningTitle"),
+                    ResourceHelper.GetString("Common_WarningTitle"),
                     ResourceHelper.GetString("Preset_LoadSelectSourceFirst"),
                     DialogIconType.Warning);
                 return;
@@ -414,7 +414,7 @@ namespace FileCraft.ViewModels
             if (relativePresetData == null)
             {
                 _dialogService.ShowNotification(
-                    ResourceHelper.GetString("MainVM_InfoTitle"),
+                    ResourceHelper.GetString("Common_InfoTitle"),
                     string.Format(ResourceHelper.GetString("Preset_NotExist"), presetNumber),
                     DialogIconType.Info);
                 return;
@@ -435,14 +435,14 @@ namespace FileCraft.ViewModels
                 ApplyAllData(absolutePresetData);
                 HasUnsavedChanges = true;
                 _dialogService.ShowNotification(
-                    ResourceHelper.GetString("MainVM_SuccessTitle"),
+                    ResourceHelper.GetString("Common_SuccessTitle"),
                     string.Format(ResourceHelper.GetString("Preset_LoadedSuccess"), presetNumber, relativePresetData.PresetName),
                     DialogIconType.Success);
             }
             catch (System.Exception ex)
             {
                 _dialogService.ShowNotification(
-                    ResourceHelper.GetString("MainVM_ErrorTitle"),
+                    ResourceHelper.GetString("Common_ErrorTitle"),
                     string.Format(ResourceHelper.GetString("Preset_LoadError"), presetNumber, ex.Message),
                     DialogIconType.Error);
             }
@@ -469,14 +469,14 @@ namespace FileCraft.ViewModels
                     _saveService.DeletePreset(presetNumber);
                     OptionsVM.CheckForExistingPresets();
                     _dialogService.ShowNotification(
-                        ResourceHelper.GetString("MainVM_SuccessTitle"),
+                        ResourceHelper.GetString("Common_SuccessTitle"),
                         string.Format(ResourceHelper.GetString("Preset_DeletedSuccess"), presetNumber, presetName),
                         DialogIconType.Success);
                 }
                 catch (System.Exception ex)
                 {
                     _dialogService.ShowNotification(
-                        ResourceHelper.GetString("MainVM_ErrorTitle"),
+                        ResourceHelper.GetString("Common_ErrorTitle"),
                         string.Format(ResourceHelper.GetString("Preset_DeleteError"), presetNumber, ex.Message),
                         DialogIconType.Error);
                 }
@@ -499,14 +499,14 @@ namespace FileCraft.ViewModels
                     ApplyAllData(new SaveData());
                     HasUnsavedChanges = false;
                     _dialogService.ShowNotification(
-                        ResourceHelper.GetString("MainVM_SuccessTitle"),
+                        ResourceHelper.GetString("Common_SuccessTitle"),
                         ResourceHelper.GetString("Reset_SuccessMessage"),
                         DialogIconType.Success);
                 }
                 catch (System.Exception ex)
                 {
                     _dialogService.ShowNotification(
-                        ResourceHelper.GetString("MainVM_ErrorTitle"),
+                        ResourceHelper.GetString("Common_ErrorTitle"),
                         string.Format(ResourceHelper.GetString("Reset_ErrorMessage"), ex.Message),
                         DialogIconType.Error);
                 }

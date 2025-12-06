@@ -79,7 +79,7 @@
             <GroupBox Grid.Column="0">
                 <GroupBox.Header>
                     <StackPanel Style="{StaticResource HeaderStackPanelStyle}">
-                        <TextBlock Text="{DynamicResource FolderContent_FoldersHeader}" VerticalAlignment="Center" FontWeight="SemiBold"/>
+                        <TextBlock Text="{DynamicResource Common_FoldersHeader}" VerticalAlignment="Center" FontWeight="SemiBold"/>
                         <Button Command="{Binding FullscreenManager.ToggleCommand}"
                                 CommandParameter="{x:Static local:FolderContentFullscreenState.Folders}">
                             <Button.Style>
@@ -137,7 +137,7 @@
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
                             <CheckBox Grid.Column="0" IsChecked="{Binding AreAllColumnsSelected}" IsThreeState="True" VerticalAlignment="Center"/>
-                            <TextBlock Grid.Column="1" Text="{DynamicResource FolderContent_SelectAll}" FontWeight="SemiBold" Margin="5,0,0,0" VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="1" Text="{DynamicResource Common_SelectAll}" FontWeight="SemiBold" Margin="5,0,0,0" VerticalAlignment="Center"/>
                         </Grid>
                         <Separator/>
                     </StackPanel>

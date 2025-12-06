@@ -20,12 +20,12 @@
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <TextBlock Text="{DynamicResource IgnoredComments_SearchLabel}" VerticalAlignment="Center" Margin="0,0,5,0"/>
+            <TextBlock Text="{DynamicResource Common_SearchLabel}" VerticalAlignment="Center" Margin="0,0,5,0"/>
             <Grid Grid.Column="1">
                 <TextBox Text="{Binding SearchFilter, UpdateSourceTrigger=PropertyChanged}"
                          Style="{StaticResource ModernTextBoxStyle}"/>
                 <TextBlock IsHitTestVisible="False"
-                           Text="{DynamicResource IgnoredComments_FilterPlaceholder}"
+                           Text="{DynamicResource Common_FilterPlaceholder}"
                            Foreground="{StaticResource GrayTextBrush}"
                            Margin="10,0,0,0"
                            VerticalAlignment="Center">
@@ -54,7 +54,7 @@
                 <TextBlock Grid.Column="0" Text="{DynamicResource IgnoredComments_CharsHeader}" FontWeight="SemiBold" HorizontalAlignment="Right" Margin="0,0,10,0" VerticalAlignment="Center" Foreground="{StaticResource GrayTextBrush}" FontSize="11"/>
 
                 <CheckBox Grid.Column="1" IsChecked="{Binding AreAllSelected}" IsThreeState="True" VerticalAlignment="Center"/>
-                <TextBlock Grid.Column="2" Text="{DynamicResource IgnoredComments_SelectAll}" FontWeight="SemiBold" Margin="5,0,0,0" VerticalAlignment="Center"/>
+                <TextBlock Grid.Column="2" Text="{DynamicResource Common_SelectAll}" FontWeight="SemiBold" Margin="5,0,0,0" VerticalAlignment="Center"/>
             </Grid>
             <Separator/>
         </StackPanel>
@@ -113,8 +113,8 @@
             </StackPanel>
 
             <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
-                <Button Content="{DynamicResource IgnoredComments_SaveButton}" IsDefault="True" Click="SaveButton_Click" MinWidth="80" Margin="2,2,10,2"/>
-                <Button Content="{DynamicResource IgnoredComments_CancelButton}" IsCancel="True" Click="CancelButton_Click" MinWidth="80" Style="{StaticResource SecondaryButton}"/>
+                <Button Content="{DynamicResource Common_SaveButton}" IsDefault="True" Click="SaveButton_Click" MinWidth="80" Margin="2,2,10,2"/>
+                <Button Content="{DynamicResource Common_CancelButton}" IsCancel="True" Click="CancelButton_Click" MinWidth="80" Style="{StaticResource SecondaryButton}"/>
             </StackPanel>
         </Grid>
     </Grid>
