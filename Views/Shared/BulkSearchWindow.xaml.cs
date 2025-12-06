@@ -154,14 +154,18 @@ namespace FileCraft.Views.Shared
 
         private void ApplyButton_Click(object sender, RoutedEventArgs e)
         {
-            var viewModel = new ConfirmationViewModel
+            var viewModel = new GenericDialogViewModel
             {
-                ActionName = ResourceHelper.GetString("BulkSearch_ApplyTitle"),
+                Title = ResourceHelper.GetString("BulkSearch_ApplyTitle"),
                 Message = ResourceHelper.GetString("BulkSearch_ApplyMessage"),
                 IconGlyph = _iconGlyph,
-                IconBrush = _iconBrush
+                IconBrush = _iconBrush,
+                PrimaryButtonText = ResourceHelper.GetString("Common_YesButton"),
+                PrimaryButtonStyle = "PrimaryButton",
+                SecondaryButtonText = ResourceHelper.GetString("Common_CancelButton")
             };
-            var confirmationWindow = new ConfirmationWindow(viewModel);
+
+            var confirmationWindow = new GenericDialogWindow(viewModel);
 
             if (confirmationWindow.ShowDialog() == true)
             {

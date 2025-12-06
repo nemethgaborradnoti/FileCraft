@@ -1,0 +1,113 @@
+﻿<Window x:Class="FileCraft.Views.Shared.GenericDialogWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:viewmodels="clr-namespace:FileCraft.ViewModels.Shared"
+        xmlns:local="clr-namespace:FileCraft.Views.Shared"
+        mc:Ignorable="d"
+        Title="{Binding Title}"
+        SizeToContent="Height"
+        WindowStartupLocation="CenterOwner"
+        Width="500"
+        MinHeight="150"
+        WindowStyle="ToolWindow"
+        ResizeMode="NoResize"
+        d:DataContext="{d:DesignInstance Type=viewmodels:GenericDialogViewModel}">
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        <local:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
+    </Window.Resources>
+
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0" VerticalAlignment="Center" Margin="0,0,0,20">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Az ikon Viewboxa, ami eltűnik, ha nincs ikon beállítva -->
+            <Viewbox Grid.Column="0" Width="48" Height="48" Margin="0,0,15,0" VerticalAlignment="Center">
+                <Viewbox.Style>
+                    <Style TargetType="Viewbox">
+                        <Setter Property="Visibility" Value="Visible"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IconGlyph}" Value="">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding IconGlyph}" Value="{x:Null}">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Viewbox.Style>
+                <TextBlock Text="{Binding IconGlyph}" FontFamily="{StaticResource MaterialIcons}" Foreground="{Binding IconBrush}" />
+            </Viewbox>
+
+            <StackPanel Grid.Column="1">
+                <TextBlock Text="{Binding Message}" TextWrapping="Wrap" HorizontalAlignment="Left" Margin="0,0,0,10"/>
+
+                <TextBlock TextAlignment="Left" Margin="0,0,0,10"
+                           Visibility="{Binding FilesAffected, Converter={StaticResource NullToVisibilityConverter}}">
+                    <Run Text="{Binding FilesAffected, Mode=OneWay}"/>
+                    <Run Text="{DynamicResource Confirmation_FilesAffectedLabel}"/>
+                </TextBlock>
+
+                <TextBox Text="{Binding InputText, UpdateSourceTrigger=PropertyChanged}"
+                         Style="{StaticResource ModernTextBoxStyle}"
+                         Margin="0,0,0,10"
+                         Visibility="{Binding IsInputVisible, Converter={StaticResource BooleanToVisibilityConverter}}"
+                         x:Name="InputTextBox"/>
+
+                <StackPanel Visibility="{Binding IsCopyTreeVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <TextBlock Text="{DynamicResource Confirmation_CopyTree_Part1}" TextWrapping="Wrap" />
+                    <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                        <TextBlock Text="{Binding SourceTabIcon}" FontFamily="{StaticResource MaterialIcons}" Foreground="{StaticResource GrayTextBrush}" FontSize="20" Margin="0,0,5,0" VerticalAlignment="Center"/>
+                        <TextBlock VerticalAlignment="Center">
+                            <Run Text="{Binding SourceTabName}" FontWeight="Bold"/>
+                            <Run Text="{Binding SourceFolderCount, StringFormat='({0} folders)'}"/>
+                        </TextBlock>
+                    </StackPanel>
+                    <TextBlock Text="{DynamicResource Confirmation_CopyTree_Part2}" Margin="0,5,0,5"/>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="{Binding DestinationTabIcon}" FontFamily="{StaticResource MaterialIcons}" Foreground="{StaticResource GrayTextBrush}" FontSize="20" Margin="0,0,5,0" VerticalAlignment="Center"/>
+                        <TextBlock VerticalAlignment="Center">
+                            <Run Text="{Binding DestinationTabName}" FontWeight="Bold"/>
+                            <Run Text="{Binding DestinationFolderCount, StringFormat='({0} folders)'}"/>
+                        </TextBlock>
+                    </StackPanel>
+                </StackPanel>
+            </StackPanel>
+        </Grid>
+
+        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button x:Name="PrimaryButton"
+                    Content="{Binding PrimaryButtonText}"
+                    Command="{Binding PrimaryCommand}"
+                    IsDefault="True"
+                    MinWidth="90"
+                    Margin="2,2,10,2"
+                    Visibility="{Binding IsPrimaryVisible, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+
+            <Button x:Name="TertiaryButton"
+                    Content="{Binding TertiaryButtonText}"
+                    Command="{Binding TertiaryCommand}"
+                    MinWidth="90"
+                    Margin="2,2,10,2"
+                    Visibility="{Binding IsTertiaryVisible, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+
+            <Button x:Name="SecondaryButton"
+                    Content="{Binding SecondaryButtonText}"
+                    Command="{Binding SecondaryCommand}"
+                    IsCancel="True"
+                    MinWidth="90"
+                    Style="{StaticResource SecondaryButton}"
+                    Visibility="{Binding IsSecondaryVisible, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+        </StackPanel>
+    </Grid>
+</Window>
