@@ -66,7 +66,6 @@ namespace FileCraft.Views.Shared
             Owner = System.Windows.Application.Current.MainWindow;
             _debounceTimer = new Timer(OnDebounceTimerElapsed, null, Timeout.Infinite, Timeout.Infinite);
 
-            // Initialize display with localized string
             _totalCountsDisplay = $"{ResourceHelper.GetString("IgnoredComments_TotalLabel")} 0";
 
             var ignoredSet = new HashSet<string>(previouslyIgnoredFiles, StringComparer.OrdinalIgnoreCase);
@@ -181,8 +180,8 @@ namespace FileCraft.Views.Shared
                             int totalChars = 0;
                             foreach (var line in lines)
                             {
-                                int index = line.IndexOf("///");
-                                if (index >= 0)
+                                int index = IgnoreCommentsHelper.FindActualCommentIndex(line);
+                                if (index != -1 && index + 2 < line.Length && line[index + 2] == '/')
                                 {
                                     int charsInThisLine = line.Length - (index + 3);
                                     if (charsInThisLine > 0)

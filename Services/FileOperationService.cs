@@ -1,5 +1,6 @@
 ﻿using FileCraft.Models;
 using FileCraft.Services.Interfaces;
+using FileCraft.Shared.Helpers;
 using FileCraft.Shared.Validation;
 using System.IO;
 using System.Text;
@@ -126,40 +127,6 @@ namespace FileCraft.Services
             }
         }
 
-        private int FindActualCommentIndex(string line)
-        {
-            bool inDoubleQuotes = false;
-            bool inSingleQuotes = false;
-
-            for (int i = 0; i < line.Length; i++)
-            {
-                char c = line[i];
-
-                if (c == '"' && (i == 0 || line[i - 1] != '\\'))
-                {
-                    inDoubleQuotes = !inDoubleQuotes;
-                }
-                else if (c == '\'' && (i == 0 || line[i - 1] != '\\'))
-                {
-                    inSingleQuotes = !inSingleQuotes;
-                }
-
-                if (!inDoubleQuotes && !inSingleQuotes)
-                {
-                    if (i + 1 < line.Length && line[i] == '/' && line[i + 1] == '/')
-                    {
-                        if (i > 0 && line[i - 1] == ':')
-                        {
-                            continue;
-                        }
-                        return i;
-                    }
-                }
-            }
-            return -1;
-        }
-
-
         public async Task<(string FilePath, int XmlCommentLines, int XmlCommentChars)> ExportSelectedFileContentsAsync(string destinationPath, IEnumerable<SelectableFile> selectedFiles, string outputFileName, ISet<string> filesToIgnoreXmlComments)
         {
             Guard.AgainstNullOrWhiteSpace(destinationPath, nameof(destinationPath));
@@ -189,7 +156,7 @@ namespace FileCraft.Services
 
                         if (shouldIgnoreXmlComments)
                         {
-                            int commentIndex = FindActualCommentIndex(line);
+                            int commentIndex = IgnoreCommentsHelper.FindActualCommentIndex(line);
 
                             if (commentIndex != -1)
                             {
