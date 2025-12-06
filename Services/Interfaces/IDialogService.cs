@@ -1,5 +1,4 @@
 ﻿using FileCraft.Models;
-using System.Collections.Generic;
 
 namespace FileCraft.Services.Interfaces
 {
@@ -15,6 +14,5 @@ namespace FileCraft.Services.Interfaces
         void ShowPreview(string title, string content);
         bool ShowBulkSearchDialog(IEnumerable<SelectableFile> allFiles);
         IEnumerable<string>? ShowIgnoredCommentsDialog(IEnumerable<SelectableFile> selectedFiles, IEnumerable<string> previouslyIgnoredFiles);
-        string? GetIconPath(string resourceKey);
     }
 }

@@ -1,11 +1,15 @@
-﻿namespace FileCraft.ViewModels.Shared
+﻿using Brush = System.Windows.Media.Brush;
+using Brushes = System.Windows.Media.Brushes;
+
+namespace FileCraft.ViewModels.Shared
 {
     public class ConfirmationViewModel : BaseViewModel
     {
         public string ActionName { get; set; } = string.Empty;
         public string Message { get; set; } = string.Empty;
         public int? FilesAffected { get; set; }
-        public string IconPath { get; set; } = string.Empty;
+        public string IconGlyph { get; set; } = string.Empty;
+        public Brush IconBrush { get; set; } = Brushes.Black;
 
         public bool IsCopyTreeMessage { get; set; }
         public string? SourceTabName { get; set; }

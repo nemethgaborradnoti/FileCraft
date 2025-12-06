@@ -4,8 +4,8 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="Notification" 
-        SizeToContent="Height" 
+        Title="Notification"
+        SizeToContent="Height"
         WindowStartupLocation="CenterOwner"
         Width="450"
         MinHeight="150"
@@ -23,19 +23,21 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <Image Grid.Column="0" Source="{Binding IconPath}" Width="48" Height="48" Margin="0,0,15,0" VerticalAlignment="Center"/>
+            <Viewbox Grid.Column="0" Width="48" Height="48" Margin="0,0,15,0" VerticalAlignment="Center">
+                <TextBlock Text="{Binding IconGlyph}" FontFamily="{StaticResource MaterialIcons}" Foreground="{Binding IconBrush}" />
+            </Viewbox>
 
-            <TextBlock x:Name="MessageTextBlock" 
+            <TextBlock x:Name="MessageTextBlock"
                        Grid.Column="1"
                        TextWrapping="Wrap"
-                       HorizontalAlignment="Left" 
+                       HorizontalAlignment="Left"
                        VerticalAlignment="Center"/>
         </Grid>
 
-        <Button x:Name="OkButton" 
-                Grid.Row="1" 
-                Content="OK" 
-                Click="OkButton_Click" 
+        <Button x:Name="OkButton"
+                Grid.Row="1"
+                Content="OK"
+                Click="OkButton_Click"
                 IsDefault="True"
                 HorizontalAlignment="Center"
                 Padding="30,8"/>

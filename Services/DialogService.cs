@@ -29,19 +29,21 @@ namespace FileCraft.Services
 
         public void ShowNotification(string title, string message, DialogIconType iconType)
         {
-            string? iconPath = GetIconPath(iconType);
-            var notificationWindow = new NotificationWindow(title, message, iconPath ?? string.Empty);
+            var (iconGlyph, iconBrush) = GetMaterialIconData(iconType);
+            var notificationWindow = new NotificationWindow(title, message, iconGlyph, iconBrush);
             notificationWindow.ShowDialog();
         }
 
         public bool ShowConfirmation(string title, string message, DialogIconType iconType, int? filesAffected = null)
         {
+            var (iconGlyph, iconBrush) = GetMaterialIconData(iconType);
             var viewModel = new ConfirmationViewModel
             {
                 ActionName = title,
                 Message = message,
                 FilesAffected = filesAffected,
-                IconPath = GetIconPath(iconType) ?? string.Empty
+                IconGlyph = iconGlyph,
+                IconBrush = iconBrush
             };
             var confirmationWindow = new ConfirmationWindow(viewModel);
             return confirmationWindow.ShowDialog() ?? false;
@@ -49,10 +51,12 @@ namespace FileCraft.Services
 
         public bool ShowCopyTreeConfirmation(string title, DialogIconType iconType, string sourceName, string? sourceIcon, int sourceCount, string destName, string? destIcon, int destCount)
         {
+            var (iconGlyph, iconBrush) = GetMaterialIconData(iconType);
             var viewModel = new ConfirmationViewModel
             {
                 ActionName = title,
-                IconPath = GetIconPath(iconType) ?? string.Empty,
+                IconGlyph = iconGlyph,
+                IconBrush = iconBrush,
                 IsCopyTreeMessage = true,
                 SourceTabName = sourceName,
                 SourceTabIcon = sourceIcon,
@@ -101,8 +105,8 @@ namespace FileCraft.Services
 
         public bool ShowBulkSearchDialog(IEnumerable<SelectableFile> allFiles)
         {
-            string infoIconPath = GetIconPath(DialogIconType.Info) ?? string.Empty;
-            var bulkSearchWindow = new BulkSearchWindow(allFiles, infoIconPath);
+            var (iconGlyph, iconBrush) = GetMaterialIconData(DialogIconType.Info);
+            var bulkSearchWindow = new BulkSearchWindow(allFiles, iconGlyph, iconBrush);
             return bulkSearchWindow.ShowDialog() ?? false;
         }
 
@@ -114,29 +118,6 @@ namespace FileCraft.Services
                 return window.GetIgnoredFilePaths();
             }
             return null;
-        }
-
-        public string? GetIconPath(string resourceKey)
-        {
-            if (Application.Current.FindResource(resourceKey) is BitmapImage image)
-            {
-                return image.UriSource.ToString();
-            }
-            return null;
-        }
-
-        private string? GetIconPath(DialogIconType iconType)
-        {
-            string key = iconType switch
-            {
-                DialogIconType.Info => "IconInfo",
-                DialogIconType.Warning => "IconWarning",
-                DialogIconType.Success => "IconSuccess",
-                DialogIconType.Error => "IconError",
-                _ => throw new ArgumentOutOfRangeException(nameof(iconType), $"Not supported icon type: {iconType}")
-            };
-
-            return GetIconPath(key);
         }
 
         private (string Glyph, Brush Brush) GetMaterialIconData(DialogIconType iconType)

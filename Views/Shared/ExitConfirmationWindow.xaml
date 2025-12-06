@@ -34,8 +34,8 @@
         </Grid>
 
         <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right">
-            <Button Content="Save" Click="SaveButton_Click" IsDefault="True" MinWidth="90" Margin="0,0,10,0"/>
-            <Button Content="Don't Save" Click="DontSaveButton_Click" MinWidth="90" Margin="0,0,10,0" Style="{StaticResource DangerButton}"/>
+            <Button Content="Save" Click="SaveButton_Click" IsDefault="True" MinWidth="90" Margin="2,2,10,2"/>
+            <Button Content="Don't Save" Click="DontSaveButton_Click" MinWidth="90" Margin="2,2,10,2" Style="{StaticResource DangerButton}"/>
             <Button Content="Cancel" Click="CancelButton_Click" IsCancel="True" MinWidth="90" Style="{StaticResource SecondaryButton}"/>
         </StackPanel>
     </Grid>

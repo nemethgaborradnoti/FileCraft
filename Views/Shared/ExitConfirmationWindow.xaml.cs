@@ -1,6 +1,5 @@
 ﻿using FileCraft.Models;
 using System.Windows;
-using System.Windows.Media;
 using Brush = System.Windows.Media.Brush;
 
 namespace FileCraft.Views.Shared

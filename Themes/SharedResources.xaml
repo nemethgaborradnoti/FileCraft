@@ -7,7 +7,6 @@
         <ResourceDictionary Source="/Themes/Styles/Inputs.xaml" />
         <ResourceDictionary Source="/Themes/Styles/DataDisplay.xaml" />
         <ResourceDictionary Source="/Themes/Styles/Layout.xaml" />
-        <ResourceDictionary Source="/Themes/Styles/Icons.xaml" />
     </ResourceDictionary.MergedDictionaries>
 
     <FontFamily x:Key="MaterialIcons">pack://application:,,,/Resources/Fonts/MaterialIcons-Regular.ttf#Material Icons</FontFamily>

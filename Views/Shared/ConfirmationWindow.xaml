@@ -6,8 +6,8 @@
         xmlns:viewmodels="clr-namespace:FileCraft.ViewModels.Shared"
         xmlns:local="clr-namespace:FileCraft.Views.Shared"
         mc:Ignorable="d"
-        Title="{Binding ActionName, Mode=OneWay}" 
-        SizeToContent="Height" 
+        Title="{Binding ActionName, Mode=OneWay}"
+        SizeToContent="Height"
         WindowStartupLocation="CenterOwner"
         Width="500"
         WindowStyle="ToolWindow"
@@ -28,7 +28,9 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <Image Grid.Column="0" Source="{Binding IconPath}" Width="48" Height="48" Margin="0,0,15,0" VerticalAlignment="Center"/>
+            <Viewbox Grid.Column="0" Width="48" Height="48" Margin="0,0,15,0" VerticalAlignment="Center">
+                <TextBlock Text="{Binding IconGlyph}" FontFamily="{StaticResource MaterialIcons}" Foreground="{Binding IconBrush}" />
+            </Viewbox>
 
             <StackPanel Grid.Column="1">
                 <StackPanel.Style>
@@ -41,7 +43,7 @@
                     </Style>
                 </StackPanel.Style>
                 <TextBlock Text="{Binding Message, Mode=OneWay}" TextWrapping="Wrap" TextAlignment="Left" MaxWidth="500"/>
-                <TextBlock TextAlignment="Left" Margin="0,10,0,0" 
+                <TextBlock TextAlignment="Left" Margin="0,10,0,0"
                            Visibility="{Binding FilesAffected, Converter={StaticResource NullToVisibilityConverter}}">
                     <Run Text="{Binding FilesAffected, Mode=OneWay}"/>
                     <Run Text="files affected."/>
@@ -61,7 +63,7 @@
                 </StackPanel.Style>
                 <TextBlock Text="Are you sure you want to copy the folder tree of" TextWrapping="Wrap" />
                 <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
-                    <Image Source="{Binding SourceTabIcon}" Width="20" Height="20" Margin="0,0,5,0" VerticalAlignment="Center"/>
+                    <TextBlock Text="{Binding SourceTabIcon}" FontFamily="{StaticResource MaterialIcons}" Foreground="{StaticResource GrayTextBrush}" FontSize="20" Margin="0,0,5,0" VerticalAlignment="Center"/>
                     <TextBlock VerticalAlignment="Center">
                         <Run Text="{Binding SourceTabName}" FontWeight="Bold"/>
                         <Run Text="{Binding SourceFolderCount, StringFormat='({0} folders)'}"/>
@@ -69,7 +71,7 @@
                 </StackPanel>
                 <TextBlock Text="to" Margin="0,5,0,5"/>
                 <StackPanel Orientation="Horizontal">
-                    <Image Source="{Binding DestinationTabIcon}" Width="20" Height="20" Margin="0,0,5,0" VerticalAlignment="Center"/>
+                    <TextBlock Text="{Binding DestinationTabIcon}" FontFamily="{StaticResource MaterialIcons}" Foreground="{StaticResource GrayTextBrush}" FontSize="20" Margin="0,0,5,0" VerticalAlignment="Center"/>
                     <TextBlock VerticalAlignment="Center">
                         <Run Text="{Binding DestinationTabName}" FontWeight="Bold"/>
                         <Run Text="{Binding DestinationFolderCount, StringFormat='({0} folders)'}"/>
@@ -79,7 +81,7 @@
         </Grid>
 
         <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right">
-            <Button Content="Yes" Click="YesButton_Click" IsDefault="True" MinWidth="80" Margin="0,0,10,0"/>
+            <Button Content="Yes" Click="YesButton_Click" IsDefault="True" MinWidth="80" Margin="2,2,10,2"/>
             <Button Content="Cancel" Click="CancelButton_Click" IsCancel="True" MinWidth="80" Style="{StaticResource SecondaryButton}"/>
         </StackPanel>
     </Grid>

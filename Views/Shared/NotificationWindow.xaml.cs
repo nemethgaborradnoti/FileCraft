@@ -1,18 +1,22 @@
-﻿namespace FileCraft.Views.Shared
-{
-    using System.Windows;
+﻿using System.Windows;
+using Application = System.Windows.Application;
+using Brush = System.Windows.Media.Brush;
 
+namespace FileCraft.Views.Shared
+{
     public partial class NotificationWindow : Window
     {
-        public string IconPath { get; }
+        public string IconGlyph { get; }
+        public Brush IconBrush { get; }
 
-        public NotificationWindow(string title, string message, string iconPath)
+        public NotificationWindow(string title, string message, string iconGlyph, Brush iconBrush)
         {
             InitializeComponent();
             Owner = Application.Current.MainWindow;
             this.Title = title;
             MessageTextBlock.Text = message;
-            IconPath = iconPath;
+            IconGlyph = iconGlyph;
+            IconBrush = iconBrush;
             DataContext = this;
         }
 

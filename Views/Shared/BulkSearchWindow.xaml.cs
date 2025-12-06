@@ -1,8 +1,6 @@
 ﻿using FileCraft.Models;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -10,6 +8,7 @@ using System.Windows;
 using System.Windows.Controls;
 using Application = System.Windows.Application;
 using FileCraft.ViewModels.Shared;
+using Brush = System.Windows.Media.Brush;
 
 namespace FileCraft.Views.Shared
 {
@@ -20,7 +19,9 @@ namespace FileCraft.Views.Shared
         private readonly Dictionary<string, SelectableFile> _allAvailableFilesLookup;
         public ObservableCollection<FoundFileViewModel> FilteredFoundFiles { get; } = new();
         private readonly List<FoundFileViewModel> _allFoundFileViewModelsCache = new();
-        private readonly string _infoIconPath;
+
+        private readonly string _iconGlyph;
+        private readonly Brush _iconBrush;
 
         private bool? _areAllFoundFilesSelected = false;
         private bool _isUpdatingSelectAll = false;
@@ -42,7 +43,7 @@ namespace FileCraft.Views.Shared
             }
         }
 
-        public BulkSearchWindow(IEnumerable<SelectableFile> allFiles, string infoIconPath)
+        public BulkSearchWindow(IEnumerable<SelectableFile> allFiles, string iconGlyph, Brush iconBrush)
         {
             InitializeComponent();
             Owner = Application.Current.MainWindow;
@@ -51,7 +52,9 @@ namespace FileCraft.Views.Shared
                 f => f.RelativePath,
                 f => f,
                 StringComparer.OrdinalIgnoreCase);
-            _infoIconPath = infoIconPath;
+
+            _iconGlyph = iconGlyph;
+            _iconBrush = iconBrush;
 
             InputTotalTextBlock.Text = "Total lines: 0";
             UpdateTotals();
@@ -156,7 +159,8 @@ namespace FileCraft.Views.Shared
             {
                 ActionName = "Apply Bulk Search",
                 Message = "Apply bulk search changes?",
-                IconPath = _infoIconPath
+                IconGlyph = _iconGlyph,
+                IconBrush = _iconBrush
             };
             var confirmationWindow = new ConfirmationWindow(viewModel);
 
