@@ -22,7 +22,9 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <Image Grid.Column="0" Source="{Binding IconPath}" Width="48" Height="48" Margin="0,0,15,0" VerticalAlignment="Center"/>
+            <Viewbox Grid.Column="0" Width="48" Height="48" Margin="0,0,15,0" VerticalAlignment="Center">
+                <TextBlock Text="{Binding IconGlyph}" FontFamily="{StaticResource MaterialIcons}" Foreground="{Binding IconBrush}" />
+            </Viewbox>
 
             <TextBlock x:Name="MessageTextBlock"
                        Grid.Column="1"

@@ -1,20 +1,24 @@
 ﻿using FileCraft.Models;
 using System.Windows;
+using System.Windows.Media;
+using Brush = System.Windows.Media.Brush;
 
 namespace FileCraft.Views.Shared
 {
     public partial class ExitConfirmationWindow : Window
     {
         public ExitConfirmationResult Result { get; private set; } = ExitConfirmationResult.Cancel;
-        public string IconPath { get; }
+        public string IconGlyph { get; }
+        public Brush IconBrush { get; }
 
-        public ExitConfirmationWindow(string title, string message, string iconPath)
+        public ExitConfirmationWindow(string title, string message, string iconGlyph, Brush iconBrush)
         {
             InitializeComponent();
             Owner = System.Windows.Application.Current.MainWindow;
             this.Title = title;
             MessageTextBlock.Text = message;
-            IconPath = iconPath;
+            IconGlyph = iconGlyph;
+            IconBrush = iconBrush;
             DataContext = this;
         }
 

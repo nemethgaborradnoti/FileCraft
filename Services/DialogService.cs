@@ -2,10 +2,11 @@
 using FileCraft.Services.Interfaces;
 using FileCraft.ViewModels.Shared;
 using FileCraft.Views.Shared;
-using System.Collections.Generic;
-using System.Windows;
+using Fonts;
 using System.Windows.Media.Imaging;
 using Application = System.Windows.Application;
+using Brush = System.Windows.Media.Brush;
+using Brushes = System.Windows.Media.Brushes;
 
 namespace FileCraft.Services
 {
@@ -66,8 +67,8 @@ namespace FileCraft.Services
 
         public ExitConfirmationResult ShowExitConfirmation(string title, string message)
         {
-            string iconPath = GetIconPath(DialogIconType.Warning) ?? string.Empty;
-            var confirmationWindow = new ExitConfirmationWindow(title, message, iconPath);
+            var (iconGlyph, iconBrush) = GetMaterialIconData(DialogIconType.Warning);
+            var confirmationWindow = new ExitConfirmationWindow(title, message, iconGlyph, iconBrush);
             confirmationWindow.ShowDialog();
             return confirmationWindow.Result;
         }
@@ -136,6 +137,30 @@ namespace FileCraft.Services
             };
 
             return GetIconPath(key);
+        }
+
+        private (string Glyph, Brush Brush) GetMaterialIconData(DialogIconType iconType)
+        {
+            string glyph = iconType switch
+            {
+                DialogIconType.Info => MaterialIcons.info,
+                DialogIconType.Warning => MaterialIcons.warning,
+                DialogIconType.Success => MaterialIcons.check_circle,
+                DialogIconType.Error => MaterialIcons.cancel,
+                _ => MaterialIcons.help_outline
+            };
+
+            string colorKey = iconType switch
+            {
+                DialogIconType.Info => "PrimaryBrush",
+                DialogIconType.Warning => "DangerBrush",
+                DialogIconType.Success => "SuccessBrush",
+                DialogIconType.Error => "DangerBrush",
+                _ => "TextBrush"
+            };
+
+            var brush = Application.Current.FindResource(colorKey) as Brush ?? Brushes.Black;
+            return (glyph, brush);
         }
     }
 }
