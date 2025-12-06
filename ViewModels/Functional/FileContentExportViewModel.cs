@@ -22,7 +22,6 @@ namespace FileCraft.ViewModels.Functional
     public class FileContentExportViewModel : ExportViewModelBase
     {
         private readonly IFileQueryService _fileQueryService;
-        private readonly ISharedStateService _sharedStateService;
         private readonly Timer _debounceTimer;
         private string _searchFilter = string.Empty;
         private bool _isShowingOnlySelected;
@@ -34,8 +33,6 @@ namespace FileCraft.ViewModels.Functional
         private int _selectedFilesCount;
         private bool? _areAllFilesSelected;
         private bool? _areAllExtensionsSelected;
-        private string _outputFileName = string.Empty;
-        private bool _appendTimestamp;
         private string _selectedExtensionsText = string.Empty;
         private string _ignoredFilesText = string.Empty;
         private HashSet<string> _ignoredCommentFilePaths = new(StringComparer.OrdinalIgnoreCase);
@@ -137,34 +134,6 @@ namespace FileCraft.ViewModels.Functional
             }
         }
 
-        public string OutputFileName
-        {
-            get => _outputFileName;
-            set
-            {
-                if (_outputFileName != value)
-                {
-                    OnStateChanging();
-                    _outputFileName = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
-
-        public bool AppendTimestamp
-        {
-            get => _appendTimestamp;
-            set
-            {
-                if (_appendTimestamp != value)
-                {
-                    OnStateChanging();
-                    _appendTimestamp = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
-
         public string SelectedExtensionsText
         {
             get => _selectedExtensionsText;
@@ -208,7 +177,6 @@ namespace FileCraft.ViewModels.Functional
             : base(sharedStateService, fileOperationService, dialogService, folderTreeManager)
         {
             _fileQueryService = fileQueryService;
-            _sharedStateService = sharedStateService;
             _debounceTimer = new Timer(OnDebounceTimerElapsed, null, Timeout.Infinite, Timeout.Infinite);
 
             FullscreenManager = new FullscreenManager<ExportFullscreenState>(ExportFullscreenState.None);

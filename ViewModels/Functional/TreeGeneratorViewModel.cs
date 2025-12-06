@@ -16,39 +16,9 @@ namespace FileCraft.ViewModels.Functional
 
     public class TreeGeneratorViewModel : ExportViewModelBase
     {
-        private string _outputFileName = string.Empty;
-        private bool _appendTimestamp;
         private int _includedFoldersCount;
 
         public FullscreenManager<TreeGeneratorFullscreenState> FullscreenManager { get; }
-
-        public string OutputFileName
-        {
-            get => _outputFileName;
-            set
-            {
-                if (_outputFileName != value)
-                {
-                    OnStateChanging();
-                    _outputFileName = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
-
-        public bool AppendTimestamp
-        {
-            get => _appendTimestamp;
-            set
-            {
-                if (_appendTimestamp != value)
-                {
-                    OnStateChanging();
-                    _appendTimestamp = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
 
         public int IncludedFoldersCount
         {

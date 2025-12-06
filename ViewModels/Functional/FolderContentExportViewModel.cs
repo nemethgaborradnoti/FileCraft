@@ -19,40 +19,10 @@ namespace FileCraft.ViewModels.Functional
 
     public class FolderContentExportViewModel : ExportViewModelBase
     {
-        private string _outputFileName = string.Empty;
-        private bool _appendTimestamp;
         private bool? _areAllColumnsSelected;
         private int _affectedFilesCount;
 
         public FullscreenManager<FolderContentFullscreenState> FullscreenManager { get; }
-
-        public string OutputFileName
-        {
-            get => _outputFileName;
-            set
-            {
-                if (_outputFileName != value)
-                {
-                    OnStateChanging();
-                    _outputFileName = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
-
-        public bool AppendTimestamp
-        {
-            get => _appendTimestamp;
-            set
-            {
-                if (_appendTimestamp != value)
-                {
-                    OnStateChanging();
-                    _appendTimestamp = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
 
         public bool? AreAllColumnsSelected
         {
