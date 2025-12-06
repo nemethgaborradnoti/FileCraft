@@ -23,6 +23,8 @@
     <system:String x:Key="Common_VersionLabel">Version</system:String>
 
     <!-- App Specific Strings -->
+    <system:String x:Key="App_Version">v4.0.0</system:String>
+
     <system:String x:Key="UndoTooltip">Undo</system:String>
     <system:String x:Key="RedoTooltip">Redo</system:String>
     <system:String x:Key="SaveSettingsTooltip">Save current settings</system:String>
@@ -183,5 +185,11 @@
     <system:String x:Key="Options_CopyTreeSuccess">Folder tree copied successfully.</system:String>
     <system:String x:Key="Options_OpenSaveError_NotFound">The save folder could not be found.</system:String>
     <system:String x:Key="Options_OpenSaveError_Exception">An error occurred while trying to open the folder:\n{0}</system:String>
+
+    <!-- Model Defaults -->
+    <system:String x:Key="Model_DefaultExportedFileName">ExportedFile</system:String>
+    <system:String x:Key="Model_DefaultFileContentsName">FileContents</system:String>
+    <system:String x:Key="Model_DefaultFolderContentsName">FolderContents</system:String>
+    <system:String x:Key="Model_DefaultTreeStructureName">TreeStructure</system:String>
 
 </ResourceDictionary>

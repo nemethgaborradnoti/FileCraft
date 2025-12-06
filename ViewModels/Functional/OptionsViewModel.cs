@@ -101,7 +101,8 @@ namespace FileCraft.ViewModels.Functional
         private readonly ISharedStateService _sharedStateService;
         private readonly IFileOperationService _fileOperationService;
         private readonly FileContentExportViewModel _fileContentExportVM;
-        public string Version => "v4.0.0";
+
+        public string Version => ResourceHelper.GetString("App_Version");
 
         public event Action? IgnoredFoldersChanged;
         public event Action<int>? PresetSaveRequested;

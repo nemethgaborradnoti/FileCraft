@@ -1,4 +1,6 @@
-﻿namespace FileCraft.Models
+﻿using FileCraft.Shared.Helpers;
+
+namespace FileCraft.Models
 {
     public class SaveData
     {
@@ -15,7 +17,7 @@
 
     public abstract class ExportSettingsBase
     {
-        public string OutputFileName { get; set; } = "ExportedFile";
+        public string OutputFileName { get; set; } = ResourceHelper.GetString("Model_DefaultExportedFileName");
         public bool AppendTimestamp { get; set; } = false;
     }
 
@@ -28,7 +30,7 @@
 
         public FileContentExportSettings()
         {
-            OutputFileName = "FileContents";
+            OutputFileName = ResourceHelper.GetString("Model_DefaultFileContentsName");
         }
     }
 
@@ -38,7 +40,7 @@
         public List<FolderState> FolderTreeState { get; set; } = new();
         public FolderContentExportSettings()
         {
-            OutputFileName = "FolderContents";
+            OutputFileName = ResourceHelper.GetString("Model_DefaultFolderContentsName");
         }
     }
 
@@ -47,7 +49,7 @@
         public List<FolderState> FolderTreeState { get; set; } = new();
         public TreeGeneratorSettings()
         {
-            OutputFileName = "TreeStructure";
+            OutputFileName = ResourceHelper.GetString("Model_DefaultTreeStructureName");
         }
     }
 
