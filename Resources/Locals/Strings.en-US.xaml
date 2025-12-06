@@ -16,7 +16,7 @@
     <system:String x:Key="Common_DeleteButton">Delete</system:String>
 
     <system:String x:Key="Common_SelectAll">Select all</system:String>
-    <system:String x:Key="Common_SavedTo">Saved to:</system:String>
+    <system:String x:Key="Common_SavedTo">Saved to: {0}</system:String>
     <system:String x:Key="Common_FoldersHeader">Folders to Include</system:String>
     <system:String x:Key="Common_SearchLabel">Search:</system:String>
     <system:String x:Key="Common_FilterPlaceholder">Filter by path...</system:String>
@@ -77,10 +77,10 @@
     <system:String x:Key="FileContent_NoFilesToExport">No files were selected. Please select at least one file to export.</system:String>
     <system:String x:Key="FileContent_ConfirmExportMessage">Are you sure you want to export file contents to the following path?</system:String>
     <system:String x:Key="FileContent_ExportTitle">Export File Contents</system:String>
-    <system:String x:Key="FileContent_ExportSuccessMessage">File contents exported successfully!</system:String>
+    <system:String x:Key="FileContent_ExportSuccessMessage">File contents exported successfully! ({0} files)</system:String>
     <system:String x:Key="FileContent_IgnoredParts">Ignored parts:</system:String>
-    <system:String x:Key="FileContent_IgnoredStats">lines (characters).</system:String>
-    <system:String x:Key="FileContent_ExportErrorMessage">An unexpected error occurred during export:</system:String>
+    <system:String x:Key="FileContent_IgnoredStats">{0} lines ({1} characters).</system:String>
+    <system:String x:Key="FileContent_ExportErrorMessage">An unexpected error occurred during export:\n{0}</system:String>
 
     <system:String x:Key="TreeGen_FoldersAffectedLabel">Folders affected:</system:String>
     <system:String x:Key="TreeGen_GenerateButton">Generate Tree Structure</system:String>
@@ -88,7 +88,7 @@
     <system:String x:Key="TreeGen_ConfirmGenerateMessage">Are you sure you want to generate the tree structure to the following path?</system:String>
     <system:String x:Key="TreeGen_GenerateTitle">Generate Tree Structure</system:String>
     <system:String x:Key="TreeGen_SuccessMessage">Tree structure file was created successfully!</system:String>
-    <system:String x:Key="TreeGen_ErrorMessage">An unexpected error occurred:</system:String>
+    <system:String x:Key="TreeGen_ErrorMessage">An unexpected error occurred:\n{0}</system:String>
 
     <system:String x:Key="FolderContent_DetailsHeader">Select details</system:String>
     <system:String x:Key="FolderContent_FilesAffectedLabel">Files affected:</system:String>
@@ -99,7 +99,7 @@
     <system:String x:Key="FolderContent_ConfirmExportMessage">Are you sure you want to export folder contents to the following path?</system:String>
     <system:String x:Key="FolderContent_ExportTitle">Export Folder Contents</system:String>
     <system:String x:Key="FolderContent_SuccessMessage">Folder contents exported successfully!</system:String>
-    <system:String x:Key="FolderContent_ErrorMessage">An unexpected error occurred:</system:String>
+    <system:String x:Key="FolderContent_ErrorMessage">An unexpected error occurred:\n{0}</system:String>
 
     <system:String x:Key="ExportOptions_Header">Export Options</system:String>
     <system:String x:Key="ExportOptions_FileNameLabel">File Name:</system:String>

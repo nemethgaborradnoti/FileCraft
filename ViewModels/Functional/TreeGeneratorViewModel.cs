@@ -122,19 +122,19 @@ namespace FileCraft.ViewModels.Functional
                 string outputFilePath = await _fileOperationService.GenerateTreeStructureAsync(_sharedStateService.SourcePath, _sharedStateService.DestinationPath, excludedFolderPaths, finalFileName);
 
                 string successMsg = ResourceHelper.GetString("TreeGen_SuccessMessage");
-                string savedToMsg = ResourceHelper.GetString("Common_SavedTo");
+                string savedToMsg = string.Format(ResourceHelper.GetString("Common_SavedTo"), outputFilePath);
 
                 _dialogService.ShowNotification(
                     ResourceHelper.GetString("Common_SuccessTitle"),
-                    $"{successMsg}\n\n{savedToMsg} {outputFilePath}",
+                    $"{successMsg}\n\n{savedToMsg}",
                     DialogIconType.Success);
             }
             catch (Exception ex)
             {
-                string errorMsg = ResourceHelper.GetString("TreeGen_ErrorMessage");
+                string errorMsg = string.Format(ResourceHelper.GetString("TreeGen_ErrorMessage"), ex.Message);
                 _dialogService.ShowNotification(
                     ResourceHelper.GetString("Common_ErrorTitle"),
-                    $"{errorMsg}\n\n{ex.Message}",
+                    errorMsg,
                     DialogIconType.Error);
             }
             finally
