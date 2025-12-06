@@ -1,5 +1,6 @@
 ﻿using FileCraft.Models;
 using FileCraft.Services.Interfaces;
+using FileCraft.Shared.Helpers;
 using System.Windows;
 
 namespace FileCraft.Views.Shared
@@ -13,7 +14,7 @@ namespace FileCraft.Views.Shared
         {
             InitializeComponent();
             Owner = Application.Current.MainWindow;
-            PromptText.Text = $"Preset {presetNumber} name:";
+            PromptText.Text = string.Format(ResourceHelper.GetString("RenamePreset_Prompt"), presetNumber);
             NameTextBox.Text = currentName;
             _dialogService = dialogService;
             NameTextBox.Focus();
@@ -31,8 +32,8 @@ namespace FileCraft.Views.Shared
             else
             {
                 _dialogService.ShowNotification(
-                    "Invalid Input",
-                    "Preset name cannot be empty.",
+                    ResourceHelper.GetString("RenamePreset_InvalidInputTitle"),
+                    ResourceHelper.GetString("RenamePreset_InvalidInputMessage"),
                     DialogIconType.Warning);
             }
         }

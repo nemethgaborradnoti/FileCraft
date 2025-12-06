@@ -7,6 +7,7 @@ using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using FileCraft.ViewModels.Shared;
+using FileCraft.Shared.Helpers;
 
 namespace FileCraft.Views.Shared
 {
@@ -54,7 +55,7 @@ namespace FileCraft.Views.Shared
             _iconGlyph = iconGlyph;
             _iconBrush = iconBrush;
 
-            InputTotalTextBlock.Text = $"{GetString("BulkSearch_TotalLinesLabel")} 0";
+            InputTotalTextBlock.Text = $"{ResourceHelper.GetString("BulkSearch_TotalLinesLabel")} 0";
             UpdateTotals();
         }
 
@@ -93,7 +94,7 @@ namespace FileCraft.Views.Shared
             }
 
             CountTextBlock.Text = countBuilder.ToString();
-            InputTotalTextBlock.Text = $"{GetString("BulkSearch_TotalLinesLabel")} {inputLinesWithMatches}";
+            InputTotalTextBlock.Text = $"{ResourceHelper.GetString("BulkSearch_TotalLinesLabel")} {inputLinesWithMatches}";
 
             FilteredFoundFiles.Clear();
             foreach (var file in matchedFiles.OrderBy(f => f.RelativePath))
@@ -127,7 +128,7 @@ namespace FileCraft.Views.Shared
             int totalFound = FilteredFoundFiles.Count;
             int totalChanged = FilteredFoundFiles.Count(f => f.IsSelected != f.OriginalIsSelected);
 
-            FoundTotalTextBlock.Text = $"{GetString("BulkSearch_TotalFoundLabel")} {totalFound} | {GetString("BulkSearch_TotalChangedLabel")} {totalChanged}";
+            FoundTotalTextBlock.Text = $"{ResourceHelper.GetString("BulkSearch_TotalFoundLabel")} {totalFound} | {ResourceHelper.GetString("BulkSearch_TotalChangedLabel")} {totalChanged}";
         }
 
         private void UpdateSelectAllState()
@@ -155,8 +156,8 @@ namespace FileCraft.Views.Shared
         {
             var viewModel = new ConfirmationViewModel
             {
-                ActionName = GetString("BulkSearch_ApplyTitle"),
-                Message = GetString("BulkSearch_ApplyMessage"),
+                ActionName = ResourceHelper.GetString("BulkSearch_ApplyTitle"),
+                Message = ResourceHelper.GetString("BulkSearch_ApplyMessage"),
                 IconGlyph = _iconGlyph,
                 IconBrush = _iconBrush
             };
@@ -225,11 +226,6 @@ namespace FileCraft.Views.Shared
                 }
             }
             InputTextBox.Text = string.Join(Environment.NewLine, newLines);
-        }
-
-        private string GetString(string key)
-        {
-            return Application.Current.TryFindResource(key) as string ?? key;
         }
 
         protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)

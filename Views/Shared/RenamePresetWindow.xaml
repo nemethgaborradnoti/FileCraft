@@ -1,7 +1,7 @@
 ﻿<Window x:Class="FileCraft.Views.Shared.RenamePresetWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Edit Preset Name"
+        Title="{DynamicResource RenamePreset_Title}"
         SizeToContent="Height"
         WindowStartupLocation="CenterOwner"
         WindowStyle="ToolWindow"
@@ -11,9 +11,8 @@
         <TextBlock x:Name="PromptText" Margin="0,0,0,10"/>
         <TextBox x:Name="NameTextBox" MinWidth="250" Margin="0,0,0,15" Style="{StaticResource ModernTextBoxStyle}"/>
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-            <Button Content="OK" IsDefault="True" MinWidth="80" Margin="2,2,10,2" Click="OkButton_Click"/>
-            <Button Content="Cancel" IsCancel="True" MinWidth="80" Click="CancelButton_Click" Style="{StaticResource SecondaryButton}"/>
+            <Button Content="{DynamicResource RenamePreset_OkButton}" IsDefault="True" MinWidth="80" Margin="2,2,10,2" Click="OkButton_Click"/>
+            <Button Content="{DynamicResource RenamePreset_CancelButton}" IsCancel="True" MinWidth="80" Click="CancelButton_Click" Style="{StaticResource SecondaryButton}"/>
         </StackPanel>
     </StackPanel>
 </Window>
-

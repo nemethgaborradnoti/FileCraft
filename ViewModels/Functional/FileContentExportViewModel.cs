@@ -223,17 +223,12 @@ namespace FileCraft.ViewModels.Functional
             BulkSearchCommand = new RelayCommand(_ => BulkSearch(), _ => _allSelectableFiles.Any());
             ConfigureIgnoredCommentsCommand = new RelayCommand(_ => ConfigureIgnoredComments(), _ => _allSelectableFiles.Any(f => f.IsSelected));
 
-            _selectedExtensionsText = GetString("FileContent_NoExtensionsSelected");
-            _ignoredFilesText = GetString("FileContent_NoIgnoredFiles");
+            _selectedExtensionsText = ResourceHelper.GetString("FileContent_NoExtensionsSelected");
+            _ignoredFilesText = ResourceHelper.GetString("FileContent_NoIgnoredFiles");
 
             OnFolderSelectionChanged();
             UpdateFileCounts();
             UpdateExtensionMasterState();
-        }
-
-        private string GetString(string key)
-        {
-            return Application.Current.TryFindResource(key) as string ?? key;
         }
 
         private void OnFullscreenStateChanged(object? sender, PropertyChangedEventArgs e)
@@ -267,8 +262,8 @@ namespace FileCraft.ViewModels.Functional
             if (!selectedFiles.Any())
             {
                 _dialogService.ShowNotification(
-                    GetString("FileContent_InfoTitle"),
-                    GetString("FileContent_SelectFilesFirst"),
+                    ResourceHelper.GetString("FileContent_InfoTitle"),
+                    ResourceHelper.GetString("FileContent_SelectFilesFirst"),
                     DialogIconType.Info);
                 return;
             }
@@ -509,7 +504,7 @@ namespace FileCraft.ViewModels.Functional
             var selected = AvailableExtensions.Where(e => e.IsSelected).Select(e => e.Name).ToList();
             if (selected.Count == 0)
             {
-                SelectedExtensionsText = GetString("FileContent_NoExtensionsSelected");
+                SelectedExtensionsText = ResourceHelper.GetString("FileContent_NoExtensionsSelected");
             }
             else
             {
@@ -521,7 +516,7 @@ namespace FileCraft.ViewModels.Functional
         {
             if (_ignoredCommentFilePaths.Count == 0)
             {
-                IgnoredFilesText = GetString("FileContent_NoIgnoredFiles");
+                IgnoredFilesText = ResourceHelper.GetString("FileContent_NoIgnoredFiles");
             }
             else
             {
@@ -551,17 +546,17 @@ namespace FileCraft.ViewModels.Functional
                 if (!selectedFiles.Any())
                 {
                     _dialogService.ShowNotification(
-                        GetString("FileContent_InfoTitle"),
-                        GetString("FileContent_NoFilesToExport"),
+                        ResourceHelper.GetString("FileContent_InfoTitle"),
+                        ResourceHelper.GetString("FileContent_NoFilesToExport"),
                         DialogIconType.Info);
                     return;
                 }
 
-                string messageFormat = GetString("FileContent_ConfirmExportMessage");
+                string messageFormat = ResourceHelper.GetString("FileContent_ConfirmExportMessage");
                 string message = $"{messageFormat}\n{_sharedStateService.DestinationPath}";
 
                 bool confirmed = _dialogService.ShowConfirmation(
-                    title: GetString("FileContent_ExportTitle"),
+                    title: ResourceHelper.GetString("FileContent_ExportTitle"),
                     message: message,
                     iconType: DialogIconType.Info,
                     filesAffected: selectedFiles.Count);
@@ -577,30 +572,30 @@ namespace FileCraft.ViewModels.Functional
                     _sharedStateService.DestinationPath, selectedFiles, finalFileName, _ignoredCommentFilePaths);
 
                 var notificationMessage = new StringBuilder();
-                string successMsg = string.Format(GetString("FileContent_ExportSuccessMessage"), selectedFiles.Count);
+                string successMsg = string.Format(ResourceHelper.GetString("FileContent_ExportSuccessMessage"), selectedFiles.Count);
                 notificationMessage.AppendLine(successMsg);
 
-                string savedToMsg = string.Format(GetString("FileContent_SavedTo"), outputFilePath);
+                string savedToMsg = string.Format(ResourceHelper.GetString("FileContent_SavedTo"), outputFilePath);
                 notificationMessage.AppendLine(savedToMsg);
 
                 if (xmlLines > 0)
                 {
                     notificationMessage.AppendLine();
-                    notificationMessage.AppendLine(GetString("FileContent_IgnoredParts"));
-                    string stats = string.Format(GetString("FileContent_IgnoredStats"), xmlLines, xmlChars);
+                    notificationMessage.AppendLine(ResourceHelper.GetString("FileContent_IgnoredParts"));
+                    string stats = string.Format(ResourceHelper.GetString("FileContent_IgnoredStats"), xmlLines, xmlChars);
                     notificationMessage.AppendLine(stats);
                 }
 
                 _dialogService.ShowNotification(
-                    GetString("FileContent_SuccessTitle"),
+                    ResourceHelper.GetString("FileContent_SuccessTitle"),
                     notificationMessage.ToString(),
                     DialogIconType.Success);
             }
             catch (Exception ex)
             {
-                string errorMsg = string.Format(GetString("FileContent_ExportErrorMessage"), ex.Message);
+                string errorMsg = string.Format(ResourceHelper.GetString("FileContent_ExportErrorMessage"), ex.Message);
                 _dialogService.ShowNotification(
-                    GetString("FileContent_ErrorTitle"),
+                    ResourceHelper.GetString("FileContent_ErrorTitle"),
                     errorMsg,
                     DialogIconType.Error);
             }

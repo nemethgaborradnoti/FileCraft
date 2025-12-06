@@ -152,4 +152,57 @@
     <system:String x:Key="Notification_Title">Notification</system:String>
     <system:String x:Key="Notification_OkButton">OK</system:String>
 
+    <system:String x:Key="RenamePreset_Title">Edit Preset Name</system:String>
+    <system:String x:Key="RenamePreset_Prompt">Preset {0} name:</system:String>
+    <system:String x:Key="RenamePreset_OkButton">OK</system:String>
+    <system:String x:Key="RenamePreset_CancelButton">Cancel</system:String>
+    <system:String x:Key="RenamePreset_InvalidInputTitle">Invalid Input</system:String>
+    <system:String x:Key="RenamePreset_InvalidInputMessage">Preset name cannot be empty.</system:String>
+
+    <system:String x:Key="MainVM_SelectSourceFolder">Select the common source folder</system:String>
+    <system:String x:Key="MainVM_SelectDestFolder">Select the common destination folder</system:String>
+    <system:String x:Key="MainVM_SuccessTitle">Success</system:String>
+    <system:String x:Key="MainVM_ErrorTitle">Error</system:String>
+    <system:String x:Key="MainVM_InfoTitle">Information</system:String>
+    <system:String x:Key="MainVM_WarningTitle">Action Required</system:String>
+    <system:String x:Key="MainVM_SettingsSaved">Settings saved successfully.</system:String>
+    <system:String x:Key="MainVM_UnsavedChangesTitle">Unsaved Changes</system:String>
+    <system:String x:Key="MainVM_UnsavedChangesMessage">You have unsaved changes. Do you want to save before quitting?</system:String>
+
+    <system:String x:Key="Preset_SelectSourceFirst">Please select a valid source folder before saving a preset.</system:String>
+    <system:String x:Key="Preset_DefaultNamePrefix">Preset</system:String>
+    <system:String x:Key="Preset_OverwriteTitle">Overwrite Preset ({0})</system:String>
+    <system:String x:Key="Preset_OverwriteMessage">Are you sure you want to overwrite Preset ({0}): '{1}' with the current settings?</system:String>
+    <system:String x:Key="Preset_SaveNewTitle">Save New Preset ({0})</system:String>
+    <system:String x:Key="Preset_SaveNewMessage">Are you sure you want to save the current settings as a new preset named '{0}'?</system:String>
+    <system:String x:Key="Preset_SavedAndRenamed">Preset saved and renamed to '{0}'.</system:String>
+    <system:String x:Key="Preset_SavedSuccess">Preset '{0}' saved successfully to slot {1}.</system:String>
+    <system:String x:Key="Preset_SaveError">Failed to save preset {0}.\n\n{1}</system:String>
+    <system:String x:Key="Preset_RenamedSuccess">Preset ({0}) renamed to '{1}'.</system:String>
+    <system:String x:Key="Preset_RenameError">Failed to rename preset {0}.\n\n{1}</system:String>
+    <system:String x:Key="Preset_LoadSelectSourceFirst">To load a preset, please first select the root source folder for your project.</system:String>
+    <system:String x:Key="Preset_NotExist">Preset ({0}) does not exist yet.</system:String>
+    <system:String x:Key="Preset_LoadConfirmMessage">Are you sure you want to load ALL settings from Preset ({0}): '{1}'?\nThis will overwrite your entire current configuration.</system:String>
+    <system:String x:Key="Preset_LoadConfirmTitle">Load from Preset ({0})</system:String>
+    <system:String x:Key="Preset_LoadedSuccess">Preset ({0}): '{1}' loaded successfully.</system:String>
+    <system:String x:Key="Preset_LoadError">Failed to load preset {0}.\n\n{1}</system:String>
+    <system:String x:Key="Preset_DeleteConfirmMessage">You are about to delete Preset ({0}): '{1}'.\nThis action cannot be undone.\n\nAre you sure you want to continue?</system:String>
+    <system:String x:Key="Preset_DeleteConfirmTitle">Delete Preset ({0})</system:String>
+    <system:String x:Key="Preset_DeletedSuccess">Preset ({0}): '{1}' has been deleted.</system:String>
+    <system:String x:Key="Preset_DeleteError">Failed to delete preset {0}.\n\n{1}</system:String>
+
+    <system:String x:Key="Reset_ConfirmTitle">Delete Current Save</system:String>
+    <system:String x:Key="Reset_ConfirmMessage">Are you sure you want to delete all current settings and reset to default? This action cannot be undone.</system:String>
+    <system:String x:Key="Reset_SuccessMessage">Current save data has been deleted. Application has been reset to default settings.</system:String>
+    <system:String x:Key="Reset_ErrorMessage">Failed to delete save data.\n\n{0}</system:String>
+
+    <system:String x:Key="Options_IgnoredFoldersNone">No folders are ignored.</system:String>
+    <system:String x:Key="Options_TabNone">-- None --</system:String>
+    <system:String x:Key="Options_UnnamedPreset">Unnamed Preset</system:String>
+    <system:String x:Key="Options_EmptyPreset">-- Empty --</system:String>
+    <system:String x:Key="Options_CopyTreeTitle">Copy Folder Tree</system:String>
+    <system:String x:Key="Options_CopyTreeSuccess">Folder tree copied successfully.</system:String>
+    <system:String x:Key="Options_OpenSaveError_NotFound">The save folder could not be found.</system:String>
+    <system:String x:Key="Options_OpenSaveError_Exception">An error occurred while trying to open the folder:\n{0}</system:String>
+
 </ResourceDictionary>

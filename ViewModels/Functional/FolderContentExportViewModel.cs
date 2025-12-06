@@ -115,11 +115,6 @@ namespace FileCraft.ViewModels.Functional
             UpdateAffectedFilesCount();
         }
 
-        private string GetString(string key)
-        {
-            return Application.Current.TryFindResource(key) as string ?? key;
-        }
-
         private void OnColumnSelectionChanged(object? sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == nameof(SelectableItemViewModel.IsSelected))
@@ -211,8 +206,8 @@ namespace FileCraft.ViewModels.Functional
                 if (!includedFolderPaths.Any())
                 {
                     _dialogService.ShowNotification(
-                        GetString("FolderContent_InfoTitle"),
-                        GetString("FolderContent_NoFoldersSelected"),
+                        ResourceHelper.GetString("FolderContent_InfoTitle"),
+                        ResourceHelper.GetString("FolderContent_NoFoldersSelected"),
                         DialogIconType.Info);
                     return;
                 }
@@ -221,17 +216,17 @@ namespace FileCraft.ViewModels.Functional
                 if (!selectedColumns.Any())
                 {
                     _dialogService.ShowNotification(
-                        GetString("FolderContent_InfoTitle"),
-                        GetString("FolderContent_NoColumnsSelected"),
+                        ResourceHelper.GetString("FolderContent_InfoTitle"),
+                        ResourceHelper.GetString("FolderContent_NoColumnsSelected"),
                         DialogIconType.Info);
                     return;
                 }
 
-                string messageFormat = GetString("FolderContent_ConfirmExportMessage");
+                string messageFormat = ResourceHelper.GetString("FolderContent_ConfirmExportMessage");
                 string message = $"{messageFormat}\n{_sharedStateService.DestinationPath}";
 
                 bool confirmed = _dialogService.ShowConfirmation(
-                    title: GetString("FolderContent_ExportTitle"),
+                    title: ResourceHelper.GetString("FolderContent_ExportTitle"),
                     message: message,
                     iconType: DialogIconType.Info,
                     filesAffected: AffectedFilesCount);
@@ -244,19 +239,19 @@ namespace FileCraft.ViewModels.Functional
                 string finalFileName = GetFinalFileName(OutputFileName, AppendTimestamp);
                 string outputFilePath = await _fileOperationService.ExportFolderContentsAsync(_sharedStateService.DestinationPath, includedFolderPaths, finalFileName, selectedColumns);
 
-                string successMsg = GetString("FolderContent_SuccessMessage");
-                string savedToMsg = GetString("FolderContent_SavedTo");
+                string successMsg = ResourceHelper.GetString("FolderContent_SuccessMessage");
+                string savedToMsg = ResourceHelper.GetString("FolderContent_SavedTo");
 
                 _dialogService.ShowNotification(
-                    GetString("FolderContent_SuccessTitle"),
+                    ResourceHelper.GetString("FolderContent_SuccessTitle"),
                     $"{successMsg}\n\n{savedToMsg} {outputFilePath}",
                     DialogIconType.Success);
             }
             catch (Exception ex)
             {
-                string errorMsg = GetString("FolderContent_ErrorMessage");
+                string errorMsg = ResourceHelper.GetString("FolderContent_ErrorMessage");
                 _dialogService.ShowNotification(
-                    GetString("FolderContent_ErrorTitle"),
+                    ResourceHelper.GetString("FolderContent_ErrorTitle"),
                     $"{errorMsg}\n\n{ex.Message}",
                     DialogIconType.Error);
             }

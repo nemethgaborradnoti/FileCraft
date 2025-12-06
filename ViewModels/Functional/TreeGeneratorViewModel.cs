@@ -1,6 +1,7 @@
 ﻿using FileCraft.Models;
 using FileCraft.Services.Interfaces;
 using FileCraft.Shared.Commands;
+using FileCraft.Shared.Helpers;
 using FileCraft.ViewModels.Shared;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
@@ -86,11 +87,6 @@ namespace FileCraft.ViewModels.Functional
             UpdateIncludedFoldersCount();
         }
 
-        private string GetString(string key)
-        {
-            return Application.Current.TryFindResource(key) as string ?? key;
-        }
-
         private void UpdateIncludedFoldersCount()
         {
             var allNodes = RootFolders.Any() ? RootFolders[0].GetAllNodes() : Enumerable.Empty<FolderViewModel>();
@@ -108,11 +104,11 @@ namespace FileCraft.ViewModels.Functional
                     allNodes.Where(n => n.IsSelected == false).Select(n => n.FullPath),
                     StringComparer.OrdinalIgnoreCase);
 
-                string messageFormat = GetString("TreeGen_ConfirmGenerateMessage");
+                string messageFormat = ResourceHelper.GetString("TreeGen_ConfirmGenerateMessage");
                 string message = $"{messageFormat}\n{_sharedStateService.DestinationPath}";
 
                 bool confirmed = _dialogService.ShowConfirmation(
-                    title: GetString("TreeGen_GenerateTitle"),
+                    title: ResourceHelper.GetString("TreeGen_GenerateTitle"),
                     message: message,
                     iconType: DialogIconType.Info,
                     filesAffected: IncludedFoldersCount);
@@ -125,19 +121,19 @@ namespace FileCraft.ViewModels.Functional
                 string finalFileName = GetFinalFileName(OutputFileName, AppendTimestamp);
                 string outputFilePath = await _fileOperationService.GenerateTreeStructureAsync(_sharedStateService.SourcePath, _sharedStateService.DestinationPath, excludedFolderPaths, finalFileName);
 
-                string successMsg = GetString("TreeGen_SuccessMessage");
-                string savedToMsg = GetString("TreeGen_SavedTo");
+                string successMsg = ResourceHelper.GetString("TreeGen_SuccessMessage");
+                string savedToMsg = ResourceHelper.GetString("TreeGen_SavedTo");
 
                 _dialogService.ShowNotification(
-                    GetString("TreeGen_SuccessTitle"),
+                    ResourceHelper.GetString("TreeGen_SuccessTitle"),
                     $"{successMsg}\n\n{savedToMsg} {outputFilePath}",
                     DialogIconType.Success);
             }
             catch (Exception ex)
             {
-                string errorMsg = GetString("TreeGen_ErrorMessage");
+                string errorMsg = ResourceHelper.GetString("TreeGen_ErrorMessage");
                 _dialogService.ShowNotification(
-                    GetString("TreeGen_ErrorTitle"),
+                    ResourceHelper.GetString("TreeGen_ErrorTitle"),
                     $"{errorMsg}\n\n{ex.Message}",
                     DialogIconType.Error);
             }

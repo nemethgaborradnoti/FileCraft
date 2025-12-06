@@ -1,6 +1,7 @@
 ﻿using FileCraft.Models;
 using FileCraft.Services.Interfaces;
 using FileCraft.Shared.Commands;
+using FileCraft.Shared.Helpers;
 using FileCraft.ViewModels.Functional;
 using System.ComponentModel;
 using System.IO;
@@ -151,7 +152,7 @@ namespace FileCraft.ViewModels
         private void SelectPath(bool isSource)
         {
             OnStateChanging();
-            var title = isSource ? "Select the common source folder" : "Select the common destination folder";
+            var title = isSource ? ResourceHelper.GetString("MainVM_SelectSourceFolder") : ResourceHelper.GetString("MainVM_SelectDestFolder");
             var selectedPath = _dialogService.SelectFolder(title);
             if (!string.IsNullOrEmpty(selectedPath))
             {
@@ -213,7 +214,10 @@ namespace FileCraft.ViewModels
 
             _saveService.Save(dataToPersist);
             HasUnsavedChanges = false;
-            _dialogService.ShowNotification("Success", "Settings saved successfully.", DialogIconType.Success);
+            _dialogService.ShowNotification(
+                ResourceHelper.GetString("MainVM_SuccessTitle"),
+                ResourceHelper.GetString("MainVM_SettingsSaved"),
+                DialogIconType.Success);
         }
 
         public void RequestClose(CancelEventArgs e)
@@ -224,8 +228,8 @@ namespace FileCraft.ViewModels
             }
 
             var result = _dialogService.ShowExitConfirmation(
-                "Unsaved Changes",
-                "You have unsaved changes. Do you want to save before quitting?");
+                ResourceHelper.GetString("MainVM_UnsavedChangesTitle"),
+                ResourceHelper.GetString("MainVM_UnsavedChangesMessage"));
 
             switch (result)
             {
@@ -305,25 +309,28 @@ namespace FileCraft.ViewModels
         {
             if (string.IsNullOrWhiteSpace(SourcePath) || !Directory.Exists(SourcePath))
             {
-                _dialogService.ShowNotification("Action Required", "Please select a valid source folder before saving a preset.", DialogIconType.Warning);
+                _dialogService.ShowNotification(
+                    ResourceHelper.GetString("MainVM_WarningTitle"),
+                    ResourceHelper.GetString("Preset_SelectSourceFirst"),
+                    DialogIconType.Warning);
                 return;
             }
 
             bool exists = _saveService.CheckPresetExists(presetNumber);
-            string presetName = exists ? _saveService.GetPresetName(presetNumber) : $"Preset{presetNumber:00}";
+            string presetName = exists ? _saveService.GetPresetName(presetNumber) : $"{ResourceHelper.GetString("Preset_DefaultNamePrefix")}{presetNumber:00}";
 
             string message;
             string title;
 
             if (exists)
             {
-                title = $"Overwrite Preset ({presetNumber})";
-                message = $"Are you sure you want to overwrite Preset ({presetNumber}): '{presetName}' with the current settings?";
+                title = string.Format(ResourceHelper.GetString("Preset_OverwriteTitle"), presetNumber);
+                message = string.Format(ResourceHelper.GetString("Preset_OverwriteMessage"), presetNumber, presetName);
             }
             else
             {
-                title = $"Save New Preset ({presetNumber})";
-                message = $"Are you sure you want to save the current settings as a new preset named '{presetName}'?";
+                title = string.Format(ResourceHelper.GetString("Preset_SaveNewTitle"), presetNumber);
+                message = string.Format(ResourceHelper.GetString("Preset_SaveNewMessage"), presetName);
             }
 
             bool confirmed = _dialogService.ShowConfirmation(
@@ -350,16 +357,25 @@ namespace FileCraft.ViewModels
                     {
                         _saveService.UpdatePresetName(presetNumber, newName);
                         OptionsVM.CheckForExistingPresets();
-                        _dialogService.ShowNotification("Success", $"Preset saved and renamed to '{newName}'.", DialogIconType.Success);
+                        _dialogService.ShowNotification(
+                            ResourceHelper.GetString("MainVM_SuccessTitle"),
+                            string.Format(ResourceHelper.GetString("Preset_SavedAndRenamed"), newName),
+                            DialogIconType.Success);
                         return;
                     }
                 }
 
-                _dialogService.ShowNotification("Success", $"Preset '{presetName}' saved successfully to slot {presetNumber}.", DialogIconType.Success);
+                _dialogService.ShowNotification(
+                    ResourceHelper.GetString("MainVM_SuccessTitle"),
+                    string.Format(ResourceHelper.GetString("Preset_SavedSuccess"), presetName, presetNumber),
+                    DialogIconType.Success);
             }
             catch (System.Exception ex)
             {
-                _dialogService.ShowNotification("Error", $"Failed to save preset {presetNumber}.\n\n{ex.Message}", DialogIconType.Error);
+                _dialogService.ShowNotification(
+                    ResourceHelper.GetString("MainVM_ErrorTitle"),
+                    string.Format(ResourceHelper.GetString("Preset_SaveError"), presetNumber, ex.Message),
+                    DialogIconType.Error);
             }
         }
 
@@ -369,11 +385,17 @@ namespace FileCraft.ViewModels
             {
                 _saveService.UpdatePresetName(presetNumber, newName);
                 OptionsVM.CheckForExistingPresets();
-                _dialogService.ShowNotification("Success", $"Preset ({presetNumber}) renamed to '{newName}'.", DialogIconType.Success);
+                _dialogService.ShowNotification(
+                    ResourceHelper.GetString("MainVM_SuccessTitle"),
+                    string.Format(ResourceHelper.GetString("Preset_RenamedSuccess"), presetNumber, newName),
+                    DialogIconType.Success);
             }
             catch (Exception ex)
             {
-                _dialogService.ShowNotification("Error", $"Failed to rename preset {presetNumber}.\n\n{ex.Message}", DialogIconType.Error);
+                _dialogService.ShowNotification(
+                    ResourceHelper.GetString("MainVM_ErrorTitle"),
+                    string.Format(ResourceHelper.GetString("Preset_RenameError"), presetNumber, ex.Message),
+                    DialogIconType.Error);
             }
         }
 
@@ -381,20 +403,26 @@ namespace FileCraft.ViewModels
         {
             if (string.IsNullOrWhiteSpace(SourcePath) || !Directory.Exists(SourcePath))
             {
-                _dialogService.ShowNotification("Action Required", "To load a preset, please first select the root source folder for your project.", DialogIconType.Warning);
+                _dialogService.ShowNotification(
+                    ResourceHelper.GetString("MainVM_WarningTitle"),
+                    ResourceHelper.GetString("Preset_LoadSelectSourceFirst"),
+                    DialogIconType.Warning);
                 return;
             }
 
             var relativePresetData = _saveService.LoadFromPreset(presetNumber);
             if (relativePresetData == null)
             {
-                _dialogService.ShowNotification("Information", $"Preset ({presetNumber}) does not exist yet.", DialogIconType.Info);
+                _dialogService.ShowNotification(
+                    ResourceHelper.GetString("MainVM_InfoTitle"),
+                    string.Format(ResourceHelper.GetString("Preset_NotExist"), presetNumber),
+                    DialogIconType.Info);
                 return;
             }
 
-            string message = $"Are you sure you want to load ALL settings from Preset ({presetNumber}): '{relativePresetData.PresetName}'?\nThis will overwrite your entire current configuration.";
+            string message = string.Format(ResourceHelper.GetString("Preset_LoadConfirmMessage"), presetNumber, relativePresetData.PresetName);
             bool confirmed = _dialogService.ShowConfirmation(
-                title: $"Load from Preset ({presetNumber})",
+                title: string.Format(ResourceHelper.GetString("Preset_LoadConfirmTitle"), presetNumber),
                 message: message,
                 iconType: DialogIconType.Info);
 
@@ -406,11 +434,17 @@ namespace FileCraft.ViewModels
                 var absolutePresetData = MakePathsAbsolute(relativePresetData, SourcePath);
                 ApplyAllData(absolutePresetData);
                 HasUnsavedChanges = true;
-                _dialogService.ShowNotification("Success", $"Preset ({presetNumber}): '{relativePresetData.PresetName}' loaded successfully.", DialogIconType.Success);
+                _dialogService.ShowNotification(
+                    ResourceHelper.GetString("MainVM_SuccessTitle"),
+                    string.Format(ResourceHelper.GetString("Preset_LoadedSuccess"), presetNumber, relativePresetData.PresetName),
+                    DialogIconType.Success);
             }
             catch (System.Exception ex)
             {
-                _dialogService.ShowNotification("Error", $"Failed to load preset {presetNumber}.\n\n{ex.Message}", DialogIconType.Error);
+                _dialogService.ShowNotification(
+                    ResourceHelper.GetString("MainVM_ErrorTitle"),
+                    string.Format(ResourceHelper.GetString("Preset_LoadError"), presetNumber, ex.Message),
+                    DialogIconType.Error);
             }
         }
 
@@ -419,12 +453,12 @@ namespace FileCraft.ViewModels
             string presetName = _saveService.GetPresetName(presetNumber);
             if (string.IsNullOrWhiteSpace(presetName))
             {
-                presetName = $"Preset ({presetNumber})";
+                presetName = string.Format(ResourceHelper.GetString("Preset_DefaultNamePrefix") + " ({0})", presetNumber);
             }
 
-            string message = $"You are about to delete Preset ({presetNumber}): '{presetName}'.\nThis action cannot be undone.\n\nAre you sure you want to continue?";
+            string message = string.Format(ResourceHelper.GetString("Preset_DeleteConfirmMessage"), presetNumber, presetName);
             bool confirmed = _dialogService.ShowConfirmation(
-                title: $"Delete Preset ({presetNumber})",
+                title: string.Format(ResourceHelper.GetString("Preset_DeleteConfirmTitle"), presetNumber),
                 message: message,
                 iconType: DialogIconType.Warning);
 
@@ -434,11 +468,17 @@ namespace FileCraft.ViewModels
                 {
                     _saveService.DeletePreset(presetNumber);
                     OptionsVM.CheckForExistingPresets();
-                    _dialogService.ShowNotification("Success", $"Preset ({presetNumber}): '{presetName}' has been deleted.", DialogIconType.Success);
+                    _dialogService.ShowNotification(
+                        ResourceHelper.GetString("MainVM_SuccessTitle"),
+                        string.Format(ResourceHelper.GetString("Preset_DeletedSuccess"), presetNumber, presetName),
+                        DialogIconType.Success);
                 }
                 catch (System.Exception ex)
                 {
-                    _dialogService.ShowNotification("Error", $"Failed to delete preset {presetNumber}.\n\n{ex.Message}", DialogIconType.Error);
+                    _dialogService.ShowNotification(
+                        ResourceHelper.GetString("MainVM_ErrorTitle"),
+                        string.Format(ResourceHelper.GetString("Preset_DeleteError"), presetNumber, ex.Message),
+                        DialogIconType.Error);
                 }
             }
         }
@@ -446,8 +486,8 @@ namespace FileCraft.ViewModels
         private void OnCurrentSaveDeleteRequested()
         {
             bool confirmed = _dialogService.ShowConfirmation(
-                title: "Delete Current Save",
-                message: "Are you sure you want to delete all current settings and reset to default? This action cannot be undone.",
+                title: ResourceHelper.GetString("Reset_ConfirmTitle"),
+                message: ResourceHelper.GetString("Reset_ConfirmMessage"),
                 iconType: DialogIconType.Warning);
 
             if (confirmed)
@@ -458,11 +498,17 @@ namespace FileCraft.ViewModels
                     _saveService.DeleteSaveData();
                     ApplyAllData(new SaveData());
                     HasUnsavedChanges = false;
-                    _dialogService.ShowNotification("Success", "Current save data has been deleted. Application has been reset to default settings.", DialogIconType.Success);
+                    _dialogService.ShowNotification(
+                        ResourceHelper.GetString("MainVM_SuccessTitle"),
+                        ResourceHelper.GetString("Reset_SuccessMessage"),
+                        DialogIconType.Success);
                 }
                 catch (System.Exception ex)
                 {
-                    _dialogService.ShowNotification("Error", $"Failed to delete save data.\n\n{ex.Message}", DialogIconType.Error);
+                    _dialogService.ShowNotification(
+                        ResourceHelper.GetString("MainVM_ErrorTitle"),
+                        string.Format(ResourceHelper.GetString("Reset_ErrorMessage"), ex.Message),
+                        DialogIconType.Error);
                 }
             }
         }

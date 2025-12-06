@@ -1,6 +1,7 @@
 ﻿using FileCraft.Models;
 using FileCraft.Services.Interfaces;
 using FileCraft.Shared.Commands;
+using FileCraft.Shared.Helpers;
 using FileCraft.ViewModels.Shared;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -121,7 +122,7 @@ namespace FileCraft.ViewModels.Functional
         public ObservableCollection<PresetSlotViewModel> PresetSlots { get; } = new();
         public ObservableCollection<TabItemViewModel> AllTabs { get; } = new();
 
-        private string _ignoredFoldersText = "No folders are ignored.";
+        private string _ignoredFoldersText = ResourceHelper.GetString("Options_IgnoredFoldersNone");
         public string IgnoredFoldersText
         {
             get => _ignoredFoldersText;
@@ -264,10 +265,10 @@ namespace FileCraft.ViewModels.Functional
             var primaryBrush = Application.Current.FindResource("PrimaryBrush") as Brush;
             var secondaryBrush = Application.Current.FindResource("SecondaryBrush") as Brush;
 
-            AllTabs.Add(new TabItemViewModel("-- None --", null, null, null));
-            AllTabs.Add(new TabItemViewModel("File Content Export", MaterialIcons.topic, folderBrush, fileContentExportVM.FolderTreeManager));
-            AllTabs.Add(new TabItemViewModel("Tree Generator", MaterialIcons.park, treeBrush, treeGeneratorVM.FolderTreeManager));
-            AllTabs.Add(new TabItemViewModel("Folder Content Export", MaterialIcons.dns, primaryBrush, folderContentExportVM.FolderTreeManager));
+            AllTabs.Add(new TabItemViewModel(ResourceHelper.GetString("Options_TabNone"), null, null, null));
+            AllTabs.Add(new TabItemViewModel(ResourceHelper.GetString("TabFileContentExport"), MaterialIcons.topic, folderBrush, fileContentExportVM.FolderTreeManager));
+            AllTabs.Add(new TabItemViewModel(ResourceHelper.GetString("TabTreeGenerator"), MaterialIcons.park, treeBrush, treeGeneratorVM.FolderTreeManager));
+            AllTabs.Add(new TabItemViewModel(ResourceHelper.GetString("TabFolderContentExport"), MaterialIcons.dns, primaryBrush, folderContentExportVM.FolderTreeManager));
 
             SelectedSourceTab = AllTabs[0];
             SelectedDestinationTab = AllTabs[0];
@@ -280,7 +281,7 @@ namespace FileCraft.ViewModels.Functional
             var ignoredFolders = _sharedStateService.IgnoredFolders;
             if (ignoredFolders == null || !ignoredFolders.Any())
             {
-                IgnoredFoldersText = "No folders are ignored.";
+                IgnoredFoldersText = ResourceHelper.GetString("Options_IgnoredFoldersNone");
             }
             else
             {
@@ -327,7 +328,7 @@ namespace FileCraft.ViewModels.Functional
             int destFolderCount = destManager.GetSelectedNodeCount();
 
             bool confirmed = _dialogService.ShowCopyTreeConfirmation(
-                title: "Copy Folder Tree",
+                title: ResourceHelper.GetString("Options_CopyTreeTitle"),
                 iconType: DialogIconType.Warning,
                 sourceName: SelectedSourceTab.Name,
                 sourceIcon: SelectedSourceTab.Icon,
@@ -343,7 +344,10 @@ namespace FileCraft.ViewModels.Functional
                 destManager.LoadTreeForPath(_sharedStateService.SourcePath, sourceState);
                 SelectedSourceTab = AllTabs[0];
                 SelectedDestinationTab = AllTabs[0];
-                _dialogService.ShowNotification("Success", "Folder tree copied successfully.", DialogIconType.Success);
+                _dialogService.ShowNotification(
+                    ResourceHelper.GetString("MainVM_SuccessTitle"),
+                    ResourceHelper.GetString("Options_CopyTreeSuccess"),
+                    DialogIconType.Success);
             }
         }
 
@@ -363,12 +367,18 @@ namespace FileCraft.ViewModels.Functional
                 }
                 else
                 {
-                    _dialogService.ShowNotification("Error", "The save folder could not be found.", Models.DialogIconType.Error);
+                    _dialogService.ShowNotification(
+                        ResourceHelper.GetString("MainVM_ErrorTitle"),
+                        ResourceHelper.GetString("Options_OpenSaveError_NotFound"),
+                        DialogIconType.Error);
                 }
             }
             catch (Exception ex)
             {
-                _dialogService.ShowNotification("Error", $"An error occurred while trying to open the folder:\n{ex.Message}", Models.DialogIconType.Error);
+                _dialogService.ShowNotification(
+                    ResourceHelper.GetString("MainVM_ErrorTitle"),
+                    string.Format(ResourceHelper.GetString("Options_OpenSaveError_Exception"), ex.Message),
+                    DialogIconType.Error);
             }
         }
 
@@ -383,12 +393,12 @@ namespace FileCraft.ViewModels.Functional
                     slot.LastModified = _saveService.GetPresetLastModifiedDate(slot.PresetNumber);
                     if (string.IsNullOrWhiteSpace(slot.PresetName))
                     {
-                        slot.PresetName = "Unnamed Preset";
+                        slot.PresetName = ResourceHelper.GetString("Options_UnnamedPreset");
                     }
                 }
                 else
                 {
-                    slot.PresetName = "-- Empty --";
+                    slot.PresetName = ResourceHelper.GetString("Options_EmptyPreset");
                     slot.LastModified = null;
                 }
             }
