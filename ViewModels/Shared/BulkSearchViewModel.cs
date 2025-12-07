@@ -14,6 +14,7 @@ namespace FileCraft.ViewModels.Shared
         private readonly Dictionary<string, SelectableFile> _allAvailableFilesLookup;
         private readonly List<FoundFileViewModel> _allFoundFileViewModelsCache = new();
         private readonly IDialogService _dialogService;
+        private readonly Debouncer _debouncer;
 
         public ObservableCollection<FoundFileViewModel> FilteredFoundFiles { get; } = new();
 
@@ -42,7 +43,7 @@ namespace FileCraft.ViewModels.Shared
                 {
                     _inputText = value;
                     OnPropertyChanged();
-                    OnInputTextChanged();
+                    _debouncer.Debounce();
                 }
             }
         }
@@ -143,6 +144,7 @@ namespace FileCraft.ViewModels.Shared
             IconGlyph = iconGlyph;
             IconBrush = iconBrush;
             _dialogService = dialogService;
+            _debouncer = new Debouncer(() => Application.Current.Dispatcher.Invoke(OnInputTextChanged));
 
             InputLinesCountText = $"{ResourceHelper.GetString("BulkSearch_TotalLinesLabel")} 0";
             UpdateTotals();

@@ -22,7 +22,7 @@ namespace FileCraft.ViewModels.Functional
     public class FileContentExportViewModel : ExportViewModelBase
     {
         private readonly IFileQueryService _fileQueryService;
-        private readonly Timer _debounceTimer;
+        private readonly Debouncer _debouncer;
         private string _searchFilter = string.Empty;
         private bool _isShowingOnlySelected;
         private bool _isShowingOnlyUnselected;
@@ -66,7 +66,7 @@ namespace FileCraft.ViewModels.Functional
                 {
                     _searchFilter = value;
                     OnPropertyChanged();
-                    _debounceTimer.Change(300, Timeout.Infinite);
+                    _debouncer.Debounce();
                     OnPropertyChanged(nameof(CanClearFilter));
                 }
             }
@@ -176,7 +176,7 @@ namespace FileCraft.ViewModels.Functional
             : base(sharedStateService, fileOperationService, dialogService, folderTreeManager)
         {
             _fileQueryService = fileQueryService;
-            _debounceTimer = new Timer(OnDebounceTimerElapsed, null, Timeout.Infinite, Timeout.Infinite);
+            _debouncer = new Debouncer(ApplyFileFilter);
 
             FullscreenManager = new FullscreenManager<ExportFullscreenState>(ExportFullscreenState.None);
             FullscreenManager.PropertyChanged += OnFullscreenStateChanged;
@@ -323,8 +323,6 @@ namespace FileCraft.ViewModels.Functional
             UpdateSelectableFiles();
             UpdateExtensionMasterState();
         }
-
-        private void OnDebounceTimerElapsed(object? state) => ApplyFileFilter();
 
         private void ApplyFileFilter()
         {

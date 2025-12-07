@@ -12,7 +12,7 @@ namespace FileCraft.ViewModels.Shared
     {
         private readonly List<IgnoredFileViewModel> _allFiles = new();
         public ObservableCollection<IgnoredFileViewModel> FilteredFiles { get; } = new();
-        private readonly Timer _debounceTimer;
+        private readonly Debouncer _debouncer;
         private bool _isUpdatingSelection;
 
         private string _searchFilter = string.Empty;
@@ -25,7 +25,7 @@ namespace FileCraft.ViewModels.Shared
                 {
                     _searchFilter = value;
                     OnPropertyChanged();
-                    _debounceTimer.Change(300, Timeout.Infinite);
+                    _debouncer.Debounce();
                 }
             }
         }
@@ -72,7 +72,7 @@ namespace FileCraft.ViewModels.Shared
 
         public IgnoredCommentsViewModel(IEnumerable<SelectableFile> selectedFiles, IEnumerable<string> previouslyIgnoredFiles)
         {
-            _debounceTimer = new Timer(OnDebounceTimerElapsed, null, Timeout.Infinite, Timeout.Infinite);
+            _debouncer = new Debouncer(() => Application.Current.Dispatcher.Invoke(ApplyFilter));
             _totalCountsDisplay = $"{ResourceHelper.GetString("IgnoredComments_TotalLabel")} 0";
 
             var ignoredSet = new HashSet<string>(previouslyIgnoredFiles, StringComparer.OrdinalIgnoreCase);
@@ -91,11 +91,6 @@ namespace FileCraft.ViewModels.Shared
 
             ApplyFilter();
             UpdateTotalCount();
-        }
-
-        private void OnDebounceTimerElapsed(object? state)
-        {
-            Application.Current.Dispatcher.Invoke(ApplyFilter);
         }
 
         private void ApplyFilter()
