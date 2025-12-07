@@ -9,12 +9,6 @@
              mc:Ignorable="d"
              d:DataContext="{d:DesignInstance Type=viewmodels:FolderContentExportViewModel, IsDesignTimeCreatable=False}"
              d:DesignHeight="450" d:DesignWidth="800">
-    <UserControl.Resources>
-        <Style x:Key="HeaderStackPanelStyle" TargetType="StackPanel">
-            <Setter Property="Orientation" Value="Horizontal"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
-        </Style>
-    </UserControl.Resources>
 
     <Grid>
         <Grid.RowDefinitions>
@@ -80,18 +74,9 @@
                 <GroupBox.Header>
                     <StackPanel Style="{StaticResource HeaderStackPanelStyle}">
                         <TextBlock Text="{DynamicResource Common_FoldersHeader}" VerticalAlignment="Center" FontWeight="SemiBold"/>
-                        <Button Command="{Binding FullscreenManager.ToggleCommand}"
-                                CommandParameter="{x:Static local:FolderContentFullscreenState.Folders}">
-                            <Button.Style>
-                                <Style TargetType="Button" BasedOn="{StaticResource FullscreenButtonStyle}">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding FullscreenManager.CurrentState}" Value="Folders">
-                                            <Setter Property="Tag" Value="Active"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Button.Style>
-                        </Button>
+                        <controls:FullscreenToggleButton Command="{Binding FullscreenManager.ToggleCommand}"
+                                                         CurrentState="{Binding FullscreenManager.CurrentState}"
+                                                         TargetState="{x:Static local:FolderContentFullscreenState.Folders}"/>
                     </StackPanel>
                 </GroupBox.Header>
                 <TreeView ItemsSource="{Binding RootFolders}" BorderThickness="0"
@@ -111,18 +96,9 @@
                 <GroupBox.Header>
                     <StackPanel Style="{StaticResource HeaderStackPanelStyle}">
                         <TextBlock Text="{DynamicResource FolderContent_DetailsHeader}" VerticalAlignment="Center" FontWeight="SemiBold"/>
-                        <Button Command="{Binding FullscreenManager.ToggleCommand}"
-                                CommandParameter="{x:Static local:FolderContentFullscreenState.Details}">
-                            <Button.Style>
-                                <Style TargetType="Button" BasedOn="{StaticResource FullscreenButtonStyle}">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding FullscreenManager.CurrentState}" Value="Details">
-                                            <Setter Property="Tag" Value="Active"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Button.Style>
-                        </Button>
+                        <controls:FullscreenToggleButton Command="{Binding FullscreenManager.ToggleCommand}"
+                                                         CurrentState="{Binding FullscreenManager.CurrentState}"
+                                                         TargetState="{x:Static local:FolderContentFullscreenState.Details}"/>
                     </StackPanel>
                 </GroupBox.Header>
                 <Grid>

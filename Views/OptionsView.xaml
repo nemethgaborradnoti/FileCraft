@@ -6,15 +6,10 @@
              xmlns:viewmodels="clr-namespace:FileCraft.ViewModels.Functional"
              xmlns:icons="clr-namespace:Fonts"
              xmlns:helpers="clr-namespace:FileCraft.Shared.Helpers"
+             xmlns:controls="clr-namespace:FileCraft.Views.Shared.Controls"
              mc:Ignorable="d"
              d:DataContext="{d:DesignInstance Type=viewmodels:OptionsViewModel, IsDesignTimeCreatable=False}"
              d:DesignHeight="450" d:DesignWidth="800">
-    <UserControl.Resources>
-        <Style x:Key="HeaderStackPanelStyle" TargetType="StackPanel">
-            <Setter Property="Orientation" Value="Horizontal"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
-        </Style>
-    </UserControl.Resources>
 
     <Grid>
         <Grid.RowDefinitions>
@@ -83,18 +78,9 @@
                 <GroupBox.Header>
                     <StackPanel Style="{StaticResource HeaderStackPanelStyle}">
                         <TextBlock Text="{DynamicResource ManagePresetsHeader}" VerticalAlignment="Center" FontWeight="SemiBold"/>
-                        <Button Command="{Binding FullscreenManager.ToggleCommand}"
-                                CommandParameter="{x:Static viewmodels:OptionsFullscreenState.Presets}">
-                            <Button.Style>
-                                <Style TargetType="Button" BasedOn="{StaticResource FullscreenButtonStyle}">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding FullscreenManager.CurrentState}" Value="Presets">
-                                            <Setter Property="Tag" Value="Active"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Button.Style>
-                        </Button>
+                        <controls:FullscreenToggleButton Command="{Binding FullscreenManager.ToggleCommand}"
+                                                         CurrentState="{Binding FullscreenManager.CurrentState}"
+                                                         TargetState="{x:Static viewmodels:OptionsFullscreenState.Presets}"/>
                     </StackPanel>
                 </GroupBox.Header>
                 <StackPanel>
@@ -270,18 +256,9 @@
                     <GroupBox.Header>
                         <StackPanel Style="{StaticResource HeaderStackPanelStyle}">
                             <TextBlock Text="{DynamicResource CopyFolderTreeContentHeader}" VerticalAlignment="Center" FontWeight="SemiBold"/>
-                            <Button Command="{Binding FullscreenManager.ToggleCommand}"
-                                    CommandParameter="{x:Static viewmodels:OptionsFullscreenState.CopyTree}">
-                                <Button.Style>
-                                    <Style TargetType="Button" BasedOn="{StaticResource FullscreenButtonStyle}">
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding FullscreenManager.CurrentState}" Value="CopyTree">
-                                                <Setter Property="Tag" Value="Active"/>
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </Button.Style>
-                            </Button>
+                            <controls:FullscreenToggleButton Command="{Binding FullscreenManager.ToggleCommand}"
+                                                         CurrentState="{Binding FullscreenManager.CurrentState}"
+                                                         TargetState="{x:Static viewmodels:OptionsFullscreenState.CopyTree}"/>
                         </StackPanel>
                     </GroupBox.Header>
                     <StackPanel>
@@ -355,18 +332,9 @@
                     <GroupBox.Header>
                         <StackPanel Style="{StaticResource HeaderStackPanelStyle}">
                             <TextBlock Text="{DynamicResource IgnoreFoldersHeader}" VerticalAlignment="Center" FontWeight="SemiBold"/>
-                            <Button Command="{Binding FullscreenManager.ToggleCommand}"
-                                    CommandParameter="{x:Static viewmodels:OptionsFullscreenState.IgnoredFolders}">
-                                <Button.Style>
-                                    <Style TargetType="Button" BasedOn="{StaticResource FullscreenButtonStyle}">
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding FullscreenManager.CurrentState}" Value="IgnoredFolders">
-                                                <Setter Property="Tag" Value="Active"/>
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </Button.Style>
-                            </Button>
+                            <controls:FullscreenToggleButton Command="{Binding FullscreenManager.ToggleCommand}"
+                                                         CurrentState="{Binding FullscreenManager.CurrentState}"
+                                                         TargetState="{x:Static viewmodels:OptionsFullscreenState.IgnoredFolders}"/>
                         </StackPanel>
                     </GroupBox.Header>
                     <DockPanel>
