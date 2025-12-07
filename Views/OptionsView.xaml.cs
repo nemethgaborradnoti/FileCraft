@@ -1,6 +1,6 @@
 ﻿namespace FileCraft.Views
 {
-    public partial class OptionsView : System.Windows.Controls.UserControl
+    public partial class OptionsView : UserControl
     {
         public OptionsView()
         {

@@ -142,7 +142,8 @@ namespace FileCraft.Services
         public bool ShowBulkSearchDialog(IEnumerable<SelectableFile> allFiles)
         {
             var iconDef = AppIcons.Info;
-            var bulkSearchWindow = new BulkSearchWindow(allFiles, iconDef.Glyph, iconDef.Brush);
+            var viewModel = new BulkSearchViewModel(allFiles, iconDef.Glyph, iconDef.Brush, this);
+            var bulkSearchWindow = new BulkSearchWindow(viewModel);
             return bulkSearchWindow.ShowDialog() ?? false;
         }
 

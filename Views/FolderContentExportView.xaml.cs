@@ -1,6 +1,6 @@
 ﻿namespace FileCraft.Views
 {
-    public partial class FolderContentExportView : System.Windows.Controls.UserControl
+    public partial class FolderContentExportView : UserControl
     {
         public FolderContentExportView()
         {

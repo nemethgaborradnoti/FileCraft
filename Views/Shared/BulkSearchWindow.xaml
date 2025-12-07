@@ -1,7 +1,7 @@
 ﻿<Window x:Class="FileCraft.Views.Shared.BulkSearchWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="{DynamicResource BulkSearch_Title}"
+        Title="{Binding Title}"
         Width="1200" Height="600"
         WindowStartupLocation="CenterOwner"
         WindowStyle="SingleBorderWindow"
@@ -19,8 +19,8 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Text="{DynamicResource BulkSearch_InputPathsLabel}" FontWeight="SemiBold" Margin="0,0,0,5"/>
-        <TextBlock Grid.Row="0" Grid.Column="2" Text="{DynamicResource BulkSearch_FoundPathsLabel}" FontWeight="SemiBold" Margin="0,0,0,5"/>
+        <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Text="{Binding InputPathsLabel}" FontWeight="SemiBold" Margin="0,0,0,5"/>
+        <TextBlock Grid.Row="0" Grid.Column="2" Text="{Binding FoundPathsLabel}" FontWeight="SemiBold" Margin="0,0,0,5"/>
 
         <Border Grid.Row="1" Grid.Column="0"
                 Margin="0,0,5,0"
@@ -33,6 +33,7 @@
                           HorizontalScrollBarVisibility="Hidden"
                           Focusable="False">
                 <TextBlock x:Name="CountTextBlock"
+                           Text="{Binding LineNumbersText}"
                            FontFamily="Consolas"
                            TextAlignment="Right"
                            VerticalAlignment="Top"
@@ -44,6 +45,7 @@
 
         <TextBox x:Name="InputTextBox"
                  Grid.Row="1" Grid.Column="1"
+                 Text="{Binding InputText, UpdateSourceTrigger=PropertyChanged}"
                  AcceptsReturn="True"
                  VerticalScrollBarVisibility="Auto"
                  HorizontalScrollBarVisibility="Auto"
@@ -52,7 +54,6 @@
                  BorderThickness="1"
                  Padding="5"
                  VerticalContentAlignment="Top"
-                 TextChanged="InputTextBox_TextChanged"
                  ScrollViewer.ScrollChanged="InputTextBox_ScrollChanged"
                  Margin="5,0,5,0"/>
 
@@ -109,11 +110,11 @@
 
             <TextBlock Grid.Column="1" x:Name="InputTotalTextBlock"
                        HorizontalAlignment="Right" FontWeight="SemiBold"
-                       Text="{DynamicResource BulkSearch_TotalLinesLabel}" Margin="5,0,5,0"/>
+                       Text="{Binding InputLinesCountText}" Margin="5,0,5,0"/>
 
             <TextBlock Grid.Column="2" x:Name="FoundTotalTextBlock"
                        HorizontalAlignment="Right" FontWeight="SemiBold"
-                       Text="{DynamicResource BulkSearch_TotalFoundLabel}" Margin="5,0,0,0"/>
+                       Text="{Binding FoundTotalText}" Margin="5,0,0,0"/>
         </Grid>
 
         <Grid Grid.Row="3" Grid.ColumnSpan="3" Margin="0,15,0,0">
@@ -124,37 +125,37 @@
 
             <StackPanel Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Left">
                 <Button Content="{DynamicResource BulkSearch_RemoveWhitespacesButton}"
-                        x:Name="RemoveWhitespacesButton"
-                        Click="RemoveWhitespacesButton_Click"
+                        Command="{Binding RemoveWhitespacesCommand}"
                         Style="{StaticResource WarningButton}"
                         Height="32"
                         MinWidth="{StaticResource DefaultButtonMinWidth}"/>
 
                 <Button Content="{DynamicResource BulkSearch_BreakIntoLinesButton}"
-                        x:Name="BreakIntoLinesButton"
-                        Click="BreakIntoLinesButton_Click"
+                        Command="{Binding BreakIntoLinesCommand}"
                         Style="{StaticResource WarningButton}"
                         Height="32"
                         MinWidth="{StaticResource DefaultButtonMinWidth}"
                         Margin="10,0,0,0"/>
 
-                <RadioButton x:Name="BySpaceRadioButton"
-                             Content="{DynamicResource BulkSearch_BySpaceRadio}"
+                <RadioButton Content="{DynamicResource BulkSearch_BySpaceRadio}"
+                             IsChecked="{Binding IsBreakBySpace}"
                              GroupName="BreakDelimiter"
-                             IsChecked="True"
                              VerticalAlignment="Center"
                              Margin="10,0,0,0"/>
 
-                <RadioButton x:Name="BySemicolonRadioButton"
-                             Content="{DynamicResource BulkSearch_BySemicolonRadio}"
+                <RadioButton Content="{DynamicResource BulkSearch_BySemicolonRadio}"
                              GroupName="BreakDelimiter"
                              VerticalAlignment="Center"
                              Margin="5,0,0,0"/>
             </StackPanel>
 
             <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
-                <Button Content="{DynamicResource BulkSearch_ApplyButton}" x:Name="ApplyButton" IsDefault="True" Height="32" MinWidth="{StaticResource DefaultButtonMinWidth}" Margin="{StaticResource RightMargin}" Click="ApplyButton_Click"/>
-                <Button Content="{DynamicResource Common_CancelButton}" IsCancel="True" Height="32" MinWidth="{StaticResource DefaultButtonMinWidth}" Click="CancelButton_Click" Style="{StaticResource SecondaryButton}"/>
+                <Button Content="{DynamicResource BulkSearch_ApplyButton}" 
+                        Command="{Binding ApplyCommand}"
+                        IsDefault="True" Height="32" MinWidth="{StaticResource DefaultButtonMinWidth}" Margin="{StaticResource RightMargin}"/>
+                <Button Content="{DynamicResource Common_CancelButton}" 
+                        Command="{Binding CancelCommand}"
+                        IsCancel="True" Height="32" MinWidth="{StaticResource DefaultButtonMinWidth}" Style="{StaticResource SecondaryButton}"/>
             </StackPanel>
         </Grid>
     </Grid>
