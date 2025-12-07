@@ -10,10 +10,12 @@ namespace FileCraft.Services
     public class FileOperationService : IFileOperationService
     {
         private readonly ISharedStateService _sharedStateService;
+        private readonly IFileQueryService _fileQueryService;
 
-        public FileOperationService(ISharedStateService sharedStateService)
+        public FileOperationService(ISharedStateService sharedStateService, IFileQueryService fileQueryService)
         {
             _sharedStateService = sharedStateService;
+            _fileQueryService = fileQueryService;
         }
 
         public async Task<string> ExportFolderContentsAsync(string destinationPath, IEnumerable<string> includedFolderPaths, string outputFileName, IEnumerable<string> selectedColumns)
@@ -23,14 +25,7 @@ namespace FileCraft.Services
             Guard.AgainstNullOrWhiteSpace(outputFileName, nameof(outputFileName));
             Guard.AgainstNullOrEmpty(selectedColumns, nameof(selectedColumns), "No columns were selected for export.");
 
-            var allFiles = new List<string>();
-            foreach (var folderPath in includedFolderPaths)
-            {
-                if (Directory.Exists(folderPath))
-                {
-                    allFiles.AddRange(Directory.GetFiles(folderPath, "*.*", SearchOption.TopDirectoryOnly));
-                }
-            }
+            var allFiles = _fileQueryService.GetAllFiles(includedFolderPaths).OrderBy(f => f.FullName).ToList();
 
             Guard.AgainstNullOrEmpty(allFiles, nameof(allFiles), "The selected folders contain no files to export.");
 
@@ -51,9 +46,8 @@ namespace FileCraft.Services
                 { "Format", fi => fi.Extension }
             };
 
-            foreach (var filePath in allFiles.OrderBy(f => f))
+            foreach (var fileInfo in allFiles)
             {
-                var fileInfo = new FileInfo(filePath);
                 var lineParts = new List<string>();
                 foreach (var column in selectedColumns)
                 {

@@ -21,6 +21,7 @@ namespace FileCraft.ViewModels.Functional
     {
         private bool? _areAllColumnsSelected;
         private int _affectedFilesCount;
+        private readonly IFileQueryService _fileQueryService;
 
         public FullscreenManager<FolderContentFullscreenState> FullscreenManager { get; }
 
@@ -53,9 +54,11 @@ namespace FileCraft.ViewModels.Functional
             ISharedStateService sharedStateService,
             IFileOperationService fileOperationService,
             IDialogService dialogService,
-            FolderTreeManager folderTreeManager)
+            FolderTreeManager folderTreeManager,
+            IFileQueryService fileQueryService)
             : base(sharedStateService, fileOperationService, dialogService, folderTreeManager)
         {
+            _fileQueryService = fileQueryService;
             FullscreenManager = new FullscreenManager<FolderContentFullscreenState>(FolderContentFullscreenState.None);
 
             FolderTreeManager.FolderSelectionChanged += UpdateAffectedFilesCount;
@@ -95,17 +98,7 @@ namespace FileCraft.ViewModels.Functional
 
         private void SetColumnsSelectionState(bool isSelected)
         {
-            foreach (var column in AvailableColumns)
-                column.PropertyChanged -= OnColumnSelectionChanged;
-
-            foreach (var column in AvailableColumns)
-            {
-                column.SetIsSelectedInternal(isSelected);
-            }
-
-            foreach (var column in AvailableColumns)
-                column.PropertyChanged += OnColumnSelectionChanged;
-
+            SelectionHelper.SetSelectionState(AvailableColumns, isSelected);
             UpdateSelectAllColumnsState();
         }
 
@@ -147,19 +140,15 @@ namespace FileCraft.ViewModels.Functional
                 .Select(n => n.FullPath)
                 .ToList();
 
-            int fileCount = 0;
-            foreach (var folderPath in includedFolderPaths)
+            if (includedFolderPaths.Any())
             {
-                if (Directory.Exists(folderPath))
-                {
-                    try
-                    {
-                        fileCount += Directory.GetFiles(folderPath, "*.*", SearchOption.TopDirectoryOnly).Length;
-                    }
-                    catch (UnauthorizedAccessException) { }
-                }
+                var allFiles = _fileQueryService.GetAllFiles(includedFolderPaths);
+                AffectedFilesCount = allFiles.Count();
             }
-            AffectedFilesCount = fileCount;
+            else
+            {
+                AffectedFilesCount = 0;
+            }
         }
 
         private async Task ExportFolderContents()
