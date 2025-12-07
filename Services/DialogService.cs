@@ -149,7 +149,8 @@ namespace FileCraft.Services
 
         public IEnumerable<string>? ShowIgnoredCommentsDialog(IEnumerable<SelectableFile> selectedFiles, IEnumerable<string> previouslyIgnoredFiles)
         {
-            var window = new IgnoredCommentsWindow(selectedFiles, previouslyIgnoredFiles);
+            var viewModel = new IgnoredCommentsViewModel(selectedFiles, previouslyIgnoredFiles);
+            var window = new IgnoredCommentsWindow(viewModel);
             if (window.ShowDialog() == true)
             {
                 return window.GetIgnoredFilePaths();
