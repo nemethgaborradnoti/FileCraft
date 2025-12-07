@@ -11,6 +11,14 @@ using Fonts;
 
 namespace FileCraft.ViewModels.Functional
 {
+    public enum OptionsFullscreenState
+    {
+        None,
+        Presets,
+        CopyTree,
+        IgnoredFolders
+    }
+
     public class TabItemViewModel : BaseViewModel
     {
         public string Name { get; }
@@ -103,6 +111,8 @@ namespace FileCraft.ViewModels.Functional
         private readonly FileContentExportViewModel _fileContentExportVM;
 
         public string Version => ResourceHelper.GetString("App_Version");
+
+        public FullscreenManager<OptionsFullscreenState> FullscreenManager { get; }
 
         public event Action? IgnoredFoldersChanged;
         public event Action<int>? PresetSaveRequested;
@@ -202,6 +212,8 @@ namespace FileCraft.ViewModels.Functional
                     UpdateIgnoredFoldersText();
                 }
             };
+
+            FullscreenManager = new FullscreenManager<OptionsFullscreenState>(OptionsFullscreenState.None);
 
             SavePresetCommand = new RelayCommand(
                 execute: slot =>
