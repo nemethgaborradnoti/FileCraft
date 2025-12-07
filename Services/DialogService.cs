@@ -60,27 +60,30 @@ namespace FileCraft.Services
         public bool ShowCopyTreeConfirmation(string title, DialogIconType iconType, string sourceName, string? sourceIcon, Brush? sourceIconBrush, int sourceCount, string destName, string? destIcon, Brush? destIconBrush, int destCount)
         {
             var iconDef = GetAppIcon(iconType);
+
+            var copyTreeViewModel = new CopyTreeConfirmationViewModel
+            {
+                SourceTabName = sourceName,
+                SourceTabIcon = sourceIcon,
+                SourceTabIconBrush = sourceIconBrush,
+                SourceFolderCount = sourceCount,
+                DestinationTabName = destName,
+                DestinationTabIcon = destIcon,
+                DestinationTabIconBrush = destIconBrush,
+                DestinationFolderCount = destCount
+            };
+
             var viewModel = new GenericDialogViewModel
             {
                 Title = title,
                 IconGlyph = iconDef.Glyph,
                 IconBrush = iconDef.Brush,
-                IsCopyTreeVisible = true,
-
-                SourceTabName = sourceName,
-                SourceTabIcon = sourceIcon,
-                SourceTabIconBrush = sourceIconBrush,
-                SourceFolderCount = sourceCount,
-
-                DestinationTabName = destName,
-                DestinationTabIcon = destIcon,
-                DestinationTabIconBrush = destIconBrush,
-                DestinationFolderCount = destCount,
-
+                CustomContent = copyTreeViewModel,
                 PrimaryButtonText = ResourceHelper.GetString("Common_YesButton"),
                 PrimaryButtonStyle = "WarningButton",
                 SecondaryButtonText = ResourceHelper.GetString("Common_CancelButton")
             };
+
             var window = new GenericDialogWindow(viewModel);
             return window.ShowDialog() ?? false;
         }

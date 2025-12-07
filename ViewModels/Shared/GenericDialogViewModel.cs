@@ -12,7 +12,7 @@ namespace FileCraft.ViewModels.Shared
         private Brush _iconBrush = Brushes.Black;
         private string _inputText = string.Empty;
         private bool _isInputVisible;
-        private bool _isCopyTreeVisible;
+        private object? _customContent;
         private string _primaryButtonText = "OK";
         private string _secondaryButtonText = string.Empty;
         private string _tertiaryButtonText = string.Empty;
@@ -62,10 +62,10 @@ namespace FileCraft.ViewModels.Shared
             }
         }
 
-        public bool IsCopyTreeVisible
+        public object? CustomContent
         {
-            get => _isCopyTreeVisible;
-            set { _isCopyTreeVisible = value; OnPropertyChanged(); }
+            get => _customContent;
+            set { _customContent = value; OnPropertyChanged(); }
         }
 
         public string PrimaryButtonText
@@ -101,15 +101,6 @@ namespace FileCraft.ViewModels.Shared
         public bool IsPrimaryVisible => !string.IsNullOrEmpty(PrimaryButtonText);
         public bool IsSecondaryVisible => !string.IsNullOrEmpty(SecondaryButtonText);
         public bool IsTertiaryVisible => !string.IsNullOrEmpty(TertiaryButtonText);
-
-        public string? SourceTabName { get; set; }
-        public string? SourceTabIcon { get; set; }
-        public Brush? SourceTabIconBrush { get; set; }
-        public int SourceFolderCount { get; set; }
-        public string? DestinationTabName { get; set; }
-        public string? DestinationTabIcon { get; set; }
-        public Brush? DestinationTabIconBrush { get; set; }
-        public int DestinationFolderCount { get; set; }
 
         public int? FilesAffected { get; set; }
 

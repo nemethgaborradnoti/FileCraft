@@ -17,6 +17,27 @@
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
         <local:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
+
+        <DataTemplate DataType="{x:Type viewmodels:CopyTreeConfirmationViewModel}">
+            <StackPanel>
+                <TextBlock Text="{DynamicResource Confirmation_CopyTree_Part1}" TextWrapping="Wrap" />
+                <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                    <TextBlock Text="{Binding SourceTabIcon}" FontFamily="{StaticResource MaterialIcons}" Foreground="{Binding SourceTabIconBrush}" FontSize="20" Margin="0,0,5,0" VerticalAlignment="Center"/>
+                    <TextBlock VerticalAlignment="Center">
+                        <Run Text="{Binding SourceTabName}" FontWeight="Bold"/>
+                        <Run Text="{Binding SourceFolderCount, StringFormat='({0} folders)'}"/>
+                    </TextBlock>
+                </StackPanel>
+                <TextBlock Text="{DynamicResource Confirmation_CopyTree_Part2}" Margin="0,5,0,5"/>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="{Binding DestinationTabIcon}" FontFamily="{StaticResource MaterialIcons}" Foreground="{Binding DestinationTabIconBrush}" FontSize="20" Margin="0,0,5,0" VerticalAlignment="Center"/>
+                    <TextBlock VerticalAlignment="Center">
+                        <Run Text="{Binding DestinationTabName}" FontWeight="Bold"/>
+                        <Run Text="{Binding DestinationFolderCount, StringFormat='({0} folders)'}"/>
+                    </TextBlock>
+                </StackPanel>
+            </StackPanel>
+        </DataTemplate>
     </Window.Resources>
 
     <Grid Margin="20">
@@ -31,7 +52,6 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <!-- Az ikon Viewboxa, ami eltűnik, ha nincs ikon beállítva -->
             <Viewbox Grid.Column="0" Width="48" Height="48" Margin="0,0,15,0" VerticalAlignment="Center">
                 <Viewbox.Style>
                     <Style TargetType="Viewbox">
@@ -50,7 +70,19 @@
             </Viewbox>
 
             <StackPanel Grid.Column="1">
-                <TextBlock Text="{Binding Message}" TextWrapping="Wrap" HorizontalAlignment="Left" Margin="0,0,0,10"/>
+                <TextBlock Text="{Binding Message}" TextWrapping="Wrap" HorizontalAlignment="Left" Margin="0,0,0,10"
+                           Visibility="{Binding Message, Converter={StaticResource NullToVisibilityConverter}}">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Visibility" Value="Visible"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Message}" Value="">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
 
                 <TextBlock TextAlignment="Left" Margin="0,0,0,10"
                            Visibility="{Binding FilesAffected, Converter={StaticResource NullToVisibilityConverter}}">
@@ -64,24 +96,7 @@
                          Visibility="{Binding IsInputVisible, Converter={StaticResource BooleanToVisibilityConverter}}"
                          x:Name="InputTextBox"/>
 
-                <StackPanel Visibility="{Binding IsCopyTreeVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
-                    <TextBlock Text="{DynamicResource Confirmation_CopyTree_Part1}" TextWrapping="Wrap" />
-                    <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
-                        <TextBlock Text="{Binding SourceTabIcon}" FontFamily="{StaticResource MaterialIcons}" Foreground="{Binding SourceTabIconBrush}" FontSize="20" Margin="0,0,5,0" VerticalAlignment="Center"/>
-                        <TextBlock VerticalAlignment="Center">
-                            <Run Text="{Binding SourceTabName}" FontWeight="Bold"/>
-                            <Run Text="{Binding SourceFolderCount, StringFormat='({0} folders)'}"/>
-                        </TextBlock>
-                    </StackPanel>
-                    <TextBlock Text="{DynamicResource Confirmation_CopyTree_Part2}" Margin="0,5,0,5"/>
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="{Binding DestinationTabIcon}" FontFamily="{StaticResource MaterialIcons}" Foreground="{Binding DestinationTabIconBrush}" FontSize="20" Margin="0,0,5,0" VerticalAlignment="Center"/>
-                        <TextBlock VerticalAlignment="Center">
-                            <Run Text="{Binding DestinationTabName}" FontWeight="Bold"/>
-                            <Run Text="{Binding DestinationFolderCount, StringFormat='({0} folders)'}"/>
-                        </TextBlock>
-                    </StackPanel>
-                </StackPanel>
+                <ContentControl Content="{Binding CustomContent}" />
             </StackPanel>
         </Grid>
 
