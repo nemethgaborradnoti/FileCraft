@@ -11,7 +11,7 @@
         WindowStartupLocation="CenterOwner"
         Width="500"
         MinHeight="150"
-        WindowStyle="ToolWindow"
+        WindowStyle="SingleBorderWindow"
         ResizeMode="NoResize"
         d:DataContext="{d:DesignInstance Type=viewmodels:GenericDialogViewModel}">
     <Window.Resources>
@@ -90,22 +90,22 @@
                     Content="{Binding PrimaryButtonText}"
                     Command="{Binding PrimaryCommand}"
                     IsDefault="True"
-                    MinWidth="90"
-                    Margin="2,2,10,2"
+                    MinWidth="{StaticResource DefaultButtonMinWidth}"
+                    Margin="{StaticResource RightMargin}"
                     Visibility="{Binding IsPrimaryVisible, Converter={StaticResource BooleanToVisibilityConverter}}"/>
 
             <Button x:Name="TertiaryButton"
                     Content="{Binding TertiaryButtonText}"
                     Command="{Binding TertiaryCommand}"
-                    MinWidth="90"
-                    Margin="2,2,10,2"
+                    MinWidth="{StaticResource DefaultButtonMinWidth}"
+                    Margin="{StaticResource RightMargin}"
                     Visibility="{Binding IsTertiaryVisible, Converter={StaticResource BooleanToVisibilityConverter}}"/>
 
             <Button x:Name="SecondaryButton"
                     Content="{Binding SecondaryButtonText}"
                     Command="{Binding SecondaryCommand}"
                     IsCancel="True"
-                    MinWidth="90"
+                    MinWidth="{StaticResource DefaultButtonMinWidth}"
                     Style="{StaticResource SecondaryButton}"
                     Visibility="{Binding IsSecondaryVisible, Converter={StaticResource BooleanToVisibilityConverter}}"/>
         </StackPanel>
