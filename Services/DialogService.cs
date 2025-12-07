@@ -33,7 +33,7 @@ namespace FileCraft.Services
                 IconGlyph = iconDef.Glyph,
                 IconBrush = iconDef.Brush,
                 PrimaryButtonText = ResourceHelper.GetString("Common_OkButton"),
-                PrimaryButtonStyle = "PrimaryButton"
+                PrimaryButtonStyle = ResourceKeys.PrimaryButton
             };
             var window = new GenericDialogWindow(viewModel);
             window.ShowDialog();
@@ -50,37 +50,25 @@ namespace FileCraft.Services
                 IconBrush = iconDef.Brush,
                 FilesAffected = filesAffected,
                 PrimaryButtonText = ResourceHelper.GetString("Common_YesButton"),
-                PrimaryButtonStyle = "PrimaryButton",
+                PrimaryButtonStyle = ResourceKeys.PrimaryButton,
                 SecondaryButtonText = ResourceHelper.GetString("Common_CancelButton")
             };
             var window = new GenericDialogWindow(viewModel);
             return window.ShowDialog() ?? false;
         }
 
-        public bool ShowCopyTreeConfirmation(string title, DialogIconType iconType, string sourceName, string? sourceIcon, Brush? sourceIconBrush, int sourceCount, string destName, string? destIcon, Brush? destIconBrush, int destCount)
+        public bool ShowCopyTreeConfirmation(string title, DialogIconType iconType, CopyTreeConfirmationViewModel contentViewModel)
         {
             var iconDef = GetAppIcon(iconType);
-
-            var copyTreeViewModel = new CopyTreeConfirmationViewModel
-            {
-                SourceTabName = sourceName,
-                SourceTabIcon = sourceIcon,
-                SourceTabIconBrush = sourceIconBrush,
-                SourceFolderCount = sourceCount,
-                DestinationTabName = destName,
-                DestinationTabIcon = destIcon,
-                DestinationTabIconBrush = destIconBrush,
-                DestinationFolderCount = destCount
-            };
 
             var viewModel = new GenericDialogViewModel
             {
                 Title = title,
                 IconGlyph = iconDef.Glyph,
                 IconBrush = iconDef.Brush,
-                CustomContent = copyTreeViewModel,
+                CustomContent = contentViewModel,
                 PrimaryButtonText = ResourceHelper.GetString("Common_YesButton"),
-                PrimaryButtonStyle = "WarningButton",
+                PrimaryButtonStyle = ResourceKeys.WarningButton,
                 SecondaryButtonText = ResourceHelper.GetString("Common_CancelButton")
             };
 
@@ -98,9 +86,9 @@ namespace FileCraft.Services
                 IconGlyph = iconDef.Glyph,
                 IconBrush = iconDef.Brush,
                 PrimaryButtonText = ResourceHelper.GetString("Common_SaveButton"),
-                PrimaryButtonStyle = "PrimaryButton",
+                PrimaryButtonStyle = ResourceKeys.PrimaryButton,
                 TertiaryButtonText = ResourceHelper.GetString("ExitConfirmation_DontSaveButton"),
-                TertiaryButtonStyle = "DangerButton",
+                TertiaryButtonStyle = ResourceKeys.DangerButton,
                 SecondaryButtonText = ResourceHelper.GetString("Common_CancelButton")
             };
 
@@ -118,7 +106,7 @@ namespace FileCraft.Services
                 IsInputVisible = true,
                 InputText = currentName,
                 PrimaryButtonText = ResourceHelper.GetString("Common_OkButton"),
-                PrimaryButtonStyle = "PrimaryButton",
+                PrimaryButtonStyle = ResourceKeys.PrimaryButton,
                 SecondaryButtonText = ResourceHelper.GetString("Common_CancelButton")
             };
 
@@ -139,7 +127,7 @@ namespace FileCraft.Services
                 IsInputVisible = true,
                 InputText = currentFolders,
                 PrimaryButtonText = ResourceHelper.GetString("Common_OkButton"),
-                PrimaryButtonStyle = "PrimaryButton",
+                PrimaryButtonStyle = ResourceKeys.PrimaryButton,
                 SecondaryButtonText = ResourceHelper.GetString("Common_CancelButton")
             };
 

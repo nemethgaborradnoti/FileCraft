@@ -7,7 +7,6 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Windows.Input;
-using Fonts;
 
 namespace FileCraft.ViewModels.Functional
 {
@@ -335,17 +334,22 @@ namespace FileCraft.ViewModels.Functional
             int sourceFolderCount = sourceManager.GetSelectedNodeCount();
             int destFolderCount = destManager.GetSelectedNodeCount();
 
+            var contentViewModel = new CopyTreeConfirmationViewModel
+            {
+                SourceTabName = SelectedSourceTab.Name,
+                SourceTabIcon = SelectedSourceTab.Icon,
+                SourceTabIconBrush = SelectedSourceTab.IconBrush,
+                SourceFolderCount = sourceFolderCount,
+                DestinationTabName = SelectedDestinationTab.Name,
+                DestinationTabIcon = SelectedDestinationTab.Icon,
+                DestinationTabIconBrush = SelectedDestinationTab.IconBrush,
+                DestinationFolderCount = destFolderCount
+            };
+
             bool confirmed = _dialogService.ShowCopyTreeConfirmation(
-                title: ResourceHelper.GetString("Options_CopyTreeTitle"),
-                iconType: DialogIconType.Warning,
-                sourceName: SelectedSourceTab.Name,
-                sourceIcon: SelectedSourceTab.Icon,
-                sourceIconBrush: SelectedSourceTab.IconBrush,
-                sourceCount: sourceFolderCount,
-                destName: SelectedDestinationTab.Name,
-                destIcon: SelectedDestinationTab.Icon,
-                destIconBrush: SelectedDestinationTab.IconBrush,
-                destCount: destFolderCount);
+                ResourceHelper.GetString("Options_CopyTreeTitle"),
+                DialogIconType.Warning,
+                contentViewModel);
 
             if (confirmed)
             {
