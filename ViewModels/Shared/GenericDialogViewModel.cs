@@ -1,7 +1,6 @@
 ﻿using FileCraft.Models;
 using FileCraft.Shared.Commands;
 using System.Windows.Input;
-using System.Windows.Media;
 
 namespace FileCraft.ViewModels.Shared
 {
@@ -105,9 +104,11 @@ namespace FileCraft.ViewModels.Shared
 
         public string? SourceTabName { get; set; }
         public string? SourceTabIcon { get; set; }
+        public Brush? SourceTabIconBrush { get; set; }
         public int SourceFolderCount { get; set; }
         public string? DestinationTabName { get; set; }
         public string? DestinationTabIcon { get; set; }
+        public Brush? DestinationTabIconBrush { get; set; }
         public int DestinationFolderCount { get; set; }
 
         public int? FilesAffected { get; set; }

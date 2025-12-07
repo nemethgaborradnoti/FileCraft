@@ -3,7 +3,6 @@ using FileCraft.Services.Interfaces;
 using FileCraft.Shared.Helpers;
 using FileCraft.ViewModels.Shared;
 using FileCraft.Views.Shared;
-using Fonts;
 
 namespace FileCraft.Services
 {
@@ -26,13 +25,13 @@ namespace FileCraft.Services
 
         public void ShowNotification(string title, string message, DialogIconType iconType)
         {
-            var (iconGlyph, iconBrush) = GetMaterialIconData(iconType);
+            var iconDef = GetAppIcon(iconType);
             var viewModel = new GenericDialogViewModel
             {
                 Title = title,
                 Message = message,
-                IconGlyph = iconGlyph,
-                IconBrush = iconBrush,
+                IconGlyph = iconDef.Glyph,
+                IconBrush = iconDef.Brush,
                 PrimaryButtonText = ResourceHelper.GetString("Common_OkButton"),
                 PrimaryButtonStyle = "PrimaryButton"
             };
@@ -42,13 +41,13 @@ namespace FileCraft.Services
 
         public bool ShowConfirmation(string title, string message, DialogIconType iconType, int? filesAffected = null)
         {
-            var (iconGlyph, iconBrush) = GetMaterialIconData(iconType);
+            var iconDef = GetAppIcon(iconType);
             var viewModel = new GenericDialogViewModel
             {
                 Title = title,
                 Message = message,
-                IconGlyph = iconGlyph,
-                IconBrush = iconBrush,
+                IconGlyph = iconDef.Glyph,
+                IconBrush = iconDef.Brush,
                 FilesAffected = filesAffected,
                 PrimaryButtonText = ResourceHelper.GetString("Common_YesButton"),
                 PrimaryButtonStyle = "PrimaryButton",
@@ -58,21 +57,26 @@ namespace FileCraft.Services
             return window.ShowDialog() ?? false;
         }
 
-        public bool ShowCopyTreeConfirmation(string title, DialogIconType iconType, string sourceName, string? sourceIcon, int sourceCount, string destName, string? destIcon, int destCount)
+        public bool ShowCopyTreeConfirmation(string title, DialogIconType iconType, string sourceName, string? sourceIcon, Brush? sourceIconBrush, int sourceCount, string destName, string? destIcon, Brush? destIconBrush, int destCount)
         {
-            var (iconGlyph, iconBrush) = GetMaterialIconData(iconType);
+            var iconDef = GetAppIcon(iconType);
             var viewModel = new GenericDialogViewModel
             {
                 Title = title,
-                IconGlyph = iconGlyph,
-                IconBrush = iconBrush,
+                IconGlyph = iconDef.Glyph,
+                IconBrush = iconDef.Brush,
                 IsCopyTreeVisible = true,
+
                 SourceTabName = sourceName,
                 SourceTabIcon = sourceIcon,
+                SourceTabIconBrush = sourceIconBrush,
                 SourceFolderCount = sourceCount,
+
                 DestinationTabName = destName,
                 DestinationTabIcon = destIcon,
+                DestinationTabIconBrush = destIconBrush,
                 DestinationFolderCount = destCount,
+
                 PrimaryButtonText = ResourceHelper.GetString("Common_YesButton"),
                 PrimaryButtonStyle = "WarningButton",
                 SecondaryButtonText = ResourceHelper.GetString("Common_CancelButton")
@@ -83,13 +87,13 @@ namespace FileCraft.Services
 
         public ExitConfirmationResult ShowExitConfirmation(string title, string message)
         {
-            var (iconGlyph, iconBrush) = GetMaterialIconData(DialogIconType.Warning);
+            var iconDef = AppIcons.Warning;
             var viewModel = new GenericDialogViewModel
             {
                 Title = title,
                 Message = message,
-                IconGlyph = iconGlyph,
-                IconBrush = iconBrush,
+                IconGlyph = iconDef.Glyph,
+                IconBrush = iconDef.Brush,
                 PrimaryButtonText = ResourceHelper.GetString("Common_SaveButton"),
                 PrimaryButtonStyle = "PrimaryButton",
                 TertiaryButtonText = ResourceHelper.GetString("ExitConfirmation_DontSaveButton"),
@@ -146,8 +150,8 @@ namespace FileCraft.Services
 
         public bool ShowBulkSearchDialog(IEnumerable<SelectableFile> allFiles)
         {
-            var (iconGlyph, iconBrush) = GetMaterialIconData(DialogIconType.Info);
-            var bulkSearchWindow = new BulkSearchWindow(allFiles, iconGlyph, iconBrush);
+            var iconDef = AppIcons.Info;
+            var bulkSearchWindow = new BulkSearchWindow(allFiles, iconDef.Glyph, iconDef.Brush);
             return bulkSearchWindow.ShowDialog() ?? false;
         }
 
@@ -161,28 +165,16 @@ namespace FileCraft.Services
             return null;
         }
 
-        private (string Glyph, Brush Brush) GetMaterialIconData(DialogIconType iconType)
+        private IconDefinition GetAppIcon(DialogIconType iconType)
         {
-            string glyph = iconType switch
+            return iconType switch
             {
-                DialogIconType.Info => MaterialIcons.info,
-                DialogIconType.Warning => MaterialIcons.warning,
-                DialogIconType.Success => MaterialIcons.check_circle,
-                DialogIconType.Error => MaterialIcons.cancel,
-                _ => MaterialIcons.help_outline
+                DialogIconType.Info => AppIcons.Info,
+                DialogIconType.Warning => AppIcons.Warning,
+                DialogIconType.Success => AppIcons.Success,
+                DialogIconType.Error => AppIcons.Error,
+                _ => AppIcons.Info
             };
-
-            string colorKey = iconType switch
-            {
-                DialogIconType.Info => "PrimaryBrush",
-                DialogIconType.Warning => "DangerBrush",
-                DialogIconType.Success => "SuccessBrush",
-                DialogIconType.Error => "DangerBrush",
-                _ => "TextBrush"
-            };
-
-            var brush = Application.Current.FindResource(colorKey) as Brush ?? Brushes.Black;
-            return (glyph, brush);
         }
     }
 }

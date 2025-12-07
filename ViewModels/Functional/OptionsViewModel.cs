@@ -272,16 +272,11 @@ namespace FileCraft.ViewModels.Functional
             }
             CheckForExistingPresets();
 
-            // Setup Brushes
-            var folderBrush = Application.Current.FindResource("FolderIconBrush") as Brush;
-            var treeBrush = Application.Current.FindResource("TreeIconBrush") as Brush;
-            var primaryBrush = Application.Current.FindResource("PrimaryBrush") as Brush;
-            var secondaryBrush = Application.Current.FindResource("SecondaryBrush") as Brush;
-
+            // Setup Icons using AppIcons
             AllTabs.Add(new TabItemViewModel(ResourceHelper.GetString("Options_TabNone"), null, null, null));
-            AllTabs.Add(new TabItemViewModel(ResourceHelper.GetString("TabFileContentExport"), MaterialIcons.topic, folderBrush, fileContentExportVM.FolderTreeManager));
-            AllTabs.Add(new TabItemViewModel(ResourceHelper.GetString("TabTreeGenerator"), MaterialIcons.park, treeBrush, treeGeneratorVM.FolderTreeManager));
-            AllTabs.Add(new TabItemViewModel(ResourceHelper.GetString("TabFolderContentExport"), MaterialIcons.dns, primaryBrush, folderContentExportVM.FolderTreeManager));
+            AllTabs.Add(new TabItemViewModel(ResourceHelper.GetString("TabFileContentExport"), AppIcons.FileContentExport.Glyph, AppIcons.FileContentExport.Brush, fileContentExportVM.FolderTreeManager));
+            AllTabs.Add(new TabItemViewModel(ResourceHelper.GetString("TabTreeGenerator"), AppIcons.TreeGenerator.Glyph, AppIcons.TreeGenerator.Brush, treeGeneratorVM.FolderTreeManager));
+            AllTabs.Add(new TabItemViewModel(ResourceHelper.GetString("TabFolderContentExport"), AppIcons.FolderContentExport.Glyph, AppIcons.FolderContentExport.Brush, folderContentExportVM.FolderTreeManager));
 
             SelectedSourceTab = AllTabs[0];
             SelectedDestinationTab = AllTabs[0];
@@ -345,9 +340,11 @@ namespace FileCraft.ViewModels.Functional
                 iconType: DialogIconType.Warning,
                 sourceName: SelectedSourceTab.Name,
                 sourceIcon: SelectedSourceTab.Icon,
+                sourceIconBrush: SelectedSourceTab.IconBrush,
                 sourceCount: sourceFolderCount,
                 destName: SelectedDestinationTab.Name,
                 destIcon: SelectedDestinationTab.Icon,
+                destIconBrush: SelectedDestinationTab.IconBrush,
                 destCount: destFolderCount);
 
             if (confirmed)
