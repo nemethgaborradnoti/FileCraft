@@ -1,5 +1,6 @@
 ﻿using FileCraft.Models;
 using FileCraft.Shared.Commands;
+using FileCraft.Shared.Helpers;
 using System.Windows.Input;
 
 namespace FileCraft.ViewModels.Shared
@@ -13,7 +14,7 @@ namespace FileCraft.ViewModels.Shared
         private string _inputText = string.Empty;
         private bool _isInputVisible;
         private object? _customContent;
-        private string _primaryButtonText = "OK";
+        private string _primaryButtonText = ResourceHelper.GetString("Common_OkButton");
         private string _secondaryButtonText = string.Empty;
         private string _tertiaryButtonText = string.Empty;
         private string _primaryButtonStyle = "PrimaryButton";
