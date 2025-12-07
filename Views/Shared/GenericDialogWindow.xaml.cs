@@ -13,23 +13,9 @@ namespace FileCraft.Views.Shared
             DataContext = viewModel;
             Owner = Application.Current.MainWindow;
 
-            if (!string.IsNullOrEmpty(viewModel.PrimaryButtonStyle))
-            {
-                var style = TryFindResource(viewModel.PrimaryButtonStyle) as Style;
-                if (style != null)
-                {
-                    PrimaryButton.Style = style;
-                }
-            }
-
-            if (!string.IsNullOrEmpty(viewModel.TertiaryButtonStyle))
-            {
-                var style = TryFindResource(viewModel.TertiaryButtonStyle) as Style;
-                if (style != null)
-                {
-                    TertiaryButton.Style = style;
-                }
-            }
+            ApplyButtonStyle(PrimaryButton, viewModel.PrimaryButtonStyle);
+            ApplyButtonStyle(SecondaryButton, viewModel.SecondaryButtonStyle);
+            ApplyButtonStyle(TertiaryButton, viewModel.TertiaryButtonStyle);
 
             viewModel.RequestClose += (result) =>
             {
@@ -44,6 +30,18 @@ namespace FileCraft.Views.Shared
                     InputTextBox.Focus();
                     InputTextBox.SelectAll();
                 };
+            }
+        }
+
+        private void ApplyButtonStyle(Button button, string styleKey)
+        {
+            if (!string.IsNullOrEmpty(styleKey))
+            {
+                var style = TryFindResource(styleKey) as Style;
+                if (style != null)
+                {
+                    button.Style = style;
+                }
             }
         }
     }

@@ -17,8 +17,10 @@ namespace FileCraft.ViewModels.Shared
         private string _primaryButtonText = ResourceHelper.GetString("Common_OkButton");
         private string _secondaryButtonText = string.Empty;
         private string _tertiaryButtonText = string.Empty;
-        private string _primaryButtonStyle = "PrimaryButton";
-        private string _tertiaryButtonStyle = "DangerButton";
+
+        private string _primaryButtonStyle = ResourceKeys.PrimaryButton;
+        private string _secondaryButtonStyle = ResourceKeys.SecondaryButton;
+        private string _tertiaryButtonStyle = ResourceKeys.DangerButton;
 
         public event Action<bool?>? RequestClose;
 
@@ -91,6 +93,12 @@ namespace FileCraft.ViewModels.Shared
         {
             get => _primaryButtonStyle;
             set { _primaryButtonStyle = value; OnPropertyChanged(); }
+        }
+
+        public string SecondaryButtonStyle
+        {
+            get => _secondaryButtonStyle;
+            set { _secondaryButtonStyle = value; OnPropertyChanged(); }
         }
 
         public string TertiaryButtonStyle
