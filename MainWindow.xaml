@@ -6,6 +6,8 @@
         xmlns:local="clr-namespace:FileCraft"
         xmlns:views="clr-namespace:FileCraft.Views"
         xmlns:viewModels="clr-namespace:FileCraft.ViewModels"
+        xmlns:icons="clr-namespace:Fonts"
+        xmlns:helpers="clr-namespace:FileCraft.Shared.Helpers"
         mc:Ignorable="d"
         Title="FileCraft" Height="800" Width="850"
         MinHeight="200" MinWidth="250"
@@ -20,14 +22,20 @@
         </Grid.RowDefinitions>
 
         <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Left" Margin="5,0,5,5">
-            <Button Style="{StaticResource BorderlessIconButton}" ToolTip="Undo" Command="{Binding UndoCommand}" IsEnabled="{Binding CanUndo}">
-                <Image Source="{StaticResource IconUndo}" />
+            <Button Style="{StaticResource BorderlessIconButton}" ToolTip="{DynamicResource UndoTooltip}" Command="{Binding UndoCommand}" IsEnabled="{Binding CanUndo}" Padding="0">
+                <Viewbox>
+                    <TextBlock Text="{Binding Source={x:Static helpers:AppIcons.Undo}, Path=Glyph}" FontFamily="{StaticResource MaterialIcons}" Foreground="{Binding Source={x:Static helpers:AppIcons.Undo}, Path=Brush}" />
+                </Viewbox>
             </Button>
-            <Button Style="{StaticResource BorderlessIconButton}" ToolTip="Redo" Command="{Binding RedoCommand}" IsEnabled="{Binding CanRedo}">
-                <Image Source="{StaticResource IconRedo}" />
+            <Button Style="{StaticResource BorderlessIconButton}" ToolTip="{DynamicResource RedoTooltip}" Command="{Binding RedoCommand}" IsEnabled="{Binding CanRedo}" Padding="0">
+                <Viewbox>
+                    <TextBlock Text="{Binding Source={x:Static helpers:AppIcons.Redo}, Path=Glyph}" FontFamily="{StaticResource MaterialIcons}" Foreground="{Binding Source={x:Static helpers:AppIcons.Redo}, Path=Brush}" />
+                </Viewbox>
             </Button>
-            <Button Style="{StaticResource BorderlessIconButton}" ToolTip="Save current settings" Command="{Binding SaveCommand}" IsEnabled="{Binding HasUnsavedChanges}">
-                <Image Source="{StaticResource IconSave}" />
+            <Button Style="{StaticResource BorderlessIconButton}" ToolTip="{DynamicResource SaveSettingsTooltip}" Command="{Binding SaveCommand}" IsEnabled="{Binding HasUnsavedChanges}" Padding="0">
+                <Viewbox>
+                    <TextBlock Text="{Binding Source={x:Static helpers:AppIcons.Save}, Path=Glyph}" FontFamily="{StaticResource MaterialIcons}" Foreground="{Binding Source={x:Static helpers:AppIcons.Save}, Path=Brush}" />
+                </Viewbox>
             </Button>
         </StackPanel>
 
@@ -37,7 +45,7 @@
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
-            <GroupBox Grid.Column="0" Header="Source Folder" Margin="0,0,5,0">
+            <GroupBox Grid.Column="0" Header="{DynamicResource SourceFolderHeader}" Margin="0,0,5,0">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
@@ -49,11 +57,11 @@
                              Text="{Binding SourcePath, Mode=OneWay}"
                              ToolTip="{Binding SourcePath}"/>
 
-                    <Button Grid.Column="1" Content="Browse..." Command="{Binding SelectSourcePathCommand}"/>
+                    <Button Grid.Column="1" Content="{DynamicResource BrowseButton}" Command="{Binding SelectSourcePathCommand}"/>
                 </Grid>
             </GroupBox>
 
-            <GroupBox Grid.Column="1" Header="Destination Folder" Margin="5,0,0,0">
+            <GroupBox Grid.Column="1" Header="{DynamicResource DestinationFolderHeader}" Margin="5,0,0,0">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
@@ -66,8 +74,8 @@
                              Text="{Binding DestinationPath, Mode=OneWay}"
                              ToolTip="{Binding DestinationPath}"/>
 
-                    <Button Grid.Column="1" Content="Browse..." Margin="0,0,5,0" Command="{Binding SelectDestinationPathCommand}"/>
-                    <Button Grid.Column="2" Content="Clear" Command="{Binding ClearPathsCommand}" ToolTip="Clear both source and destination paths." Style="{StaticResource WarningButton}"/>
+                    <Button Grid.Column="1" Content="{DynamicResource BrowseButton}" Command="{Binding SelectDestinationPathCommand}" Margin="{StaticResource RightMargin}"/>
+                    <Button Grid.Column="2" Content="{DynamicResource ClearButton}" Command="{Binding ClearPathsCommand}" ToolTip="{DynamicResource ClearPathsTooltip}" Style="{StaticResource WarningButton}"/>
                 </Grid>
             </GroupBox>
         </Grid>
@@ -76,8 +84,8 @@
             <TabItem>
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal">
-                        <Image Source="{StaticResource IconFileContent}" Width="28" Height="28" Margin="0,0,5,0" VerticalAlignment="Center"/>
-                        <TextBlock Text="File Content Export" VerticalAlignment="Center"/>
+                        <TextBlock Text="{Binding Source={x:Static helpers:AppIcons.FileContentExport}, Path=Glyph}" FontFamily="{StaticResource MaterialIcons}" Foreground="{Binding Source={x:Static helpers:AppIcons.FileContentExport}, Path=Brush}" FontSize="28" Margin="0,0,5,0" VerticalAlignment="Center"/>
+                        <TextBlock Text="{DynamicResource TabFileContentExport}" VerticalAlignment="Center"/>
                     </StackPanel>
                 </TabItem.Header>
                 <views:FileContentExportView DataContext="{Binding FileContentExportVM}"/>
@@ -85,8 +93,8 @@
             <TabItem>
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal">
-                        <Image Source="{StaticResource IconTreeStructure}" Width="28" Height="28" Margin="0,0,5,0" VerticalAlignment="Center"/>
-                        <TextBlock Text="Tree Generator" VerticalAlignment="Center"/>
+                        <TextBlock Text="{Binding Source={x:Static helpers:AppIcons.TreeGenerator}, Path=Glyph}" FontFamily="{StaticResource MaterialIcons}" Foreground="{Binding Source={x:Static helpers:AppIcons.TreeGenerator}, Path=Brush}" FontSize="28" Margin="0,0,5,0" VerticalAlignment="Center"/>
+                        <TextBlock Text="{DynamicResource TabTreeGenerator}" VerticalAlignment="Center"/>
                     </StackPanel>
                 </TabItem.Header>
                 <views:TreeGeneratorView DataContext="{Binding TreeGeneratorVM}"/>
@@ -94,8 +102,8 @@
             <TabItem>
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal">
-                        <Image Source="{StaticResource IconFolderContent}" Width="28" Height="28" Margin="0,0,5,0" VerticalAlignment="Center"/>
-                        <TextBlock Text="Folder Content Export" VerticalAlignment="Center"/>
+                        <TextBlock Text="{Binding Source={x:Static helpers:AppIcons.FolderContentExport}, Path=Glyph}" FontFamily="{StaticResource MaterialIcons}" Foreground="{Binding Source={x:Static helpers:AppIcons.FolderContentExport}, Path=Brush}" FontSize="28" Margin="0,0,5,0" VerticalAlignment="Center"/>
+                        <TextBlock Text="{DynamicResource TabFolderContentExport}" VerticalAlignment="Center"/>
                     </StackPanel>
                 </TabItem.Header>
                 <views:FolderContentExportView DataContext="{Binding FolderContentExportVM}"/>
@@ -103,8 +111,8 @@
             <TabItem>
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal">
-                        <Image Source="{StaticResource IconSettings}" Width="28" Height="28" Margin="0,0,5,0" VerticalAlignment="Center"/>
-                        <TextBlock Text="Options" VerticalAlignment="Center"/>
+                        <TextBlock Text="{Binding Source={x:Static helpers:AppIcons.Options}, Path=Glyph}" FontFamily="{StaticResource MaterialIcons}" Foreground="{Binding Source={x:Static helpers:AppIcons.Options}, Path=Brush}" FontSize="28" Margin="0,0,5,0" VerticalAlignment="Center"/>
+                        <TextBlock Text="{DynamicResource TabOptions}" VerticalAlignment="Center"/>
                     </StackPanel>
                 </TabItem.Header>
                 <views:OptionsView DataContext="{Binding OptionsVM}"/>

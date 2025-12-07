@@ -1,13 +1,18 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:icons="clr-namespace:Fonts"
+                    xmlns:helpers="clr-namespace:FileCraft.Shared.Helpers"
+                    xmlns:system="clr-namespace:System;assembly=mscorlib">
 
     <ResourceDictionary.MergedDictionaries>
         <ResourceDictionary Source="Colors.xaml"/>
     </ResourceDictionary.MergedDictionaries>
 
+    <Thickness x:Key="RightMargin">0,0,10,0</Thickness>
+    <system:Double x:Key="DefaultButtonMinWidth">80</system:Double>
+
     <Style x:Key="ModernButtonBase" TargetType="Button">
         <Setter Property="Padding" Value="10,5"/>
-        <Setter Property="Margin" Value="2"/>
         <Setter Property="Cursor" Value="Hand"/>
         <Setter Property="Foreground" Value="{StaticResource ButtonTextBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
@@ -200,6 +205,60 @@
                 </BeginStoryboard>
             </EventTrigger>
         </Style.Triggers>
+    </Style>
+
+    <Style x:Key="FullscreenButtonStyle" TargetType="Button">
+        <Setter Property="Width" Value="28"/>
+        <Setter Property="Height" Value="28"/>
+        <Setter Property="Margin" Value="10,0,0,0"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderBrush" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Foreground" Value="{Binding Source={x:Static helpers:AppIcons.Fullscreen}, Path=Brush}"/>
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="ToolTip" Value="Fullscreen"/>
+        <Setter Property="Content" Value="{Binding Source={x:Static helpers:AppIcons.Fullscreen}, Path=Glyph}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="border"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="3">
+                        <Viewbox Margin="{TemplateBinding Padding}">
+                            <TextBlock Text="{TemplateBinding Content}"
+                                       FontFamily="{DynamicResource MaterialIcons}"
+                                       Foreground="{TemplateBinding Foreground}"/>
+                        </Viewbox>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="border" Property="Background" Value="#E0E0E0"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="border" Property="Background" Value="#C0C0C0"/>
+                        </Trigger>
+                        <Trigger Property="Tag" Value="Active">
+                            <Setter Property="Content" Value="{Binding Source={x:Static helpers:AppIcons.FullscreenExit}, Path=Glyph}"/>
+                            <Setter Property="Foreground" Value="{Binding Source={x:Static helpers:AppIcons.FullscreenExit}, Path=Brush}"/>
+                            <Setter Property="ToolTip" Value="Exit Fullscreen"/>
+                            <Setter Property="Background" Value="{StaticResource WarningBrush}"/>
+                            <Setter Property="BorderBrush" Value="{StaticResource WarningDarkerBrush}"/>
+                        </Trigger>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsMouseOver" Value="True"/>
+                                <Condition Property="Tag" Value="Active"/>
+                            </MultiTrigger.Conditions>
+                            <Setter TargetName="border" Property="Background" Value="{StaticResource WarningDarkerBrush}"/>
+                        </MultiTrigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
     </Style>
 
 </ResourceDictionary>

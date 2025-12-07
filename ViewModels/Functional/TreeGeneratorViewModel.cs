@@ -1,47 +1,24 @@
 ﻿using FileCraft.Models;
 using FileCraft.Services.Interfaces;
 using FileCraft.Shared.Commands;
+using FileCraft.Shared.Helpers;
 using FileCraft.ViewModels.Shared;
-using System;
-using System.Collections.ObjectModel;
-using System.Linq;
+using System.ComponentModel;
 using System.Windows.Input;
 
 namespace FileCraft.ViewModels.Functional
 {
+    public enum TreeGeneratorFullscreenState
+    {
+        None,
+        Folders
+    }
+
     public class TreeGeneratorViewModel : ExportViewModelBase
     {
-        private string _outputFileName = string.Empty;
-        private bool _appendTimestamp;
         private int _includedFoldersCount;
 
-        public string OutputFileName
-        {
-            get => _outputFileName;
-            set
-            {
-                if (_outputFileName != value)
-                {
-                    OnStateChanging();
-                    _outputFileName = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
-
-        public bool AppendTimestamp
-        {
-            get => _appendTimestamp;
-            set
-            {
-                if (_appendTimestamp != value)
-                {
-                    OnStateChanging();
-                    _appendTimestamp = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
+        public FullscreenManager<TreeGeneratorFullscreenState> FullscreenManager { get; }
 
         public int IncludedFoldersCount
         {
@@ -53,7 +30,6 @@ namespace FileCraft.ViewModels.Functional
             }
         }
 
-        public ObservableCollection<FolderViewModel> RootFolders => FolderTreeManager.RootFolders;
         public ICommand GenerateTreeStructureCommand { get; }
 
         public TreeGeneratorViewModel(
@@ -63,19 +39,22 @@ namespace FileCraft.ViewModels.Functional
             FolderTreeManager folderTreeManager)
             : base(sharedStateService, fileOperationService, dialogService, folderTreeManager)
         {
+            FullscreenManager = new FullscreenManager<TreeGeneratorFullscreenState>(TreeGeneratorFullscreenState.None);
+
             FolderTreeManager.FolderSelectionChanged += UpdateIncludedFoldersCount;
             FolderTreeManager.StateChanging += OnStateChanging;
-            FolderTreeManager.PropertyChanged += (s, e) =>
-            {
-                if (e.PropertyName == nameof(FolderTreeManager.RootFolders))
-                {
-                    OnPropertyChanged(nameof(RootFolders));
-                    UpdateIncludedFoldersCount();
-                }
-            };
 
             GenerateTreeStructureCommand = new RelayCommand(async (_) => await GenerateTreeStructure(), (_) => CanExecuteOperation(this.OutputFileName));
             UpdateIncludedFoldersCount();
+        }
+
+        protected override void OnFolderTreeManagerPropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            base.OnFolderTreeManagerPropertyChanged(sender, e);
+            if (e.PropertyName == nameof(FolderTreeManager.RootFolders))
+            {
+                UpdateIncludedFoldersCount();
+            }
         }
 
         private void UpdateIncludedFoldersCount()
@@ -95,9 +74,11 @@ namespace FileCraft.ViewModels.Functional
                     allNodes.Where(n => n.IsSelected == false).Select(n => n.FullPath),
                     StringComparer.OrdinalIgnoreCase);
 
-                string message = $"Are you sure you want to generate the tree structure to the following path?\n{_sharedStateService.DestinationPath}";
+                string messageFormat = ResourceHelper.GetString("TreeGen_ConfirmGenerateMessage");
+                string message = $"{messageFormat}\n{_sharedStateService.DestinationPath}";
+
                 bool confirmed = _dialogService.ShowConfirmation(
-                    title: "Generate Tree Structure",
+                    title: ResourceHelper.GetString("TreeGen_GenerateTitle"),
                     message: message,
                     iconType: DialogIconType.Info,
                     filesAffected: IncludedFoldersCount);
@@ -109,11 +90,22 @@ namespace FileCraft.ViewModels.Functional
 
                 string finalFileName = GetFinalFileName(OutputFileName, AppendTimestamp);
                 string outputFilePath = await _fileOperationService.GenerateTreeStructureAsync(_sharedStateService.SourcePath, _sharedStateService.DestinationPath, excludedFolderPaths, finalFileName);
-                _dialogService.ShowNotification("Success", $"Tree structure file was created successfully!\n\nSaved to: {outputFilePath}", DialogIconType.Success);
+
+                string successMsg = ResourceHelper.GetString("TreeGen_SuccessMessage");
+                string savedToMsg = string.Format(ResourceHelper.GetString("Common_SavedTo"), outputFilePath);
+
+                _dialogService.ShowNotification(
+                    ResourceHelper.GetString("Common_SuccessTitle"),
+                    $"{successMsg}\n\n{savedToMsg}",
+                    DialogIconType.Success);
             }
             catch (Exception ex)
             {
-                _dialogService.ShowNotification("Error", $"An unexpected error occurred:\n\n{ex.Message}", DialogIconType.Error);
+                string errorMsg = string.Format(ResourceHelper.GetString("TreeGen_ErrorMessage"), ex.Message);
+                _dialogService.ShowNotification(
+                    ResourceHelper.GetString("Common_ErrorTitle"),
+                    errorMsg,
+                    DialogIconType.Error);
             }
             finally
             {

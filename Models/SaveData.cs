@@ -1,4 +1,6 @@
-﻿namespace FileCraft.Models
+﻿using FileCraft.Shared.Helpers;
+
+namespace FileCraft.Models
 {
     public class SaveData
     {
@@ -15,7 +17,7 @@
 
     public abstract class ExportSettingsBase
     {
-        public string OutputFileName { get; set; } = "ExportedFile";
+        public string OutputFileName { get; set; } = ResourceHelper.GetString("Model_DefaultExportedFileName");
         public bool AppendTimestamp { get; set; } = false;
     }
 
@@ -23,11 +25,12 @@
     {
         public List<string> SelectedExtensions { get; set; } = new();
         public List<string> SelectedFilePaths { get; set; } = new();
+        public List<string> IgnoredCommentFilePaths { get; set; } = new();
         public List<FolderState> FolderTreeState { get; set; } = new();
 
         public FileContentExportSettings()
         {
-            OutputFileName = "FileContents";
+            OutputFileName = ResourceHelper.GetString("Model_DefaultFileContentsName");
         }
     }
 
@@ -37,7 +40,7 @@
         public List<FolderState> FolderTreeState { get; set; } = new();
         public FolderContentExportSettings()
         {
-            OutputFileName = "FolderContents";
+            OutputFileName = ResourceHelper.GetString("Model_DefaultFolderContentsName");
         }
     }
 
@@ -46,14 +49,12 @@
         public List<FolderState> FolderTreeState { get; set; } = new();
         public TreeGeneratorSettings()
         {
-            OutputFileName = "TreeStructure";
+            OutputFileName = ResourceHelper.GetString("Model_DefaultTreeStructureName");
         }
     }
 
     public class SettingsPageSettings
     {
         public List<string> IgnoredFolders { get; set; } = new() { "bin", "obj" };
-        public bool IgnoreNormalComments { get; set; } = false;
-        public bool IgnoreXmlComments { get; set; } = false;
     }
 }

@@ -1,0 +1,195 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:system="clr-namespace:System;assembly=mscorlib">
+
+    <!-- Common Strings -->
+    <system:String x:Key="Common_SuccessTitle">Success</system:String>
+    <system:String x:Key="Common_ErrorTitle">Error</system:String>
+    <system:String x:Key="Common_InfoTitle">Information</system:String>
+    <system:String x:Key="Common_WarningTitle">Warning</system:String>
+
+    <system:String x:Key="Common_SaveButton">Save</system:String>
+    <system:String x:Key="Common_LoadButton">Load</system:String>
+    <system:String x:Key="Common_CancelButton">Cancel</system:String>
+    <system:String x:Key="Common_OkButton">OK</system:String>
+    <system:String x:Key="Common_YesButton">Yes</system:String>
+    <system:String x:Key="Common_DeleteButton">Delete</system:String>
+
+    <system:String x:Key="Common_SelectAll">Select all</system:String>
+    <system:String x:Key="Common_SavedTo">Saved to: {0}</system:String>
+    <system:String x:Key="Common_FoldersHeader">Folders to include</system:String>
+    <system:String x:Key="Common_SearchLabel">Search:</system:String>
+    <system:String x:Key="Common_FilterPlaceholder">Filter by path...</system:String>
+    <system:String x:Key="Common_VersionLabel">Version</system:String>
+
+    <!-- App Specific Strings -->
+    <system:String x:Key="App_Version">v4.0.0</system:String>
+
+    <system:String x:Key="UndoTooltip">Undo</system:String>
+    <system:String x:Key="RedoTooltip">Redo</system:String>
+    <system:String x:Key="SaveSettingsTooltip">Save current settings</system:String>
+
+    <system:String x:Key="SourceFolderHeader">Source folder</system:String>
+    <system:String x:Key="DestinationFolderHeader">Destination folder</system:String>
+
+    <system:String x:Key="BrowseButton">Browse...</system:String>
+    <system:String x:Key="ClearButton">Clear</system:String>
+    <system:String x:Key="ClearPathsTooltip">Clear both source and destination paths.</system:String>
+
+    <system:String x:Key="TabFileContentExport">File Content Export</system:String>
+    <system:String x:Key="TabTreeGenerator">Tree Generator</system:String>
+    <system:String x:Key="TabFolderContentExport">Folder Content Export</system:String>
+    <system:String x:Key="TabOptions">Options</system:String>
+
+    <system:String x:Key="ManagePresetsHeader">Manage presets</system:String>
+    <system:String x:Key="SavePresetTooltip">Save current settings to this preset</system:String>
+    <system:String x:Key="DeletePresetTooltip">Delete this preset</system:String>
+    <system:String x:Key="LastModifiedLabel">Last modified:</system:String>
+
+    <system:String x:Key="OpenSaveFolderButton">Open save folder</system:String>
+    <system:String x:Key="DeleteCurrentSaveButton">Delete current save</system:String>
+
+    <system:String x:Key="CopyFolderTreeContentHeader">Copy folder tree content</system:String>
+    <system:String x:Key="CopyFromTabLabel">Copy from this tab:</system:String>
+    <system:String x:Key="CopyToTabLabel">Copy to this tab:</system:String>
+    <system:String x:Key="CopyFolderTreeButton">Copy folder tree</system:String>
+
+    <system:String x:Key="IgnoreFoldersHeader">Ignore folders</system:String>
+    <system:String x:Key="EditFoldersButton">Edit folders</system:String>
+
+    <system:String x:Key="FileContent_ExtensionsHeader">File extensions to include</system:String>
+    <system:String x:Key="FileContent_SelectExtensionsPlaceholder">Select extensions...</system:String>
+    <system:String x:Key="FileContent_IgnoreCommentsButton">Ignore comment on these files</system:String>
+    <system:String x:Key="FileContent_IgnoreCommentsTooltip">Select files to ignore '///' comments.</system:String>
+    <system:String x:Key="FileContent_FilesHeader">Files to export</system:String>
+    <system:String x:Key="FileContent_BulkSearchButton">Bulk search</system:String>
+    <system:String x:Key="FileContent_ShowOnlySelected">Show only selected</system:String>
+    <system:String x:Key="FileContent_ShowOnlyUnselected">Show only unselected</system:String>
+    <system:String x:Key="FileContent_ClearFilterButton">Clear filter</system:String>
+    <system:String x:Key="FileContent_TotalFilesLabel">Total files:</system:String>
+    <system:String x:Key="FileContent_FilteredFilesLabel">Filtered:</system:String>
+    <system:String x:Key="FileContent_SelectedFilesLabel">Selected:</system:String>
+    <system:String x:Key="FileContent_ExportButton">Export file contents</system:String>
+
+    <system:String x:Key="FileContent_NoExtensionsSelected">No extensions selected.</system:String>
+    <system:String x:Key="FileContent_NoIgnoredFiles">No files selected to ignore comments.</system:String>
+    <system:String x:Key="FileContent_SelectFilesFirst">Please select files for export first.</system:String>
+    <system:String x:Key="FileContent_NoFilesToExport">No files were selected. Please select at least one file to export.</system:String>
+    <system:String x:Key="FileContent_ConfirmExportMessage">Are you sure you want to export file contents to the following path?</system:String>
+    <system:String x:Key="FileContent_ExportTitle">Export File Contents</system:String>
+    <system:String x:Key="FileContent_ExportSuccessMessage">File contents exported successfully! ({0} files)</system:String>
+    <system:String x:Key="FileContent_IgnoredParts">Ignored parts:</system:String>
+    <system:String x:Key="FileContent_IgnoredStats">{0} lines ({1} characters).</system:String>
+    <system:String x:Key="FileContent_ExportErrorMessage">An unexpected error occurred during export:&#x0a;{0}</system:String>
+
+    <system:String x:Key="TreeGen_FoldersAffectedLabel">Folders affected:</system:String>
+    <system:String x:Key="TreeGen_GenerateButton">Generate tree structure</system:String>
+
+    <system:String x:Key="TreeGen_ConfirmGenerateMessage">Are you sure you want to generate the tree structure to the following path?</system:String>
+    <system:String x:Key="TreeGen_GenerateTitle">Generate Tree Structure</system:String>
+    <system:String x:Key="TreeGen_SuccessMessage">Tree structure file was created successfully!</system:String>
+    <system:String x:Key="TreeGen_ErrorMessage">An unexpected error occurred:&#x0a;{0}</system:String>
+
+    <system:String x:Key="FolderContent_DetailsHeader">Select details</system:String>
+    <system:String x:Key="FolderContent_FilesAffectedLabel">Files affected:</system:String>
+    <system:String x:Key="FolderContent_ExportButton">Export folder contents</system:String>
+
+    <system:String x:Key="FolderContent_NoFoldersSelected">No folders were selected. Please select at least one folder.</system:String>
+    <system:String x:Key="FolderContent_NoColumnsSelected">No columns were selected. Please select at least one column to export.</system:String>
+    <system:String x:Key="FolderContent_ConfirmExportMessage">Are you sure you want to export folder contents to the following path?</system:String>
+    <system:String x:Key="FolderContent_ExportTitle">Export Folder Contents</system:String>
+    <system:String x:Key="FolderContent_SuccessMessage">Folder contents exported successfully!</system:String>
+    <system:String x:Key="FolderContent_ErrorMessage">An unexpected error occurred:&#x0a;{0}</system:String>
+
+    <system:String x:Key="ExportOptions_Header">Export options</system:String>
+    <system:String x:Key="ExportOptions_FileNameLabel">File name:</system:String>
+    <system:String x:Key="ExportOptions_AppendTimestampLabel">Append timestamp</system:String>
+    <system:String x:Key="ExportOptions_AppendTimestampTooltip">Adds _yyyy_MM_dd_HH_mm_ss to the file name.</system:String>
+
+    <system:String x:Key="BulkSearch_Title">Bulk Search</system:String>
+    <system:String x:Key="BulkSearch_InputPathsLabel">Input paths (one per line):</system:String>
+    <system:String x:Key="BulkSearch_FoundPathsLabel">Found paths:</system:String>
+    <system:String x:Key="BulkSearch_TotalLinesLabel">Total lines:</system:String>
+    <system:String x:Key="BulkSearch_TotalFoundLabel">Total found:</system:String>
+    <system:String x:Key="BulkSearch_TotalChangedLabel">Total changed:</system:String>
+    <system:String x:Key="BulkSearch_RemoveWhitespacesButton">Remove whitespaces</system:String>
+    <system:String x:Key="BulkSearch_BreakIntoLinesButton">Break into lines</system:String>
+    <system:String x:Key="BulkSearch_BySpaceRadio">By space</system:String>
+    <system:String x:Key="BulkSearch_BySemicolonRadio">By ';'</system:String>
+    <system:String x:Key="BulkSearch_ApplyButton">Apply</system:String>
+    <system:String x:Key="BulkSearch_ApplyTitle">Apply Bulk Search</system:String>
+    <system:String x:Key="BulkSearch_ApplyMessage">Apply bulk search changes?</system:String>
+
+    <system:String x:Key="Confirmation_FilesAffectedLabel">files affected.</system:String>
+    <system:String x:Key="Confirmation_CopyTree_Part1">Are you sure you want to copy the folder tree of</system:String>
+    <system:String x:Key="Confirmation_CopyTree_Part2">to</system:String>
+
+    <system:String x:Key="EditIgnored_Title">Edit ignored folders</system:String>
+    <system:String x:Key="EditIgnored_Instruction">Enter the names of the folders to ignore, separated by commas.</system:String>
+
+    <system:String x:Key="ExitConfirmation_Title">Confirm Exit</system:String>
+    <system:String x:Key="ExitConfirmation_DontSaveButton">Don't save</system:String>
+
+    <system:String x:Key="IgnoredComments_Title">Select files to ignore '///' comments</system:String>
+    <system:String x:Key="IgnoredComments_CharsHeader">Chars</system:String>
+    <system:String x:Key="IgnoredComments_CountButton">Count comments</system:String>
+    <system:String x:Key="IgnoredComments_TotalLabel">Total:</system:String>
+    <system:String x:Key="IgnoredComments_StatusNA">N/A</system:String>
+    <system:String x:Key="IgnoredComments_StatusErr">Err</system:String>
+
+    <system:String x:Key="Notification_Title">Notification</system:String>
+
+    <system:String x:Key="RenamePreset_Title">Edit preset name</system:String>
+    <system:String x:Key="RenamePreset_Prompt">Preset {0} name:</system:String>
+    <system:String x:Key="RenamePreset_InvalidInputTitle">Invalid input</system:String>
+    <system:String x:Key="RenamePreset_InvalidInputMessage">Preset name cannot be empty.</system:String>
+
+    <system:String x:Key="MainVM_SelectSourceFolder">Select the common source folder</system:String>
+    <system:String x:Key="MainVM_SelectDestFolder">Select the common destination folder</system:String>
+    <system:String x:Key="MainVM_SettingsSaved">Settings saved successfully.</system:String>
+    <system:String x:Key="MainVM_UnsavedChangesTitle">Unsaved changes</system:String>
+    <system:String x:Key="MainVM_UnsavedChangesMessage">You have unsaved changes. Do you want to save before quitting?</system:String>
+
+    <system:String x:Key="Preset_SelectSourceFirst">Please select a valid source folder before saving a preset.</system:String>
+    <system:String x:Key="Preset_DefaultNamePrefix">Preset</system:String>
+    <system:String x:Key="Preset_OverwriteTitle">Overwrite preset ({0})</system:String>
+    <system:String x:Key="Preset_OverwriteMessage">Are you sure you want to overwrite Preset ({0}): '{1}' with the current settings?</system:String>
+    <system:String x:Key="Preset_SaveNewTitle">Save new preset ({0})</system:String>
+    <system:String x:Key="Preset_SaveNewMessage">Are you sure you want to save the current settings as a new preset named '{0}'?</system:String>
+    <system:String x:Key="Preset_SavedAndRenamed">Preset saved and renamed to '{0}'.</system:String>
+    <system:String x:Key="Preset_SavedSuccess">Preset '{0}' saved successfully to slot {1}.</system:String>
+    <system:String x:Key="Preset_SaveError">Failed to save preset {0}.&#x0a;&#x0a;{1}</system:String>
+    <system:String x:Key="Preset_RenamedSuccess">Preset ({0}) renamed to '{1}'.</system:String>
+    <system:String x:Key="Preset_RenameError">Failed to rename preset {0}.&#x0a;&#x0a;{1}</system:String>
+    <system:String x:Key="Preset_LoadSelectSourceFirst">To load a preset, please first select the root source folder for your project.</system:String>
+    <system:String x:Key="Preset_NotExist">Preset ({0}) does not exist yet.</system:String>
+    <system:String x:Key="Preset_LoadConfirmMessage">Are you sure you want to load ALL settings from Preset ({0}): '{1}'?&#x0a;This will overwrite your entire current configuration.</system:String>
+    <system:String x:Key="Preset_LoadConfirmTitle">Load from preset ({0})</system:String>
+    <system:String x:Key="Preset_LoadedSuccess">Preset ({0}): '{1}' loaded successfully.</system:String>
+    <system:String x:Key="Preset_LoadError">Failed to load preset {0}.&#x0a;&#x0a;{1}</system:String>
+    <system:String x:Key="Preset_DeleteConfirmMessage">You are about to delete Preset ({0}): '{1}'.&#x0a;This action cannot be undone.&#x0a;&#x0a;Are you sure you want to continue?</system:String>
+    <system:String x:Key="Preset_DeleteConfirmTitle">Delete preset ({0})</system:String>
+    <system:String x:Key="Preset_DeletedSuccess">Preset ({0}): '{1}' has been deleted.</system:String>
+    <system:String x:Key="Preset_DeleteError">Failed to delete preset {0}.&#x0a;&#x0a;{1}</system:String>
+
+    <system:String x:Key="Reset_ConfirmTitle">Delete current save</system:String>
+    <system:String x:Key="Reset_ConfirmMessage">Are you sure you want to delete all current settings and reset to default? This action cannot be undone.</system:String>
+    <system:String x:Key="Reset_SuccessMessage">Current save data has been deleted. Application has been reset to default settings.</system:String>
+    <system:String x:Key="Reset_ErrorMessage">Failed to delete save data.&#x0a;&#x0a;{0}</system:String>
+
+    <system:String x:Key="Options_IgnoredFoldersNone">No folders are ignored.</system:String>
+    <system:String x:Key="Options_TabNone">-- None --</system:String>
+    <system:String x:Key="Options_UnnamedPreset">Unnamed Preset</system:String>
+    <system:String x:Key="Options_EmptyPreset">-- Empty --</system:String>
+    <system:String x:Key="Options_CopyTreeTitle">Copy folder tree</system:String>
+    <system:String x:Key="Options_CopyTreeSuccess">Folder tree copied successfully.</system:String>
+    <system:String x:Key="Options_OpenSaveError_NotFound">The save folder could not be found.</system:String>
+    <system:String x:Key="Options_OpenSaveError_Exception">An error occurred while trying to open the folder:&#x0a;{0}</system:String>
+
+    <!-- Model Defaults -->
+    <system:String x:Key="Model_DefaultExportedFileName">ExportedFile</system:String>
+    <system:String x:Key="Model_DefaultFileContentsName">FileContents</system:String>
+    <system:String x:Key="Model_DefaultFolderContentsName">FolderContents</system:String>
+    <system:String x:Key="Model_DefaultTreeStructureName">TreeStructure</system:String>
+
+</ResourceDictionary>

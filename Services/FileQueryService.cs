@@ -7,52 +7,55 @@ namespace FileCraft.Services
 {
     public class FileQueryService : IFileQueryService
     {
+        public IEnumerable<FileInfo> GetAllFiles(IEnumerable<string> folderPaths)
+        {
+            var files = new List<FileInfo>();
+            foreach (var path in folderPaths)
+            {
+                if (Directory.Exists(path))
+                {
+                    try
+                    {
+                        var dirInfo = new DirectoryInfo(path);
+                        files.AddRange(dirInfo.GetFiles("*.*", SearchOption.TopDirectoryOnly));
+                    }
+                    catch (UnauthorizedAccessException)
+                    {
+                        Console.WriteLine($"Access denied to folder: {path}");
+                    }
+                }
+            }
+            return files;
+        }
+
         public HashSet<string> GetAvailableExtensions(IEnumerable<FolderViewModel> folders)
         {
             var extensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            var folderPaths = folders.Select(f => f.FullPath);
+            var allFiles = GetAllFiles(folderPaths);
 
-            foreach (var folder in folders)
+            foreach (var file in allFiles)
             {
-                try
-                {
-                    var files = Directory.GetFiles(folder.FullPath, "*.*", SearchOption.TopDirectoryOnly);
-                    foreach (var file in files)
-                    {
-                        extensions.Add(Path.GetExtension(file));
-                    }
-                }
-                catch (UnauthorizedAccessException)
-                {
-                    Console.WriteLine($"Access denied to folder: {folder.FullPath}");
-                }
+                extensions.Add(file.Extension);
             }
             return extensions;
         }
 
         public List<SelectableFile> GetFilesByExtensions(string basePath, IEnumerable<FolderViewModel> folders, ISet<string> selectedExtensions)
         {
-            var files = new List<SelectableFile>();
-            foreach (var folder in folders)
-            {
-                try
+            var folderPaths = folders.Select(f => f.FullPath);
+            var allFiles = GetAllFiles(folderPaths);
+
+            return allFiles
+                .Where(f => selectedExtensions.Contains(f.Extension, StringComparer.OrdinalIgnoreCase))
+                .Select(f => new SelectableFile
                 {
-                    var filesInFolder = Directory.GetFiles(folder.FullPath, "*.*", SearchOption.TopDirectoryOnly)
-                        .Where(f => selectedExtensions.Contains(Path.GetExtension(f), StringComparer.OrdinalIgnoreCase))
-                        .Select(f => new SelectableFile
-                        {
-                            FileName = Path.GetFileName(f),
-                            FullPath = f,
-                            RelativePath = Path.GetRelativePath(basePath, f),
-                            IsSelected = false
-                        });
-                    files.AddRange(filesInFolder);
-                }
-                catch (UnauthorizedAccessException)
-                {
-                    Console.WriteLine($"Access denied to folder: {folder.FullPath}");
-                }
-            }
-            return files;
+                    FileName = f.Name,
+                    FullPath = f.FullName,
+                    RelativePath = Path.GetRelativePath(basePath, f.FullName),
+                    IsSelected = false
+                })
+                .ToList();
         }
     }
 }

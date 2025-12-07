@@ -1,6 +1,6 @@
 ﻿namespace FileCraft.Views
 {
-    public partial class TreeGeneratorView : System.Windows.Controls.UserControl
+    public partial class TreeGeneratorView : UserControl
     {
         public TreeGeneratorView()
         {

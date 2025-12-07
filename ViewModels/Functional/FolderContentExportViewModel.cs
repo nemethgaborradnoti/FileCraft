@@ -3,49 +3,26 @@ using FileCraft.Services.Interfaces;
 using FileCraft.Shared.Commands;
 using FileCraft.Shared.Helpers;
 using FileCraft.ViewModels.Shared;
-using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.IO;
-using System.Linq;
 using System.Windows.Input;
 
 namespace FileCraft.ViewModels.Functional
 {
+    public enum FolderContentFullscreenState
+    {
+        None,
+        Folders,
+        Details
+    }
+
     public class FolderContentExportViewModel : ExportViewModelBase
     {
-        private string _outputFileName = string.Empty;
-        private bool _appendTimestamp;
         private bool? _areAllColumnsSelected;
         private int _affectedFilesCount;
+        private readonly IFileQueryService _fileQueryService;
 
-        public string OutputFileName
-        {
-            get => _outputFileName;
-            set
-            {
-                if (_outputFileName != value)
-                {
-                    OnStateChanging();
-                    _outputFileName = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
-
-        public bool AppendTimestamp
-        {
-            get => _appendTimestamp;
-            set
-            {
-                if (_appendTimestamp != value)
-                {
-                    OnStateChanging();
-                    _appendTimestamp = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
+        public FullscreenManager<FolderContentFullscreenState> FullscreenManager { get; }
 
         public bool? AreAllColumnsSelected
         {
@@ -69,26 +46,22 @@ namespace FileCraft.ViewModels.Functional
         }
 
         public ObservableCollection<SelectableItemViewModel> AvailableColumns { get; } = new();
-        public ObservableCollection<FolderViewModel> RootFolders => FolderTreeManager.RootFolders;
+
         public ICommand ExportFolderContentsCommand { get; }
 
         public FolderContentExportViewModel(
             ISharedStateService sharedStateService,
             IFileOperationService fileOperationService,
             IDialogService dialogService,
-            FolderTreeManager folderTreeManager)
+            FolderTreeManager folderTreeManager,
+            IFileQueryService fileQueryService)
             : base(sharedStateService, fileOperationService, dialogService, folderTreeManager)
         {
+            _fileQueryService = fileQueryService;
+            FullscreenManager = new FullscreenManager<FolderContentFullscreenState>(FolderContentFullscreenState.None);
+
             FolderTreeManager.FolderSelectionChanged += UpdateAffectedFilesCount;
             FolderTreeManager.StateChanging += OnStateChanging;
-            FolderTreeManager.PropertyChanged += (s, e) =>
-            {
-                if (e.PropertyName == nameof(FolderTreeManager.RootFolders))
-                {
-                    OnPropertyChanged(nameof(RootFolders));
-                    UpdateAffectedFilesCount();
-                }
-            };
 
             ExportFolderContentsCommand = new RelayCommand(async (_) => await ExportFolderContents(), (_) => CanExecuteOperation(this.OutputFileName) && AvailableColumns.Any(c => c.IsSelected));
 
@@ -106,6 +79,15 @@ namespace FileCraft.ViewModels.Functional
             UpdateAffectedFilesCount();
         }
 
+        protected override void OnFolderTreeManagerPropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            base.OnFolderTreeManagerPropertyChanged(sender, e);
+            if (e.PropertyName == nameof(FolderTreeManager.RootFolders))
+            {
+                UpdateAffectedFilesCount();
+            }
+        }
+
         private void OnColumnSelectionChanged(object? sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == nameof(SelectableItemViewModel.IsSelected))
@@ -116,17 +98,7 @@ namespace FileCraft.ViewModels.Functional
 
         private void SetColumnsSelectionState(bool isSelected)
         {
-            foreach (var column in AvailableColumns)
-                column.PropertyChanged -= OnColumnSelectionChanged;
-
-            foreach (var column in AvailableColumns)
-            {
-                column.SetIsSelectedInternal(isSelected);
-            }
-
-            foreach (var column in AvailableColumns)
-                column.PropertyChanged += OnColumnSelectionChanged;
-
+            SelectionHelper.SetSelectionState(AvailableColumns, isSelected);
             UpdateSelectAllColumnsState();
         }
 
@@ -168,19 +140,15 @@ namespace FileCraft.ViewModels.Functional
                 .Select(n => n.FullPath)
                 .ToList();
 
-            int fileCount = 0;
-            foreach (var folderPath in includedFolderPaths)
+            if (includedFolderPaths.Any())
             {
-                if (Directory.Exists(folderPath))
-                {
-                    try
-                    {
-                        fileCount += Directory.GetFiles(folderPath, "*.*", SearchOption.TopDirectoryOnly).Length;
-                    }
-                    catch (UnauthorizedAccessException) { }
-                }
+                var allFiles = _fileQueryService.GetAllFiles(includedFolderPaths);
+                AffectedFilesCount = allFiles.Count();
             }
-            AffectedFilesCount = fileCount;
+            else
+            {
+                AffectedFilesCount = 0;
+            }
         }
 
         private async Task ExportFolderContents()
@@ -196,20 +164,28 @@ namespace FileCraft.ViewModels.Functional
 
                 if (!includedFolderPaths.Any())
                 {
-                    _dialogService.ShowNotification("Information", "No folders were selected. Please select at least one folder.", DialogIconType.Info);
+                    _dialogService.ShowNotification(
+                        ResourceHelper.GetString("Common_InfoTitle"),
+                        ResourceHelper.GetString("FolderContent_NoFoldersSelected"),
+                        DialogIconType.Info);
                     return;
                 }
 
                 var selectedColumns = GetSelectedColumns();
                 if (!selectedColumns.Any())
                 {
-                    _dialogService.ShowNotification("Information", "No columns were selected. Please select at least one column to export.", DialogIconType.Info);
+                    _dialogService.ShowNotification(
+                        ResourceHelper.GetString("Common_InfoTitle"),
+                        ResourceHelper.GetString("FolderContent_NoColumnsSelected"),
+                        DialogIconType.Info);
                     return;
                 }
 
-                string message = $"Are you sure you want to export folder contents to the following path?\n{_sharedStateService.DestinationPath}";
+                string messageFormat = ResourceHelper.GetString("FolderContent_ConfirmExportMessage");
+                string message = $"{messageFormat}\n{_sharedStateService.DestinationPath}";
+
                 bool confirmed = _dialogService.ShowConfirmation(
-                    title: "Export Folder Contents",
+                    title: ResourceHelper.GetString("FolderContent_ExportTitle"),
                     message: message,
                     iconType: DialogIconType.Info,
                     filesAffected: AffectedFilesCount);
@@ -221,11 +197,22 @@ namespace FileCraft.ViewModels.Functional
 
                 string finalFileName = GetFinalFileName(OutputFileName, AppendTimestamp);
                 string outputFilePath = await _fileOperationService.ExportFolderContentsAsync(_sharedStateService.DestinationPath, includedFolderPaths, finalFileName, selectedColumns);
-                _dialogService.ShowNotification("Success", $"Folder contents exported successfully!\n\nSaved to: {outputFilePath}", DialogIconType.Success);
+
+                string successMsg = ResourceHelper.GetString("FolderContent_SuccessMessage");
+                string savedToMsg = string.Format(ResourceHelper.GetString("Common_SavedTo"), outputFilePath);
+
+                _dialogService.ShowNotification(
+                    ResourceHelper.GetString("Common_SuccessTitle"),
+                    $"{successMsg}\n\n{savedToMsg}",
+                    DialogIconType.Success);
             }
             catch (Exception ex)
             {
-                _dialogService.ShowNotification("Error", $"An unexpected error occurred:\n\n{ex.Message}", DialogIconType.Error);
+                string errorMsg = string.Format(ResourceHelper.GetString("FolderContent_ErrorMessage"), ex.Message);
+                _dialogService.ShowNotification(
+                    ResourceHelper.GetString("Common_ErrorTitle"),
+                    errorMsg,
+                    DialogIconType.Error);
             }
             finally
             {

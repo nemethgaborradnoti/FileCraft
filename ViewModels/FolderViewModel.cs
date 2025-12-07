@@ -1,8 +1,6 @@
 ﻿using FileCraft.Models;
-using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Linq;
 using System.Runtime.CompilerServices;
 
 namespace FileCraft.ViewModels
@@ -118,26 +116,6 @@ namespace FileCraft.ViewModels
 
             OnPropertyChanged(nameof(IsSelected));
             OnPropertyChanged(nameof(IsExpanded));
-        }
-
-        public void SetIsExpandedRecursively(bool isExpanded)
-        {
-            var queue = new Queue<FolderViewModel>();
-            queue.Enqueue(this);
-
-            while (queue.Count > 0)
-            {
-                var node = queue.Dequeue();
-                if (node.IsExpanded != isExpanded)
-                {
-                    node.IsExpanded = isExpanded;
-                }
-
-                foreach (var child in node.Children)
-                {
-                    queue.Enqueue(child);
-                }
-            }
         }
 
         public IEnumerable<FolderViewModel> GetAllNodes()

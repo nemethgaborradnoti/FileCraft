@@ -1,6 +1,5 @@
 ﻿using FileCraft.Services.Interfaces;
 using FileCraft.ViewModels;
-using System;
 using System.Collections.ObjectModel;
 using System.IO;
 

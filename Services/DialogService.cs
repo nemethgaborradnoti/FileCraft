@@ -1,11 +1,8 @@
 ﻿using FileCraft.Models;
 using FileCraft.Services.Interfaces;
+using FileCraft.Shared.Helpers;
 using FileCraft.ViewModels.Shared;
 using FileCraft.Views.Shared;
-using System.Collections.Generic;
-using System.Windows;
-using System.Windows.Media.Imaging;
-using Application = System.Windows.Application;
 
 namespace FileCraft.Services
 {
@@ -28,104 +25,149 @@ namespace FileCraft.Services
 
         public void ShowNotification(string title, string message, DialogIconType iconType)
         {
-            string? iconPath = GetIconPath(iconType);
-            var notificationWindow = new NotificationWindow(title, message, iconPath ?? string.Empty);
-            notificationWindow.ShowDialog();
+            var iconDef = GetAppIcon(iconType);
+            var viewModel = new GenericDialogViewModel
+            {
+                Title = title,
+                Message = message,
+                IconGlyph = iconDef.Glyph,
+                IconBrush = iconDef.Brush,
+                PrimaryButtonText = ResourceHelper.GetString("Common_OkButton"),
+                PrimaryButtonStyle = ResourceKeys.PrimaryButton
+            };
+            var window = new GenericDialogWindow(viewModel);
+            window.ShowDialog();
         }
 
         public bool ShowConfirmation(string title, string message, DialogIconType iconType, int? filesAffected = null)
         {
-            var viewModel = new ConfirmationViewModel
+            var iconDef = GetAppIcon(iconType);
+            var viewModel = new GenericDialogViewModel
             {
-                ActionName = title,
+                Title = title,
                 Message = message,
+                IconGlyph = iconDef.Glyph,
+                IconBrush = iconDef.Brush,
                 FilesAffected = filesAffected,
-                IconPath = GetIconPath(iconType) ?? string.Empty
+                PrimaryButtonText = ResourceHelper.GetString("Common_YesButton"),
+                PrimaryButtonStyle = ResourceKeys.PrimaryButton,
+                SecondaryButtonText = ResourceHelper.GetString("Common_CancelButton")
             };
-            var confirmationWindow = new ConfirmationWindow(viewModel);
-            return confirmationWindow.ShowDialog() ?? false;
+            var window = new GenericDialogWindow(viewModel);
+            return window.ShowDialog() ?? false;
         }
 
-        public bool ShowCopyTreeConfirmation(string title, DialogIconType iconType, string sourceName, string? sourceIcon, int sourceCount, string destName, string? destIcon, int destCount)
+        public bool ShowCopyTreeConfirmation(string title, DialogIconType iconType, CopyTreeConfirmationViewModel contentViewModel)
         {
-            var viewModel = new ConfirmationViewModel
+            var iconDef = GetAppIcon(iconType);
+
+            var viewModel = new GenericDialogViewModel
             {
-                ActionName = title,
-                IconPath = GetIconPath(iconType) ?? string.Empty,
-                IsCopyTreeMessage = true,
-                SourceTabName = sourceName,
-                SourceTabIcon = sourceIcon,
-                SourceFolderCount = sourceCount,
-                DestinationTabName = destName,
-                DestinationTabIcon = destIcon,
-                DestinationFolderCount = destCount
+                Title = title,
+                IconGlyph = iconDef.Glyph,
+                IconBrush = iconDef.Brush,
+                CustomContent = contentViewModel,
+                PrimaryButtonText = ResourceHelper.GetString("Common_YesButton"),
+                PrimaryButtonStyle = ResourceKeys.WarningButton,
+                SecondaryButtonText = ResourceHelper.GetString("Common_CancelButton")
             };
-            var confirmationWindow = new ConfirmationWindow(viewModel);
-            return confirmationWindow.ShowDialog() ?? false;
+
+            var window = new GenericDialogWindow(viewModel);
+            return window.ShowDialog() ?? false;
         }
 
         public ExitConfirmationResult ShowExitConfirmation(string title, string message)
         {
-            string iconPath = GetIconPath(DialogIconType.Warning) ?? string.Empty;
-            var confirmationWindow = new ExitConfirmationWindow(title, message, iconPath);
-            confirmationWindow.ShowDialog();
-            return confirmationWindow.Result;
+            var iconDef = AppIcons.Warning;
+            var viewModel = new GenericDialogViewModel
+            {
+                Title = title,
+                Message = message,
+                IconGlyph = iconDef.Glyph,
+                IconBrush = iconDef.Brush,
+                PrimaryButtonText = ResourceHelper.GetString("Common_SaveButton"),
+                PrimaryButtonStyle = ResourceKeys.PrimaryButton,
+                TertiaryButtonText = ResourceHelper.GetString("ExitConfirmation_DontSaveButton"),
+                TertiaryButtonStyle = ResourceKeys.DangerButton,
+                SecondaryButtonText = ResourceHelper.GetString("Common_CancelButton")
+            };
+
+            var window = new GenericDialogWindow(viewModel);
+            window.ShowDialog();
+            return viewModel.ExitResult;
         }
 
         public string? ShowRenamePresetDialog(string currentName, int presetNumber)
         {
-            var renameWindow = new RenamePresetWindow(currentName, presetNumber, this);
-            if (renameWindow.ShowDialog() == true)
+            var viewModel = new GenericDialogViewModel
             {
-                return renameWindow.NewPresetName;
+                Title = ResourceHelper.GetString("RenamePreset_Title"),
+                Message = string.Format(ResourceHelper.GetString("RenamePreset_Prompt"), presetNumber),
+                IsInputVisible = true,
+                InputText = currentName,
+                PrimaryButtonText = ResourceHelper.GetString("Common_OkButton"),
+                PrimaryButtonStyle = ResourceKeys.PrimaryButton,
+                SecondaryButtonText = ResourceHelper.GetString("Common_CancelButton")
+            };
+
+            var window = new GenericDialogWindow(viewModel);
+            if (window.ShowDialog() == true)
+            {
+                return viewModel.InputText;
             }
             return null;
         }
 
         public string? ShowEditIgnoredFoldersDialog(string currentFolders)
         {
-            var editWindow = new EditIgnoredFoldersWindow(currentFolders);
-            if (editWindow.ShowDialog() == true)
+            var viewModel = new GenericDialogViewModel
             {
-                return editWindow.IgnoredFoldersText;
+                Title = ResourceHelper.GetString("EditIgnored_Title"),
+                Message = ResourceHelper.GetString("EditIgnored_Instruction"),
+                IsInputVisible = true,
+                InputText = currentFolders,
+                PrimaryButtonText = ResourceHelper.GetString("Common_OkButton"),
+                PrimaryButtonStyle = ResourceKeys.PrimaryButton,
+                SecondaryButtonText = ResourceHelper.GetString("Common_CancelButton")
+            };
+
+            var window = new GenericDialogWindow(viewModel);
+            if (window.ShowDialog() == true)
+            {
+                return viewModel.InputText;
             }
             return null;
-        }
-
-        public void ShowPreview(string title, string content)
-        {
-            var previewWindow = new PreviewWindow(title, content);
-            previewWindow.ShowDialog();
         }
 
         public bool ShowBulkSearchDialog(IEnumerable<SelectableFile> allFiles)
         {
-            string infoIconPath = GetIconPath(DialogIconType.Info) ?? string.Empty;
-            var bulkSearchWindow = new BulkSearchWindow(allFiles, infoIconPath);
+            var iconDef = AppIcons.Info;
+            var viewModel = new BulkSearchViewModel(allFiles, iconDef.Glyph, iconDef.Brush, this);
+            var bulkSearchWindow = new BulkSearchWindow(viewModel);
             return bulkSearchWindow.ShowDialog() ?? false;
         }
 
-        public string? GetIconPath(string resourceKey)
+        public IEnumerable<string>? ShowIgnoredCommentsDialog(IEnumerable<SelectableFile> selectedFiles, IEnumerable<string> previouslyIgnoredFiles)
         {
-            if (Application.Current.FindResource(resourceKey) is BitmapImage image)
+            var viewModel = new IgnoredCommentsViewModel(selectedFiles, previouslyIgnoredFiles);
+            var window = new IgnoredCommentsWindow(viewModel);
+            if (window.ShowDialog() == true)
             {
-                return image.UriSource.ToString();
+                return window.GetIgnoredFilePaths();
             }
             return null;
         }
 
-        private string? GetIconPath(DialogIconType iconType)
+        private IconDefinition GetAppIcon(DialogIconType iconType)
         {
-            string key = iconType switch
+            return iconType switch
             {
-                DialogIconType.Info => "IconInfo",
-                DialogIconType.Warning => "IconWarning",
-                DialogIconType.Success => "IconSuccess",
-                DialogIconType.Error => "IconError",
-                _ => throw new ArgumentOutOfRangeException(nameof(iconType), $"Not supported icon type: {iconType}")
+                DialogIconType.Info => AppIcons.Info,
+                DialogIconType.Warning => AppIcons.Warning,
+                DialogIconType.Success => AppIcons.Success,
+                DialogIconType.Error => AppIcons.Error,
+                _ => AppIcons.Info
             };
-
-            return GetIconPath(key);
         }
     }
 }

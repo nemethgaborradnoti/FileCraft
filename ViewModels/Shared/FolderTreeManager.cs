@@ -1,9 +1,7 @@
 ﻿using FileCraft.Models;
 using FileCraft.Services.Interfaces;
-using System;
 using System.Collections.ObjectModel;
 using System.IO;
-using System.Linq;
 
 namespace FileCraft.ViewModels.Shared
 {

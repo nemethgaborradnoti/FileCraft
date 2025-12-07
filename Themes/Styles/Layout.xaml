@@ -5,6 +5,11 @@
         <ResourceDictionary Source="Colors.xaml"/>
     </ResourceDictionary.MergedDictionaries>
 
+    <Style x:Key="HeaderStackPanelStyle" TargetType="StackPanel">
+        <Setter Property="Orientation" Value="Horizontal"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+
     <Style TargetType="GroupBox">
         <Setter Property="Padding" Value="5"/>
         <Setter Property="Margin" Value="5"/>
@@ -18,12 +23,12 @@
                 <ControlTemplate TargetType="{x:Type TabItem}">
                     <ControlTemplate.Resources>
                         <Storyboard x:Key="TabHoverIn">
-                            <ColorAnimation Storyboard.TargetName="mainBorder" 
+                            <ColorAnimation Storyboard.TargetName="mainBorder"
                                             Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
                                             To="{StaticResource TabHoverColor}" Duration="0:0:0.1" />
                         </Storyboard>
                         <Storyboard x:Key="TabHoverOut">
-                            <ColorAnimation Storyboard.TargetName="mainBorder" 
+                            <ColorAnimation Storyboard.TargetName="mainBorder"
                                             Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
                                             To="{StaticResource LightGrayColor}" Duration="0:0:0.1"
                                             FillBehavior="Stop"/>

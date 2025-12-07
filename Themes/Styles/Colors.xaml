@@ -27,6 +27,10 @@
     <Color x:Key="SuccessColor">#28A745</Color>
     <Color x:Key="SuccessDarkerColor">#218838</Color>
 
+    <!-- Custom Icon Colors -->
+    <Color x:Key="FolderIconColor">#FFC107</Color>
+    <Color x:Key="TreeIconColor">#388E3C</Color>
+
     <Color x:Key="ButtonTextColor">#FFFFFF</Color>
 
     <SolidColorBrush x:Key="PrimaryBrush" Color="{StaticResource PrimaryColor}"/>
@@ -43,6 +47,9 @@
 
     <SolidColorBrush x:Key="SuccessBrush" Color="{StaticResource SuccessColor}"/>
     <SolidColorBrush x:Key="SuccessDarkerBrush" Color="{StaticResource SuccessDarkerColor}"/>
+
+    <SolidColorBrush x:Key="FolderIconBrush" Color="{StaticResource FolderIconColor}"/>
+    <SolidColorBrush x:Key="TreeIconBrush" Color="{StaticResource TreeIconColor}"/>
 
     <SolidColorBrush x:Key="ButtonTextBrush" Color="{StaticResource ButtonTextColor}"/>
 

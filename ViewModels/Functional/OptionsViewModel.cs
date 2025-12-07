@@ -1,19 +1,28 @@
 ﻿using FileCraft.Models;
 using FileCraft.Services.Interfaces;
 using FileCraft.Shared.Commands;
+using FileCraft.Shared.Helpers;
 using FileCraft.ViewModels.Shared;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Windows.Input;
 
 namespace FileCraft.ViewModels.Functional
 {
+    public enum OptionsFullscreenState
+    {
+        None,
+        Presets,
+        CopyTree,
+        IgnoredFolders
+    }
+
     public class TabItemViewModel : BaseViewModel
     {
         public string Name { get; }
-        public string? IconPath { get; }
+        public string? Icon { get; }
+        public Brush? IconBrush { get; }
         public FolderTreeManager? FolderTreeManager { get; }
 
         private bool _isSelectable = true;
@@ -30,10 +39,11 @@ namespace FileCraft.ViewModels.Functional
             }
         }
 
-        public TabItemViewModel(string name, string? iconPath, FolderTreeManager? folderTreeManager)
+        public TabItemViewModel(string name, string? icon, Brush? iconBrush, FolderTreeManager? folderTreeManager)
         {
             Name = name;
-            IconPath = iconPath;
+            Icon = icon;
+            IconBrush = iconBrush;
             FolderTreeManager = folderTreeManager;
         }
     }
@@ -96,9 +106,10 @@ namespace FileCraft.ViewModels.Functional
         private readonly ISaveService _saveService;
         private readonly IDialogService _dialogService;
         private readonly ISharedStateService _sharedStateService;
-        private readonly IFileOperationService _fileOperationService;
-        private readonly FileContentExportViewModel _fileContentExportVM;
-        public string Version => "v3.2.0";
+
+        public string Version => ResourceHelper.GetString("App_Version");
+
+        public FullscreenManager<OptionsFullscreenState> FullscreenManager { get; }
 
         public event Action? IgnoredFoldersChanged;
         public event Action<int>? PresetSaveRequested;
@@ -115,12 +126,11 @@ namespace FileCraft.ViewModels.Functional
         public ICommand OpenSaveFolderCommand { get; }
         public ICommand CopyFolderTreeCommand { get; }
         public ICommand EditIgnoredFoldersCommand { get; }
-        public ICommand PreviewIgnoredCommentsCommand { get; }
 
         public ObservableCollection<PresetSlotViewModel> PresetSlots { get; } = new();
         public ObservableCollection<TabItemViewModel> AllTabs { get; } = new();
 
-        private string _ignoredFoldersText = "No folders are ignored.";
+        private string _ignoredFoldersText = ResourceHelper.GetString("Options_IgnoredFoldersNone");
         public string IgnoredFoldersText
         {
             get => _ignoredFoldersText;
@@ -182,7 +192,6 @@ namespace FileCraft.ViewModels.Functional
             ISaveService saveService,
             IDialogService dialogService,
             ISharedStateService sharedStateService,
-            IFileOperationService fileOperationService,
             FileContentExportViewModel fileContentExportVM,
             TreeGeneratorViewModel treeGeneratorVM,
             FolderContentExportViewModel folderContentExportVM)
@@ -190,8 +199,6 @@ namespace FileCraft.ViewModels.Functional
             _saveService = saveService;
             _dialogService = dialogService;
             _sharedStateService = sharedStateService;
-            _fileOperationService = fileOperationService;
-            _fileContentExportVM = fileContentExportVM;
             _sharedStateService.PropertyChanged += (s, e) =>
             {
                 if (e.PropertyName == nameof(ISharedStateService.IgnoredFolders))
@@ -199,6 +206,8 @@ namespace FileCraft.ViewModels.Functional
                     UpdateIgnoredFoldersText();
                 }
             };
+
+            FullscreenManager = new FullscreenManager<OptionsFullscreenState>(OptionsFullscreenState.None);
 
             SavePresetCommand = new RelayCommand(
                 execute: slot =>
@@ -250,7 +259,6 @@ namespace FileCraft.ViewModels.Functional
             OpenSaveFolderCommand = new RelayCommand(_ => OpenSaveFolder());
             CopyFolderTreeCommand = new RelayCommand(_ => CopyFolderTree(), _ => CanCopyFolderTree());
             EditIgnoredFoldersCommand = new RelayCommand(_ => EditIgnoredFolders());
-            PreviewIgnoredCommentsCommand = new RelayCommand(async _ => await PreviewIgnoredComments(), _ => CanPreview());
 
             for (int i = 1; i <= 5; i++)
             {
@@ -258,10 +266,11 @@ namespace FileCraft.ViewModels.Functional
             }
             CheckForExistingPresets();
 
-            AllTabs.Add(new TabItemViewModel("-- None --", null, null));
-            AllTabs.Add(new TabItemViewModel("File Content Export", _dialogService.GetIconPath("IconFileContent"), fileContentExportVM.FolderTreeManager));
-            AllTabs.Add(new TabItemViewModel("Tree Generator", _dialogService.GetIconPath("IconTreeStructure"), treeGeneratorVM.FolderTreeManager));
-            AllTabs.Add(new TabItemViewModel("Folder Content Export", _dialogService.GetIconPath("IconFolderContent"), folderContentExportVM.FolderTreeManager));
+            // Setup Icons using AppIcons
+            AllTabs.Add(new TabItemViewModel(ResourceHelper.GetString("Options_TabNone"), null, null, null));
+            AllTabs.Add(new TabItemViewModel(ResourceHelper.GetString("TabFileContentExport"), AppIcons.FileContentExport.Glyph, AppIcons.FileContentExport.Brush, fileContentExportVM.FolderTreeManager));
+            AllTabs.Add(new TabItemViewModel(ResourceHelper.GetString("TabTreeGenerator"), AppIcons.TreeGenerator.Glyph, AppIcons.TreeGenerator.Brush, treeGeneratorVM.FolderTreeManager));
+            AllTabs.Add(new TabItemViewModel(ResourceHelper.GetString("TabFolderContentExport"), AppIcons.FolderContentExport.Glyph, AppIcons.FolderContentExport.Brush, folderContentExportVM.FolderTreeManager));
 
             SelectedSourceTab = AllTabs[0];
             SelectedDestinationTab = AllTabs[0];
@@ -269,65 +278,12 @@ namespace FileCraft.ViewModels.Functional
             UpdateIgnoredFoldersText();
         }
 
-        public bool IgnoreNormalComments
-        {
-            get => _sharedStateService.IgnoreNormalComments;
-            set
-            {
-                if (_sharedStateService.IgnoreNormalComments != value)
-                {
-                    OnStateChanging();
-                    _sharedStateService.IgnoreNormalComments = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
-
-        public bool IgnoreXmlComments
-        {
-            get => _sharedStateService.IgnoreXmlComments;
-            set
-            {
-                if (_sharedStateService.IgnoreXmlComments != value)
-                {
-                    OnStateChanging();
-                    _sharedStateService.IgnoreXmlComments = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
-
-        private async Task PreviewIgnoredComments()
-        {
-            var selectedFiles = _fileContentExportVM.GetSelectedFiles();
-            if (!selectedFiles.Any())
-            {
-                _dialogService.ShowNotification("Info", "No files are selected in the 'File Content Export' tab.", DialogIconType.Info);
-                return;
-            }
-
-            try
-            {
-                string previewContent = await _fileOperationService.GetIgnoredCommentsPreviewAsync(selectedFiles, _sharedStateService.IgnoreNormalComments, _sharedStateService.IgnoreXmlComments);
-                _dialogService.ShowPreview("Ignored Comments Preview", previewContent);
-            }
-            catch (Exception ex)
-            {
-                _dialogService.ShowNotification("Error", $"An error occurred while generating the preview:\n{ex.Message}", DialogIconType.Error);
-            }
-        }
-
-        private bool CanPreview()
-        {
-            return _fileContentExportVM.SelectedFilesCount > 0 && (_sharedStateService.IgnoreNormalComments || _sharedStateService.IgnoreXmlComments);
-        }
-
         private void UpdateIgnoredFoldersText()
         {
             var ignoredFolders = _sharedStateService.IgnoredFolders;
             if (ignoredFolders == null || !ignoredFolders.Any())
             {
-                IgnoredFoldersText = "No folders are ignored.";
+                IgnoredFoldersText = ResourceHelper.GetString("Options_IgnoredFoldersNone");
             }
             else
             {
@@ -373,15 +329,22 @@ namespace FileCraft.ViewModels.Functional
             int sourceFolderCount = sourceManager.GetSelectedNodeCount();
             int destFolderCount = destManager.GetSelectedNodeCount();
 
+            var contentViewModel = new CopyTreeConfirmationViewModel
+            {
+                SourceTabName = SelectedSourceTab.Name,
+                SourceTabIcon = SelectedSourceTab.Icon,
+                SourceTabIconBrush = SelectedSourceTab.IconBrush,
+                SourceFolderCount = sourceFolderCount,
+                DestinationTabName = SelectedDestinationTab.Name,
+                DestinationTabIcon = SelectedDestinationTab.Icon,
+                DestinationTabIconBrush = SelectedDestinationTab.IconBrush,
+                DestinationFolderCount = destFolderCount
+            };
+
             bool confirmed = _dialogService.ShowCopyTreeConfirmation(
-                title: "Copy Folder Tree",
-                iconType: DialogIconType.Warning,
-                sourceName: SelectedSourceTab.Name,
-                sourceIcon: SelectedSourceTab.IconPath,
-                sourceCount: sourceFolderCount,
-                destName: SelectedDestinationTab.Name,
-                destIcon: SelectedDestinationTab.IconPath,
-                destCount: destFolderCount);
+                ResourceHelper.GetString("Options_CopyTreeTitle"),
+                DialogIconType.Warning,
+                contentViewModel);
 
             if (confirmed)
             {
@@ -390,7 +353,10 @@ namespace FileCraft.ViewModels.Functional
                 destManager.LoadTreeForPath(_sharedStateService.SourcePath, sourceState);
                 SelectedSourceTab = AllTabs[0];
                 SelectedDestinationTab = AllTabs[0];
-                _dialogService.ShowNotification("Success", "Folder tree copied successfully.", DialogIconType.Success);
+                _dialogService.ShowNotification(
+                    ResourceHelper.GetString("Common_SuccessTitle"),
+                    ResourceHelper.GetString("Options_CopyTreeSuccess"),
+                    DialogIconType.Success);
             }
         }
 
@@ -410,12 +376,18 @@ namespace FileCraft.ViewModels.Functional
                 }
                 else
                 {
-                    _dialogService.ShowNotification("Error", "The save folder could not be found.", Models.DialogIconType.Error);
+                    _dialogService.ShowNotification(
+                        ResourceHelper.GetString("Common_ErrorTitle"),
+                        ResourceHelper.GetString("Options_OpenSaveError_NotFound"),
+                        DialogIconType.Error);
                 }
             }
             catch (Exception ex)
             {
-                _dialogService.ShowNotification("Error", $"An error occurred while trying to open the folder:\n{ex.Message}", Models.DialogIconType.Error);
+                _dialogService.ShowNotification(
+                    ResourceHelper.GetString("Common_ErrorTitle"),
+                    string.Format(ResourceHelper.GetString("Options_OpenSaveError_Exception"), ex.Message),
+                    DialogIconType.Error);
             }
         }
 
@@ -430,12 +402,12 @@ namespace FileCraft.ViewModels.Functional
                     slot.LastModified = _saveService.GetPresetLastModifiedDate(slot.PresetNumber);
                     if (string.IsNullOrWhiteSpace(slot.PresetName))
                     {
-                        slot.PresetName = "Unnamed Preset";
+                        slot.PresetName = ResourceHelper.GetString("Options_UnnamedPreset");
                     }
                 }
                 else
                 {
-                    slot.PresetName = "-- Empty --";
+                    slot.PresetName = ResourceHelper.GetString("Options_EmptyPreset");
                     slot.LastModified = null;
                 }
             }
