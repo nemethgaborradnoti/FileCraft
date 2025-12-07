@@ -1,5 +1,7 @@
 ﻿using FileCraft.Services.Interfaces;
 using FileCraft.ViewModels.Shared;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
 
 namespace FileCraft.ViewModels.Functional
 {
@@ -13,6 +15,8 @@ namespace FileCraft.ViewModels.Functional
         private bool _appendTimestamp;
 
         public FolderTreeManager FolderTreeManager { get; }
+
+        public ObservableCollection<FolderViewModel> RootFolders => FolderTreeManager.RootFolders;
 
         public string OutputFileName
         {
@@ -52,6 +56,16 @@ namespace FileCraft.ViewModels.Functional
             _fileOperationService = fileOperationService;
             _dialogService = dialogService;
             FolderTreeManager = folderTreeManager;
+
+            FolderTreeManager.PropertyChanged += OnFolderTreeManagerPropertyChanged;
+        }
+
+        protected virtual void OnFolderTreeManagerPropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(FolderTreeManager.RootFolders))
+            {
+                OnPropertyChanged(nameof(RootFolders));
+            }
         }
 
         protected virtual bool CanExecuteOperation(string outputFileName)

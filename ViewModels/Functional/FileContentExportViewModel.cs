@@ -161,7 +161,6 @@ namespace FileCraft.ViewModels.Functional
         }
 
         public ObservableCollection<SelectableItemViewModel> AvailableExtensions { get; } = new ObservableCollection<SelectableItemViewModel>();
-        public ObservableCollection<FolderViewModel> RootFolders => FolderTreeManager.RootFolders;
 
         public ICommand ExportFileContentCommand { get; }
         public ICommand ClearFilterCommand { get; }
@@ -182,7 +181,6 @@ namespace FileCraft.ViewModels.Functional
             FullscreenManager = new FullscreenManager<ExportFullscreenState>(ExportFullscreenState.None);
             FullscreenManager.PropertyChanged += OnFullscreenStateChanged;
 
-            FolderTreeManager.PropertyChanged += OnFolderTreeManagerPropertyChanged;
             FolderTreeManager.FolderSelectionChanged += OnFolderSelectionChanged;
             FolderTreeManager.StateChanging += OnStateChanging;
 
@@ -356,12 +354,12 @@ namespace FileCraft.ViewModels.Functional
             });
         }
 
-        private void OnFolderTreeManagerPropertyChanged(object? sender, PropertyChangedEventArgs e)
+        protected override void OnFolderTreeManagerPropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
+            base.OnFolderTreeManagerPropertyChanged(sender, e);
             if (e.PropertyName == nameof(FolderTreeManager.RootFolders))
             {
                 OnFolderSelectionChanged();
-                OnPropertyChanged(nameof(RootFolders));
             }
         }
 

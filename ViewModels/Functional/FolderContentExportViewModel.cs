@@ -5,7 +5,6 @@ using FileCraft.Shared.Helpers;
 using FileCraft.ViewModels.Shared;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.IO;
 using System.Windows.Input;
 
 namespace FileCraft.ViewModels.Functional
@@ -47,7 +46,7 @@ namespace FileCraft.ViewModels.Functional
         }
 
         public ObservableCollection<SelectableItemViewModel> AvailableColumns { get; } = new();
-        public ObservableCollection<FolderViewModel> RootFolders => FolderTreeManager.RootFolders;
+
         public ICommand ExportFolderContentsCommand { get; }
 
         public FolderContentExportViewModel(
@@ -63,14 +62,6 @@ namespace FileCraft.ViewModels.Functional
 
             FolderTreeManager.FolderSelectionChanged += UpdateAffectedFilesCount;
             FolderTreeManager.StateChanging += OnStateChanging;
-            FolderTreeManager.PropertyChanged += (s, e) =>
-            {
-                if (e.PropertyName == nameof(FolderTreeManager.RootFolders))
-                {
-                    OnPropertyChanged(nameof(RootFolders));
-                    UpdateAffectedFilesCount();
-                }
-            };
 
             ExportFolderContentsCommand = new RelayCommand(async (_) => await ExportFolderContents(), (_) => CanExecuteOperation(this.OutputFileName) && AvailableColumns.Any(c => c.IsSelected));
 
@@ -86,6 +77,15 @@ namespace FileCraft.ViewModels.Functional
             }
             UpdateSelectAllColumnsState();
             UpdateAffectedFilesCount();
+        }
+
+        protected override void OnFolderTreeManagerPropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            base.OnFolderTreeManagerPropertyChanged(sender, e);
+            if (e.PropertyName == nameof(FolderTreeManager.RootFolders))
+            {
+                UpdateAffectedFilesCount();
+            }
         }
 
         private void OnColumnSelectionChanged(object? sender, PropertyChangedEventArgs e)

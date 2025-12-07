@@ -3,7 +3,7 @@ using FileCraft.Services.Interfaces;
 using FileCraft.Shared.Commands;
 using FileCraft.Shared.Helpers;
 using FileCraft.ViewModels.Shared;
-using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Windows.Input;
 
 namespace FileCraft.ViewModels.Functional
@@ -30,7 +30,6 @@ namespace FileCraft.ViewModels.Functional
             }
         }
 
-        public ObservableCollection<FolderViewModel> RootFolders => FolderTreeManager.RootFolders;
         public ICommand GenerateTreeStructureCommand { get; }
 
         public TreeGeneratorViewModel(
@@ -44,17 +43,18 @@ namespace FileCraft.ViewModels.Functional
 
             FolderTreeManager.FolderSelectionChanged += UpdateIncludedFoldersCount;
             FolderTreeManager.StateChanging += OnStateChanging;
-            FolderTreeManager.PropertyChanged += (s, e) =>
-            {
-                if (e.PropertyName == nameof(FolderTreeManager.RootFolders))
-                {
-                    OnPropertyChanged(nameof(RootFolders));
-                    UpdateIncludedFoldersCount();
-                }
-            };
 
             GenerateTreeStructureCommand = new RelayCommand(async (_) => await GenerateTreeStructure(), (_) => CanExecuteOperation(this.OutputFileName));
             UpdateIncludedFoldersCount();
+        }
+
+        protected override void OnFolderTreeManagerPropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            base.OnFolderTreeManagerPropertyChanged(sender, e);
+            if (e.PropertyName == nameof(FolderTreeManager.RootFolders))
+            {
+                UpdateIncludedFoldersCount();
+            }
         }
 
         private void UpdateIncludedFoldersCount()
