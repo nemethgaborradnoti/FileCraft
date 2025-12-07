@@ -5,7 +5,9 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:FileCraft"
         xmlns:views="clr-namespace:FileCraft.Views"
-        xmlns:viewModels="clr-namespace:FileCraft.ViewModels" xmlns:icons="clr-namespace:Fonts"
+        xmlns:viewModels="clr-namespace:FileCraft.ViewModels" 
+        xmlns:icons="clr-namespace:Fonts"
+        xmlns:helpers="clr-namespace:FileCraft.Shared.Helpers"
         mc:Ignorable="d"
         Title="FileCraft" Height="800" Width="850"
         MinHeight="200" MinWidth="250"
@@ -22,17 +24,17 @@
         <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Left" Margin="5,0,5,5">
             <Button Style="{StaticResource BorderlessIconButton}" ToolTip="{DynamicResource UndoTooltip}" Command="{Binding UndoCommand}" IsEnabled="{Binding CanUndo}" Padding="0">
                 <Viewbox>
-                    <TextBlock Text="{x:Static icons:MaterialIcons.keyboard_arrow_left}" FontFamily="{StaticResource MaterialIcons}" Foreground="{StaticResource TextBrush}" />
+                    <TextBlock Text="{Binding Source={x:Static helpers:AppIcons.Undo}, Path=Glyph}" FontFamily="{StaticResource MaterialIcons}" Foreground="{Binding Source={x:Static helpers:AppIcons.Undo}, Path=Brush}" />
                 </Viewbox>
             </Button>
             <Button Style="{StaticResource BorderlessIconButton}" ToolTip="{DynamicResource RedoTooltip}" Command="{Binding RedoCommand}" IsEnabled="{Binding CanRedo}" Padding="0">
                 <Viewbox>
-                    <TextBlock Text="{x:Static icons:MaterialIcons.keyboard_arrow_right}" FontFamily="{StaticResource MaterialIcons}" Foreground="{StaticResource TextBrush}" />
+                    <TextBlock Text="{Binding Source={x:Static helpers:AppIcons.Redo}, Path=Glyph}" FontFamily="{StaticResource MaterialIcons}" Foreground="{Binding Source={x:Static helpers:AppIcons.Redo}, Path=Brush}" />
                 </Viewbox>
             </Button>
             <Button Style="{StaticResource BorderlessIconButton}" ToolTip="{DynamicResource SaveSettingsTooltip}" Command="{Binding SaveCommand}" IsEnabled="{Binding HasUnsavedChanges}" Padding="0">
                 <Viewbox>
-                    <TextBlock Text="{x:Static icons:MaterialIcons.save}" FontFamily="{StaticResource MaterialIcons}" Foreground="{StaticResource TextBrush}" />
+                    <TextBlock Text="{Binding Source={x:Static helpers:AppIcons.Save}, Path=Glyph}" FontFamily="{StaticResource MaterialIcons}" Foreground="{Binding Source={x:Static helpers:AppIcons.Save}, Path=Brush}" />
                 </Viewbox>
             </Button>
         </StackPanel>
@@ -82,7 +84,7 @@
             <TabItem>
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="{x:Static icons:MaterialIcons.topic}" FontFamily="{StaticResource MaterialIcons}" Foreground="{StaticResource FolderIconBrush}" FontSize="28" Margin="0,0,5,0" VerticalAlignment="Center"/>
+                        <TextBlock Text="{Binding Source={x:Static helpers:AppIcons.FileContentExport}, Path=Glyph}" FontFamily="{StaticResource MaterialIcons}" Foreground="{Binding Source={x:Static helpers:AppIcons.FileContentExport}, Path=Brush}" FontSize="28" Margin="0,0,5,0" VerticalAlignment="Center"/>
                         <TextBlock Text="{DynamicResource TabFileContentExport}" VerticalAlignment="Center"/>
                     </StackPanel>
                 </TabItem.Header>
@@ -91,7 +93,7 @@
             <TabItem>
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="{x:Static icons:MaterialIcons.park}" FontFamily="{StaticResource MaterialIcons}" Foreground="{StaticResource TreeIconBrush}" FontSize="28" Margin="0,0,5,0" VerticalAlignment="Center"/>
+                        <TextBlock Text="{Binding Source={x:Static helpers:AppIcons.TreeGenerator}, Path=Glyph}" FontFamily="{StaticResource MaterialIcons}" Foreground="{Binding Source={x:Static helpers:AppIcons.TreeGenerator}, Path=Brush}" FontSize="28" Margin="0,0,5,0" VerticalAlignment="Center"/>
                         <TextBlock Text="{DynamicResource TabTreeGenerator}" VerticalAlignment="Center"/>
                     </StackPanel>
                 </TabItem.Header>
@@ -100,7 +102,7 @@
             <TabItem>
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="{x:Static icons:MaterialIcons.dns}" FontFamily="{StaticResource MaterialIcons}" Foreground="{StaticResource PrimaryBrush}" FontSize="28" Margin="0,0,5,0" VerticalAlignment="Center"/>
+                        <TextBlock Text="{Binding Source={x:Static helpers:AppIcons.FolderContentExport}, Path=Glyph}" FontFamily="{StaticResource MaterialIcons}" Foreground="{Binding Source={x:Static helpers:AppIcons.FolderContentExport}, Path=Brush}" FontSize="28" Margin="0,0,5,0" VerticalAlignment="Center"/>
                         <TextBlock Text="{DynamicResource TabFolderContentExport}" VerticalAlignment="Center"/>
                     </StackPanel>
                 </TabItem.Header>
@@ -109,7 +111,7 @@
             <TabItem>
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="{x:Static icons:MaterialIcons.settings}" FontFamily="{StaticResource MaterialIcons}" Foreground="{StaticResource GrayTextBrush}" FontSize="28" Margin="0,0,5,0" VerticalAlignment="Center"/>
+                        <TextBlock Text="{Binding Source={x:Static helpers:AppIcons.Options}, Path=Glyph}" FontFamily="{StaticResource MaterialIcons}" Foreground="{Binding Source={x:Static helpers:AppIcons.Options}, Path=Brush}" FontSize="28" Margin="0,0,5,0" VerticalAlignment="Center"/>
                         <TextBlock Text="{DynamicResource TabOptions}" VerticalAlignment="Center"/>
                     </StackPanel>
                 </TabItem.Header>

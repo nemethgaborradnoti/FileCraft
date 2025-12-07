@@ -5,6 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:viewmodels="clr-namespace:FileCraft.ViewModels.Functional"
              xmlns:icons="clr-namespace:Fonts"
+             xmlns:helpers="clr-namespace:FileCraft.Shared.Helpers"
              mc:Ignorable="d"
              d:DataContext="{d:DesignInstance Type=viewmodels:OptionsViewModel, IsDesignTimeCreatable=False}"
              d:DesignHeight="450" d:DesignWidth="800">
@@ -176,7 +177,7 @@
                                                 IsEnabled="{Binding Exists}"
                                                 Width="32" Height="32" Margin="5,0,0,0">
                                             <Viewbox>
-                                                <TextBlock Text="{x:Static icons:MaterialIcons.delete}" FontFamily="{StaticResource MaterialIcons}" Foreground="{StaticResource DangerBrush}" />
+                                                <TextBlock Text="{Binding Source={x:Static helpers:AppIcons.Delete}, Path=Glyph}" FontFamily="{StaticResource MaterialIcons}" Foreground="{Binding Source={x:Static helpers:AppIcons.Delete}, Path=Brush}" />
                                             </Viewbox>
                                         </Button>
                                     </Grid>
