@@ -106,8 +106,6 @@ namespace FileCraft.ViewModels.Functional
         private readonly ISaveService _saveService;
         private readonly IDialogService _dialogService;
         private readonly ISharedStateService _sharedStateService;
-        private readonly IFileOperationService _fileOperationService;
-        private readonly FileContentExportViewModel _fileContentExportVM;
 
         public string Version => ResourceHelper.GetString("App_Version");
 
@@ -194,7 +192,6 @@ namespace FileCraft.ViewModels.Functional
             ISaveService saveService,
             IDialogService dialogService,
             ISharedStateService sharedStateService,
-            IFileOperationService fileOperationService,
             FileContentExportViewModel fileContentExportVM,
             TreeGeneratorViewModel treeGeneratorVM,
             FolderContentExportViewModel folderContentExportVM)
@@ -202,8 +199,6 @@ namespace FileCraft.ViewModels.Functional
             _saveService = saveService;
             _dialogService = dialogService;
             _sharedStateService = sharedStateService;
-            _fileOperationService = fileOperationService;
-            _fileContentExportVM = fileContentExportVM;
             _sharedStateService.PropertyChanged += (s, e) =>
             {
                 if (e.PropertyName == nameof(ISharedStateService.IgnoredFolders))
