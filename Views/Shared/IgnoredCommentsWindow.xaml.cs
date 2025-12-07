@@ -180,14 +180,10 @@ namespace FileCraft.Views.Shared
                             int totalChars = 0;
                             foreach (var line in lines)
                             {
-                                int index = IgnoreCommentsHelper.FindActualCommentIndex(line);
-                                if (index != -1 && index + 2 < line.Length && line[index + 2] == '/')
+                                var stats = IgnoreCommentsHelper.CalculateXmlCommentStats(line);
+                                if (stats.IsXmlComment)
                                 {
-                                    int charsInThisLine = line.Length - (index + 3);
-                                    if (charsInThisLine > 0)
-                                    {
-                                        totalChars += charsInThisLine;
-                                    }
+                                    totalChars += stats.CommentLength;
                                 }
                             }
                             int finalCount = totalChars;

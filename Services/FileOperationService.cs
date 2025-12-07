@@ -150,21 +150,16 @@ namespace FileCraft.Services
 
                         if (shouldIgnoreXmlComments)
                         {
-                            int commentIndex = IgnoreCommentsHelper.FindActualCommentIndex(line);
+                            var stats = IgnoreCommentsHelper.CalculateXmlCommentStats(line);
 
-                            if (commentIndex != -1)
+                            if (stats.IsXmlComment)
                             {
-                                bool isXmlComment = commentIndex + 2 < line.Length && line[commentIndex + 2] == '/';
+                                totalXmlCommentChars += stats.CommentLength;
+                                totalXmlCommentLines++;
 
-                                if (isXmlComment)
-                                {
-                                    string codePart = line.Substring(0, commentIndex);
-                                    string commentPart = line.Substring(commentIndex);
-                                    totalXmlCommentChars += commentPart.Length;
-                                    totalXmlCommentLines++;
-                                    finalLine = codePart;
-                                    commentRemoved = true;
-                                }
+                                int commentIndex = line.Length - stats.CommentLength;
+                                finalLine = line.Substring(0, commentIndex);
+                                commentRemoved = true;
                             }
                         }
 

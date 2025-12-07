@@ -34,5 +34,20 @@
             }
             return -1;
         }
+
+        public static (bool IsXmlComment, int CommentLength) CalculateXmlCommentStats(string line)
+        {
+            int commentIndex = FindActualCommentIndex(line);
+
+            if (commentIndex != -1)
+            {
+                if (commentIndex + 2 < line.Length && line[commentIndex + 2] == '/')
+                {
+                    return (true, line.Length - commentIndex);
+                }
+            }
+
+            return (false, 0);
+        }
     }
 }

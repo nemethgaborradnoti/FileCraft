@@ -118,26 +118,6 @@ namespace FileCraft.ViewModels
             OnPropertyChanged(nameof(IsExpanded));
         }
 
-        public void SetIsExpandedRecursively(bool isExpanded)
-        {
-            var queue = new Queue<FolderViewModel>();
-            queue.Enqueue(this);
-
-            while (queue.Count > 0)
-            {
-                var node = queue.Dequeue();
-                if (node.IsExpanded != isExpanded)
-                {
-                    node.IsExpanded = isExpanded;
-                }
-
-                foreach (var child in node.Children)
-                {
-                    queue.Enqueue(child);
-                }
-            }
-        }
-
         public IEnumerable<FolderViewModel> GetAllNodes()
         {
             yield return this;
