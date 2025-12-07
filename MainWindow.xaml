@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:FileCraft"
         xmlns:views="clr-namespace:FileCraft.Views"
-        xmlns:viewModels="clr-namespace:FileCraft.ViewModels" 
+        xmlns:viewModels="clr-namespace:FileCraft.ViewModels"
         xmlns:icons="clr-namespace:Fonts"
         xmlns:helpers="clr-namespace:FileCraft.Shared.Helpers"
         mc:Ignorable="d"
@@ -74,7 +74,7 @@
                              Text="{Binding DestinationPath, Mode=OneWay}"
                              ToolTip="{Binding DestinationPath}"/>
 
-                    <Button Grid.Column="1" Content="{DynamicResource BrowseButton}" Command="{Binding SelectDestinationPathCommand}"/>
+                    <Button Grid.Column="1" Content="{DynamicResource BrowseButton}" Command="{Binding SelectDestinationPathCommand}" Margin="{StaticResource RightMargin}"/>
                     <Button Grid.Column="2" Content="{DynamicResource ClearButton}" Command="{Binding ClearPathsCommand}" ToolTip="{DynamicResource ClearPathsTooltip}" Style="{StaticResource WarningButton}"/>
                 </Grid>
             </GroupBox>

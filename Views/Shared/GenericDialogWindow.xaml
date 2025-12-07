@@ -10,7 +10,7 @@
         SizeToContent="Height"
         WindowStartupLocation="CenterOwner"
         Width="500"
-        MinHeight="150"
+        MinHeight="100"
         WindowStyle="SingleBorderWindow"
         ResizeMode="NoResize"
         d:DataContext="{d:DesignInstance Type=viewmodels:GenericDialogViewModel}">
@@ -40,19 +40,19 @@
         </DataTemplate>
     </Window.Resources>
 
-    <Grid Margin="20">
+    <Grid Margin="15">
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <Grid Grid.Row="0" VerticalAlignment="Center" Margin="0,0,0,20">
+        <Grid Grid.Row="0" VerticalAlignment="Center" Margin="0,0,0,10">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <Viewbox Grid.Column="0" Width="48" Height="48" Margin="0,0,15,0" VerticalAlignment="Center">
+            <Viewbox Grid.Column="0" Width="48" Height="48" Margin="0,0,10,0" VerticalAlignment="Center">
                 <Viewbox.Style>
                     <Style TargetType="Viewbox">
                         <Setter Property="Visibility" Value="Visible"/>
@@ -69,8 +69,8 @@
                 <TextBlock Text="{Binding IconGlyph}" FontFamily="{StaticResource MaterialIcons}" Foreground="{Binding IconBrush}" />
             </Viewbox>
 
-            <StackPanel Grid.Column="1">
-                <TextBlock Text="{Binding Message}" TextWrapping="Wrap" HorizontalAlignment="Left" Margin="0,0,0,10"
+            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                <TextBlock Text="{Binding Message}" TextWrapping="Wrap" HorizontalAlignment="Left" Margin="0"
                            Visibility="{Binding Message, Converter={StaticResource NullToVisibilityConverter}}">
                     <TextBlock.Style>
                         <Style TargetType="TextBlock">
@@ -84,19 +84,45 @@
                     </TextBlock.Style>
                 </TextBlock>
 
-                <TextBlock TextAlignment="Left" Margin="0,0,0,10"
+                <TextBlock TextAlignment="Left" Margin="0,5,0,0"
                            Visibility="{Binding FilesAffected, Converter={StaticResource NullToVisibilityConverter}}">
                     <Run Text="{Binding FilesAffected, Mode=OneWay}"/>
                     <Run Text="{DynamicResource Confirmation_FilesAffectedLabel}"/>
                 </TextBlock>
 
                 <TextBox Text="{Binding InputText, UpdateSourceTrigger=PropertyChanged}"
-                         Style="{StaticResource ModernTextBoxStyle}"
-                         Margin="0,0,0,10"
-                         Visibility="{Binding IsInputVisible, Converter={StaticResource BooleanToVisibilityConverter}}"
-                         x:Name="InputTextBox"/>
+                         x:Name="InputTextBox">
+                    <TextBox.Style>
+                        <Style TargetType="TextBox" BasedOn="{StaticResource ModernTextBoxStyle}">
+                            <Setter Property="Margin" Value="0,10,0,0"/>
+                            <Setter Property="Visibility" Value="{Binding IsInputVisible, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Message}" Value="">
+                                    <Setter Property="Margin" Value="0"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding Message}" Value="{x:Null}">
+                                    <Setter Property="Margin" Value="0"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBox.Style>
+                </TextBox>
 
-                <ContentControl Content="{Binding CustomContent}" />
+                <ContentControl Content="{Binding CustomContent}">
+                    <ContentControl.Style>
+                        <Style TargetType="ContentControl">
+                            <Setter Property="Margin" Value="0,10,0,0"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Message}" Value="">
+                                    <Setter Property="Margin" Value="0"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding Message}" Value="{x:Null}">
+                                    <Setter Property="Margin" Value="0"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ContentControl.Style>
+                </ContentControl>
             </StackPanel>
         </Grid>
 
