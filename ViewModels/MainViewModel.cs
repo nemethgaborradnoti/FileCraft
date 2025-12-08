@@ -319,26 +319,18 @@ namespace FileCraft.ViewModels
             bool exists = _saveService.CheckPresetExists(presetNumber);
             string presetName = exists ? _saveService.GetPresetName(presetNumber) : $"{ResourceHelper.GetString("Preset_DefaultNamePrefix")}{presetNumber:00}";
 
-            string message;
-            string title;
-
             if (exists)
             {
-                title = string.Format(ResourceHelper.GetString("Preset_OverwriteTitle"), presetNumber);
-                message = string.Format(ResourceHelper.GetString("Preset_OverwriteMessage"), presetNumber, presetName);
-            }
-            else
-            {
-                title = string.Format(ResourceHelper.GetString("Preset_SaveNewTitle"), presetNumber);
-                message = string.Format(ResourceHelper.GetString("Preset_SaveNewMessage"), presetName);
-            }
+                string title = string.Format(ResourceHelper.GetString("Preset_OverwriteTitle"), presetNumber);
+                string message = string.Format(ResourceHelper.GetString("Preset_OverwriteMessage"), presetNumber, presetName);
 
-            bool confirmed = _dialogService.ShowConfirmation(
-                title: title,
-                message: message,
-                iconType: DialogIconType.Info);
+                bool confirmed = _dialogService.ShowConfirmation(
+                    title: title,
+                    message: message,
+                    iconType: DialogIconType.Info);
 
-            if (!confirmed) return;
+                if (!confirmed) return;
+            }
 
             try
             {

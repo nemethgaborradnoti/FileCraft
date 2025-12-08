@@ -126,7 +126,22 @@
             </StackPanel>
         </Grid>
 
-        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right">
+        <StackPanel Grid.Row="1" Orientation="Horizontal">
+            <StackPanel.Style>
+                <Style TargetType="StackPanel">
+                    <Setter Property="HorizontalAlignment" Value="Right"/>
+                    <Style.Triggers>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding IsSecondaryVisible}" Value="False"/>
+                                <Condition Binding="{Binding IsTertiaryVisible}" Value="False"/>
+                            </MultiDataTrigger.Conditions>
+                            <Setter Property="HorizontalAlignment" Value="Center"/>
+                        </MultiDataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </StackPanel.Style>
+
             <Button x:Name="PrimaryButton"
                     Content="{Binding PrimaryButtonText}"
                     Command="{Binding PrimaryCommand}"
