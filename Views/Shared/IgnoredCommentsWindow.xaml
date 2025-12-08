@@ -100,12 +100,6 @@
             </Grid.ColumnDefinitions>
 
             <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                <Button Content="{DynamicResource IgnoredComments_CountButton}"
-                        Command="{Binding CountCommentsCommand}"
-                        MinWidth="120"
-                        Margin="{StaticResource RightMargin}"
-                        Style="{StaticResource WarningButton}"/>
-
                 <TextBlock Text="{Binding TotalCountsDisplay}"
                            VerticalAlignment="Center"
                            FontWeight="Bold"
@@ -113,15 +107,15 @@
             </StackPanel>
 
             <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
-                <Button Content="{DynamicResource Common_SaveButton}" 
-                        IsDefault="True" 
-                        Command="{Binding SaveCommand}" 
-                        MinWidth="{StaticResource DefaultButtonMinWidth}" 
+                <Button Content="{DynamicResource Common_SaveButton}"
+                        IsDefault="True"
+                        Command="{Binding SaveCommand}"
+                        MinWidth="{StaticResource DefaultButtonMinWidth}"
                         Margin="{StaticResource RightMargin}"/>
-                <Button Content="{DynamicResource Common_CancelButton}" 
-                        IsCancel="True" 
-                        Command="{Binding CancelCommand}" 
-                        MinWidth="{StaticResource DefaultButtonMinWidth}" 
+                <Button Content="{DynamicResource Common_CancelButton}"
+                        IsCancel="True"
+                        Command="{Binding CancelCommand}"
+                        MinWidth="{StaticResource DefaultButtonMinWidth}"
                         Style="{StaticResource SecondaryButton}"/>
             </StackPanel>
         </Grid>

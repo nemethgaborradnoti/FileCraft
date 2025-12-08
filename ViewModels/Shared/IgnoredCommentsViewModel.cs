@@ -66,7 +66,6 @@ namespace FileCraft.ViewModels.Shared
 
         public event Action<bool?>? RequestClose;
 
-        public ICommand CountCommentsCommand { get; }
         public ICommand SaveCommand { get; }
         public ICommand CancelCommand { get; }
 
@@ -85,12 +84,13 @@ namespace FileCraft.ViewModels.Shared
                 _allFiles.Add(vm);
             }
 
-            CountCommentsCommand = new RelayCommand(async _ => await CountComments());
             SaveCommand = new RelayCommand(_ => Save());
             CancelCommand = new RelayCommand(_ => Cancel());
 
             ApplyFilter();
             UpdateTotalCount();
+            
+            _ = CountComments();
         }
 
         private void ApplyFilter()
@@ -210,6 +210,12 @@ namespace FileCraft.ViewModels.Shared
                     }
                 }
             });
+
+            var sortedFiles = _allFiles.OrderByDescending(f => f.CommentCount).ToList();
+            _allFiles.Clear();
+            _allFiles.AddRange(sortedFiles);
+
+            Application.Current.Dispatcher.Invoke(() => ApplyFilter());
 
             UpdateTotalCount();
         }
