@@ -36,17 +36,8 @@ namespace FileCraft.ViewModels.Shared
             get => _areAllSelected;
             set
             {
-                if (_areAllSelected != value)
-                {
-                    _areAllSelected = value;
-                    OnPropertyChanged();
-
-                    if (_areAllSelected != null)
-                    {
-                        bool selectAll = _areAllSelected == true;
-                        UpdateAllSelection(selectAll);
-                    }
-                }
+                bool selectAll = _areAllSelected != true;
+                UpdateAllSelection(selectAll);
             }
         }
 
@@ -89,7 +80,7 @@ namespace FileCraft.ViewModels.Shared
 
             ApplyFilter();
             UpdateTotalCount();
-            
+
             _ = CountComments();
         }
 
@@ -211,10 +202,12 @@ namespace FileCraft.ViewModels.Shared
                 }
             });
 
+            // Sort by comment count descending
             var sortedFiles = _allFiles.OrderByDescending(f => f.CommentCount).ToList();
             _allFiles.Clear();
             _allFiles.AddRange(sortedFiles);
 
+            // Refresh filtered list after sort
             Application.Current.Dispatcher.Invoke(() => ApplyFilter());
 
             UpdateTotalCount();

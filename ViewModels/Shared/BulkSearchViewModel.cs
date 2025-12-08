@@ -92,23 +92,16 @@ namespace FileCraft.ViewModels.Shared
             get => _areAllFoundFilesSelected;
             set
             {
-                if (_areAllFoundFilesSelected != value)
-                {
-                    _areAllFoundFilesSelected = value;
-                    OnPropertyChanged();
+                bool selectAll = _areAllFoundFilesSelected != true;
 
-                    if (_areAllFoundFilesSelected != null)
-                    {
-                        bool selectAll = _areAllFoundFilesSelected == true;
-                        _isUpdatingSelectAll = true;
-                        foreach (var file in FilteredFoundFiles)
-                        {
-                            file.IsSelected = selectAll;
-                        }
-                        _isUpdatingSelectAll = false;
-                        UpdateTotals();
-                    }
+                _isUpdatingSelectAll = true;
+                foreach (var file in FilteredFoundFiles)
+                {
+                    file.IsSelected = selectAll;
                 }
+                _isUpdatingSelectAll = false;
+
+                UpdateSelectAllState();
             }
         }
 
