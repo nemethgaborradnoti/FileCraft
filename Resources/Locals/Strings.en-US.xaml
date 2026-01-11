@@ -23,7 +23,7 @@
     <system:String x:Key="Common_VersionLabel">Version</system:String>
 
     <!-- App Specific Strings -->
-    <system:String x:Key="App_Version">v4.1.0</system:String>
+    <system:String x:Key="App_Version">v4.2.0</system:String>
 
     <system:String x:Key="UndoTooltip">Undo</system:String>
     <system:String x:Key="RedoTooltip">Redo</system:String>
