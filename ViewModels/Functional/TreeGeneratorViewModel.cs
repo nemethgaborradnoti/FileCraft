@@ -148,7 +148,9 @@ namespace FileCraft.ViewModels.Functional
                 }
 
                 string finalFileName = GetFinalFileName(OutputFileName, AppendTimestamp);
-                string outputFilePath = await _fileOperationService.GenerateTreeStructureAsync(_sharedStateService.SourcePath, _sharedStateService.DestinationPath, excludedFolderPaths, finalFileName);
+                TreeGenerationMode mode = IsStructuredTree ? TreeGenerationMode.Structured : TreeGenerationMode.PathsOnly;
+
+                string outputFilePath = await _fileOperationService.GenerateTreeStructureAsync(_sharedStateService.SourcePath, _sharedStateService.DestinationPath, excludedFolderPaths, finalFileName, mode);
 
                 string successMsg = ResourceHelper.GetString("TreeGen_SuccessMessage");
                 string savedToMsg = string.Format(ResourceHelper.GetString("Common_SavedTo"), outputFilePath);

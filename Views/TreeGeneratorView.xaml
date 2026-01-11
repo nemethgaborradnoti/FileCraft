@@ -15,7 +15,7 @@
         <Style x:Key="BadgeToggleButtonStyle" TargetType="ToggleButton">
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Margin" Value="0,1"/>
-            <Setter Property="Padding" Value="10,6"/>
+            <Setter Property="Padding" Value="10,4"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="HorizontalContentAlignment" Value="Center"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
@@ -141,7 +141,13 @@
                                   Margin="0,0,0,5"
                                   HorizontalAlignment="Stretch">
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="{DynamicResource TreeGen_StructuredTreeOption}" VerticalAlignment="Center" Margin="0,0,5,0" Foreground="White" FontWeight="SemiBold"/>
+                            <TextBlock Text="{x:Static icons:MaterialIcons.account_tree}" 
+                                       FontFamily="{StaticResource MaterialIcons}" 
+                                       FontSize="20"
+                                       VerticalAlignment="Center" 
+                                       Margin="0,0,10,0" 
+                                       Foreground="White"/>
+                            <TextBlock Text="{DynamicResource TreeGen_StructuredTreeOption}" FontSize="12" VerticalAlignment="Center" Margin="0,0,5,0" Foreground="White" FontWeight="SemiBold"/>
                         </StackPanel>
                     </ToggleButton>
 
@@ -149,7 +155,13 @@
                                   IsChecked="{Binding IsPathsOnly}"
                                   HorizontalAlignment="Stretch">
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="{DynamicResource TreeGen_PathsOnlyOption}" VerticalAlignment="Center" Margin="0,0,5,0" Foreground="White" FontWeight="SemiBold"/>
+                            <TextBlock Text="{x:Static icons:MaterialIcons.notes}" 
+                                       FontFamily="{StaticResource MaterialIcons}" 
+                                       FontSize="20"
+                                       VerticalAlignment="Center" 
+                                       Margin="0,0,10,0" 
+                                       Foreground="White"/>
+                            <TextBlock Text="{DynamicResource TreeGen_PathsOnlyOption}" FontSize="12" VerticalAlignment="Center" Margin="0,0,5,0" Foreground="White" FontWeight="SemiBold"/>
                         </StackPanel>
                     </ToggleButton>
                 </StackPanel>

@@ -271,7 +271,8 @@ namespace FileCraft.ViewModels
                 {
                     OutputFileName = TreeGeneratorVM.OutputFileName,
                     AppendTimestamp = TreeGeneratorVM.AppendTimestamp,
-                    FolderTreeState = TreeGeneratorVM.FolderTreeManager.GetFolderStates()
+                    FolderTreeState = TreeGeneratorVM.FolderTreeManager.GetFolderStates(),
+                    GenerationMode = TreeGeneratorVM.IsStructuredTree ? TreeGenerationMode.Structured : TreeGenerationMode.PathsOnly
                 },
                 SettingsPage = new SettingsPageSettings
                 {
@@ -300,6 +301,15 @@ namespace FileCraft.ViewModels
             TreeGeneratorVM.FolderTreeManager.LoadTreeForPath(SourcePath, saveData.TreeGenerator.FolderTreeState);
             TreeGeneratorVM.OutputFileName = saveData.TreeGenerator.OutputFileName;
             TreeGeneratorVM.AppendTimestamp = saveData.TreeGenerator.AppendTimestamp;
+
+            if (saveData.TreeGenerator.GenerationMode == TreeGenerationMode.PathsOnly)
+            {
+                TreeGeneratorVM.IsPathsOnly = true;
+            }
+            else
+            {
+                TreeGeneratorVM.IsStructuredTree = true;
+            }
 
             SelectedTabIndex = saveData.SelectedTabIndex;
             _isLoading = false;

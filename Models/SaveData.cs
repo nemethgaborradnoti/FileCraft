@@ -47,6 +47,8 @@ namespace FileCraft.Models
     public class TreeGeneratorSettings : ExportSettingsBase
     {
         public List<FolderState> FolderTreeState { get; set; } = new();
+        public TreeGenerationMode GenerationMode { get; set; } = TreeGenerationMode.Structured;
+
         public TreeGeneratorSettings()
         {
             OutputFileName = ResourceHelper.GetString("Model_DefaultTreeStructureName");
