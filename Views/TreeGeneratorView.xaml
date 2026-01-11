@@ -6,9 +6,43 @@
              xmlns:viewmodels="clr-namespace:FileCraft.ViewModels.Functional"
              xmlns:controls="clr-namespace:FileCraft.Views.Shared.Controls"
              xmlns:local="clr-namespace:FileCraft.ViewModels.Functional"
+             xmlns:icons="clr-namespace:Fonts"
              mc:Ignorable="d"
              d:DataContext="{d:DesignInstance Type=viewmodels:TreeGeneratorViewModel, IsDesignTimeCreatable=False}"
              d:DesignHeight="450" d:DesignWidth="800">
+
+    <UserControl.Resources>
+        <Style x:Key="BadgeToggleButtonStyle" TargetType="ToggleButton">
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Margin" Value="0,1"/>
+            <Setter Property="Padding" Value="10,6"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ToggleButton">
+                        <Border x:Name="border"
+                                Background="{StaticResource SecondaryBrush}"
+                                CornerRadius="10"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter Content="{TemplateBinding Content}"
+                                              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="{StaticResource PrimaryBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.6"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
 
     <Grid>
         <Grid.RowDefinitions>
@@ -27,33 +61,100 @@
                             <DataTrigger Binding="{Binding FullscreenManager.CurrentState}" Value="Folders">
                                 <Setter Property="Height" Value="0"/>
                             </DataTrigger>
+                            <DataTrigger Binding="{Binding FullscreenManager.CurrentState}" Value="Settings">
+                                <Setter Property="Height" Value="0"/>
+                            </DataTrigger>
                         </Style.Triggers>
                     </Style>
                 </RowDefinition.Style>
             </RowDefinition>
         </Grid.RowDefinitions>
 
-        <GroupBox Grid.Row="0">
-            <GroupBox.Header>
-                <StackPanel Style="{StaticResource HeaderStackPanelStyle}">
-                    <TextBlock Text="{DynamicResource Common_FoldersHeader}" VerticalAlignment="Center" FontWeight="SemiBold"/>
-                    <controls:FullscreenToggleButton Command="{Binding FullscreenManager.ToggleCommand}"
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition>
+                    <ColumnDefinition.Style>
+                        <Style TargetType="ColumnDefinition">
+                            <Setter Property="Width" Value="7*"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding FullscreenManager.CurrentState}" Value="Settings">
+                                    <Setter Property="Width" Value="0"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding FullscreenManager.CurrentState}" Value="Folders">
+                                    <Setter Property="Width" Value="*"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ColumnDefinition.Style>
+                </ColumnDefinition>
+                <ColumnDefinition>
+                    <ColumnDefinition.Style>
+                        <Style TargetType="ColumnDefinition">
+                            <Setter Property="Width" Value="3*"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding FullscreenManager.CurrentState}" Value="Folders">
+                                    <Setter Property="Width" Value="0"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding FullscreenManager.CurrentState}" Value="Settings">
+                                    <Setter Property="Width" Value="*"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ColumnDefinition.Style>
+                </ColumnDefinition>
+            </Grid.ColumnDefinitions>
+
+            <GroupBox Grid.Column="0">
+                <GroupBox.Header>
+                    <StackPanel Style="{StaticResource HeaderStackPanelStyle}">
+                        <TextBlock Text="{DynamicResource Common_FoldersHeader}" VerticalAlignment="Center" FontWeight="SemiBold"/>
+                        <controls:FullscreenToggleButton Command="{Binding FullscreenManager.ToggleCommand}"
                                                          CurrentState="{Binding FullscreenManager.CurrentState}"
                                                          TargetState="{x:Static local:TreeGeneratorFullscreenState.Folders}"/>
-                </StackPanel>
-            </GroupBox.Header>
-            <TreeView ItemsSource="{Binding RootFolders}" BorderThickness="0"
-                      ItemContainerStyle="{StaticResource SharedTreeViewItemStyle}">
-                <TreeView.ItemTemplate>
-                    <HierarchicalDataTemplate ItemsSource="{Binding Children}">
+                    </StackPanel>
+                </GroupBox.Header>
+                <TreeView ItemsSource="{Binding RootFolders}" BorderThickness="0"
+                          ItemContainerStyle="{StaticResource SharedTreeViewItemStyle}">
+                    <TreeView.ItemTemplate>
+                        <HierarchicalDataTemplate ItemsSource="{Binding Children}">
+                            <StackPanel Orientation="Horizontal">
+                                <CheckBox IsChecked="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" IsThreeState="True" VerticalAlignment="Center"/>
+                                <TextBlock Text="{Binding Name}" Margin="5,0,0,0" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </HierarchicalDataTemplate>
+                    </TreeView.ItemTemplate>
+                </TreeView>
+            </GroupBox>
+
+            <GroupBox Grid.Column="1">
+                <GroupBox.Header>
+                    <StackPanel Style="{StaticResource HeaderStackPanelStyle}">
+                        <TextBlock Text="{DynamicResource TreeGen_GenerateAsHeader}" VerticalAlignment="Center" FontWeight="SemiBold"/>
+                        <controls:FullscreenToggleButton Command="{Binding FullscreenManager.ToggleCommand}"
+                                                         CurrentState="{Binding FullscreenManager.CurrentState}"
+                                                         TargetState="{x:Static local:TreeGeneratorFullscreenState.Settings}"/>
+                    </StackPanel>
+                </GroupBox.Header>
+                <StackPanel Margin="5">
+                    <ToggleButton Style="{StaticResource BadgeToggleButtonStyle}"
+                                  IsChecked="{Binding IsStructuredTree}"
+                                  Margin="0,0,0,5"
+                                  HorizontalAlignment="Stretch">
                         <StackPanel Orientation="Horizontal">
-                            <CheckBox IsChecked="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" IsThreeState="True" VerticalAlignment="Center"/>
-                            <TextBlock Text="{Binding Name}" Margin="5,0,0,0" VerticalAlignment="Center"/>
+                            <TextBlock Text="{DynamicResource TreeGen_StructuredTreeOption}" VerticalAlignment="Center" Margin="0,0,5,0" Foreground="White" FontWeight="SemiBold"/>
                         </StackPanel>
-                    </HierarchicalDataTemplate>
-                </TreeView.ItemTemplate>
-            </TreeView>
-        </GroupBox>
+                    </ToggleButton>
+
+                    <ToggleButton Style="{StaticResource BadgeToggleButtonStyle}"
+                                  IsChecked="{Binding IsPathsOnly}"
+                                  HorizontalAlignment="Stretch">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{DynamicResource TreeGen_PathsOnlyOption}" VerticalAlignment="Center" Margin="0,0,5,0" Foreground="White" FontWeight="SemiBold"/>
+                        </StackPanel>
+                    </ToggleButton>
+                </StackPanel>
+            </GroupBox>
+        </Grid>
 
         <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="10">
             <StackPanel VerticalAlignment="Center" Margin="0,0,20,0">

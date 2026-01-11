@@ -91,6 +91,10 @@
     <system:String x:Key="TreeGen_SuccessMessage">Tree structure file was created successfully!</system:String>
     <system:String x:Key="TreeGen_ErrorMessage">An unexpected error occurred:&#x0a;{0}</system:String>
 
+	<system:String x:Key="TreeGen_GenerateAsHeader">Generate as</system:String>
+	<system:String x:Key="TreeGen_StructuredTreeOption">Structured tree</system:String>
+	<system:String x:Key="TreeGen_PathsOnlyOption">Paths only</system:String>
+
     <system:String x:Key="FolderContent_DetailsHeader">Select details</system:String>
     <system:String x:Key="FolderContent_FilesAffectedLabel">Files affected:</system:String>
     <system:String x:Key="FolderContent_ExportButton">Export folder contents</system:String>

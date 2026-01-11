@@ -11,12 +11,15 @@ namespace FileCraft.ViewModels.Functional
     public enum TreeGeneratorFullscreenState
     {
         None,
-        Folders
+        Folders,
+        Settings
     }
 
     public class TreeGeneratorViewModel : ExportViewModelBase
     {
         private int _includedFoldersCount;
+        private bool _isStructuredTree = true;
+        private bool _isPathsOnly;
 
         public FullscreenManager<TreeGeneratorFullscreenState> FullscreenManager { get; }
 
@@ -27,6 +30,62 @@ namespace FileCraft.ViewModels.Functional
             {
                 _includedFoldersCount = value;
                 OnPropertyChanged();
+            }
+        }
+
+        public bool IsStructuredTree
+        {
+            get => _isStructuredTree;
+            set
+            {
+                if (_isStructuredTree != value)
+                {
+                    if (value)
+                    {
+                        _isStructuredTree = value;
+                        OnPropertyChanged();
+                        IsPathsOnly = false;
+                    }
+                    else
+                    {
+                        if (!IsPathsOnly)
+                        {
+                            OnPropertyChanged();
+                            return;
+                        }
+                        _isStructuredTree = value;
+                        OnPropertyChanged();
+                    }
+                    OnStateChanging();
+                }
+            }
+        }
+
+        public bool IsPathsOnly
+        {
+            get => _isPathsOnly;
+            set
+            {
+                if (_isPathsOnly != value)
+                {
+                    if (value)
+                    {
+                        _isPathsOnly = value;
+                        OnPropertyChanged();
+                        IsStructuredTree = false;
+                    }
+                    else
+                    {
+                        if (!IsStructuredTree)
+                        {
+                            OnPropertyChanged();
+                            return;
+                        }
+                        _isPathsOnly = value;
+                        OnPropertyChanged();
+                    }
+                    OnStateChanging();
+                }
             }
         }
 
