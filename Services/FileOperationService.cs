@@ -65,7 +65,7 @@ namespace FileCraft.Services
             return outputFilePath;
         }
 
-        public async Task<string> GenerateTreeStructureAsync(string sourcePath, string destinationPath, ISet<string> excludedFolderPaths, string outputFileName)
+        public async Task<string> GenerateTreeStructureAsync(string sourcePath, string destinationPath, ISet<string> excludedFolderPaths, string outputFileName, TreeGenerationMode mode)
         {
             Guard.AgainstNullOrWhiteSpace(sourcePath, nameof(sourcePath));
             Guard.AgainstNullOrWhiteSpace(destinationPath, nameof(destinationPath));
@@ -73,13 +73,20 @@ namespace FileCraft.Services
             Guard.AgainstNull(excludedFolderPaths, nameof(excludedFolderPaths));
             Guard.AgainstNullOrWhiteSpace(outputFileName, nameof(outputFileName));
 
-            StringBuilder treeBuilder = new StringBuilder();
-            treeBuilder.AppendLine(new DirectoryInfo(sourcePath).Name);
+            StringBuilder contentBuilder = new StringBuilder();
 
-            BuildTree(sourcePath, "", treeBuilder, excludedFolderPaths, true);
+            if (mode == TreeGenerationMode.Structured)
+            {
+                contentBuilder.AppendLine(new DirectoryInfo(sourcePath).Name);
+                BuildTree(sourcePath, "", contentBuilder, excludedFolderPaths, true);
+            }
+            else if (mode == TreeGenerationMode.PathsOnly)
+            {
+                BuildPathsOnly(sourcePath, sourcePath, contentBuilder, excludedFolderPaths);
+            }
 
             string outputFilePath = Path.Combine(destinationPath, $"{outputFileName}.txt");
-            await File.WriteAllTextAsync(outputFilePath, treeBuilder.ToString());
+            await File.WriteAllTextAsync(outputFilePath, contentBuilder.ToString());
 
             return outputFilePath;
         }
@@ -118,6 +125,38 @@ namespace FileCraft.Services
             catch (UnauthorizedAccessException)
             {
                 builder.AppendLine($"{indent}└── [Access Denied]");
+            }
+        }
+
+        private void BuildPathsOnly(string directoryPath, string rootPath, StringBuilder builder, ISet<string> excludedFolderPaths)
+        {
+            try
+            {
+                var ignoredFolderNames = new HashSet<string>(_sharedStateService.IgnoredFolders, StringComparer.OrdinalIgnoreCase);
+
+                var subDirectories = Directory.GetDirectories(directoryPath)
+                    .Where(d => !excludedFolderPaths.Contains(d))
+                    .Where(d => !ignoredFolderNames.Contains(new DirectoryInfo(d).Name))
+                    .OrderBy(d => d)
+                    .ToArray();
+
+                var files = Directory.GetFiles(directoryPath)
+                    .OrderBy(f => f)
+                    .ToArray();
+
+                foreach (var dir in subDirectories)
+                {
+                    builder.AppendLine(Path.GetRelativePath(rootPath, dir));
+                    BuildPathsOnly(dir, rootPath, builder, excludedFolderPaths);
+                }
+
+                foreach (var file in files)
+                {
+                    builder.AppendLine(Path.GetRelativePath(rootPath, file));
+                }
+            }
+            catch (UnauthorizedAccessException)
+            {
             }
         }
 
