@@ -58,13 +58,14 @@
     <system:String x:Key="EditFoldersButton">Edit folders</system:String>
 
     <system:String x:Key="FileContent_ExtensionsHeader">File extensions to include</system:String>
+    <system:String x:Key="FileContent_ExtensionsPlaceholder">Select extensions</system:String>
     <system:String x:Key="FileContent_SelectExtensionsPlaceholder">Select extensions...</system:String>
     <system:String x:Key="FileContent_IgnoreCommentsButton">Ignore comment on these files</system:String>
     <system:String x:Key="FileContent_IgnoreCommentsTooltip">Select files to ignore '///' comments.</system:String>
     <system:String x:Key="FileContent_FilesHeader">Files to export</system:String>
     <system:String x:Key="FileContent_BulkSearchButton">Bulk search</system:String>
-    <system:String x:Key="FileContent_ShowOnlySelected">Show only selected</system:String>
-    <system:String x:Key="FileContent_ShowOnlyUnselected">Show only unselected</system:String>
+    <system:String x:Key="FileContent_ShowOnlySelected">Selected only</system:String>
+    <system:String x:Key="FileContent_ShowOnlyUnselected">Unselected only</system:String>
     <system:String x:Key="FileContent_ClearFilterButton">Clear filter</system:String>
     <system:String x:Key="FileContent_TotalFilesLabel">Total files:</system:String>
     <system:String x:Key="FileContent_FilteredFilesLabel">Filtered:</system:String>

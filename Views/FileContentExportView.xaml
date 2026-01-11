@@ -6,9 +6,43 @@
              xmlns:viewmodels="clr-namespace:FileCraft.ViewModels.Functional"
              xmlns:controls="clr-namespace:FileCraft.Views.Shared.Controls"
              xmlns:local="clr-namespace:FileCraft.ViewModels.Functional"
+             xmlns:icons="clr-namespace:Fonts"
              mc:Ignorable="d"
              d:DataContext="{d:DesignInstance Type=viewmodels:FileContentExportViewModel, IsDesignTimeCreatable=False}"
              d:DesignHeight="600" d:DesignWidth="800">
+
+    <UserControl.Resources>
+        <Style x:Key="BadgeToggleButtonStyle" TargetType="ToggleButton">
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Margin" Value="0,1"/>
+            <Setter Property="Padding" Value="8,1"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ToggleButton">
+                        <Border x:Name="border"
+                                Background="{StaticResource SecondaryBrush}"
+                                CornerRadius="10"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter Content="{TemplateBinding Content}"
+                                              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="{StaticResource PrimaryBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.6"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
 
     <Grid>
         <Grid.RowDefinitions>
@@ -149,32 +183,36 @@
                         </ScrollViewer>
                     </Border>
 
-                    <ComboBox Grid.Row="1"
-                              ItemsSource="{Binding AvailableExtensions}"
-                              IsEditable="True"
-                              IsReadOnly="True"
-                              Text="{DynamicResource FileContent_SelectExtensionsPlaceholder}"
-                              StaysOpenOnEdit="True"
-                              MaxDropDownHeight="200"
-                              Margin="0,0,0,10">
-                        <ComboBox.ItemContainerStyle>
-                            <Style TargetType="ComboBoxItem">
-                                <Setter Property="Focusable" Value="False"/>
-                                <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-                                <Setter Property="VerticalContentAlignment" Value="Stretch"/>
-                            </Style>
-                        </ComboBox.ItemContainerStyle>
-                        <ComboBox.ItemTemplate>
-                            <DataTemplate>
-                                <CheckBox IsChecked="{Binding IsSelected}"
+                    <Grid Grid.Row="1" Margin="0,0,0,10">
+                        <ComboBox ItemsSource="{Binding AvailableExtensions}"
+                                  IsEditable="True"
+                                  IsReadOnly="True"
+                                  StaysOpenOnEdit="True"
+                                  MaxDropDownHeight="200">
+                            <ComboBox.ItemContainerStyle>
+                                <Style TargetType="ComboBoxItem">
+                                    <Setter Property="Focusable" Value="False"/>
+                                    <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                                    <Setter Property="VerticalContentAlignment" Value="Stretch"/>
+                                </Style>
+                            </ComboBox.ItemContainerStyle>
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <CheckBox IsChecked="{Binding IsSelected}"
                                           Content="{Binding Name}"
                                           Margin="2"
                                           HorizontalAlignment="Stretch"
                                           VerticalAlignment="Stretch"
                                           Background="Transparent"/>
-                            </DataTemplate>
-                        </ComboBox.ItemTemplate>
-                    </ComboBox>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                        <TextBlock Text="{DynamicResource FileContent_ExtensionsPlaceholder}"
+                                   IsHitTestVisible="False"
+                                   VerticalAlignment="Center"
+                                   Margin="10,0"
+                                   Foreground="{StaticResource GrayTextBrush}"/>
+                    </Grid>
 
                     <Border Grid.Row="2"
                             BorderBrush="{StaticResource BorderBrush}"
@@ -251,11 +289,21 @@
                                 Margin="{StaticResource RightMargin}"/>
 
                         <StackPanel VerticalAlignment="Center">
-                            <CheckBox Content="{DynamicResource FileContent_ShowOnlySelected}"
-                                      IsChecked="{Binding IsShowingOnlySelected}"
-                                      Margin="0,0,0,2"/>
-                            <CheckBox Content="{DynamicResource FileContent_ShowOnlyUnselected}"
-                                      IsChecked="{Binding IsShowingOnlyUnselected}"/>
+                            <ToggleButton Style="{StaticResource BadgeToggleButtonStyle}"
+                                          IsChecked="{Binding IsShowingOnlySelected}"
+                                          Margin="0,0,0,2">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="{DynamicResource FileContent_ShowOnlySelected}" VerticalAlignment="Center" Margin="0,0,5,0" Foreground="White" FontWeight="SemiBold"/>
+                                    <TextBlock Text="{x:Static icons:MaterialIcons.check_box}" FontFamily="{StaticResource MaterialIcons}" VerticalAlignment="Center" Foreground="White"/>
+                                </StackPanel>
+                            </ToggleButton>
+                            <ToggleButton Style="{StaticResource BadgeToggleButtonStyle}"
+                                          IsChecked="{Binding IsShowingOnlyUnselected}">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="{DynamicResource FileContent_ShowOnlyUnselected}" VerticalAlignment="Center" Margin="0,0,5,0" Foreground="White" FontWeight="SemiBold"/>
+                                    <TextBlock Text="{x:Static icons:MaterialIcons.check_box_outline_blank}" FontFamily="{StaticResource MaterialIcons}" VerticalAlignment="Center" Foreground="White"/>
+                                </StackPanel>
+                            </ToggleButton>
                         </StackPanel>
 
                         <Button Content="{DynamicResource FileContent_ClearFilterButton}"
