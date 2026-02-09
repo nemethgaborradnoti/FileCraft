@@ -23,7 +23,7 @@
     <system:String x:Key="Common_VersionLabel">Version</system:String>
 
     <!-- App Specific Strings -->
-    <system:String x:Key="App_Version">v4.2.0</system:String>
+    <system:String x:Key="App_Version">v4.3.0</system:String>
 
     <system:String x:Key="UndoTooltip">Undo</system:String>
     <system:String x:Key="RedoTooltip">Redo</system:String>
@@ -83,6 +83,16 @@
     <system:String x:Key="FileContent_IgnoredStats">{0} lines ({1} characters).</system:String>
     <system:String x:Key="FileContent_ExportErrorMessage">An unexpected error occurred during export:&#x0a;{0}</system:String>
 
+    <!-- Added Result Keys -->
+    <system:String x:Key="FileContent_Result_Header">Exported {0} files into:</system:String>
+    <system:String x:Key="FileContent_Result_Path">{0}</system:String>
+    <system:String x:Key="FileContent_Result_Chars">Characters: {0}</system:String>
+    <system:String x:Key="FileContent_Result_Lines">Lines: {0}</system:String>
+    <system:String x:Key="FileContent_Result_IgnoredHeader">Ignored comment on {0} files</system:String>
+    <system:String x:Key="FileContent_Result_IgnoredChars">Ignored characters: {0}</system:String>
+    <system:String x:Key="FileContent_Result_IgnoredLines">Ignored lines: {0}</system:String>
+    <system:String x:Key="FileContent_Result_Savings">Ignored {0}%</system:String>
+
     <system:String x:Key="TreeGen_FoldersAffectedLabel">Folders affected:</system:String>
     <system:String x:Key="TreeGen_GenerateButton">Generate tree structure</system:String>
 
@@ -91,9 +101,9 @@
     <system:String x:Key="TreeGen_SuccessMessage">Tree structure file was created successfully!</system:String>
     <system:String x:Key="TreeGen_ErrorMessage">An unexpected error occurred:&#x0a;{0}</system:String>
 
-	<system:String x:Key="TreeGen_GenerateAsHeader">Generate as</system:String>
-	<system:String x:Key="TreeGen_StructuredTreeOption">Structured tree</system:String>
-	<system:String x:Key="TreeGen_PathsOnlyOption">Paths only</system:String>
+    <system:String x:Key="TreeGen_GenerateAsHeader">Generate as</system:String>
+    <system:String x:Key="TreeGen_StructuredTreeOption">Structured tree</system:String>
+    <system:String x:Key="TreeGen_PathsOnlyOption">Paths only</system:String>
 
     <system:String x:Key="FolderContent_DetailsHeader">Select details</system:String>
     <system:String x:Key="FolderContent_FilesAffectedLabel">Files affected:</system:String>
