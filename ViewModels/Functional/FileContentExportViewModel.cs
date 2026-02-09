@@ -342,8 +342,21 @@ namespace FileCraft.ViewModels.Functional
 
                 if (!string.IsNullOrWhiteSpace(SearchFilter))
                 {
-                    string normalizedFilter = SearchFilter.Replace('/', '\\');
-                    filtered = filtered.Where(f => f.FullPath.IndexOf(normalizedFilter, StringComparison.OrdinalIgnoreCase) >= 0);
+                    var searchTerms = SearchFilter.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+
+                    foreach (var term in searchTerms)
+                    {
+                        if (term.StartsWith("-") && term.Length > 1)
+                        {
+                            string excludeTerm = term.Substring(1).Replace('/', '\\');
+                            filtered = filtered.Where(f => f.FullPath.IndexOf(excludeTerm, StringComparison.OrdinalIgnoreCase) < 0);
+                        }
+                        else
+                        {
+                            string includeTerm = term.Replace('/', '\\');
+                            filtered = filtered.Where(f => f.FullPath.IndexOf(includeTerm, StringComparison.OrdinalIgnoreCase) >= 0);
+                        }
+                    }
                 }
 
                 foreach (var file in filtered)
