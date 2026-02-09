@@ -5,6 +5,7 @@ using FileCraft.Shared.Helpers;
 using FileCraft.ViewModels.Shared;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Globalization;
 using System.IO;
 using System.Text;
 using System.Windows.Input;
@@ -342,8 +343,21 @@ namespace FileCraft.ViewModels.Functional
 
                 if (!string.IsNullOrWhiteSpace(SearchFilter))
                 {
-                    string normalizedFilter = SearchFilter.Replace('/', '\\');
-                    filtered = filtered.Where(f => f.FullPath.IndexOf(normalizedFilter, StringComparison.OrdinalIgnoreCase) >= 0);
+                    var searchTerms = SearchFilter.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+
+                    foreach (var term in searchTerms)
+                    {
+                        if (term.StartsWith("-") && term.Length > 1)
+                        {
+                            string excludeTerm = term.Substring(1).Replace('/', '\\');
+                            filtered = filtered.Where(f => f.FullPath.IndexOf(excludeTerm, StringComparison.OrdinalIgnoreCase) < 0);
+                        }
+                        else
+                        {
+                            string includeTerm = term.Replace('/', '\\');
+                            filtered = filtered.Where(f => f.FullPath.IndexOf(includeTerm, StringComparison.OrdinalIgnoreCase) >= 0);
+                        }
+                    }
                 }
 
                 foreach (var file in filtered)
@@ -532,23 +546,27 @@ namespace FileCraft.ViewModels.Functional
 
                 string finalFileName = GetFinalFileName(OutputFileName, AppendTimestamp);
 
-                var (outputFilePath, xmlLines, xmlChars) = await _fileOperationService.ExportSelectedFileContentsAsync(
+                var result = await _fileOperationService.ExportSelectedFileContentsAsync(
                     _sharedStateService.DestinationPath, selectedFiles, finalFileName, _ignoredCommentFilePaths);
 
+                long totalChars = result.ExportedCharacters + result.IgnoredCharacters;
+                double savingsPercent = totalChars > 0 ? (double)result.IgnoredCharacters / totalChars * 100.0 : 0;
+
+                var nfi = new NumberFormatInfo { NumberGroupSeparator = " ", NumberDecimalDigits = 0 };
+
                 var notificationMessage = new StringBuilder();
-                string successMsg = string.Format(ResourceHelper.GetString("FileContent_ExportSuccessMessage"), selectedFiles.Count);
-                notificationMessage.AppendLine(successMsg);
 
-                string savedToMsg = string.Format(ResourceHelper.GetString("Common_SavedTo"), outputFilePath);
-                notificationMessage.AppendLine(savedToMsg);
-
-                if (xmlLines > 0)
-                {
-                    notificationMessage.AppendLine();
-                    notificationMessage.AppendLine(ResourceHelper.GetString("FileContent_IgnoredParts"));
-                    string stats = string.Format(ResourceHelper.GetString("FileContent_IgnoredStats"), xmlLines, xmlChars);
-                    notificationMessage.AppendLine(stats);
-                }
+                notificationMessage.AppendLine(string.Format(ResourceHelper.GetString("FileContent_Result_Header"), selectedFiles.Count));
+                notificationMessage.AppendLine(string.Format(ResourceHelper.GetString("FileContent_Result_Path"), result.OutputFilePath));
+                notificationMessage.AppendLine();
+                notificationMessage.AppendLine(string.Format(ResourceHelper.GetString("FileContent_Result_Chars"), result.ExportedCharacters.ToString("N0", nfi)));
+                notificationMessage.AppendLine(string.Format(ResourceHelper.GetString("FileContent_Result_Lines"), result.ExportedLines.ToString("N0", nfi)));
+                notificationMessage.AppendLine();
+                notificationMessage.AppendLine(string.Format(ResourceHelper.GetString("FileContent_Result_IgnoredHeader"), result.FilesWithIgnoredCommentsCount));
+                notificationMessage.AppendLine(string.Format(ResourceHelper.GetString("FileContent_Result_IgnoredChars"), result.IgnoredCharacters.ToString("N0", nfi)));
+                notificationMessage.AppendLine(string.Format(ResourceHelper.GetString("FileContent_Result_IgnoredLines"), result.IgnoredLines.ToString("N0", nfi)));
+                notificationMessage.AppendLine();
+                notificationMessage.AppendLine(string.Format(ResourceHelper.GetString("FileContent_Result_Savings"), savingsPercent.ToString("0.##", CultureInfo.InvariantCulture)));
 
                 _dialogService.ShowNotification(
                     ResourceHelper.GetString("Common_SuccessTitle"),
