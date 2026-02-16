@@ -106,6 +106,7 @@ namespace FileCraft.ViewModels.Functional
     {
         public string GroupId { get; }
         public ObservableCollection<TabItemViewModel> LinkedTabs { get; } = new();
+        public IEnumerable<TabItemViewModel> RestOfTabs => LinkedTabs.Skip(1);
 
         public LinkGroupViewModel(string groupId)
         {
@@ -361,12 +362,14 @@ namespace FileCraft.ViewModels.Functional
                 OnStateChanging();
                 var sourceState = sourceManager.GetFolderStates();
                 await destManager.LoadTreeForPathAsync(_sharedStateService.SourcePath, sourceState);
-                SelectedSourceTab = AllTabs[0];
-                SelectedDestinationTab = AllTabs[0];
+
                 _dialogService.ShowNotification(
                     ResourceHelper.GetString("Common_SuccessTitle"),
                     ResourceHelper.GetString("Options_CopyTreeSuccess"),
                     DialogIconType.Success);
+
+                SelectedSourceTab = AllTabs.First(t => t.Id == "None");
+                SelectedDestinationTab = AllTabs.First(t => t.Id == "None");
             }
         }
 
@@ -473,6 +476,8 @@ namespace FileCraft.ViewModels.Functional
             {
                 OnStateChanging();
                 _folderTreeLinkService.CreateLink(SelectedSourceTab!.Id, SelectedDestinationTab!.Id);
+                SelectedSourceTab = AllTabs.First(t => t.Id == "None");
+                SelectedDestinationTab = AllTabs.First(t => t.Id == "None");
             }
         }
 

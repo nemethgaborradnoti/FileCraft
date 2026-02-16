@@ -296,10 +296,23 @@
                     <StackPanel>
                         <ItemsControl ItemsSource="{Binding ActiveLinkGroups}" Margin="0,0,0,10">
                             <ItemsControl.ItemTemplate>
-                                <DataTemplate>
+                                <DataTemplate DataType="{x:Type viewmodels:LinkGroupViewModel}">
                                     <Border BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="4" Padding="8,5" Margin="0,2">
                                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                            <ItemsControl ItemsSource="{Binding LinkedTabs}">
+                                            <TextBlock Text="{Binding LinkedTabs[0].Icon}"
+                                                       FontFamily="{StaticResource MaterialIcons}"
+                                                       Foreground="{Binding LinkedTabs[0].IconBrush}"
+                                                       FontSize="20" Margin="0,0,5,0" VerticalAlignment="Center"
+                                                       ToolTip="{Binding LinkedTabs[0].Name}"/>
+
+                                            <Button Style="{StaticResource UnlinkButtonStyle}"
+                                                    ToolTip="{DynamicResource Options_UnlinkTooltip}"
+                                                    Command="{Binding DataContext.UnlinkFolderTreeGroupCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                    CommandParameter="{Binding GroupId}"
+                                                    VerticalAlignment="Center"
+                                                    Margin="5,0"/>
+
+                                            <ItemsControl ItemsSource="{Binding RestOfTabs}">
                                                 <ItemsControl.ItemsPanel>
                                                     <ItemsPanelTemplate>
                                                         <StackPanel Orientation="Horizontal"/>
@@ -315,13 +328,6 @@
                                                     </DataTemplate>
                                                 </ItemsControl.ItemTemplate>
                                             </ItemsControl>
-
-                                            <Button Style="{StaticResource UnlinkButtonStyle}"
-                                                    ToolTip="{DynamicResource Options_UnlinkTooltip}"
-                                                    Command="{Binding DataContext.UnlinkFolderTreeGroupCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                    CommandParameter="{Binding GroupId}"
-                                                    VerticalAlignment="Center"
-                                                    Margin="5,0"/>
                                         </StackPanel>
                                     </Border>
                                 </DataTemplate>
