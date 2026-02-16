@@ -20,7 +20,7 @@
                                    Text="{x:Static icons:MaterialIcons.link}"
                                    FontFamily="{StaticResource MaterialIcons}"
                                    Foreground="{StaticResource PrimaryBrush}"
-                                   FontSize="20"
+                                   FontSize="22"
                                    VerticalAlignment="Center"/>
                     </DataTemplate>
                 </Setter.Value>
@@ -33,7 +33,7 @@
                                 <TextBlock Text="{x:Static icons:MaterialIcons.link_off}"
                                            FontFamily="{StaticResource MaterialIcons}"
                                            Foreground="{StaticResource DangerBrush}"
-                                           FontSize="20"
+                                           FontSize="22"
                                            VerticalAlignment="Center"/>
                             </DataTemplate>
                         </Setter.Value>
@@ -302,7 +302,7 @@
                                             <TextBlock Text="{Binding LinkedTabs[0].Icon}"
                                                        FontFamily="{StaticResource MaterialIcons}"
                                                        Foreground="{Binding LinkedTabs[0].IconBrush}"
-                                                       FontSize="20" Margin="0,0,5,0" VerticalAlignment="Center"
+                                                       FontSize="22" Margin="0,0,5,0" VerticalAlignment="Center"
                                                        ToolTip="{Binding LinkedTabs[0].Name}"/>
 
                                             <Button Style="{StaticResource UnlinkButtonStyle}"
@@ -323,7 +323,7 @@
                                                         <TextBlock Text="{Binding Icon}"
                                                                    FontFamily="{StaticResource MaterialIcons}"
                                                                    Foreground="{Binding IconBrush}"
-                                                                   FontSize="20" Margin="0,0,5,0" VerticalAlignment="Center"
+                                                                   FontSize="22" Margin="0,0,5,0" VerticalAlignment="Center"
                                                                    ToolTip="{Binding Name}"/>
                                                     </DataTemplate>
                                                 </ItemsControl.ItemTemplate>
