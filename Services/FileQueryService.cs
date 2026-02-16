@@ -7,23 +7,23 @@ namespace FileCraft.Services
 {
     public class FileQueryService : IFileQueryService
     {
-        public IEnumerable<FileInfo> GetAllFiles(IEnumerable<string> folderPaths)
+        public IEnumerable<FileInfo> GetAllFiles(IEnumerable<string> folderPaths, ISet<string> ignoredFolderNames)
         {
             var files = new List<FileInfo>();
             foreach (var path in folderPaths)
             {
                 if (Directory.Exists(path))
                 {
-                    files.AddRange(GetFilesRecursive(path));
+                    files.AddRange(GetFilesRecursive(path, ignoredFolderNames));
                 }
             }
             return files;
         }
 
-        public HashSet<string> GetAvailableExtensions(IEnumerable<string> folderPaths)
+        public HashSet<string> GetAvailableExtensions(IEnumerable<string> folderPaths, ISet<string> ignoredFolderNames)
         {
             var extensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            var allFiles = GetAllFiles(folderPaths);
+            var allFiles = GetAllFiles(folderPaths, ignoredFolderNames);
 
             foreach (var file in allFiles)
             {
@@ -32,9 +32,9 @@ namespace FileCraft.Services
             return extensions;
         }
 
-        public List<SelectableFile> GetFilesByExtensions(string basePath, IEnumerable<string> folderPaths, ISet<string> selectedExtensions)
+        public List<SelectableFile> GetFilesByExtensions(string basePath, IEnumerable<string> folderPaths, ISet<string> selectedExtensions, ISet<string> ignoredFolderNames)
         {
-            var allFiles = GetAllFiles(folderPaths);
+            var allFiles = GetAllFiles(folderPaths, ignoredFolderNames);
 
             return allFiles
                 .Where(f => selectedExtensions.Contains(f.Extension, StringComparer.OrdinalIgnoreCase))
@@ -48,26 +48,33 @@ namespace FileCraft.Services
                 .ToList();
         }
 
-        private IEnumerable<FileInfo> GetFilesRecursive(string path)
+        private IEnumerable<FileInfo> GetFilesRecursive(string path, ISet<string> ignoredFolderNames)
         {
             var files = new List<FileInfo>();
             try
             {
                 var dirInfo = new DirectoryInfo(path);
+
+                if (ignoredFolderNames.Contains(dirInfo.Name))
+                {
+                    return files;
+                }
+
                 files.AddRange(dirInfo.GetFiles("*.*", SearchOption.TopDirectoryOnly));
 
                 foreach (var directory in dirInfo.GetDirectories())
                 {
-                    files.AddRange(GetFilesRecursive(directory.FullName));
+                    if (!ignoredFolderNames.Contains(directory.Name))
+                    {
+                        files.AddRange(GetFilesRecursive(directory.FullName, ignoredFolderNames));
+                    }
                 }
             }
             catch (UnauthorizedAccessException)
             {
-                // Skip folders we don't have permission to access
             }
             catch (Exception)
             {
-                // Handle other potential IO errors gracefully by skipping
             }
             return files;
         }

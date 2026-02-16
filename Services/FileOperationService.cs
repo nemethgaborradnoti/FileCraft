@@ -25,7 +25,8 @@ namespace FileCraft.Services
             Guard.AgainstNullOrWhiteSpace(outputFileName, nameof(outputFileName));
             Guard.AgainstNullOrEmpty(selectedColumns, nameof(selectedColumns), "No columns were selected for export.");
 
-            var allFiles = _fileQueryService.GetAllFiles(includedFolderPaths).OrderBy(f => f.FullName).ToList();
+            var ignoredFolders = new HashSet<string>(_sharedStateService.IgnoredFolders, StringComparer.OrdinalIgnoreCase);
+            var allFiles = _fileQueryService.GetAllFiles(includedFolderPaths, ignoredFolders).OrderBy(f => f.FullName).ToList();
 
             Guard.AgainstNullOrEmpty(allFiles, nameof(allFiles), "The selected folders contain no files to export.");
 

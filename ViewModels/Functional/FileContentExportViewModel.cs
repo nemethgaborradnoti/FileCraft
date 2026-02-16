@@ -384,15 +384,11 @@ namespace FileCraft.ViewModels.Functional
         private void UpdateAvailableExtensions()
         {
             var selectedFolders = GetSelectedFolderPaths();
-
-            // Now run async logic on background, but we need to marshal back to UI
-            // However, GetAvailableExtensions is currently synchronous in IFileQueryService (even if it does IO).
-            // For Phase 4, we'll keep it simple, but in real app this should probably be async too.
-            // Since we moved to paths, we just pass the paths.
+            var ignoredFolders = new HashSet<string>(_sharedStateService.IgnoredFolders, StringComparer.OrdinalIgnoreCase);
 
             Task.Run(() =>
             {
-                var extensions = _fileQueryService.GetAvailableExtensions(selectedFolders);
+                var extensions = _fileQueryService.GetAvailableExtensions(selectedFolders, ignoredFolders);
 
                 Application.Current.Dispatcher.Invoke(() =>
                 {
@@ -417,11 +413,12 @@ namespace FileCraft.ViewModels.Functional
         {
             var selectedFolders = GetSelectedFolderPaths();
             var selectedExtensions = new HashSet<string>(GetSelectedExtensions(), StringComparer.OrdinalIgnoreCase);
+            var ignoredFolders = new HashSet<string>(_sharedStateService.IgnoredFolders, StringComparer.OrdinalIgnoreCase);
             var basePath = _sharedStateService.SourcePath;
 
             Task.Run(() =>
             {
-                var files = _fileQueryService.GetFilesByExtensions(basePath, selectedFolders, selectedExtensions);
+                var files = _fileQueryService.GetFilesByExtensions(basePath, selectedFolders, selectedExtensions, ignoredFolders);
 
                 Application.Current.Dispatcher.Invoke(() =>
                 {
@@ -540,17 +537,14 @@ namespace FileCraft.ViewModels.Functional
             if (node.IsSelected == true)
             {
                 paths.Add(node.FullPath);
-                // Stop recursion here; the service will handle the full directory
             }
-            else if (node.IsSelected == null) // Partial
+            else if (node.IsSelected == null)
             {
-                // Must recurse to find specifically selected children
                 foreach (var child in node.Children)
                 {
                     CollectSelectedPaths(child, paths);
                 }
             }
-            // If IsSelected == false, do nothing
         }
 
         private async Task ExportFileContentAsync()

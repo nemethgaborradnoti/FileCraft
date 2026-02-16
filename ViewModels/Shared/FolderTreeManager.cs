@@ -54,7 +54,6 @@ namespace FileCraft.ViewModels.Shared
                 return;
             }
 
-            // If path hasn't changed and no state to restore, do nothing
             if (sourcePath == _currentSourcePath && folderState == null)
             {
                 return;
@@ -126,7 +125,6 @@ namespace FileCraft.ViewModels.Shared
                 await node.ApplyStateAsync(state);
             }
 
-            // Iterate over a copy because Children collection might be modified during recursive loads
             foreach (var child in node.Children.ToList())
             {
                 await ApplyStateToNodeAsync(child, savedStates);

@@ -162,9 +162,13 @@ namespace FileCraft.ViewModels
             {
                 await LoadChildrenAsync();
             }
+
+            if (Parent != null)
+            {
+                Parent.VerifyCheckState();
+            }
         }
 
-        // Keep synchronous ApplyState for compatibility if needed, but prefer Async
         public void ApplyState(FolderState state)
         {
             _ = ApplyStateAsync(state);
