@@ -20,6 +20,7 @@ namespace FileCraft.ViewModels.Functional
 
     public class TabItemViewModel : BaseViewModel
     {
+        public string Id { get; }
         public string Name { get; }
         public string? Icon { get; }
         public Brush? IconBrush { get; }
@@ -39,8 +40,9 @@ namespace FileCraft.ViewModels.Functional
             }
         }
 
-        public TabItemViewModel(string name, string? icon, Brush? iconBrush, FolderTreeManager? folderTreeManager)
+        public TabItemViewModel(string id, string name, string? icon, Brush? iconBrush, FolderTreeManager? folderTreeManager)
         {
+            Id = id;
             Name = name;
             Icon = icon;
             IconBrush = iconBrush;
@@ -100,12 +102,24 @@ namespace FileCraft.ViewModels.Functional
         }
     }
 
+    public class LinkGroupViewModel : BaseViewModel
+    {
+        public string GroupId { get; }
+        public ObservableCollection<TabItemViewModel> LinkedTabs { get; } = new();
+        public IEnumerable<TabItemViewModel> RestOfTabs => LinkedTabs.Skip(1);
+
+        public LinkGroupViewModel(string groupId)
+        {
+            GroupId = groupId;
+        }
+    }
 
     public class OptionsViewModel : BaseViewModel
     {
         private readonly ISaveService _saveService;
         private readonly IDialogService _dialogService;
         private readonly ISharedStateService _sharedStateService;
+        private readonly IFolderTreeLinkService _folderTreeLinkService;
 
         public string Version => ResourceHelper.GetString("App_Version");
 
@@ -126,9 +140,12 @@ namespace FileCraft.ViewModels.Functional
         public ICommand OpenSaveFolderCommand { get; }
         public ICommand CopyFolderTreeCommand { get; }
         public ICommand EditIgnoredFoldersCommand { get; }
+        public ICommand LinkFolderTreesCommand { get; }
+        public ICommand UnlinkFolderTreeGroupCommand { get; }
 
         public ObservableCollection<PresetSlotViewModel> PresetSlots { get; } = new();
         public ObservableCollection<TabItemViewModel> AllTabs { get; } = new();
+        public ObservableCollection<LinkGroupViewModel> ActiveLinkGroups { get; } = new();
 
         private string _ignoredFoldersText = ResourceHelper.GetString("Options_IgnoredFoldersNone");
         public string IgnoredFoldersText
@@ -154,25 +171,8 @@ namespace FileCraft.ViewModels.Functional
                 {
                     _selectedSourceTab = value;
                     OnPropertyChanged();
-
-                    foreach (var tab in AllTabs)
-                    {
-                        tab.IsSelectable = true;
-                    }
-
-                    if (_selectedSourceTab != null && _selectedSourceTab.FolderTreeManager != null)
-                    {
-                        var tabToDisable = AllTabs.FirstOrDefault(t => t.Name == _selectedSourceTab.Name);
-                        if (tabToDisable != null)
-                        {
-                            tabToDisable.IsSelectable = false;
-                        }
-                    }
-
-                    if (SelectedDestinationTab != null && !SelectedDestinationTab.IsSelectable)
-                    {
-                        SelectedDestinationTab = AllTabs.First(t => t.FolderTreeManager == null);
-                    }
+                    UpdateLinkRelatedState();
+                    CommandManager.InvalidateRequerySuggested();
                 }
             }
         }
@@ -183,8 +183,12 @@ namespace FileCraft.ViewModels.Functional
             get => _selectedDestinationTab;
             set
             {
-                _selectedDestinationTab = value;
-                OnPropertyChanged();
+                if (_selectedDestinationTab != value)
+                {
+                    _selectedDestinationTab = value;
+                    OnPropertyChanged();
+                    CommandManager.InvalidateRequerySuggested();
+                }
             }
         }
 
@@ -192,6 +196,7 @@ namespace FileCraft.ViewModels.Functional
             ISaveService saveService,
             IDialogService dialogService,
             ISharedStateService sharedStateService,
+            IFolderTreeLinkService folderTreeLinkService,
             FileContentExportViewModel fileContentExportVM,
             TreeGeneratorViewModel treeGeneratorVM,
             FolderContentExportViewModel folderContentExportVM)
@@ -199,6 +204,8 @@ namespace FileCraft.ViewModels.Functional
             _saveService = saveService;
             _dialogService = dialogService;
             _sharedStateService = sharedStateService;
+            _folderTreeLinkService = folderTreeLinkService;
+
             _sharedStateService.PropertyChanged += (s, e) =>
             {
                 if (e.PropertyName == nameof(ISharedStateService.IgnoredFolders))
@@ -260,17 +267,21 @@ namespace FileCraft.ViewModels.Functional
             CopyFolderTreeCommand = new RelayCommand(async _ => await CopyFolderTree(), _ => CanCopyFolderTree());
             EditIgnoredFoldersCommand = new RelayCommand(_ => EditIgnoredFolders());
 
+            LinkFolderTreesCommand = new RelayCommand(_ => LinkFolderTrees(), _ => CanLinkFolderTrees());
+            UnlinkFolderTreeGroupCommand = new RelayCommand(p => UnlinkFolderTreeGroup(p));
+
             for (int i = 1; i <= 5; i++)
             {
                 PresetSlots.Add(new PresetSlotViewModel(i));
             }
             CheckForExistingPresets();
 
-            // Setup Icons using AppIcons
-            AllTabs.Add(new TabItemViewModel(ResourceHelper.GetString("Options_TabNone"), null, null, null));
-            AllTabs.Add(new TabItemViewModel(ResourceHelper.GetString("TabFileContentExport"), AppIcons.FileContentExport.Glyph, AppIcons.FileContentExport.Brush, fileContentExportVM.FolderTreeManager));
-            AllTabs.Add(new TabItemViewModel(ResourceHelper.GetString("TabTreeGenerator"), AppIcons.TreeGenerator.Glyph, AppIcons.TreeGenerator.Brush, treeGeneratorVM.FolderTreeManager));
-            AllTabs.Add(new TabItemViewModel(ResourceHelper.GetString("TabFolderContentExport"), AppIcons.FolderContentExport.Glyph, AppIcons.FolderContentExport.Brush, folderContentExportVM.FolderTreeManager));
+            _folderTreeLinkService.OnLinksChanged += UpdateLinkRelatedState;
+
+            AllTabs.Add(new TabItemViewModel("None", ResourceHelper.GetString("Options_TabNone"), null, null, null));
+            AllTabs.Add(new TabItemViewModel("FileContentExport", ResourceHelper.GetString("TabFileContentExport"), AppIcons.FileContentExport.Glyph, AppIcons.FileContentExport.Brush, fileContentExportVM.FolderTreeManager));
+            AllTabs.Add(new TabItemViewModel("TreeGenerator", ResourceHelper.GetString("TabTreeGenerator"), AppIcons.TreeGenerator.Glyph, AppIcons.TreeGenerator.Brush, treeGeneratorVM.FolderTreeManager));
+            AllTabs.Add(new TabItemViewModel("FolderContentExport", ResourceHelper.GetString("TabFolderContentExport"), AppIcons.FolderContentExport.Glyph, AppIcons.FolderContentExport.Brush, folderContentExportVM.FolderTreeManager));
 
             SelectedSourceTab = AllTabs[0];
             SelectedDestinationTab = AllTabs[0];
@@ -315,7 +326,7 @@ namespace FileCraft.ViewModels.Functional
         {
             return SelectedSourceTab?.FolderTreeManager != null &&
                    SelectedDestinationTab?.FolderTreeManager != null &&
-                   SelectedSourceTab != SelectedDestinationTab &&
+                   SelectedSourceTab.Id != SelectedDestinationTab.Id &&
                    !string.IsNullOrWhiteSpace(_sharedStateService.SourcePath);
         }
 
@@ -351,12 +362,14 @@ namespace FileCraft.ViewModels.Functional
                 OnStateChanging();
                 var sourceState = sourceManager.GetFolderStates();
                 await destManager.LoadTreeForPathAsync(_sharedStateService.SourcePath, sourceState);
-                SelectedSourceTab = AllTabs[0];
-                SelectedDestinationTab = AllTabs[0];
+
                 _dialogService.ShowNotification(
                     ResourceHelper.GetString("Common_SuccessTitle"),
                     ResourceHelper.GetString("Options_CopyTreeSuccess"),
                     DialogIconType.Success);
+
+                SelectedSourceTab = AllTabs.First(t => t.Id == "None");
+                SelectedDestinationTab = AllTabs.First(t => t.Id == "None");
             }
         }
 
@@ -410,6 +423,70 @@ namespace FileCraft.ViewModels.Functional
                     slot.PresetName = ResourceHelper.GetString("Options_EmptyPreset");
                     slot.LastModified = null;
                 }
+            }
+        }
+
+        private void UpdateLinkRelatedState()
+        {
+            var allLinkGroups = _folderTreeLinkService.GetLinkGroups();
+            var linkedIds = allLinkGroups.SelectMany(g => g).ToHashSet();
+            var currentlySelectedSourceId = SelectedSourceTab?.Id;
+
+            foreach (var tab in AllTabs)
+            {
+                if (tab.FolderTreeManager != null)
+                {
+                    tab.IsSelectable = !linkedIds.Contains(tab.Id) && tab.Id != currentlySelectedSourceId;
+                }
+            }
+
+            ActiveLinkGroups.Clear();
+            foreach (var group in allLinkGroups)
+            {
+                if (!group.Any()) continue;
+
+                var groupVm = new LinkGroupViewModel(group.First());
+                foreach (var id in group)
+                {
+                    var tabVm = AllTabs.FirstOrDefault(t => t.Id == id);
+                    if (tabVm != null)
+                    {
+                        groupVm.LinkedTabs.Add(tabVm);
+                    }
+                }
+                ActiveLinkGroups.Add(groupVm);
+            }
+
+            if (SelectedDestinationTab != null && !SelectedDestinationTab.IsSelectable)
+            {
+                SelectedDestinationTab = AllTabs.First(t => t.Id == "None");
+            }
+        }
+
+        private bool CanLinkFolderTrees()
+        {
+            return SelectedSourceTab?.FolderTreeManager != null &&
+                   SelectedDestinationTab?.FolderTreeManager != null &&
+                   SelectedSourceTab.Id != SelectedDestinationTab.Id;
+        }
+
+        private void LinkFolderTrees()
+        {
+            if (CanLinkFolderTrees())
+            {
+                OnStateChanging();
+                _folderTreeLinkService.CreateLink(SelectedSourceTab!.Id, SelectedDestinationTab!.Id);
+                SelectedSourceTab = AllTabs.First(t => t.Id == "None");
+                SelectedDestinationTab = AllTabs.First(t => t.Id == "None");
+            }
+        }
+
+        private void UnlinkFolderTreeGroup(object? parameter)
+        {
+            if (parameter is string groupId)
+            {
+                OnStateChanging();
+                _folderTreeLinkService.RemoveLink(groupId);
             }
         }
     }

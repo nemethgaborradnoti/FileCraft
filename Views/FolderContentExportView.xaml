@@ -6,9 +6,14 @@
              xmlns:viewmodels="clr-namespace:FileCraft.ViewModels.Functional"
              xmlns:controls="clr-namespace:FileCraft.Views.Shared.Controls"
              xmlns:local="clr-namespace:FileCraft.ViewModels.Functional"
+             xmlns:icons="clr-namespace:Fonts"
              mc:Ignorable="d"
              d:DataContext="{d:DesignInstance Type=viewmodels:FolderContentExportViewModel, IsDesignTimeCreatable=False}"
              d:DesignHeight="450" d:DesignWidth="800">
+
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+    </UserControl.Resources>
 
     <Grid>
         <Grid.RowDefinitions>
@@ -74,6 +79,31 @@
                 <GroupBox.Header>
                     <StackPanel Style="{StaticResource HeaderStackPanelStyle}">
                         <TextBlock Text="{DynamicResource Common_FoldersHeader}" VerticalAlignment="Center" FontWeight="SemiBold"/>
+                        <TextBlock Text="{x:Static icons:MaterialIcons.link}"
+                                   FontFamily="{StaticResource MaterialIcons}"
+                                   Foreground="{StaticResource PrimaryBrush}"
+                                   FontSize="20"
+                                   Margin="5,0,0,0"
+                                   VerticalAlignment="Center"
+                                   Visibility="{Binding ElementName=LinkedTabsItemsControl, Path=HasItems, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                        <ItemsControl x:Name="LinkedTabsItemsControl" ItemsSource="{Binding LinkedTabs}" Margin="2,0,0,0">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel Orientation="Horizontal"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding IconGlyph}"
+                                               FontFamily="{StaticResource MaterialIcons}"
+                                               Foreground="{Binding IconBrush}"
+                                               FontSize="20"
+                                               Margin="2,0"
+                                               VerticalAlignment="Center"
+                                               ToolTip="{Binding Name}"/>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
                         <controls:FullscreenToggleButton Command="{Binding FullscreenManager.ToggleCommand}"
                                                          CurrentState="{Binding FullscreenManager.CurrentState}"
                                                          TargetState="{x:Static local:FolderContentFullscreenState.Folders}"/>

@@ -20,10 +20,15 @@ namespace FileCraft.ViewModels.Shared
             get => _rootFolders;
             private set
             {
-                _rootFolders = value;
-                OnPropertyChanged();
+                if (_rootFolders != value)
+                {
+                    _rootFolders = value;
+                    OnPropertyChanged();
+                }
             }
         }
+
+        public string Id { get; set; } = string.Empty;
 
         public FolderTreeManager(IFolderTreeService folderTreeService, ISharedStateService sharedStateService)
         {
@@ -69,6 +74,21 @@ namespace FileCraft.ViewModels.Shared
                 await ApplyStateToNodeAsync(newTree[0], folderState);
             }
             RootFolders = newTree;
+        }
+
+        public void SetSharedRootFolders(ObservableCollection<FolderViewModel> sharedFolders)
+        {
+            RootFolders = sharedFolders;
+            HandleFolderStateChange();
+        }
+
+        public void UnlinkAndCloneState()
+        {
+            var clonedStates = GetFolderStates();
+            var currentPath = _currentSourcePath;
+
+            RootFolders = new ObservableCollection<FolderViewModel>();
+            _ = LoadTreeForPathAsync(currentPath, clonedStates);
         }
 
         private void HandleFolderStateChange()

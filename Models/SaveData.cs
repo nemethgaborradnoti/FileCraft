@@ -58,5 +58,6 @@ namespace FileCraft.Models
     public class SettingsPageSettings
     {
         public List<string> IgnoredFolders { get; set; } = new() { "bin", "obj" };
+        public List<List<string>> LinkedFolderTreeGroups { get; set; } = new();
     }
 }
