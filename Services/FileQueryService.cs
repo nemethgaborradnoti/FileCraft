@@ -1,61 +1,123 @@
 ﻿using FileCraft.Models;
 using FileCraft.Services.Interfaces;
-using FileCraft.ViewModels;
 using System.IO;
 
 namespace FileCraft.Services
 {
     public class FileQueryService : IFileQueryService
     {
-        public IEnumerable<FileInfo> GetAllFiles(IEnumerable<string> folderPaths)
+        public IEnumerable<FileInfo> GetAllFiles(IEnumerable<string> folderPaths, ISet<string> ignoredFolderNames)
         {
-            var files = new List<FileInfo>();
             foreach (var path in folderPaths)
             {
                 if (Directory.Exists(path))
                 {
-                    try
+                    foreach (var filePath in EnumerateFilesInternal(path, ignoredFolderNames))
                     {
-                        var dirInfo = new DirectoryInfo(path);
-                        files.AddRange(dirInfo.GetFiles("*.*", SearchOption.TopDirectoryOnly));
-                    }
-                    catch (UnauthorizedAccessException)
-                    {
-                        Console.WriteLine($"Access denied to folder: {path}");
+                        yield return new FileInfo(filePath);
                     }
                 }
             }
-            return files;
         }
 
-        public HashSet<string> GetAvailableExtensions(IEnumerable<FolderViewModel> folders)
+        public HashSet<string> GetAvailableExtensions(IEnumerable<string> folderPaths, ISet<string> ignoredFolderNames)
         {
             var extensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            var folderPaths = folders.Select(f => f.FullPath);
-            var allFiles = GetAllFiles(folderPaths);
 
-            foreach (var file in allFiles)
+            foreach (var path in folderPaths)
             {
-                extensions.Add(file.Extension);
+                if (Directory.Exists(path))
+                {
+                    foreach (var filePath in EnumerateFilesInternal(path, ignoredFolderNames))
+                    {
+                        var extension = Path.GetExtension(filePath);
+                        if (!string.IsNullOrEmpty(extension))
+                        {
+                            extensions.Add(extension);
+                        }
+                    }
+                }
             }
             return extensions;
         }
 
-        public List<SelectableFile> GetFilesByExtensions(string basePath, IEnumerable<FolderViewModel> folders, ISet<string> selectedExtensions)
+        public IEnumerable<SelectableFile> GetFilesByExtensions(string basePath, IEnumerable<string> folderPaths, ISet<string> selectedExtensions, ISet<string> ignoredFolderNames)
         {
-            var folderPaths = folders.Select(f => f.FullPath);
-            var allFiles = GetAllFiles(folderPaths);
-
-            return allFiles
-                .Where(f => selectedExtensions.Contains(f.Extension, StringComparer.OrdinalIgnoreCase))
-                .Select(f => new SelectableFile
+            foreach (var path in folderPaths)
+            {
+                if (Directory.Exists(path))
                 {
-                    FileName = f.Name,
-                    FullPath = f.FullName,
-                    RelativePath = Path.GetRelativePath(basePath, f.FullName),
-                    IsSelected = false
-                })
-                .ToList();
+                    foreach (var filePath in EnumerateFilesInternal(path, ignoredFolderNames))
+                    {
+                        var extension = Path.GetExtension(filePath);
+                        if (selectedExtensions.Contains(extension))
+                        {
+                            yield return new SelectableFile
+                            {
+                                FileName = Path.GetFileName(filePath),
+                                FullPath = filePath,
+                                RelativePath = Path.GetRelativePath(basePath, filePath),
+                                IsSelected = false
+                            };
+                        }
+                    }
+                }
+            }
+        }
+
+        private IEnumerable<string> EnumerateFilesInternal(string path, ISet<string> ignoredFolderNames)
+        {
+            var stack = new Stack<string>();
+            stack.Push(path);
+
+            while (stack.Count > 0)
+            {
+                string currentDir = stack.Pop();
+                string dirName = Path.GetFileName(currentDir);
+
+                if (ignoredFolderNames.Contains(dirName))
+                {
+                    continue;
+                }
+
+                string[] files;
+                try
+                {
+                    files = Directory.GetFiles(currentDir);
+                }
+                catch (UnauthorizedAccessException)
+                {
+                    continue;
+                }
+                catch (DirectoryNotFoundException)
+                {
+                    continue;
+                }
+
+                foreach (var file in files)
+                {
+                    yield return file;
+                }
+
+                string[] subDirs;
+                try
+                {
+                    subDirs = Directory.GetDirectories(currentDir);
+                }
+                catch (UnauthorizedAccessException)
+                {
+                    continue;
+                }
+                catch (DirectoryNotFoundException)
+                {
+                    continue;
+                }
+
+                foreach (var subDir in subDirs)
+                {
+                    stack.Push(subDir);
+                }
+            }
         }
     }
 }

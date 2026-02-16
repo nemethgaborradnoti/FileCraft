@@ -134,15 +134,12 @@ namespace FileCraft.ViewModels.Functional
 
         private void UpdateAffectedFilesCount()
         {
-            var allNodes = RootFolders.Any() ? RootFolders[0].GetAllNodes() : Enumerable.Empty<FolderViewModel>();
-            var includedFolderPaths = allNodes
-                .Where(n => n.IsSelected != false)
-                .Select(n => n.FullPath)
-                .ToList();
+            var includedFolderPaths = GetSelectedFolderPaths();
 
             if (includedFolderPaths.Any())
             {
-                var allFiles = _fileQueryService.GetAllFiles(includedFolderPaths);
+                var ignoredFolders = new HashSet<string>(_sharedStateService.IgnoredFolders, StringComparer.OrdinalIgnoreCase);
+                var allFiles = _fileQueryService.GetAllFiles(includedFolderPaths, ignoredFolders);
                 AffectedFilesCount = allFiles.Count();
             }
             else
@@ -151,16 +148,37 @@ namespace FileCraft.ViewModels.Functional
             }
         }
 
+        private List<string> GetSelectedFolderPaths()
+        {
+            var paths = new List<string>();
+            if (RootFolders.Any())
+            {
+                CollectSelectedPaths(RootFolders[0], paths);
+            }
+            return paths;
+        }
+
+        private void CollectSelectedPaths(FolderViewModel node, List<string> paths)
+        {
+            if (node.IsSelected == true)
+            {
+                paths.Add(node.FullPath);
+            }
+            else if (node.IsSelected == null)
+            {
+                foreach (var child in node.Children)
+                {
+                    CollectSelectedPaths(child, paths);
+                }
+            }
+        }
+
         private async Task ExportFolderContents()
         {
             IsBusy = true;
             try
             {
-                var allNodes = RootFolders.Any() ? RootFolders[0].GetAllNodes() : Enumerable.Empty<FolderViewModel>();
-                var includedFolderPaths = allNodes
-                    .Where(n => n.IsSelected != false)
-                    .Select(n => n.FullPath)
-                    .ToList();
+                var includedFolderPaths = GetSelectedFolderPaths();
 
                 if (!includedFolderPaths.Any())
                 {
@@ -196,6 +214,7 @@ namespace FileCraft.ViewModels.Functional
                 }
 
                 string finalFileName = GetFinalFileName(OutputFileName, AppendTimestamp);
+
                 string outputFilePath = await _fileOperationService.ExportFolderContentsAsync(_sharedStateService.DestinationPath, includedFolderPaths, finalFileName, selectedColumns);
 
                 string successMsg = ResourceHelper.GetString("FolderContent_SuccessMessage");
