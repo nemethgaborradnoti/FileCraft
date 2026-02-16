@@ -11,11 +11,14 @@ namespace FileCraft.ViewModels
         private bool _isExpanded;
         private readonly Action _onStateChanged;
         private readonly Action _onStateChanging;
+        private readonly Func<string, FolderViewModel, Task<IEnumerable<FolderViewModel>>>? _loadChildren;
         private bool _isProcessingSelectionChange = false;
+
         public string Name { get; }
         public string FullPath { get; }
         public FolderViewModel? Parent { get; }
         public ObservableCollection<FolderViewModel> Children { get; } = new ObservableCollection<FolderViewModel>();
+        public bool IsDummy { get; init; }
 
         public bool IsExpanded
         {
@@ -26,6 +29,12 @@ namespace FileCraft.ViewModels
                 {
                     _onStateChanging?.Invoke();
                     _isExpanded = value;
+
+                    if (_isExpanded && Children.Count == 1 && Children[0].IsDummy)
+                    {
+                        LoadChildren();
+                    }
+
                     OnPropertyChanged();
                     _onStateChanged?.Invoke();
                 }
@@ -56,15 +65,50 @@ namespace FileCraft.ViewModels
             }
         }
 
-        public FolderViewModel(string name, string fullPath, FolderViewModel? parent, Action onStateChanged, Action onStateChanging)
+        public FolderViewModel(string name, string fullPath, FolderViewModel? parent, Action onStateChanged, Action onStateChanging, Func<string, FolderViewModel, Task<IEnumerable<FolderViewModel>>>? loadChildren)
         {
             Name = name;
             FullPath = fullPath;
             Parent = parent;
             _onStateChanged = onStateChanged;
             _onStateChanging = onStateChanging;
+            _loadChildren = loadChildren;
             _isSelected = false;
-            _isExpanded = true;
+            _isExpanded = false;
+        }
+
+        public static FolderViewModel CreateDummy()
+        {
+            return new FolderViewModel("Loading...", string.Empty, null, () => { }, () => { }, null)
+            {
+                IsDummy = true
+            };
+        }
+
+        private async void LoadChildren()
+        {
+            if (_loadChildren != null)
+            {
+                var loadedChildren = await _loadChildren(FullPath, this);
+
+                Children.Clear();
+                foreach (var child in loadedChildren)
+                {
+                    // Task 3.1: Propagate selection down to new children
+                    // If the parent is explicitly Selected (true) or Unselected (false), propagate it.
+                    // If the parent is Partial (null), new children default to false (unchecked), which is the default ctor state.
+                    if (IsSelected.HasValue)
+                    {
+                        child.SetIsSelected(IsSelected.Value, updateChildren: true, updateParent: false);
+                    }
+
+                    Children.Add(child);
+                }
+
+                // Task 3.2: Re-verify state after population to ensure consistency.
+                // E.g., if Parent was Partial (null), and all new children are False, Parent should become False.
+                VerifyCheckState();
+            }
         }
 
         private void SetIsSelected(bool? value, bool updateChildren, bool updateParent)
@@ -88,7 +132,7 @@ namespace FileCraft.ViewModels
             }
         }
 
-        private void VerifyCheckState()
+        public void VerifyCheckState()
         {
             bool? newParentState;
 
@@ -100,6 +144,10 @@ namespace FileCraft.ViewModels
             if (Children.All(c => c.IsSelected == true))
             {
                 newParentState = true;
+            }
+            else if (Children.All(c => c.IsSelected == false))
+            {
+                newParentState = false;
             }
             else
             {
@@ -116,6 +164,11 @@ namespace FileCraft.ViewModels
 
             OnPropertyChanged(nameof(IsSelected));
             OnPropertyChanged(nameof(IsExpanded));
+
+            if (_isExpanded && Children.Count == 1 && Children[0].IsDummy)
+            {
+                LoadChildren();
+            }
         }
 
         public IEnumerable<FolderViewModel> GetAllNodes()

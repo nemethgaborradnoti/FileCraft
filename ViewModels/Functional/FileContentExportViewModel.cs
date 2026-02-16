@@ -383,51 +383,67 @@ namespace FileCraft.ViewModels.Functional
 
         private void UpdateAvailableExtensions()
         {
-            var selectedFolders = GetSelectedFoldersForFileListing();
-            var extensions = _fileQueryService.GetAvailableExtensions(selectedFolders);
-            var previouslySelected = new HashSet<string>(GetSelectedExtensions());
+            var selectedFolders = GetSelectedFolderPaths();
 
-            Application.Current.Dispatcher.Invoke(() =>
+            // Now run async logic on background, but we need to marshal back to UI
+            // However, GetAvailableExtensions is currently synchronous in IFileQueryService (even if it does IO).
+            // For Phase 4, we'll keep it simple, but in real app this should probably be async too.
+            // Since we moved to paths, we just pass the paths.
+
+            Task.Run(() =>
             {
-                foreach (var ext in AvailableExtensions)
-                    ext.PropertyChanged -= OnExtensionSelectionChanged;
+                var extensions = _fileQueryService.GetAvailableExtensions(selectedFolders);
 
-                AvailableExtensions.Clear();
-                foreach (var ext in extensions.Where(e => !string.IsNullOrEmpty(e)).OrderBy(e => e))
+                Application.Current.Dispatcher.Invoke(() =>
                 {
-                    var item = new SelectableItemViewModel(ext, previouslySelected.Contains(ext), this.OnStateChanging);
-                    item.PropertyChanged += OnExtensionSelectionChanged;
-                    AvailableExtensions.Add(item);
-                }
-                UpdateExtensionMasterState();
+                    var previouslySelected = new HashSet<string>(GetSelectedExtensions());
+
+                    foreach (var ext in AvailableExtensions)
+                        ext.PropertyChanged -= OnExtensionSelectionChanged;
+
+                    AvailableExtensions.Clear();
+                    foreach (var ext in extensions.Where(e => !string.IsNullOrEmpty(e)).OrderBy(e => e))
+                    {
+                        var item = new SelectableItemViewModel(ext, previouslySelected.Contains(ext), this.OnStateChanging);
+                        item.PropertyChanged += OnExtensionSelectionChanged;
+                        AvailableExtensions.Add(item);
+                    }
+                    UpdateExtensionMasterState();
+                });
             });
         }
 
         private void UpdateSelectableFiles()
         {
-            var selectedFolders = GetSelectedFoldersForFileListing();
+            var selectedFolders = GetSelectedFolderPaths();
             var selectedExtensions = new HashSet<string>(GetSelectedExtensions(), StringComparer.OrdinalIgnoreCase);
-            var files = _fileQueryService.GetFilesByExtensions(_sharedStateService.SourcePath, selectedFolders, selectedExtensions);
-            var previouslySelectedFiles = new HashSet<string>(_allSelectableFiles.Where(f => f.IsSelected).Select(f => f.FullPath));
+            var basePath = _sharedStateService.SourcePath;
 
-            Application.Current.Dispatcher.Invoke(() =>
+            Task.Run(() =>
             {
-                foreach (var file in _allSelectableFiles)
-                    file.PropertyChanged -= OnFileSelectionChanged;
-                _allSelectableFiles.Clear();
+                var files = _fileQueryService.GetFilesByExtensions(basePath, selectedFolders, selectedExtensions);
 
-                foreach (var file in files.OrderBy(f => f.FullPath))
+                Application.Current.Dispatcher.Invoke(() =>
                 {
-                    if (previouslySelectedFiles.Contains(file.FullPath))
-                    {
-                        file.IsSelected = true;
-                    }
-                    file.SetStateChangingAction(this.OnStateChanging);
-                    file.PropertyChanged += OnFileSelectionChanged;
-                    _allSelectableFiles.Add(file);
-                }
+                    var previouslySelectedFiles = new HashSet<string>(_allSelectableFiles.Where(f => f.IsSelected).Select(f => f.FullPath));
 
-                ApplyFileFilter();
+                    foreach (var file in _allSelectableFiles)
+                        file.PropertyChanged -= OnFileSelectionChanged;
+                    _allSelectableFiles.Clear();
+
+                    foreach (var file in files.OrderBy(f => f.FullPath))
+                    {
+                        if (previouslySelectedFiles.Contains(file.FullPath))
+                        {
+                            file.IsSelected = true;
+                        }
+                        file.SetStateChangingAction(this.OnStateChanging);
+                        file.PropertyChanged += OnFileSelectionChanged;
+                        _allSelectableFiles.Add(file);
+                    }
+
+                    ApplyFileFilter();
+                });
             });
         }
 
@@ -509,10 +525,32 @@ namespace FileCraft.ViewModels.Functional
             }
         }
 
-        private List<FolderViewModel> GetSelectedFoldersForFileListing()
+        private List<string> GetSelectedFolderPaths()
         {
-            if (!RootFolders.Any()) return new List<FolderViewModel>();
-            return RootFolders[0].GetAllNodes().Where(n => n.IsSelected != false).ToList();
+            var paths = new List<string>();
+            if (RootFolders.Any())
+            {
+                CollectSelectedPaths(RootFolders[0], paths);
+            }
+            return paths;
+        }
+
+        private void CollectSelectedPaths(FolderViewModel node, List<string> paths)
+        {
+            if (node.IsSelected == true)
+            {
+                paths.Add(node.FullPath);
+                // Stop recursion here; the service will handle the full directory
+            }
+            else if (node.IsSelected == null) // Partial
+            {
+                // Must recurse to find specifically selected children
+                foreach (var child in node.Children)
+                {
+                    CollectSelectedPaths(child, paths);
+                }
+            }
+            // If IsSelected == false, do nothing
         }
 
         private async Task ExportFileContentAsync()
