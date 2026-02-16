@@ -24,11 +24,16 @@ namespace FileCraft.ViewModels.Functional
     {
         private readonly IFileQueryService _fileQueryService;
         private readonly Debouncer _debouncer;
+        private CancellationTokenSource? _filterCts;
+
         private string _searchFilter = string.Empty;
         private bool _isShowingOnlySelected;
         private bool _isShowingOnlyUnselected;
-        private readonly ObservableCollection<SelectableFile> _allSelectableFiles = new();
-        public ObservableCollection<SelectableFile> FilteredSelectableFiles { get; } = new();
+
+        private List<SelectableFile> _allSelectableFiles = new();
+
+        public RangeObservableCollection<SelectableFile> FilteredSelectableFiles { get; } = new();
+
         private int _totalFilesCount;
         private int _availableFilesCount;
         private int _selectedFilesCount;
@@ -161,7 +166,8 @@ namespace FileCraft.ViewModels.Functional
             }
         }
 
-        public ObservableCollection<SelectableItemViewModel> AvailableExtensions { get; } = new ObservableCollection<SelectableItemViewModel>();
+        // Changed to RangeObservableCollection
+        public RangeObservableCollection<SelectableItemViewModel> AvailableExtensions { get; } = new();
 
         public ICommand ExportFileContentCommand { get; }
         public ICommand ClearFilterCommand { get; }
@@ -327,23 +333,33 @@ namespace FileCraft.ViewModels.Functional
 
         private void ApplyFileFilter()
         {
-            Application.Current.Dispatcher.Invoke(() =>
-            {
-                FilteredSelectableFiles.Clear();
-                IEnumerable<SelectableFile> filtered = _allSelectableFiles;
+            _filterCts?.Cancel();
+            _filterCts = new CancellationTokenSource();
+            var token = _filterCts.Token;
 
-                if (IsShowingOnlySelected)
+            var currentSearchFilter = SearchFilter;
+            var onlySelected = IsShowingOnlySelected;
+            var onlyUnselected = IsShowingOnlyUnselected;
+            var sourceFiles = _allSelectableFiles.ToList();
+
+            Task.Run(() =>
+            {
+                if (token.IsCancellationRequested) return;
+
+                IEnumerable<SelectableFile> filtered = sourceFiles;
+
+                if (onlySelected)
                 {
                     filtered = filtered.Where(f => f.IsSelected);
                 }
-                else if (IsShowingOnlyUnselected)
+                else if (onlyUnselected)
                 {
                     filtered = filtered.Where(f => !f.IsSelected);
                 }
 
-                if (!string.IsNullOrWhiteSpace(SearchFilter))
+                if (!string.IsNullOrWhiteSpace(currentSearchFilter))
                 {
-                    var searchTerms = SearchFilter.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                    var searchTerms = currentSearchFilter.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
 
                     foreach (var term in searchTerms)
                     {
@@ -360,10 +376,18 @@ namespace FileCraft.ViewModels.Functional
                     }
                 }
 
-                foreach (var file in filtered)
-                    FilteredSelectableFiles.Add(file);
-                UpdateFileCounts();
-            });
+                var resultList = filtered.ToList();
+
+                if (token.IsCancellationRequested) return;
+
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    if (token.IsCancellationRequested) return;
+
+                    FilteredSelectableFiles.ReplaceAll(resultList);
+                    UpdateFileCounts();
+                });
+            }, token);
         }
 
         protected override void OnFolderTreeManagerPropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -386,6 +410,7 @@ namespace FileCraft.ViewModels.Functional
             var selectedFolders = GetSelectedFolderPaths();
             var ignoredFolders = new HashSet<string>(_sharedStateService.IgnoredFolders, StringComparer.OrdinalIgnoreCase);
 
+            IsBusy = true;
             Task.Run(() =>
             {
                 var extensions = _fileQueryService.GetAvailableExtensions(selectedFolders, ignoredFolders);
@@ -397,14 +422,17 @@ namespace FileCraft.ViewModels.Functional
                     foreach (var ext in AvailableExtensions)
                         ext.PropertyChanged -= OnExtensionSelectionChanged;
 
-                    AvailableExtensions.Clear();
+                    var newExtensionsList = new List<SelectableItemViewModel>();
                     foreach (var ext in extensions.Where(e => !string.IsNullOrEmpty(e)).OrderBy(e => e))
                     {
                         var item = new SelectableItemViewModel(ext, previouslySelected.Contains(ext), this.OnStateChanging);
                         item.PropertyChanged += OnExtensionSelectionChanged;
-                        AvailableExtensions.Add(item);
+                        newExtensionsList.Add(item);
                     }
+
+                    AvailableExtensions.ReplaceAll(newExtensionsList);
                     UpdateExtensionMasterState();
+                    IsBusy = false;
                 });
             });
         }
@@ -416,9 +444,16 @@ namespace FileCraft.ViewModels.Functional
             var ignoredFolders = new HashSet<string>(_sharedStateService.IgnoredFolders, StringComparer.OrdinalIgnoreCase);
             var basePath = _sharedStateService.SourcePath;
 
+            IsBusy = true;
             Task.Run(() =>
             {
                 var files = _fileQueryService.GetFilesByExtensions(basePath, selectedFolders, selectedExtensions, ignoredFolders);
+
+                var newFileList = new List<SelectableFile>();
+                foreach (var file in files)
+                {
+                    newFileList.Add(file);
+                }
 
                 Application.Current.Dispatcher.Invoke(() =>
                 {
@@ -426,9 +461,10 @@ namespace FileCraft.ViewModels.Functional
 
                     foreach (var file in _allSelectableFiles)
                         file.PropertyChanged -= OnFileSelectionChanged;
+
                     _allSelectableFiles.Clear();
 
-                    foreach (var file in files.OrderBy(f => f.FullPath))
+                    foreach (var file in newFileList.OrderBy(f => f.FullPath))
                     {
                         if (previouslySelectedFiles.Contains(file.FullPath))
                         {
@@ -440,6 +476,7 @@ namespace FileCraft.ViewModels.Functional
                     }
 
                     ApplyFileFilter();
+                    IsBusy = false;
                 });
             });
         }
