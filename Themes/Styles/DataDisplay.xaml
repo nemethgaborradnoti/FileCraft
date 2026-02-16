@@ -114,5 +114,11 @@
         </Style.Triggers>
     </Style>
 
-</ResourceDictionary>
+    <!-- Phase 5: UI Virtualization -->
+    <Style TargetType="TreeView">
+        <Setter Property="VirtualizingStackPanel.IsVirtualizing" Value="True"/>
+        <Setter Property="VirtualizingStackPanel.VirtualizationMode" Value="Recycling"/>
+        <Setter Property="ScrollViewer.CanContentScroll" Value="True"/>
+    </Style>
 
+</ResourceDictionary>

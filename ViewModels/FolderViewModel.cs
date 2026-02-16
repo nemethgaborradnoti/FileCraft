@@ -32,7 +32,7 @@ namespace FileCraft.ViewModels
 
                     if (_isExpanded && Children.Count == 1 && Children[0].IsDummy)
                     {
-                        LoadChildren();
+                        _ = LoadChildrenAsync();
                     }
 
                     OnPropertyChanged();
@@ -85,7 +85,7 @@ namespace FileCraft.ViewModels
             };
         }
 
-        private async void LoadChildren()
+        private async Task LoadChildrenAsync()
         {
             if (_loadChildren != null)
             {
@@ -94,19 +94,12 @@ namespace FileCraft.ViewModels
                 Children.Clear();
                 foreach (var child in loadedChildren)
                 {
-                    // Task 3.1: Propagate selection down to new children
-                    // If the parent is explicitly Selected (true) or Unselected (false), propagate it.
-                    // If the parent is Partial (null), new children default to false (unchecked), which is the default ctor state.
                     if (IsSelected.HasValue)
                     {
                         child.SetIsSelected(IsSelected.Value, updateChildren: true, updateParent: false);
                     }
-
                     Children.Add(child);
                 }
-
-                // Task 3.2: Re-verify state after population to ensure consistency.
-                // E.g., if Parent was Partial (null), and all new children are False, Parent should become False.
                 VerifyCheckState();
             }
         }
@@ -157,7 +150,7 @@ namespace FileCraft.ViewModels
             SetIsSelected(newParentState, false, true);
         }
 
-        public void ApplyState(FolderState state)
+        public async Task ApplyStateAsync(FolderState state)
         {
             _isSelected = state.IsSelected;
             _isExpanded = state.IsExpanded;
@@ -167,8 +160,14 @@ namespace FileCraft.ViewModels
 
             if (_isExpanded && Children.Count == 1 && Children[0].IsDummy)
             {
-                LoadChildren();
+                await LoadChildrenAsync();
             }
+        }
+
+        // Keep synchronous ApplyState for compatibility if needed, but prefer Async
+        public void ApplyState(FolderState state)
+        {
+            _ = ApplyStateAsync(state);
         }
 
         public IEnumerable<FolderViewModel> GetAllNodes()

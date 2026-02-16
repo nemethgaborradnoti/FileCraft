@@ -257,7 +257,7 @@ namespace FileCraft.ViewModels.Functional
                 _ => CurrentSaveDeleteRequested?.Invoke());
 
             OpenSaveFolderCommand = new RelayCommand(_ => OpenSaveFolder());
-            CopyFolderTreeCommand = new RelayCommand(_ => CopyFolderTree(), _ => CanCopyFolderTree());
+            CopyFolderTreeCommand = new RelayCommand(async _ => await CopyFolderTree(), _ => CanCopyFolderTree());
             EditIgnoredFoldersCommand = new RelayCommand(_ => EditIgnoredFolders());
 
             for (int i = 1; i <= 5; i++)
@@ -319,7 +319,7 @@ namespace FileCraft.ViewModels.Functional
                    !string.IsNullOrWhiteSpace(_sharedStateService.SourcePath);
         }
 
-        private void CopyFolderTree()
+        private async Task CopyFolderTree()
         {
             if (!CanCopyFolderTree()) return;
 
@@ -350,7 +350,7 @@ namespace FileCraft.ViewModels.Functional
             {
                 OnStateChanging();
                 var sourceState = sourceManager.GetFolderStates();
-                destManager.LoadTreeForPath(_sharedStateService.SourcePath, sourceState);
+                await destManager.LoadTreeForPathAsync(_sharedStateService.SourcePath, sourceState);
                 SelectedSourceTab = AllTabs[0];
                 SelectedDestinationTab = AllTabs[0];
                 _dialogService.ShowNotification(
