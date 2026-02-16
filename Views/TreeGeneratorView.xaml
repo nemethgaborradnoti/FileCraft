@@ -108,6 +108,24 @@
                 <GroupBox.Header>
                     <StackPanel Style="{StaticResource HeaderStackPanelStyle}">
                         <TextBlock Text="{DynamicResource Common_FoldersHeader}" VerticalAlignment="Center" FontWeight="SemiBold"/>
+                        <ItemsControl ItemsSource="{Binding LinkedTabs}" Margin="5,0,0,0">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel Orientation="Horizontal"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding IconGlyph}"
+                                               FontFamily="{StaticResource MaterialIcons}"
+                                               Foreground="{Binding IconBrush}"
+                                               FontSize="20"
+                                               Margin="2,0"
+                                               VerticalAlignment="Center"
+                                               ToolTip="{Binding Name}"/>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
                         <controls:FullscreenToggleButton Command="{Binding FullscreenManager.ToggleCommand}"
                                                          CurrentState="{Binding FullscreenManager.CurrentState}"
                                                          TargetState="{x:Static local:TreeGeneratorFullscreenState.Folders}"/>
@@ -141,11 +159,11 @@
                                   Margin="0,0,0,5"
                                   HorizontalAlignment="Stretch">
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="{x:Static icons:MaterialIcons.account_tree}" 
-                                       FontFamily="{StaticResource MaterialIcons}" 
+                            <TextBlock Text="{x:Static icons:MaterialIcons.account_tree}"
+                                       FontFamily="{StaticResource MaterialIcons}"
                                        FontSize="20"
-                                       VerticalAlignment="Center" 
-                                       Margin="0,0,10,0" 
+                                       VerticalAlignment="Center"
+                                       Margin="0,0,10,0"
                                        Foreground="White"/>
                             <TextBlock Text="{DynamicResource TreeGen_StructuredTreeOption}" FontSize="12" VerticalAlignment="Center" Margin="0,0,5,0" Foreground="White" FontWeight="SemiBold"/>
                         </StackPanel>
@@ -155,11 +173,11 @@
                                   IsChecked="{Binding IsPathsOnly}"
                                   HorizontalAlignment="Stretch">
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="{x:Static icons:MaterialIcons.notes}" 
-                                       FontFamily="{StaticResource MaterialIcons}" 
+                            <TextBlock Text="{x:Static icons:MaterialIcons.notes}"
+                                       FontFamily="{StaticResource MaterialIcons}"
                                        FontSize="20"
-                                       VerticalAlignment="Center" 
-                                       Margin="0,0,10,0" 
+                                       VerticalAlignment="Center"
+                                       Margin="0,0,10,0"
                                        Foreground="White"/>
                             <TextBlock Text="{DynamicResource TreeGen_PathsOnlyOption}" FontSize="12" VerticalAlignment="Center" Margin="0,0,5,0" Foreground="White" FontWeight="SemiBold"/>
                         </StackPanel>

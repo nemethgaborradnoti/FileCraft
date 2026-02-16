@@ -15,6 +15,7 @@ namespace FileCraft.ViewModels.Functional
         private bool _appendTimestamp;
 
         public FolderTreeManager FolderTreeManager { get; }
+        public ObservableCollection<TabIconViewModel> LinkedTabs { get; } = new();
 
         public ObservableCollection<FolderViewModel> RootFolders => FolderTreeManager.RootFolders;
 
