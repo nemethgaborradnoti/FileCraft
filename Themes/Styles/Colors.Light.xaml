@@ -6,7 +6,12 @@
     <Color x:Key="DarkGrayColor">#666666</Color>
     <Color x:Key="TextColor">#333333</Color>
 
-    <SolidColorBrush x:Key="TextBoxBackgroundBrush" Color="{StaticResource LightGrayColor}"/>
+    <!-- Backgrounds -->
+    <SolidColorBrush x:Key="WindowBackgroundBrush" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="TextBoxBackgroundBrush" Color="White"/>
+    <SolidColorBrush x:Key="ListViewBackgroundBrush" Color="White"/>
+    <SolidColorBrush x:Key="PanelBackgroundBrush" Color="#F9F9F9"/>
+
     <SolidColorBrush x:Key="BorderBrush" Color="{StaticResource MediumGrayColor}"/>
     <SolidColorBrush x:Key="TextBrush" Color="{StaticResource TextColor}"/>
     <SolidColorBrush x:Key="GrayTextBrush" Color="{StaticResource DarkGrayColor}"/>

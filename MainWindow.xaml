@@ -12,6 +12,8 @@
         Title="FileCraft" Height="800" Width="850"
         MinHeight="200" MinWidth="250"
         WindowStartupLocation="CenterScreen"
+        Background="{DynamicResource WindowBackgroundBrush}"
+        Foreground="{DynamicResource TextBrush}"
         d:DataContext="{d:DesignInstance Type=viewModels:MainViewModel, IsDesignTimeCreatable=False}">
 
     <Grid Margin="10">
@@ -21,7 +23,7 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- Changed StackPanel to Grid for Left/Right alignment -->
+        <!-- Top Bar -->
         <Grid Grid.Row="0" Margin="5,0,5,5">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
@@ -52,13 +54,13 @@
             <StackPanel Grid.Column="2" Orientation="Horizontal">
                 <Button Style="{StaticResource BorderlessIconButton}" ToolTip="{DynamicResource ThemeToggleTooltip}" Command="{Binding ToggleThemeCommand}" Padding="0">
                     <Viewbox>
-                        <!-- Using DynamicResource for foreground to ensure immediate update -->
                         <TextBlock Text="{Binding CurrentThemeIcon.Glyph}" FontFamily="{StaticResource MaterialIcons}" Foreground="{DynamicResource TextBrush}" />
                     </Viewbox>
                 </Button>
             </StackPanel>
         </Grid>
 
+        <!-- Folder Selection Paths -->
         <Grid Grid.Row="1" Margin="5,0,5,5">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
@@ -100,6 +102,7 @@
             </GroupBox>
         </Grid>
 
+        <!-- Tab Content -->
         <TabControl Grid.Row="2" Margin="5" SelectedIndex="{Binding SelectedTabIndex}">
             <TabItem>
                 <TabItem.Header>

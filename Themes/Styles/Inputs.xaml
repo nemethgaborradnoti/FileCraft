@@ -2,10 +2,11 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <ResourceDictionary.MergedDictionaries>
+        <!-- Removed Colors.xaml -->
     </ResourceDictionary.MergedDictionaries>
 
     <Style x:Key="ModernTextBoxStyle" TargetType="TextBox">
-        <Setter Property="Background" Value="{DynamicResource TabActiveBackgroundBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource TextBoxBackgroundBrush}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
         <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
@@ -37,7 +38,7 @@
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="false">
                             <Setter Property="Opacity" Value="0.65"/>
-                            <Setter Property="Background" TargetName="border" Value="{DynamicResource TextBoxBackgroundBrush}"/>
+                            <Setter Property="Background" TargetName="border" Value="{DynamicResource TransparentBrush}"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -77,7 +78,7 @@
                                 Margin="0,0,5,0"
                                 BorderBrush="{DynamicResource BorderBrush}"
                                 BorderThickness="1"
-                                Background="Transparent"
+                                Background="{DynamicResource TextBoxBackgroundBrush}"
                                 CornerRadius="3"
                                 VerticalAlignment="Center">
                             <Grid>
@@ -191,7 +192,7 @@
     <Style TargetType="{x:Type ComboBox}">
         <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
         <Setter Property="Padding" Value="8,5"/>
-        <Setter Property="Background" Value="{DynamicResource TabActiveBackgroundBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource TextBoxBackgroundBrush}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
         <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
@@ -215,7 +216,7 @@
                                Placement="Bottom"
                                PopupAnimation="{DynamicResource {x:Static SystemParameters.ComboBoxPopupAnimationKey}}">
                             <Border x:Name="dropDownBorder"
-                                    Background="{DynamicResource TabActiveBackgroundBrush}"
+                                    Background="{DynamicResource TextBoxBackgroundBrush}"
                                     BorderBrush="{DynamicResource BorderBrush}"
                                     BorderThickness="1"
                                     CornerRadius="4"
@@ -261,7 +262,7 @@
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="false">
                             <Setter Property="Opacity" Value="0.65"/>
-                            <Setter TargetName="mainBorder" Property="Background" Value="{DynamicResource TextBoxBackgroundBrush}"/>
+                            <Setter TargetName="mainBorder" Property="Background" Value="{DynamicResource TransparentBrush}"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>

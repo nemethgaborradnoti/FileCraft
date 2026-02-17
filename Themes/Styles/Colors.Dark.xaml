@@ -2,12 +2,19 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <Color x:Key="LightGrayColor">#2D2D30</Color>
-    <Color x:Key="MediumGrayColor">#3E3E42</Color>
-    <Color x:Key="DarkGrayColor">#999999</Color>
-    <Color x:Key="TextColor">#F1F1F1</Color>
+    <Color x:Key="MediumGrayColor">#6E6E6E</Color>
+    <Color x:Key="DarkGrayColor">#AAAAAA</Color>
+    <Color x:Key="TextColor">#F0F0F0</Color>
 
-    <SolidColorBrush x:Key="TextBoxBackgroundBrush" Color="#1E1E1E"/>
+    <!-- Backgrounds -->
+    <SolidColorBrush x:Key="WindowBackgroundBrush" Color="#121212"/>
+    <SolidColorBrush x:Key="TextBoxBackgroundBrush" Color="#252526"/>
+    <SolidColorBrush x:Key="ListViewBackgroundBrush" Color="#1E1E1E"/>
+    <SolidColorBrush x:Key="PanelBackgroundBrush" Color="#1E1E1E"/>
+
+    <!-- Lightened BorderBrush for better visibility in Dark Mode -->
     <SolidColorBrush x:Key="BorderBrush" Color="{StaticResource MediumGrayColor}"/>
+
     <SolidColorBrush x:Key="TextBrush" Color="{StaticResource TextColor}"/>
     <SolidColorBrush x:Key="GrayTextBrush" Color="{StaticResource DarkGrayColor}"/>
     <SolidColorBrush x:Key="TransparentBrush" Color="Transparent"/>
@@ -54,11 +61,11 @@
     <SolidColorBrush x:Key="ButtonTextBrush" Color="{StaticResource ButtonTextColor}"/>
 
     <SolidColorBrush x:Key="TextBoxFocusBorderBrush" Color="{StaticResource PrimaryColor}"/>
-    <SolidColorBrush x:Key="ComboBoxItemHighlightBrush" Color="#3F3F46"/>
+    <SolidColorBrush x:Key="ComboBoxItemHighlightBrush" Color="#3E3E42"/>
 
-    <Color x:Key="TabHoverColor">#3F3F46</Color>
+    <Color x:Key="TabHoverColor">#3E3E42</Color>
     <SolidColorBrush x:Key="TabHoverBrush" Color="{StaticResource TabHoverColor}"/>
-    <SolidColorBrush x:Key="TabInactiveBackgroundBrush" Color="{StaticResource LightGrayColor}"/>
+    <SolidColorBrush x:Key="TabInactiveBackgroundBrush" Color="#252526"/>
     <SolidColorBrush x:Key="TabActiveBackgroundBrush" Color="#1E1E1E"/>
 
 </ResourceDictionary>
