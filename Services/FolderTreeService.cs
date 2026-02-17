@@ -47,7 +47,7 @@ namespace FileCraft.Services
                 var children = new List<FolderViewModel>();
                 try
                 {
-                    var subDirs = Directory.GetDirectories(path)
+                    var subDirs = Directory.EnumerateDirectories(path)
                         .Where(d => !ignoredFolderNames.Contains(new DirectoryInfo(d).Name, StringComparer.OrdinalIgnoreCase));
 
                     Task<IEnumerable<FolderViewModel>> LoadChildrenDelegate(string p, FolderViewModel par) =>

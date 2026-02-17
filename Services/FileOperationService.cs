@@ -98,13 +98,13 @@ namespace FileCraft.Services
             {
                 var ignoredFolderNames = new HashSet<string>(_sharedStateService.IgnoredFolders, StringComparer.OrdinalIgnoreCase);
 
-                var subDirectories = Directory.GetDirectories(directoryPath)
+                var subDirectories = Directory.EnumerateDirectories(directoryPath)
                     .Where(d => !excludedFolderPaths.Contains(d))
                     .Where(d => !ignoredFolderNames.Contains(new DirectoryInfo(d).Name))
                     .OrderBy(d => d)
                     .ToArray();
 
-                var files = Directory.GetFiles(directoryPath)
+                var files = Directory.EnumerateFiles(directoryPath)
                     .OrderBy(f => f)
                     .ToArray();
 
@@ -135,15 +135,13 @@ namespace FileCraft.Services
             {
                 var ignoredFolderNames = new HashSet<string>(_sharedStateService.IgnoredFolders, StringComparer.OrdinalIgnoreCase);
 
-                var subDirectories = Directory.GetDirectories(directoryPath)
+                var subDirectories = Directory.EnumerateDirectories(directoryPath)
                     .Where(d => !excludedFolderPaths.Contains(d))
                     .Where(d => !ignoredFolderNames.Contains(new DirectoryInfo(d).Name))
-                    .OrderBy(d => d)
-                    .ToArray();
+                    .OrderBy(d => d);
 
-                var files = Directory.GetFiles(directoryPath)
-                    .OrderBy(f => f)
-                    .ToArray();
+                var files = Directory.EnumerateFiles(directoryPath)
+                    .OrderBy(f => f);
 
                 foreach (var dir in subDirectories)
                 {
