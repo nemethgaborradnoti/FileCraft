@@ -15,6 +15,7 @@ namespace FileCraft.ViewModels
         private readonly ISharedStateService _sharedStateService;
         private readonly IDialogService _dialogService;
         private readonly IUndoService _undoService;
+        private readonly IFolderTreeLinkService _folderTreeLinkService;
         private bool _isLoading = false;
 
         private bool _hasUnsavedChanges;
@@ -69,6 +70,7 @@ namespace FileCraft.ViewModels
             ISharedStateService sharedStateService,
             IDialogService dialogService,
             IUndoService undoService,
+            IFolderTreeLinkService folderTreeLinkService,
             FileContentExportViewModel fileContentExportVM,
             TreeGeneratorViewModel treeGeneratorVM,
             FolderContentExportViewModel folderContentExportVM,
@@ -78,11 +80,22 @@ namespace FileCraft.ViewModels
             _sharedStateService = sharedStateService;
             _dialogService = dialogService;
             _undoService = undoService;
+            _folderTreeLinkService = folderTreeLinkService;
 
             FileContentExportVM = fileContentExportVM;
             TreeGeneratorVM = treeGeneratorVM;
             FolderContentExportVM = folderContentExportVM;
             OptionsVM = optionsVM;
+
+            FileContentExportVM.FolderTreeManager.Id = "FileContentExport";
+            TreeGeneratorVM.FolderTreeManager.Id = "TreeGenerator";
+            FolderContentExportVM.FolderTreeManager.Id = "FolderContentExport";
+
+            _folderTreeLinkService.RegisterManager(FileContentExportVM.FolderTreeManager.Id, FileContentExportVM.FolderTreeManager);
+            _folderTreeLinkService.RegisterManager(TreeGeneratorVM.FolderTreeManager.Id, TreeGeneratorVM.FolderTreeManager);
+            _folderTreeLinkService.RegisterManager(FolderContentExportVM.FolderTreeManager.Id, FolderContentExportVM.FolderTreeManager);
+
+            _folderTreeLinkService.OnLinksChanged += UpdateLinkedTabsVisuals;
 
             SubscribeToChanges();
 
@@ -101,6 +114,7 @@ namespace FileCraft.ViewModels
             RedoCommand = new RelayCommand(_ => Redo(), _ => CanRedo);
 
             LoadData();
+            UpdateLinkedTabsVisuals();
             HasUnsavedChanges = false;
         }
 
@@ -127,29 +141,29 @@ namespace FileCraft.ViewModels
             OnPropertyChanged(nameof(CanRedo));
         }
 
-        private void Undo()
+        private async void Undo()
         {
             if (!CanUndo) return;
             _isLoading = true;
             var currentState = GetCurrentSaveData();
             var previousState = _undoService.Undo(currentState);
-            ApplyAllData(previousState);
+            await ApplyAllData(previousState);
             HasUnsavedChanges = true;
             _isLoading = false;
         }
 
-        private void Redo()
+        private async void Redo()
         {
             if (!CanRedo) return;
             _isLoading = true;
             var currentState = GetCurrentSaveData();
             var nextState = _undoService.Redo(currentState);
-            ApplyAllData(nextState);
+            await ApplyAllData(nextState);
             HasUnsavedChanges = true;
             _isLoading = false;
         }
 
-        private void SelectPath(bool isSource)
+        private async void SelectPath(bool isSource)
         {
             OnStateChanging();
             var title = isSource ? ResourceHelper.GetString("MainVM_SelectSourceFolder") : ResourceHelper.GetString("MainVM_SelectDestFolder");
@@ -159,9 +173,9 @@ namespace FileCraft.ViewModels
                 if (isSource)
                 {
                     _sharedStateService.SourcePath = selectedPath;
-                    FileContentExportVM.FolderTreeManager.LoadTreeForPath(selectedPath);
-                    TreeGeneratorVM.FolderTreeManager.LoadTreeForPath(selectedPath);
-                    FolderContentExportVM.FolderTreeManager.LoadTreeForPath(selectedPath);
+                    await FileContentExportVM.FolderTreeManager.LoadTreeForPathAsync(selectedPath);
+                    await TreeGeneratorVM.FolderTreeManager.LoadTreeForPathAsync(selectedPath);
+                    await FolderContentExportVM.FolderTreeManager.LoadTreeForPathAsync(selectedPath);
                 }
                 else
                 {
@@ -172,27 +186,27 @@ namespace FileCraft.ViewModels
             }
         }
 
-        private void ClearPaths()
+        private async void ClearPaths()
         {
             OnStateChanging();
             _sharedStateService.SourcePath = string.Empty;
             _sharedStateService.DestinationPath = string.Empty;
 
-            FileContentExportVM.FolderTreeManager.LoadTreeForPath(string.Empty);
-            TreeGeneratorVM.FolderTreeManager.LoadTreeForPath(string.Empty);
-            FolderContentExportVM.FolderTreeManager.LoadTreeForPath(string.Empty);
+            await FileContentExportVM.FolderTreeManager.LoadTreeForPathAsync(string.Empty);
+            await TreeGeneratorVM.FolderTreeManager.LoadTreeForPathAsync(string.Empty);
+            await FolderContentExportVM.FolderTreeManager.LoadTreeForPathAsync(string.Empty);
 
             OnPropertyChanged(nameof(SourcePath));
             OnPropertyChanged(nameof(DestinationPath));
             OnPropertyChanged(nameof(CanClearPaths));
         }
 
-        private void LoadData()
+        private async void LoadData()
         {
             _isLoading = true;
             _undoService.Clear();
             SaveData saveData = _saveService.LoadSaveData();
-            ApplyAllData(saveData);
+            await ApplyAllData(saveData);
             SelectedTabIndex = saveData.SelectedTabIndex;
             _isLoading = false;
         }
@@ -200,7 +214,6 @@ namespace FileCraft.ViewModels
         public void Save()
         {
             var saveData = GetCurrentSaveData();
-
             var dataToPersist = new SaveData
             {
                 SourcePath = saveData.SourcePath,
@@ -276,29 +289,32 @@ namespace FileCraft.ViewModels
                 },
                 SettingsPage = new SettingsPageSettings
                 {
-                    IgnoredFolders = _sharedStateService.IgnoredFolders
+                    IgnoredFolders = _sharedStateService.IgnoredFolders,
+                    LinkedFolderTreeGroups = _folderTreeLinkService.GetLinkGroups()
                 }
             };
         }
 
-        private void ApplyAllData(SaveData saveData)
+        private async Task ApplyAllData(SaveData saveData)
         {
             _isLoading = true;
             _sharedStateService.SourcePath = saveData.SourcePath;
             _sharedStateService.DestinationPath = saveData.DestinationPath;
             _sharedStateService.IgnoredFolders = saveData.SettingsPage.IgnoredFolders ?? new();
 
+            _folderTreeLinkService.LoadLinkGroups(saveData.SettingsPage.LinkedFolderTreeGroups);
+
             OnPropertyChanged(nameof(SourcePath));
             OnPropertyChanged(nameof(DestinationPath));
             OnPropertyChanged(nameof(CanClearPaths));
 
-            FileContentExportVM.FolderTreeManager.LoadTreeForPath(SourcePath, saveData.FileContentExport.FolderTreeState);
+            await FileContentExportVM.FolderTreeManager.LoadTreeForPathAsync(SourcePath, saveData.FileContentExport.FolderTreeState);
             FileContentExportVM.ApplySettings(saveData.FileContentExport);
 
-            FolderContentExportVM.FolderTreeManager.LoadTreeForPath(SourcePath, saveData.FolderContentExport.FolderTreeState);
+            await FolderContentExportVM.FolderTreeManager.LoadTreeForPathAsync(SourcePath, saveData.FolderContentExport.FolderTreeState);
             FolderContentExportVM.ApplySettings(saveData.FolderContentExport);
 
-            TreeGeneratorVM.FolderTreeManager.LoadTreeForPath(SourcePath, saveData.TreeGenerator.FolderTreeState);
+            await TreeGeneratorVM.FolderTreeManager.LoadTreeForPathAsync(SourcePath, saveData.TreeGenerator.FolderTreeState);
             TreeGeneratorVM.OutputFileName = saveData.TreeGenerator.OutputFileName;
             TreeGeneratorVM.AppendTimestamp = saveData.TreeGenerator.AppendTimestamp;
 
@@ -401,7 +417,7 @@ namespace FileCraft.ViewModels
             }
         }
 
-        private void OnPresetLoadRequested(int presetNumber)
+        private async void OnPresetLoadRequested(int presetNumber)
         {
             if (string.IsNullOrWhiteSpace(SourcePath) || !Directory.Exists(SourcePath))
             {
@@ -434,7 +450,7 @@ namespace FileCraft.ViewModels
             try
             {
                 var absolutePresetData = MakePathsAbsolute(relativePresetData, SourcePath);
-                ApplyAllData(absolutePresetData);
+                await ApplyAllData(absolutePresetData);
                 HasUnsavedChanges = true;
                 _dialogService.ShowNotification(
                     ResourceHelper.GetString("Common_SuccessTitle"),
@@ -485,7 +501,7 @@ namespace FileCraft.ViewModels
             }
         }
 
-        private void OnCurrentSaveDeleteRequested()
+        private async void OnCurrentSaveDeleteRequested()
         {
             bool confirmed = _dialogService.ShowConfirmation(
                 title: ResourceHelper.GetString("Reset_ConfirmTitle"),
@@ -498,7 +514,7 @@ namespace FileCraft.ViewModels
                 try
                 {
                     _saveService.DeleteSaveData();
-                    ApplyAllData(new SaveData());
+                    await ApplyAllData(new SaveData());
                     HasUnsavedChanges = false;
                     _dialogService.ShowNotification(
                         ResourceHelper.GetString("Common_SuccessTitle"),
@@ -555,6 +571,30 @@ namespace FileCraft.ViewModels
             absoluteData.TreeGenerator.FolderTreeState = relativeData.TreeGenerator.FolderTreeState.Select(s => new FolderState { FullPath = Path.GetFullPath(Path.Combine(basePath, s.FullPath)), IsSelected = s.IsSelected, IsExpanded = s.IsExpanded }).ToList();
 
             return absoluteData;
+        }
+
+        private void UpdateLinkedTabsVisuals()
+        {
+            var vms = new[]
+            {
+                new { Id = FileContentExportVM.FolderTreeManager.Id, VM = (ExportViewModelBase)FileContentExportVM },
+                new { Id = TreeGeneratorVM.FolderTreeManager.Id, VM = (ExportViewModelBase)TreeGeneratorVM },
+                new { Id = FolderContentExportVM.FolderTreeManager.Id, VM = (ExportViewModelBase)FolderContentExportVM }
+            };
+
+            foreach (var item in vms)
+            {
+                item.VM.LinkedTabs.Clear();
+                var peerIds = _folderTreeLinkService.GetLinkedPeers(item.Id);
+                foreach (var peerId in peerIds)
+                {
+                    var tabInfo = OptionsVM.AllTabs.FirstOrDefault(t => t.Id == peerId);
+                    if (tabInfo != null && tabInfo.Icon != null && tabInfo.IconBrush != null)
+                    {
+                        item.VM.LinkedTabs.Add(new TabIconViewModel(tabInfo.Name, tabInfo.Icon, tabInfo.IconBrush));
+                    }
+                }
+            }
         }
     }
 }

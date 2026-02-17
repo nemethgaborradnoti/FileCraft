@@ -1,5 +1,6 @@
 ﻿using FileCraft.Models;
 using FileCraft.Services.Interfaces;
+using FileCraft.ViewModels;
 using System.Collections.ObjectModel;
 using System.IO;
 
@@ -19,10 +20,15 @@ namespace FileCraft.ViewModels.Shared
             get => _rootFolders;
             private set
             {
-                _rootFolders = value;
-                OnPropertyChanged();
+                if (_rootFolders != value)
+                {
+                    _rootFolders = value;
+                    OnPropertyChanged();
+                }
             }
         }
+
+        public string Id { get; set; } = string.Empty;
 
         public FolderTreeManager(IFolderTreeService folderTreeService, ISharedStateService sharedStateService)
         {
@@ -30,16 +36,21 @@ namespace FileCraft.ViewModels.Shared
             _sharedStateService = sharedStateService;
         }
 
-        public void RefreshTree()
+        public async void RefreshTree()
         {
             if (!string.IsNullOrWhiteSpace(_currentSourcePath))
             {
                 var currentState = GetFolderStates();
-                LoadTreeForPath(_currentSourcePath, currentState);
+                await LoadTreeForPathAsync(_currentSourcePath, currentState);
             }
         }
 
         public void LoadTreeForPath(string sourcePath, List<FolderState>? folderState = null)
+        {
+            _ = LoadTreeForPathAsync(sourcePath, folderState);
+        }
+
+        public async Task LoadTreeForPathAsync(string sourcePath, List<FolderState>? folderState = null)
         {
             if (string.IsNullOrWhiteSpace(sourcePath) || !Directory.Exists(sourcePath))
             {
@@ -60,9 +71,24 @@ namespace FileCraft.ViewModels.Shared
 
             if (folderState != null && newTree.Any())
             {
-                ApplyStateToNode(newTree[0], folderState);
+                await ApplyStateToNodeAsync(newTree[0], folderState);
             }
             RootFolders = newTree;
+        }
+
+        public void SetSharedRootFolders(ObservableCollection<FolderViewModel> sharedFolders)
+        {
+            RootFolders = sharedFolders;
+            HandleFolderStateChange();
+        }
+
+        public void UnlinkAndCloneState()
+        {
+            var clonedStates = GetFolderStates();
+            var currentPath = _currentSourcePath;
+
+            RootFolders = new ObservableCollection<FolderViewModel>();
+            _ = LoadTreeForPathAsync(currentPath, clonedStates);
         }
 
         private void HandleFolderStateChange()
@@ -95,8 +121,11 @@ namespace FileCraft.ViewModels.Shared
 
         private void ExtractStateFromNode(FolderViewModel node, List<FolderState> states)
         {
-            bool isDefaultState = node.IsSelected == false && node.IsExpanded == true;
-            if (!isDefaultState)
+            if (node.IsDummy) return;
+
+            bool shouldSaveState = node.IsSelected != false || node.IsExpanded;
+
+            if (shouldSaveState)
             {
                 states.Add(new FolderState
                 {
@@ -105,24 +134,25 @@ namespace FileCraft.ViewModels.Shared
                     IsExpanded = node.IsExpanded
                 });
             }
+
             foreach (var child in node.Children)
             {
                 ExtractStateFromNode(child, states);
             }
         }
 
-        private void ApplyStateToNode(FolderViewModel node, List<FolderState> savedStates)
+        private async Task ApplyStateToNodeAsync(FolderViewModel node, List<FolderState> savedStates)
         {
             var state = savedStates.FirstOrDefault(s => s.FullPath == node.FullPath);
             if (state != null)
             {
-                node.ApplyState(state);
+                await node.ApplyStateAsync(state);
             }
-            foreach (var child in node.Children)
+
+            foreach (var child in node.Children.ToList())
             {
-                ApplyStateToNode(child, savedStates);
+                await ApplyStateToNodeAsync(child, savedStates);
             }
         }
     }
 }
-

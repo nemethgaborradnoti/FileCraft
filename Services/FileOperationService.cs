@@ -1,6 +1,5 @@
 ﻿using FileCraft.Models;
 using FileCraft.Services.Interfaces;
-using FileCraft.Shared.Helpers;
 using FileCraft.Shared.Validation;
 using System.IO;
 using System.Text;
@@ -25,42 +24,44 @@ namespace FileCraft.Services
             Guard.AgainstNullOrWhiteSpace(outputFileName, nameof(outputFileName));
             Guard.AgainstNullOrEmpty(selectedColumns, nameof(selectedColumns), "No columns were selected for export.");
 
-            var allFiles = _fileQueryService.GetAllFiles(includedFolderPaths).OrderBy(f => f.FullName).ToList();
+            var ignoredFolders = new HashSet<string>(_sharedStateService.IgnoredFolders, StringComparer.OrdinalIgnoreCase);
+            var allFiles = _fileQueryService.GetAllFiles(includedFolderPaths, ignoredFolders).OrderBy(f => f.FullName).ToList();
 
             Guard.AgainstNullOrEmpty(allFiles, nameof(allFiles), "The selected folders contain no files to export.");
 
-            var csvBuilder = new StringBuilder();
-            csvBuilder.AppendLine(string.Join(";", selectedColumns));
-
-            var columnExtractors = new Dictionary<string, Func<FileInfo, string>>
-            {
-                { "Name", fi => fi.Name },
-                { "Size (byte)", fi => fi.Length.ToString() },
-                { "CreationTime", fi => $"{fi.CreationTime:yyyy-MM-dd HH:mm:ss}" },
-                { "LastWriteTime", fi => $"{fi.LastWriteTime:yyyy-MM-dd HH:mm:ss}" },
-                { "LastAccessTime", fi => $"{fi.LastAccessTime:yyyy-MM-dd HH:mm:ss}" },
-                { "IsReadOnly", fi => fi.IsReadOnly.ToString() },
-                { "Attributes", fi => fi.Attributes.ToString() },
-                { "FullPath", fi => fi.FullName },
-                { "Parent", fi => fi.Directory?.Name ?? string.Empty },
-                { "Format", fi => fi.Extension }
-            };
-
-            foreach (var fileInfo in allFiles)
-            {
-                var lineParts = new List<string>();
-                foreach (var column in selectedColumns)
-                {
-                    if (columnExtractors.TryGetValue(column, out var extractor))
-                    {
-                        lineParts.Add(extractor(fileInfo));
-                    }
-                }
-                csvBuilder.AppendLine(string.Join(";", lineParts));
-            }
-
             string outputFilePath = Path.Combine(destinationPath, $"{outputFileName}.txt");
-            await File.WriteAllTextAsync(outputFilePath, csvBuilder.ToString());
+
+            using (var writer = new StreamWriter(outputFilePath, false, Encoding.UTF8))
+            {
+                await writer.WriteLineAsync(string.Join(";", selectedColumns));
+
+                var columnExtractors = new Dictionary<string, Func<FileInfo, string>>
+                {
+                    { "Name", fi => fi.Name },
+                    { "Size (byte)", fi => fi.Length.ToString() },
+                    { "CreationTime", fi => $"{fi.CreationTime:yyyy-MM-dd HH:mm:ss}" },
+                    { "LastWriteTime", fi => $"{fi.LastWriteTime:yyyy-MM-dd HH:mm:ss}" },
+                    { "LastAccessTime", fi => $"{fi.LastAccessTime:yyyy-MM-dd HH:mm:ss}" },
+                    { "IsReadOnly", fi => fi.IsReadOnly.ToString() },
+                    { "Attributes", fi => fi.Attributes.ToString() },
+                    { "FullPath", fi => fi.FullName },
+                    { "Parent", fi => fi.Directory?.Name ?? string.Empty },
+                    { "Format", fi => fi.Extension }
+                };
+
+                foreach (var fileInfo in allFiles)
+                {
+                    var lineParts = new List<string>();
+                    foreach (var column in selectedColumns)
+                    {
+                        if (columnExtractors.TryGetValue(column, out var extractor))
+                        {
+                            lineParts.Add(extractor(fileInfo));
+                        }
+                    }
+                    await writer.WriteLineAsync(string.Join(";", lineParts));
+                }
+            }
 
             return outputFilePath;
         }
@@ -73,37 +74,37 @@ namespace FileCraft.Services
             Guard.AgainstNull(excludedFolderPaths, nameof(excludedFolderPaths));
             Guard.AgainstNullOrWhiteSpace(outputFileName, nameof(outputFileName));
 
-            StringBuilder contentBuilder = new StringBuilder();
-
-            if (mode == TreeGenerationMode.Structured)
-            {
-                contentBuilder.AppendLine(new DirectoryInfo(sourcePath).Name);
-                BuildTree(sourcePath, "", contentBuilder, excludedFolderPaths, true);
-            }
-            else if (mode == TreeGenerationMode.PathsOnly)
-            {
-                BuildPathsOnly(sourcePath, sourcePath, contentBuilder, excludedFolderPaths);
-            }
-
             string outputFilePath = Path.Combine(destinationPath, $"{outputFileName}.txt");
-            await File.WriteAllTextAsync(outputFilePath, contentBuilder.ToString());
+
+            using (var writer = new StreamWriter(outputFilePath, false, Encoding.UTF8))
+            {
+                if (mode == TreeGenerationMode.Structured)
+                {
+                    await writer.WriteLineAsync(new DirectoryInfo(sourcePath).Name);
+                    await BuildTreeAsync(sourcePath, "", writer, excludedFolderPaths, true);
+                }
+                else if (mode == TreeGenerationMode.PathsOnly)
+                {
+                    await BuildPathsOnlyAsync(sourcePath, sourcePath, writer, excludedFolderPaths);
+                }
+            }
 
             return outputFilePath;
         }
 
-        private void BuildTree(string directoryPath, string indent, StringBuilder builder, ISet<string> excludedFolderPaths, bool isLastParent)
+        private async Task BuildTreeAsync(string directoryPath, string indent, StreamWriter writer, ISet<string> excludedFolderPaths, bool isLastParent)
         {
             try
             {
                 var ignoredFolderNames = new HashSet<string>(_sharedStateService.IgnoredFolders, StringComparer.OrdinalIgnoreCase);
 
-                var subDirectories = Directory.GetDirectories(directoryPath)
+                var subDirectories = Directory.EnumerateDirectories(directoryPath)
                     .Where(d => !excludedFolderPaths.Contains(d))
                     .Where(d => !ignoredFolderNames.Contains(new DirectoryInfo(d).Name))
                     .OrderBy(d => d)
                     .ToArray();
 
-                var files = Directory.GetFiles(directoryPath)
+                var files = Directory.EnumerateFiles(directoryPath)
                     .OrderBy(f => f)
                     .ToArray();
 
@@ -111,48 +112,46 @@ namespace FileCraft.Services
                 {
                     var subDirInfo = new DirectoryInfo(subDirectories[i]);
                     bool isLast = (i == subDirectories.Length - 1) && (files.Length == 0);
-                    builder.AppendLine($"{indent}{(isLast ? "└── " : "├── ")}{subDirInfo.Name}");
-                    BuildTree(subDirInfo.FullName, indent + (isLast ? "    " : "│   "), builder, excludedFolderPaths, isLast);
+                    await writer.WriteLineAsync($"{indent}{(isLast ? "└── " : "├── ")}{subDirInfo.Name}");
+                    await BuildTreeAsync(subDirInfo.FullName, indent + (isLast ? "    " : "│   "), writer, excludedFolderPaths, isLast);
                 }
 
                 for (int i = 0; i < files.Length; i++)
                 {
                     var fileInfo = new FileInfo(files[i]);
                     bool isLast = i == files.Length - 1;
-                    builder.AppendLine($"{indent}{(isLast ? "└── " : "├── ")}{fileInfo.Name}");
+                    await writer.WriteLineAsync($"{indent}{(isLast ? "└── " : "├── ")}{fileInfo.Name}");
                 }
             }
             catch (UnauthorizedAccessException)
             {
-                builder.AppendLine($"{indent}└── [Access Denied]");
+                await writer.WriteLineAsync($"{indent}└── [Access Denied]");
             }
         }
 
-        private void BuildPathsOnly(string directoryPath, string rootPath, StringBuilder builder, ISet<string> excludedFolderPaths)
+        private async Task BuildPathsOnlyAsync(string directoryPath, string rootPath, StreamWriter writer, ISet<string> excludedFolderPaths)
         {
             try
             {
                 var ignoredFolderNames = new HashSet<string>(_sharedStateService.IgnoredFolders, StringComparer.OrdinalIgnoreCase);
 
-                var subDirectories = Directory.GetDirectories(directoryPath)
+                var subDirectories = Directory.EnumerateDirectories(directoryPath)
                     .Where(d => !excludedFolderPaths.Contains(d))
                     .Where(d => !ignoredFolderNames.Contains(new DirectoryInfo(d).Name))
-                    .OrderBy(d => d)
-                    .ToArray();
+                    .OrderBy(d => d);
 
-                var files = Directory.GetFiles(directoryPath)
-                    .OrderBy(f => f)
-                    .ToArray();
+                var files = Directory.EnumerateFiles(directoryPath)
+                    .OrderBy(f => f);
 
                 foreach (var dir in subDirectories)
                 {
-                    builder.AppendLine(Path.GetRelativePath(rootPath, dir));
-                    BuildPathsOnly(dir, rootPath, builder, excludedFolderPaths);
+                    await writer.WriteLineAsync(Path.GetRelativePath(rootPath, dir));
+                    await BuildPathsOnlyAsync(dir, rootPath, writer, excludedFolderPaths);
                 }
 
                 foreach (var file in files)
                 {
-                    builder.AppendLine(Path.GetRelativePath(rootPath, file));
+                    await writer.WriteLineAsync(Path.GetRelativePath(rootPath, file));
                 }
             }
             catch (UnauthorizedAccessException)
@@ -166,85 +165,114 @@ namespace FileCraft.Services
             Guard.AgainstNullOrWhiteSpace(outputFileName, nameof(outputFileName));
             Guard.AgainstNullOrEmpty(selectedFiles, nameof(selectedFiles), "No files were selected for export.");
 
-            var contentBuilder = new StringBuilder();
-            var selectedFilesList = selectedFiles.ToList();
-
+            string outputFilePath = Path.Combine(destinationPath, $"{outputFileName}.txt");
             var result = new FileExportResult();
-            long exportedLines = 0;
+            var selectedFilesList = selectedFiles.ToList();
+            int newLineLength = Environment.NewLine.Length;
 
-            for (int i = 0; i < selectedFilesList.Count; i++)
+            using (var writer = new StreamWriter(outputFilePath, false, Encoding.UTF8))
             {
-                var file = selectedFilesList[i];
-                try
+                for (int i = 0; i < selectedFilesList.Count; i++)
                 {
-                    contentBuilder.AppendLine($"=== {file.RelativePath} file contains:");
-                    exportedLines++;
-                    contentBuilder.AppendLine();
-                    exportedLines++;
-
-                    var lines = await File.ReadAllLinesAsync(file.FullPath);
-                    bool shouldIgnoreXmlComments = filesToIgnoreXmlComments.Contains(file.RelativePath);
-
-                    if (shouldIgnoreXmlComments)
+                    var file = selectedFilesList[i];
+                    try
                     {
-                        result.FilesWithIgnoredCommentsCount++;
-                    }
+                        string header = $"=== {file.RelativePath} file contains:";
+                        await writer.WriteLineAsync(header);
+                        result.ExportedLines++;
+                        result.ExportedCharacters += header.Length + newLineLength;
 
-                    foreach (var line in lines)
-                    {
-                        string finalLine = line;
-                        bool commentRemoved = false;
+                        await writer.WriteLineAsync();
+                        result.ExportedLines++;
+                        result.ExportedCharacters += newLineLength;
+
+                        bool shouldIgnoreXmlComments = filesToIgnoreXmlComments.Contains(file.RelativePath);
 
                         if (shouldIgnoreXmlComments)
                         {
-                            var stats = IgnoreCommentsHelper.CalculateXmlCommentStats(line);
+                            result.FilesWithIgnoredCommentsCount++;
+                        }
 
-                            if (stats.IsXmlComment)
+                        foreach (var line in File.ReadLines(file.FullPath))
+                        {
+                            ReadOnlyMemory<char> lineMemory = line.AsMemory();
+                            bool commentRemoved = false;
+
+                            if (shouldIgnoreXmlComments)
                             {
-                                result.IgnoredCharacters += stats.CommentLength;
-                                result.IgnoredLines++;
+                                var stats = FileCraft.Shared.Helpers.IgnoreCommentsHelper.CalculateXmlCommentStats(lineMemory.Span);
 
-                                int commentIndex = line.Length - stats.CommentLength;
-                                finalLine = line.Substring(0, commentIndex);
-                                commentRemoved = true;
+                                if (stats.IsXmlComment)
+                                {
+                                    result.IgnoredCharacters += stats.CommentLength;
+                                    result.IgnoredLines++;
+
+                                    int commentIndex = lineMemory.Length - stats.CommentLength;
+                                    lineMemory = lineMemory.Slice(0, commentIndex);
+                                    commentRemoved = true;
+                                }
+                            }
+
+                            if (commentRemoved)
+                            {
+                                var span = lineMemory.Span;
+                                int len = span.Length;
+                                while (len > 0 && char.IsWhiteSpace(span[len - 1]))
+                                {
+                                    len--;
+                                }
+                                lineMemory = lineMemory.Slice(0, len);
+                            }
+
+                            if (commentRemoved && lineMemory.Length == 0)
+                            {
+                                continue;
+                            }
+                            else
+                            {
+                                if (commentRemoved)
+                                {
+                                    await writer.WriteLineAsync(lineMemory);
+                                    result.ExportedLines++;
+                                    result.ExportedCharacters += lineMemory.Length + newLineLength;
+                                }
+                                else
+                                {
+                                    var trimmedLine = line.TrimEnd();
+                                    await writer.WriteLineAsync(trimmedLine);
+                                    result.ExportedLines++;
+                                    result.ExportedCharacters += trimmedLine.Length + newLineLength;
+                                }
                             }
                         }
 
-                        if (commentRemoved && string.IsNullOrWhiteSpace(finalLine))
+                        if (i < selectedFilesList.Count - 1)
                         {
-                            continue;
-                        }
-                        else
-                        {
-                            contentBuilder.AppendLine(finalLine.TrimEnd());
-                            exportedLines++;
-                        }
-                    }
+                            await writer.WriteLineAsync();
+                            result.ExportedLines++;
+                            result.ExportedCharacters += newLineLength;
 
-                    if (i < selectedFilesList.Count - 1)
-                    {
-                        contentBuilder.AppendLine();
-                        exportedLines++;
-                        contentBuilder.AppendLine("===========");
-                        exportedLines++;
+                            string footer = "===========";
+                            await writer.WriteLineAsync(footer);
+                            result.ExportedLines++;
+                            result.ExportedCharacters += footer.Length + newLineLength;
+                        }
                     }
-                }
-                catch (Exception ex)
-                {
-                    contentBuilder.AppendLine($"--- Could not read file: {file.FileName}. Error: {ex.Message} ---");
-                    exportedLines++;
-                    contentBuilder.AppendLine();
-                    exportedLines++;
+                    catch (Exception ex)
+                    {
+                        string errorMsg = $"--- Could not read file: {file.FileName}. Error: {ex.Message} ---";
+                        await writer.WriteLineAsync(errorMsg);
+                        result.ExportedLines++;
+                        result.ExportedCharacters += errorMsg.Length + newLineLength;
+
+                        await writer.WriteLineAsync();
+                        result.ExportedLines++;
+                        result.ExportedCharacters += newLineLength;
+                    }
                 }
             }
 
-            string outputFilePath = Path.Combine(destinationPath, $"{outputFileName}.txt");
-            await File.WriteAllTextAsync(outputFilePath, contentBuilder.ToString());
-
             result.OutputFilePath = outputFilePath;
-            result.ExportedCharacters = contentBuilder.Length;
-            result.ExportedLines = exportedLines;
-
             return result;
         }
     }
