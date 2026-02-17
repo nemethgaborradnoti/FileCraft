@@ -80,10 +80,10 @@ namespace FileCraft.Services
                     continue;
                 }
 
-                string[] files;
+                IEnumerable<string> files;
                 try
                 {
-                    files = Directory.GetFiles(currentDir);
+                    files = Directory.EnumerateFiles(currentDir);
                 }
                 catch (UnauthorizedAccessException)
                 {
@@ -99,10 +99,10 @@ namespace FileCraft.Services
                     yield return file;
                 }
 
-                string[] subDirs;
+                IEnumerable<string> subDirs;
                 try
                 {
-                    subDirs = Directory.GetDirectories(currentDir);
+                    subDirs = Directory.EnumerateDirectories(currentDir);
                 }
                 catch (UnauthorizedAccessException)
                 {
