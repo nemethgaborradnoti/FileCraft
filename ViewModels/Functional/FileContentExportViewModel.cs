@@ -43,6 +43,8 @@ namespace FileCraft.ViewModels.Functional
         private string _ignoredFilesText = string.Empty;
         private HashSet<string> _ignoredCommentFilePaths = new(StringComparer.OrdinalIgnoreCase);
 
+        private FileContentExportSettings? _pendingSettings;
+
         public FullscreenManager<ExportFullscreenState> FullscreenManager { get; }
 
         public int TotalFilesCount
@@ -166,7 +168,6 @@ namespace FileCraft.ViewModels.Functional
             }
         }
 
-        // Changed to RangeObservableCollection
         public RangeObservableCollection<SelectableItemViewModel> AvailableExtensions { get; } = new();
 
         public ICommand ExportFileContentCommand { get; }
@@ -252,30 +253,12 @@ namespace FileCraft.ViewModels.Functional
 
         public void ApplySettings(FileContentExportSettings settings)
         {
+            _pendingSettings = settings;
+
             OutputFileName = settings.OutputFileName;
             AppendTimestamp = settings.AppendTimestamp;
 
-            var loadedSelectedExtensions = new HashSet<string>(settings.SelectedExtensions ?? new List<string>());
-            foreach (var extVM in AvailableExtensions)
-            {
-                extVM.IsSelected = loadedSelectedExtensions.Contains(extVM.Name);
-            }
-
-            UpdateSelectableFiles();
-
-            var loadedSelectedFilePaths = new HashSet<string>(settings.SelectedFilePaths ?? new List<string>());
-
-            foreach (var fileVM in _allSelectableFiles)
-            {
-                fileVM.IsSelected = loadedSelectedFilePaths.Contains(fileVM.FullPath);
-            }
-
-            _ignoredCommentFilePaths = new HashSet<string>(settings.IgnoredCommentFilePaths ?? new List<string>(), StringComparer.OrdinalIgnoreCase);
-
-            UpdateFileCounts();
-            UpdateExtensionMasterState();
-            ApplyFileFilter();
-            UpdateIgnoredFilesText();
+            OnFolderSelectionChanged();
         }
 
         public List<string> GetSelectedFilePaths()
@@ -402,22 +385,30 @@ namespace FileCraft.ViewModels.Functional
         private void OnFolderSelectionChanged()
         {
             UpdateAvailableExtensions();
-            UpdateSelectableFiles();
         }
 
         private void UpdateAvailableExtensions()
         {
-            var selectedFolders = GetSelectedFolderPaths();
+            var selectedFolderConfigs = GetSelectedFolderConfigs();
             var ignoredFolders = new HashSet<string>(_sharedStateService.IgnoredFolders, StringComparer.OrdinalIgnoreCase);
 
             IsBusy = true;
             Task.Run(() =>
             {
-                var extensions = _fileQueryService.GetAvailableExtensions(selectedFolders, ignoredFolders);
+                var extensions = _fileQueryService.GetAvailableExtensions(selectedFolderConfigs, ignoredFolders);
 
                 Application.Current.Dispatcher.Invoke(() =>
                 {
-                    var previouslySelected = new HashSet<string>(GetSelectedExtensions());
+                    HashSet<string> extensionsToSelect;
+
+                    if (_pendingSettings != null)
+                    {
+                        extensionsToSelect = new HashSet<string>(_pendingSettings.SelectedExtensions ?? new List<string>(), StringComparer.OrdinalIgnoreCase);
+                    }
+                    else
+                    {
+                        extensionsToSelect = new HashSet<string>(GetSelectedExtensions(), StringComparer.OrdinalIgnoreCase);
+                    }
 
                     foreach (var ext in AvailableExtensions)
                         ext.PropertyChanged -= OnExtensionSelectionChanged;
@@ -425,21 +416,21 @@ namespace FileCraft.ViewModels.Functional
                     var newExtensionsList = new List<SelectableItemViewModel>();
                     foreach (var ext in extensions.Where(e => !string.IsNullOrEmpty(e)).OrderBy(e => e))
                     {
-                        var item = new SelectableItemViewModel(ext, previouslySelected.Contains(ext), this.OnStateChanging);
+                        var item = new SelectableItemViewModel(ext, extensionsToSelect.Contains(ext), this.OnStateChanging);
                         item.PropertyChanged += OnExtensionSelectionChanged;
                         newExtensionsList.Add(item);
                     }
 
                     AvailableExtensions.ReplaceAll(newExtensionsList);
                     UpdateExtensionMasterState();
-                    IsBusy = false;
+                    UpdateSelectableFiles();
                 });
             });
         }
 
         private void UpdateSelectableFiles()
         {
-            var selectedFolders = GetSelectedFolderPaths();
+            var selectedFolderConfigs = GetSelectedFolderConfigs();
             var selectedExtensions = new HashSet<string>(GetSelectedExtensions(), StringComparer.OrdinalIgnoreCase);
             var ignoredFolders = new HashSet<string>(_sharedStateService.IgnoredFolders, StringComparer.OrdinalIgnoreCase);
             var basePath = _sharedStateService.SourcePath;
@@ -447,7 +438,7 @@ namespace FileCraft.ViewModels.Functional
             IsBusy = true;
             Task.Run(() =>
             {
-                var files = _fileQueryService.GetFilesByExtensions(basePath, selectedFolders, selectedExtensions, ignoredFolders);
+                var files = _fileQueryService.GetFilesByExtensions(basePath, selectedFolderConfigs, selectedExtensions, ignoredFolders);
 
                 var newFileList = new List<SelectableFile>();
                 foreach (var file in files)
@@ -457,6 +448,16 @@ namespace FileCraft.ViewModels.Functional
 
                 Application.Current.Dispatcher.Invoke(() =>
                 {
+                    HashSet<string>? pendingFilesToSelect = null;
+
+                    if (_pendingSettings != null)
+                    {
+                        pendingFilesToSelect = new HashSet<string>(_pendingSettings.SelectedFilePaths ?? new List<string>(), StringComparer.OrdinalIgnoreCase);
+
+                        _ignoredCommentFilePaths = new HashSet<string>(_pendingSettings.IgnoredCommentFilePaths ?? new List<string>(), StringComparer.OrdinalIgnoreCase);
+                        UpdateIgnoredFilesText();
+                    }
+
                     var previouslySelectedFiles = new HashSet<string>(_allSelectableFiles.Where(f => f.IsSelected).Select(f => f.FullPath));
 
                     foreach (var file in _allSelectableFiles)
@@ -466,14 +467,28 @@ namespace FileCraft.ViewModels.Functional
 
                     foreach (var file in newFileList.OrderBy(f => f.FullPath))
                     {
-                        if (previouslySelectedFiles.Contains(file.FullPath))
+                        bool isSelected = false;
+
+                        if (pendingFilesToSelect != null)
+                        {
+                            isSelected = pendingFilesToSelect.Contains(file.FullPath);
+                        }
+                        else
+                        {
+                            isSelected = previouslySelectedFiles.Contains(file.FullPath);
+                        }
+
+                        if (isSelected)
                         {
                             file.IsSelected = true;
                         }
+
                         file.SetStateChangingAction(this.OnStateChanging);
                         file.PropertyChanged += OnFileSelectionChanged;
                         _allSelectableFiles.Add(file);
                     }
+
+                    _pendingSettings = null;
 
                     ApplyFileFilter();
                     IsBusy = false;
@@ -559,27 +574,29 @@ namespace FileCraft.ViewModels.Functional
             }
         }
 
-        private List<string> GetSelectedFolderPaths()
+        private List<(string Path, bool Recursive)> GetSelectedFolderConfigs()
         {
-            var paths = new List<string>();
+            var configs = new List<(string Path, bool Recursive)>();
             if (RootFolders.Any())
             {
-                CollectSelectedPaths(RootFolders[0], paths);
+                CollectFolderConfigs(RootFolders[0], configs);
             }
-            return paths;
+            return configs;
         }
 
-        private void CollectSelectedPaths(FolderViewModel node, List<string> paths)
+        private void CollectFolderConfigs(FolderViewModel node, List<(string Path, bool Recursive)> configs)
         {
             if (node.IsSelected == true)
             {
-                paths.Add(node.FullPath);
+                configs.Add((node.FullPath, true));
             }
             else if (node.IsSelected == null)
             {
+                configs.Add((node.FullPath, false));
+
                 foreach (var child in node.Children)
                 {
-                    CollectSelectedPaths(child, paths);
+                    CollectFolderConfigs(child, configs);
                 }
             }
         }

@@ -2,6 +2,7 @@
 using FileCraft.ViewModels;
 using FileCraft.ViewModels.Shared;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 
 namespace FileCraft.Services
 {
@@ -11,11 +12,59 @@ namespace FileCraft.Services
         private List<List<string>> _linkGroups = new();
         private readonly Dictionary<string, ObservableCollection<FolderViewModel>> _sharedStates = new();
 
+        private bool _isPropagating = false;
+
         public event Action? OnLinksChanged;
 
         public void RegisterManager(string id, FolderTreeManager manager)
         {
+            if (_registeredManagers.ContainsKey(id))
+            {
+                _registeredManagers[id].PropertyChanged -= OnManagerPropertyChanged;
+            }
+
             _registeredManagers[id] = manager;
+            manager.PropertyChanged += OnManagerPropertyChanged;
+        }
+
+        private void OnManagerPropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            if (_isPropagating) return;
+
+            if (e.PropertyName == nameof(FolderTreeManager.RootFolders))
+            {
+                if (sender is FolderTreeManager manager)
+                {
+                    PropagateRootChange(manager);
+                }
+            }
+        }
+
+        private void PropagateRootChange(FolderTreeManager sourceManager)
+        {
+            var group = _linkGroups.FirstOrDefault(g => g.Contains(sourceManager.Id));
+            if (group == null || !group.Any()) return;
+
+            _isPropagating = true;
+            try
+            {
+                var leaderId = group.First();
+                _sharedStates[leaderId] = sourceManager.RootFolders;
+
+                foreach (var memberId in group)
+                {
+                    if (memberId == sourceManager.Id) continue;
+
+                    if (_registeredManagers.TryGetValue(memberId, out var peerManager))
+                    {
+                        peerManager.SetSharedRootFolders(sourceManager.RootFolders, sourceManager.CurrentSourcePath);
+                    }
+                }
+            }
+            finally
+            {
+                _isPropagating = false;
+            }
         }
 
         public void CreateLink(string managerId1, string managerId2)
@@ -81,6 +130,7 @@ namespace FileCraft.Services
             }
             else if (managerId == leaderId)
             {
+                var newLeaderId = group.First();
                 if (_sharedStates.ContainsKey(leaderId))
                 {
                     _sharedStates.Remove(leaderId);
@@ -144,11 +194,16 @@ namespace FileCraft.Services
             }
 
             var sharedRoot = _sharedStates[leaderId];
+            var leaderManager = _registeredManagers[leaderId];
+            var sharedPath = leaderManager.CurrentSourcePath;
+
             foreach (var memberId in group)
             {
+                if (memberId == leaderId) continue;
+
                 if (_registeredManagers.TryGetValue(memberId, out var memberManager))
                 {
-                    memberManager.SetSharedRootFolders(sharedRoot);
+                    memberManager.SetSharedRootFolders(sharedRoot, sharedPath);
                 }
             }
         }

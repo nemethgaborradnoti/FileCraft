@@ -3,6 +3,7 @@ using FileCraft.Services.Interfaces;
 using FileCraft.Shared.Commands;
 using FileCraft.Shared.Helpers;
 using FileCraft.ViewModels.Functional;
+using FileCraft.ViewModels.Shared;
 using System.ComponentModel;
 using System.IO;
 using System.Windows.Input;
@@ -173,9 +174,7 @@ namespace FileCraft.ViewModels
                 if (isSource)
                 {
                     _sharedStateService.SourcePath = selectedPath;
-                    await FileContentExportVM.FolderTreeManager.LoadTreeForPathAsync(selectedPath);
-                    await TreeGeneratorVM.FolderTreeManager.LoadTreeForPathAsync(selectedPath);
-                    await FolderContentExportVM.FolderTreeManager.LoadTreeForPathAsync(selectedPath);
+                    await UpdateAllManagersWithPath(selectedPath);
                 }
                 else
                 {
@@ -192,13 +191,37 @@ namespace FileCraft.ViewModels
             _sharedStateService.SourcePath = string.Empty;
             _sharedStateService.DestinationPath = string.Empty;
 
-            await FileContentExportVM.FolderTreeManager.LoadTreeForPathAsync(string.Empty);
-            await TreeGeneratorVM.FolderTreeManager.LoadTreeForPathAsync(string.Empty);
-            await FolderContentExportVM.FolderTreeManager.LoadTreeForPathAsync(string.Empty);
+            await UpdateAllManagersWithPath(string.Empty);
 
             OnPropertyChanged(nameof(SourcePath));
             OnPropertyChanged(nameof(DestinationPath));
             OnPropertyChanged(nameof(CanClearPaths));
+        }
+
+        private async Task UpdateAllManagersWithPath(string path)
+        {
+            var managers = new[]
+            {
+                FileContentExportVM.FolderTreeManager,
+                TreeGeneratorVM.FolderTreeManager,
+                FolderContentExportVM.FolderTreeManager
+            };
+
+            var handledManagers = new HashSet<string>();
+
+            foreach (var manager in managers)
+            {
+                if (handledManagers.Contains(manager.Id)) continue;
+
+                await manager.LoadTreeForPathAsync(path);
+                handledManagers.Add(manager.Id);
+
+                var peers = _folderTreeLinkService.GetLinkedPeers(manager.Id);
+                foreach (var peerId in peers)
+                {
+                    handledManagers.Add(peerId);
+                }
+            }
         }
 
         private async void LoadData()
@@ -308,13 +331,18 @@ namespace FileCraft.ViewModels
             OnPropertyChanged(nameof(DestinationPath));
             OnPropertyChanged(nameof(CanClearPaths));
 
-            await FileContentExportVM.FolderTreeManager.LoadTreeForPathAsync(SourcePath, saveData.FileContentExport.FolderTreeState);
+            await UpdateAllManagersWithPath(SourcePath);
+
+            if (FileContentExportVM.FolderTreeManager.RootFolders.Any())
+                await ApplyStateToManager(FileContentExportVM.FolderTreeManager, saveData.FileContentExport.FolderTreeState);
             FileContentExportVM.ApplySettings(saveData.FileContentExport);
 
-            await FolderContentExportVM.FolderTreeManager.LoadTreeForPathAsync(SourcePath, saveData.FolderContentExport.FolderTreeState);
+            if (FolderContentExportVM.FolderTreeManager.RootFolders.Any())
+                await ApplyStateToManager(FolderContentExportVM.FolderTreeManager, saveData.FolderContentExport.FolderTreeState);
             FolderContentExportVM.ApplySettings(saveData.FolderContentExport);
 
-            await TreeGeneratorVM.FolderTreeManager.LoadTreeForPathAsync(SourcePath, saveData.TreeGenerator.FolderTreeState);
+            if (TreeGeneratorVM.FolderTreeManager.RootFolders.Any())
+                await ApplyStateToManager(TreeGeneratorVM.FolderTreeManager, saveData.TreeGenerator.FolderTreeState);
             TreeGeneratorVM.OutputFileName = saveData.TreeGenerator.OutputFileName;
             TreeGeneratorVM.AppendTimestamp = saveData.TreeGenerator.AppendTimestamp;
 
@@ -329,6 +357,11 @@ namespace FileCraft.ViewModels
 
             SelectedTabIndex = saveData.SelectedTabIndex;
             _isLoading = false;
+        }
+
+        private async Task ApplyStateToManager(FolderTreeManager manager, List<FolderState> state)
+        {
+            await manager.LoadTreeForPathAsync(manager.CurrentSourcePath, state);
         }
 
         private void OnPresetSaveRequested(int presetNumber)
