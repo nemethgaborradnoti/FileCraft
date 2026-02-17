@@ -12,7 +12,7 @@ namespace FileCraft.Services
             {
                 if (Directory.Exists(path))
                 {
-                    foreach (var filePath in EnumerateFilesInternal(path, ignoredFolderNames))
+                    foreach (var filePath in EnumerateFilesInternal(path, ignoredFolderNames, true))
                     {
                         yield return new FileInfo(filePath);
                     }
@@ -20,15 +20,15 @@ namespace FileCraft.Services
             }
         }
 
-        public HashSet<string> GetAvailableExtensions(IEnumerable<string> folderPaths, ISet<string> ignoredFolderNames)
+        public HashSet<string> GetAvailableExtensions(IEnumerable<(string Path, bool Recursive)> folderConfigs, ISet<string> ignoredFolderNames)
         {
             var extensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
-            foreach (var path in folderPaths)
+            foreach (var config in folderConfigs)
             {
-                if (Directory.Exists(path))
+                if (Directory.Exists(config.Path))
                 {
-                    foreach (var filePath in EnumerateFilesInternal(path, ignoredFolderNames))
+                    foreach (var filePath in EnumerateFilesInternal(config.Path, ignoredFolderNames, config.Recursive))
                     {
                         var extension = Path.GetExtension(filePath);
                         if (!string.IsNullOrEmpty(extension))
@@ -41,13 +41,13 @@ namespace FileCraft.Services
             return extensions;
         }
 
-        public IEnumerable<SelectableFile> GetFilesByExtensions(string basePath, IEnumerable<string> folderPaths, ISet<string> selectedExtensions, ISet<string> ignoredFolderNames)
+        public IEnumerable<SelectableFile> GetFilesByExtensions(string basePath, IEnumerable<(string Path, bool Recursive)> folderConfigs, ISet<string> selectedExtensions, ISet<string> ignoredFolderNames)
         {
-            foreach (var path in folderPaths)
+            foreach (var config in folderConfigs)
             {
-                if (Directory.Exists(path))
+                if (Directory.Exists(config.Path))
                 {
-                    foreach (var filePath in EnumerateFilesInternal(path, ignoredFolderNames))
+                    foreach (var filePath in EnumerateFilesInternal(config.Path, ignoredFolderNames, config.Recursive))
                     {
                         var extension = Path.GetExtension(filePath);
                         if (selectedExtensions.Contains(extension))
@@ -65,8 +65,31 @@ namespace FileCraft.Services
             }
         }
 
-        private IEnumerable<string> EnumerateFilesInternal(string path, ISet<string> ignoredFolderNames)
+        private IEnumerable<string> EnumerateFilesInternal(string path, ISet<string> ignoredFolderNames, bool recursive)
         {
+            if (!recursive)
+            {
+                IEnumerable<string> files;
+                try
+                {
+                    files = Directory.EnumerateFiles(path);
+                }
+                catch (UnauthorizedAccessException)
+                {
+                    yield break;
+                }
+                catch (DirectoryNotFoundException)
+                {
+                    yield break;
+                }
+
+                foreach (var file in files)
+                {
+                    yield return file;
+                }
+                yield break;
+            }
+
             var stack = new Stack<string>();
             stack.Push(path);
 

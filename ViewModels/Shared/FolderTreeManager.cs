@@ -30,6 +30,8 @@ namespace FileCraft.ViewModels.Shared
 
         public string Id { get; set; } = string.Empty;
 
+        public string CurrentSourcePath => _currentSourcePath;
+
         public FolderTreeManager(IFolderTreeService folderTreeService, ISharedStateService sharedStateService)
         {
             _folderTreeService = folderTreeService;
@@ -52,7 +54,14 @@ namespace FileCraft.ViewModels.Shared
 
         public async Task LoadTreeForPathAsync(string sourcePath, List<FolderState>? folderState = null)
         {
-            if (string.IsNullOrWhiteSpace(sourcePath) || !Directory.Exists(sourcePath))
+            if (string.IsNullOrWhiteSpace(sourcePath))
+            {
+                RootFolders = new ObservableCollection<FolderViewModel>();
+                _currentSourcePath = string.Empty;
+                return;
+            }
+
+            if (!Directory.Exists(sourcePath))
             {
                 RootFolders = new ObservableCollection<FolderViewModel>();
                 _currentSourcePath = string.Empty;
@@ -67,17 +76,20 @@ namespace FileCraft.ViewModels.Shared
             _currentSourcePath = sourcePath;
 
             var ignoredFoldersSet = new HashSet<string>(_sharedStateService.IgnoredFolders, StringComparer.OrdinalIgnoreCase);
+
             var newTree = _folderTreeService.BuildFolderTree(sourcePath, ignoredFoldersSet, HandleFolderStateChange, OnStateChanging);
 
             if (folderState != null && newTree.Any())
             {
                 await ApplyStateToNodeAsync(newTree[0], folderState);
             }
+
             RootFolders = newTree;
         }
 
-        public void SetSharedRootFolders(ObservableCollection<FolderViewModel> sharedFolders)
+        public void SetSharedRootFolders(ObservableCollection<FolderViewModel> sharedFolders, string sourcePath)
         {
+            _currentSourcePath = sourcePath;
             RootFolders = sharedFolders;
             HandleFolderStateChange();
         }
@@ -88,6 +100,7 @@ namespace FileCraft.ViewModels.Shared
             var currentPath = _currentSourcePath;
 
             RootFolders = new ObservableCollection<FolderViewModel>();
+
             _ = LoadTreeForPathAsync(currentPath, clonedStates);
         }
 
