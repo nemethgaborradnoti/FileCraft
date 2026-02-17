@@ -166,7 +166,6 @@ namespace FileCraft.ViewModels.Functional
             }
         }
 
-        // Changed to RangeObservableCollection
         public RangeObservableCollection<SelectableItemViewModel> AvailableExtensions { get; } = new();
 
         public ICommand ExportFileContentCommand { get; }
@@ -407,13 +406,13 @@ namespace FileCraft.ViewModels.Functional
 
         private void UpdateAvailableExtensions()
         {
-            var selectedFolders = GetSelectedFolderPaths();
+            var selectedFolderConfigs = GetSelectedFolderConfigs();
             var ignoredFolders = new HashSet<string>(_sharedStateService.IgnoredFolders, StringComparer.OrdinalIgnoreCase);
 
             IsBusy = true;
             Task.Run(() =>
             {
-                var extensions = _fileQueryService.GetAvailableExtensions(selectedFolders, ignoredFolders);
+                var extensions = _fileQueryService.GetAvailableExtensions(selectedFolderConfigs, ignoredFolders);
 
                 Application.Current.Dispatcher.Invoke(() =>
                 {
@@ -439,7 +438,7 @@ namespace FileCraft.ViewModels.Functional
 
         private void UpdateSelectableFiles()
         {
-            var selectedFolders = GetSelectedFolderPaths();
+            var selectedFolderConfigs = GetSelectedFolderConfigs();
             var selectedExtensions = new HashSet<string>(GetSelectedExtensions(), StringComparer.OrdinalIgnoreCase);
             var ignoredFolders = new HashSet<string>(_sharedStateService.IgnoredFolders, StringComparer.OrdinalIgnoreCase);
             var basePath = _sharedStateService.SourcePath;
@@ -447,7 +446,7 @@ namespace FileCraft.ViewModels.Functional
             IsBusy = true;
             Task.Run(() =>
             {
-                var files = _fileQueryService.GetFilesByExtensions(basePath, selectedFolders, selectedExtensions, ignoredFolders);
+                var files = _fileQueryService.GetFilesByExtensions(basePath, selectedFolderConfigs, selectedExtensions, ignoredFolders);
 
                 var newFileList = new List<SelectableFile>();
                 foreach (var file in files)
@@ -559,29 +558,34 @@ namespace FileCraft.ViewModels.Functional
             }
         }
 
-        private List<string> GetSelectedFolderPaths()
+        private List<(string Path, bool Recursive)> GetSelectedFolderConfigs()
         {
-            var paths = new List<string>();
+            var configs = new List<(string Path, bool Recursive)>();
             if (RootFolders.Any())
             {
-                CollectSelectedPaths(RootFolders[0], paths);
+                CollectFolderConfigs(RootFolders[0], configs);
             }
-            return paths;
+            return configs;
         }
 
-        private void CollectSelectedPaths(FolderViewModel node, List<string> paths)
+        private void CollectFolderConfigs(FolderViewModel node, List<(string Path, bool Recursive)> configs)
         {
             if (node.IsSelected == true)
             {
-                paths.Add(node.FullPath);
+                // Explicitly selected: Include and Recursive
+                configs.Add((node.FullPath, true));
             }
             else if (node.IsSelected == null)
             {
+                // Indeterminate: Include current folder (flat) to capture immediate files, and recurse children
+                configs.Add((node.FullPath, false));
+
                 foreach (var child in node.Children)
                 {
-                    CollectSelectedPaths(child, paths);
+                    CollectFolderConfigs(child, configs);
                 }
             }
+            // If false, do nothing
         }
 
         private async Task ExportFileContentAsync()
