@@ -173,11 +173,11 @@ namespace FileCraft.ViewModels.Shared
                     {
                         if (File.Exists(file.FullPath))
                         {
-                            var lines = File.ReadAllLines(file.FullPath);
+                            var lines = File.ReadLines(file.FullPath);
                             int totalChars = 0;
                             foreach (var line in lines)
                             {
-                                var stats = IgnoreCommentsHelper.CalculateXmlCommentStats(line);
+                                var stats = IgnoreCommentsHelper.CalculateXmlCommentStats(line.AsSpan());
                                 if (stats.IsXmlComment)
                                 {
                                     totalChars += stats.CommentLength;

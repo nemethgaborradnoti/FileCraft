@@ -195,33 +195,54 @@ namespace FileCraft.Services
 
                         foreach (var line in File.ReadLines(file.FullPath))
                         {
-                            string finalLine = line;
+                            ReadOnlyMemory<char> lineMemory = line.AsMemory();
                             bool commentRemoved = false;
 
                             if (shouldIgnoreXmlComments)
                             {
-                                var stats = FileCraft.Shared.Helpers.IgnoreCommentsHelper.CalculateXmlCommentStats(line);
+                                var stats = FileCraft.Shared.Helpers.IgnoreCommentsHelper.CalculateXmlCommentStats(lineMemory.Span);
 
                                 if (stats.IsXmlComment)
                                 {
                                     result.IgnoredCharacters += stats.CommentLength;
                                     result.IgnoredLines++;
 
-                                    int commentIndex = line.Length - stats.CommentLength;
-                                    finalLine = line.Substring(0, commentIndex);
+                                    int commentIndex = lineMemory.Length - stats.CommentLength;
+                                    lineMemory = lineMemory.Slice(0, commentIndex);
                                     commentRemoved = true;
                                 }
                             }
 
-                            if (commentRemoved && string.IsNullOrWhiteSpace(finalLine))
+                            if (commentRemoved)
+                            {
+                                var span = lineMemory.Span;
+                                int len = span.Length;
+                                while (len > 0 && char.IsWhiteSpace(span[len - 1]))
+                                {
+                                    len--;
+                                }
+                                lineMemory = lineMemory.Slice(0, len);
+                            }
+
+                            if (commentRemoved && lineMemory.Length == 0)
                             {
                                 continue;
                             }
                             else
                             {
-                                await writer.WriteLineAsync(finalLine.TrimEnd());
-                                result.ExportedLines++;
-                                result.ExportedCharacters += finalLine.TrimEnd().Length + newLineLength;
+                                if (commentRemoved)
+                                {
+                                    await writer.WriteLineAsync(lineMemory);
+                                    result.ExportedLines++;
+                                    result.ExportedCharacters += lineMemory.Length + newLineLength;
+                                }
+                                else
+                                {
+                                    var trimmedLine = line.TrimEnd();
+                                    await writer.WriteLineAsync(trimmedLine);
+                                    result.ExportedLines++;
+                                    result.ExportedCharacters += trimmedLine.Length + newLineLength;
+                                }
                             }
                         }
 

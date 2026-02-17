@@ -2,7 +2,7 @@
 {
     public static class IgnoreCommentsHelper
     {
-        public static int FindActualCommentIndex(string line)
+        public static int FindActualCommentIndex(ReadOnlySpan<char> line)
         {
             bool inDoubleQuotes = false;
             bool inSingleQuotes = false;
@@ -35,7 +35,7 @@
             return -1;
         }
 
-        public static (bool IsXmlComment, int CommentLength) CalculateXmlCommentStats(string line)
+        public static (bool IsXmlComment, int CommentLength) CalculateXmlCommentStats(ReadOnlySpan<char> line)
         {
             int commentIndex = FindActualCommentIndex(line);
 
