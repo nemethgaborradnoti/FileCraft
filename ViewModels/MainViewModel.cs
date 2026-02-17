@@ -16,6 +16,7 @@ namespace FileCraft.ViewModels
         private readonly IDialogService _dialogService;
         private readonly IUndoService _undoService;
         private readonly IFolderTreeLinkService _folderTreeLinkService;
+        private readonly IThemeService _themeService;
         private bool _isLoading = false;
 
         private bool _hasUnsavedChanges;
@@ -27,6 +28,20 @@ namespace FileCraft.ViewModels
                 if (_hasUnsavedChanges != value)
                 {
                     _hasUnsavedChanges = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private IconDefinition _currentThemeIcon;
+        public IconDefinition CurrentThemeIcon
+        {
+            get => _currentThemeIcon;
+            set
+            {
+                if (_currentThemeIcon != value)
+                {
+                    _currentThemeIcon = value;
                     OnPropertyChanged();
                 }
             }
@@ -64,6 +79,7 @@ namespace FileCraft.ViewModels
         public ICommand SaveCommand { get; }
         public ICommand UndoCommand { get; }
         public ICommand RedoCommand { get; }
+        public ICommand ToggleThemeCommand { get; }
 
         public MainViewModel(
             ISaveService saveService,
@@ -71,6 +87,7 @@ namespace FileCraft.ViewModels
             IDialogService dialogService,
             IUndoService undoService,
             IFolderTreeLinkService folderTreeLinkService,
+            IThemeService themeService,
             FileContentExportViewModel fileContentExportVM,
             TreeGeneratorViewModel treeGeneratorVM,
             FolderContentExportViewModel folderContentExportVM,
@@ -81,6 +98,7 @@ namespace FileCraft.ViewModels
             _dialogService = dialogService;
             _undoService = undoService;
             _folderTreeLinkService = folderTreeLinkService;
+            _themeService = themeService;
 
             FileContentExportVM = fileContentExportVM;
             TreeGeneratorVM = treeGeneratorVM;
@@ -112,10 +130,30 @@ namespace FileCraft.ViewModels
             SaveCommand = new RelayCommand(_ => Save(), _ => HasUnsavedChanges);
             UndoCommand = new RelayCommand(_ => Undo(), _ => CanUndo);
             RedoCommand = new RelayCommand(_ => Redo(), _ => CanRedo);
+            ToggleThemeCommand = new RelayCommand(_ => ToggleTheme());
+
+            _currentThemeIcon = AppIcons.DarkMode;
 
             LoadData();
             UpdateLinkedTabsVisuals();
             HasUnsavedChanges = false;
+        }
+
+        private void ToggleTheme()
+        {
+            var currentTheme = _themeService.GetCurrentTheme();
+            var newTheme = currentTheme == AppTheme.Light ? AppTheme.Dark : AppTheme.Light;
+
+            _themeService.SwitchTheme(newTheme);
+            UpdateThemeIcon();
+
+            OnStateChanging();
+        }
+
+        private void UpdateThemeIcon()
+        {
+            var currentTheme = _themeService.GetCurrentTheme();
+            CurrentThemeIcon = currentTheme == AppTheme.Light ? AppIcons.DarkMode : AppIcons.LightMode;
         }
 
         private void OnIgnoredFoldersChanged()
@@ -219,6 +257,7 @@ namespace FileCraft.ViewModels
                 SourcePath = saveData.SourcePath,
                 DestinationPath = saveData.DestinationPath,
                 SelectedTabIndex = saveData.SelectedTabIndex,
+                SelectedTheme = saveData.SelectedTheme,
                 FileContentExport = saveData.FileContentExport,
                 FolderContentExport = saveData.FolderContentExport,
                 TreeGenerator = saveData.TreeGenerator,
@@ -264,6 +303,7 @@ namespace FileCraft.ViewModels
                 SourcePath = this.SourcePath,
                 DestinationPath = this.DestinationPath,
                 SelectedTabIndex = this.SelectedTabIndex,
+                SelectedTheme = _themeService.GetCurrentTheme(),
                 FileContentExport = new FileContentExportSettings
                 {
                     OutputFileName = FileContentExportVM.OutputFileName,
@@ -298,6 +338,10 @@ namespace FileCraft.ViewModels
         private async Task ApplyAllData(SaveData saveData)
         {
             _isLoading = true;
+
+            _themeService.SwitchTheme(saveData.SelectedTheme);
+            UpdateThemeIcon();
+
             _sharedStateService.SourcePath = saveData.SourcePath;
             _sharedStateService.DestinationPath = saveData.DestinationPath;
             _sharedStateService.IgnoredFolders = saveData.SettingsPage.IgnoredFolders ?? new();
@@ -553,6 +597,8 @@ namespace FileCraft.ViewModels
 
             relativeData.FolderContentExport.FolderTreeState = absoluteData.FolderContentExport.FolderTreeState.Select(s => new FolderState { FullPath = Path.GetRelativePath(basePath, s.FullPath), IsSelected = s.IsSelected, IsExpanded = s.IsExpanded }).ToList();
             relativeData.TreeGenerator.FolderTreeState = absoluteData.TreeGenerator.FolderTreeState.Select(s => new FolderState { FullPath = Path.GetRelativePath(basePath, s.FullPath), IsSelected = s.IsSelected, IsExpanded = s.IsExpanded }).ToList();
+
+            relativeData.SelectedTheme = absoluteData.SelectedTheme;
 
             return relativeData;
         }

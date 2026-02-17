@@ -5,7 +5,7 @@
                     xmlns:system="clr-namespace:System;assembly=mscorlib">
 
     <ResourceDictionary.MergedDictionaries>
-        <ResourceDictionary Source="Colors.xaml"/>
+        <!-- Removed Colors.xaml -->
     </ResourceDictionary.MergedDictionaries>
 
     <Thickness x:Key="RightMargin">0,0,10,0</Thickness>
@@ -14,7 +14,7 @@
     <Style x:Key="ModernButtonBase" TargetType="Button">
         <Setter Property="Padding" Value="10,5"/>
         <Setter Property="Cursor" Value="Hand"/>
-        <Setter Property="Foreground" Value="{StaticResource ButtonTextBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource ButtonTextBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
         <Setter Property="Template">
@@ -36,8 +36,8 @@
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsEnabled" Value="False">
-                            <Setter TargetName="border" Property="Background" Value="{StaticResource SecondaryBrush}" />
-                            <Setter TargetName="border" Property="BorderBrush" Value="{StaticResource SecondaryDarkerBrush}" />
+                            <Setter TargetName="border" Property="Background" Value="{DynamicResource SecondaryBrush}" />
+                            <Setter TargetName="border" Property="BorderBrush" Value="{DynamicResource SecondaryDarkerBrush}" />
                             <Setter Property="Opacity" Value="0.65"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
@@ -46,119 +46,56 @@
         </Setter>
     </Style>
 
+    <!-- Changed all Storyboards (Animations) to simple Setters to support Dynamic Themes -->
+
     <Style x:Key="PrimaryButton" TargetType="Button" BasedOn="{StaticResource ModernButtonBase}">
-        <Setter Property="Background" Value="{StaticResource PrimaryBrush}"/>
-        <Setter Property="BorderBrush" Value="{StaticResource PrimaryDarkerBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource PrimaryBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource PrimaryDarkerBrush}"/>
         <Style.Triggers>
-            <EventTrigger RoutedEvent="MouseEnter">
-                <BeginStoryboard>
-                    <Storyboard>
-                        <ColorAnimation Storyboard.TargetProperty="(Button.Background).(SolidColorBrush.Color)"
-                                        To="{StaticResource PrimaryDarkerColor}" Duration="0:0:0.1"/>
-                    </Storyboard>
-                </BeginStoryboard>
-            </EventTrigger>
-            <EventTrigger RoutedEvent="MouseLeave">
-                <BeginStoryboard>
-                    <Storyboard>
-                        <ColorAnimation Storyboard.TargetProperty="(Button.Background).(SolidColorBrush.Color)"
-                                        To="{StaticResource PrimaryColor}" Duration="0:0:0.1"/>
-                    </Storyboard>
-                </BeginStoryboard>
-            </EventTrigger>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="{DynamicResource PrimaryDarkerBrush}"/>
+            </Trigger>
         </Style.Triggers>
     </Style>
 
     <Style x:Key="SecondaryButton" TargetType="Button" BasedOn="{StaticResource ModernButtonBase}">
-        <Setter Property="Background" Value="{StaticResource SecondaryBrush}"/>
-        <Setter Property="BorderBrush" Value="{StaticResource SecondaryDarkerBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource SecondaryBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource SecondaryDarkerBrush}"/>
         <Style.Triggers>
-            <EventTrigger RoutedEvent="MouseEnter">
-                <BeginStoryboard>
-                    <Storyboard>
-                        <ColorAnimation Storyboard.TargetProperty="(Button.Background).(SolidColorBrush.Color)"
-                                        To="{StaticResource SecondaryDarkerColor}" Duration="0:0:0.1"/>
-                    </Storyboard>
-                </BeginStoryboard>
-            </EventTrigger>
-            <EventTrigger RoutedEvent="MouseLeave">
-                <BeginStoryboard>
-                    <Storyboard>
-                        <ColorAnimation Storyboard.TargetProperty="(Button.Background).(SolidColorBrush.Color)"
-                                        To="{StaticResource SecondaryColor}" Duration="0:0:0.1"/>
-                    </Storyboard>
-                </BeginStoryboard>
-            </EventTrigger>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="{DynamicResource SecondaryDarkerBrush}"/>
+            </Trigger>
         </Style.Triggers>
     </Style>
 
     <Style x:Key="DangerButton" TargetType="Button" BasedOn="{StaticResource ModernButtonBase}">
-        <Setter Property="Background" Value="{StaticResource DangerBrush}"/>
-        <Setter Property="BorderBrush" Value="{StaticResource DangerDarkerBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource DangerBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource DangerDarkerBrush}"/>
         <Style.Triggers>
-            <EventTrigger RoutedEvent="MouseEnter">
-                <BeginStoryboard>
-                    <Storyboard>
-                        <ColorAnimation Storyboard.TargetProperty="(Button.Background).(SolidColorBrush.Color)"
-                                        To="{StaticResource DangerDarkerColor}" Duration="0:0:0.1"/>
-                    </Storyboard>
-                </BeginStoryboard>
-            </EventTrigger>
-            <EventTrigger RoutedEvent="MouseLeave">
-                <BeginStoryboard>
-                    <Storyboard>
-                        <ColorAnimation Storyboard.TargetProperty="(Button.Background).(SolidColorBrush.Color)"
-                                        To="{StaticResource DangerColor}" Duration="0:0:0.1"/>
-                    </Storyboard>
-                </BeginStoryboard>
-            </EventTrigger>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="{DynamicResource DangerDarkerBrush}"/>
+            </Trigger>
         </Style.Triggers>
     </Style>
 
     <Style x:Key="WarningButton" TargetType="Button" BasedOn="{StaticResource ModernButtonBase}">
-        <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
-        <Setter Property="Background" Value="{StaticResource WarningBrush}"/>
-        <Setter Property="BorderBrush" Value="{StaticResource WarningDarkerBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource WarningBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource WarningDarkerBrush}"/>
         <Style.Triggers>
-            <EventTrigger RoutedEvent="MouseEnter">
-                <BeginStoryboard>
-                    <Storyboard>
-                        <ColorAnimation Storyboard.TargetProperty="(Button.Background).(SolidColorBrush.Color)"
-                                        To="{StaticResource WarningDarkerColor}" Duration="0:0:0.1"/>
-                    </Storyboard>
-                </BeginStoryboard>
-            </EventTrigger>
-            <EventTrigger RoutedEvent="MouseLeave">
-                <BeginStoryboard>
-                    <Storyboard>
-                        <ColorAnimation Storyboard.TargetProperty="(Button.Background).(SolidColorBrush.Color)"
-                                        To="{StaticResource WarningColor}" Duration="0:0:0.1"/>
-                    </Storyboard>
-                </BeginStoryboard>
-            </EventTrigger>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="{DynamicResource WarningDarkerBrush}"/>
+                </Trigger>
         </Style.Triggers>
     </Style>
 
     <Style x:Key="SuccessButton" TargetType="Button" BasedOn="{StaticResource ModernButtonBase}">
-        <Setter Property="Background" Value="{StaticResource SuccessBrush}"/>
-        <Setter Property="BorderBrush" Value="{StaticResource SuccessDarkerBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource SuccessBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource SuccessDarkerBrush}"/>
         <Style.Triggers>
-            <EventTrigger RoutedEvent="MouseEnter">
-                <BeginStoryboard>
-                    <Storyboard>
-                        <ColorAnimation Storyboard.TargetProperty="(Button.Background).(SolidColorBrush.Color)"
-                                        To="{StaticResource SuccessDarkerColor}" Duration="0:0:0.1"/>
-                    </Storyboard>
-                </BeginStoryboard>
-            </EventTrigger>
-            <EventTrigger RoutedEvent="MouseLeave">
-                <BeginStoryboard>
-                    <Storyboard>
-                        <ColorAnimation Storyboard.TargetProperty="(Button.Background).(SolidColorBrush.Color)"
-                                        To="{StaticResource SuccessColor}" Duration="0:0:0.1"/>
-                    </Storyboard>
-                </BeginStoryboard>
-            </EventTrigger>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="{DynamicResource SuccessDarkerBrush}"/>
+            </Trigger>
         </Style.Triggers>
     </Style>
 
@@ -188,22 +125,13 @@
             </Setter.Value>
         </Setter>
         <Style.Triggers>
-            <EventTrigger RoutedEvent="MouseEnter">
-                <BeginStoryboard>
-                    <Storyboard>
-                        <ColorAnimation Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
-                                        To="#E0E0E0" Duration="0:0:0.1"/>
-                    </Storyboard>
-                </BeginStoryboard>
-            </EventTrigger>
-            <EventTrigger RoutedEvent="MouseLeave">
-                <BeginStoryboard>
-                    <Storyboard>
-                        <ColorAnimation Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
-                                        To="Transparent" Duration="0:0:0.1"/>
-                    </Storyboard>
-                </BeginStoryboard>
-            </EventTrigger>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background">
+                    <Setter.Value>
+                        <SolidColorBrush Color="#808080" Opacity="0.2"/>
+                    </Setter.Value>
+                </Setter>
+            </Trigger>
         </Style.Triggers>
     </Style>
 
@@ -236,24 +164,32 @@
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="border" Property="Background" Value="#E0E0E0"/>
+                            <Setter TargetName="border" Property="Background">
+                                <Setter.Value>
+                                    <SolidColorBrush Color="#808080" Opacity="0.2"/>
+                                </Setter.Value>
+                            </Setter>
                         </Trigger>
                         <Trigger Property="IsPressed" Value="True">
-                            <Setter TargetName="border" Property="Background" Value="#C0C0C0"/>
+                            <Setter TargetName="border" Property="Background">
+                                <Setter.Value>
+                                    <SolidColorBrush Color="#808080" Opacity="0.4"/>
+                                </Setter.Value>
+                            </Setter>
                         </Trigger>
                         <Trigger Property="Tag" Value="Active">
                             <Setter Property="Content" Value="{Binding Source={x:Static helpers:AppIcons.FullscreenExit}, Path=Glyph}"/>
                             <Setter Property="Foreground" Value="{Binding Source={x:Static helpers:AppIcons.FullscreenExit}, Path=Brush}"/>
                             <Setter Property="ToolTip" Value="Exit Fullscreen"/>
-                            <Setter Property="Background" Value="{StaticResource WarningBrush}"/>
-                            <Setter Property="BorderBrush" Value="{StaticResource WarningDarkerBrush}"/>
+                            <Setter Property="Background" Value="{DynamicResource WarningBrush}"/>
+                            <Setter Property="BorderBrush" Value="{DynamicResource WarningDarkerBrush}"/>
                         </Trigger>
                         <MultiTrigger>
                             <MultiTrigger.Conditions>
                                 <Condition Property="IsMouseOver" Value="True"/>
                                 <Condition Property="Tag" Value="Active"/>
                             </MultiTrigger.Conditions>
-                            <Setter TargetName="border" Property="Background" Value="{StaticResource WarningDarkerBrush}"/>
+                            <Setter TargetName="border" Property="Background" Value="{DynamicResource WarningDarkerBrush}"/>
                         </MultiTrigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>

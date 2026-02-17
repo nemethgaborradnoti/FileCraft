@@ -2,7 +2,6 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <ResourceDictionary.MergedDictionaries>
-        <ResourceDictionary Source="Colors.xaml"/>
     </ResourceDictionary.MergedDictionaries>
 
     <Style x:Key="TreeViewToggleButton" TargetType="ToggleButton">
@@ -14,7 +13,7 @@
                 <ControlTemplate TargetType="ToggleButton">
                     <Border Background="Transparent" Padding="4">
                         <Path x:Name="Arrow"
-                              Stroke="{StaticResource TextBrush}"
+                              Stroke="{DynamicResource TextBrush}"
                               StrokeThickness="1.5"
                               SnapsToDevicePixels="True"
                               Data="M 0,0 L 4,4 L 0,8"
@@ -26,7 +25,7 @@
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="Arrow" Property="Stroke" Value="{StaticResource PrimaryBrush}"/>
+                            <Setter TargetName="Arrow" Property="Stroke" Value="{DynamicResource PrimaryBrush}"/>
                         </Trigger>
                         <Trigger Property="IsChecked" Value="True">
                             <Trigger.EnterActions>
@@ -59,6 +58,7 @@
         <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
         <Setter Property="Padding" Value="2"/>
         <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="TreeViewItem">
@@ -105,11 +105,12 @@
         <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
         <Setter Property="Padding" Value="4,1"/>
         <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
         <Style.Triggers>
             <Trigger Property="IsSelected" Value="True">
-                <Setter Property="Background" Value="{StaticResource TransparentBrush}"/>
+                <Setter Property="Background" Value="{DynamicResource TransparentBrush}"/>
                 <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>
-                <Setter Property="BorderBrush" Value="{StaticResource TransparentBrush}"/>
+                <Setter Property="BorderBrush" Value="{DynamicResource TransparentBrush}"/>
             </Trigger>
         </Style.Triggers>
     </Style>
@@ -118,6 +119,8 @@
         <Setter Property="VirtualizingStackPanel.IsVirtualizing" Value="True"/>
         <Setter Property="VirtualizingStackPanel.VirtualizationMode" Value="Recycling"/>
         <Setter Property="ScrollViewer.CanContentScroll" Value="True"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
     </Style>
 
 </ResourceDictionary>

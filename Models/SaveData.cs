@@ -9,6 +9,7 @@ namespace FileCraft.Models
         public string SourcePath { get; set; } = string.Empty;
         public string DestinationPath { get; set; } = string.Empty;
         public int SelectedTabIndex { get; set; } = 0;
+        public AppTheme SelectedTheme { get; set; } = AppTheme.Light;
         public FileContentExportSettings FileContentExport { get; set; } = new();
         public FolderContentExportSettings FolderContentExport { get; set; } = new();
         public TreeGeneratorSettings TreeGenerator { get; set; } = new();

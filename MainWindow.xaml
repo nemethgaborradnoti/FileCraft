@@ -21,23 +21,43 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Left" Margin="5,0,5,5">
-            <Button Style="{StaticResource BorderlessIconButton}" ToolTip="{DynamicResource UndoTooltip}" Command="{Binding UndoCommand}" IsEnabled="{Binding CanUndo}" Padding="0">
-                <Viewbox>
-                    <TextBlock Text="{Binding Source={x:Static helpers:AppIcons.Undo}, Path=Glyph}" FontFamily="{StaticResource MaterialIcons}" Foreground="{Binding Source={x:Static helpers:AppIcons.Undo}, Path=Brush}" />
-                </Viewbox>
-            </Button>
-            <Button Style="{StaticResource BorderlessIconButton}" ToolTip="{DynamicResource RedoTooltip}" Command="{Binding RedoCommand}" IsEnabled="{Binding CanRedo}" Padding="0">
-                <Viewbox>
-                    <TextBlock Text="{Binding Source={x:Static helpers:AppIcons.Redo}, Path=Glyph}" FontFamily="{StaticResource MaterialIcons}" Foreground="{Binding Source={x:Static helpers:AppIcons.Redo}, Path=Brush}" />
-                </Viewbox>
-            </Button>
-            <Button Style="{StaticResource BorderlessIconButton}" ToolTip="{DynamicResource SaveSettingsTooltip}" Command="{Binding SaveCommand}" IsEnabled="{Binding HasUnsavedChanges}" Padding="0">
-                <Viewbox>
-                    <TextBlock Text="{Binding Source={x:Static helpers:AppIcons.Save}, Path=Glyph}" FontFamily="{StaticResource MaterialIcons}" Foreground="{Binding Source={x:Static helpers:AppIcons.Save}, Path=Brush}" />
-                </Viewbox>
-            </Button>
-        </StackPanel>
+        <!-- Changed StackPanel to Grid for Left/Right alignment -->
+        <Grid Grid.Row="0" Margin="5,0,5,5">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <!-- Left Side: Actions -->
+            <StackPanel Grid.Column="0" Orientation="Horizontal">
+                <Button Style="{StaticResource BorderlessIconButton}" ToolTip="{DynamicResource UndoTooltip}" Command="{Binding UndoCommand}" IsEnabled="{Binding CanUndo}" Padding="0">
+                    <Viewbox>
+                        <TextBlock Text="{Binding Source={x:Static helpers:AppIcons.Undo}, Path=Glyph}" FontFamily="{StaticResource MaterialIcons}" Foreground="{Binding Source={x:Static helpers:AppIcons.Undo}, Path=Brush}" />
+                    </Viewbox>
+                </Button>
+                <Button Style="{StaticResource BorderlessIconButton}" ToolTip="{DynamicResource RedoTooltip}" Command="{Binding RedoCommand}" IsEnabled="{Binding CanRedo}" Padding="0">
+                    <Viewbox>
+                        <TextBlock Text="{Binding Source={x:Static helpers:AppIcons.Redo}, Path=Glyph}" FontFamily="{StaticResource MaterialIcons}" Foreground="{Binding Source={x:Static helpers:AppIcons.Redo}, Path=Brush}" />
+                    </Viewbox>
+                </Button>
+                <Button Style="{StaticResource BorderlessIconButton}" ToolTip="{DynamicResource SaveSettingsTooltip}" Command="{Binding SaveCommand}" IsEnabled="{Binding HasUnsavedChanges}" Padding="0">
+                    <Viewbox>
+                        <TextBlock Text="{Binding Source={x:Static helpers:AppIcons.Save}, Path=Glyph}" FontFamily="{StaticResource MaterialIcons}" Foreground="{Binding Source={x:Static helpers:AppIcons.Save}, Path=Brush}" />
+                    </Viewbox>
+                </Button>
+            </StackPanel>
+
+            <!-- Right Side: Theme Toggle -->
+            <StackPanel Grid.Column="2" Orientation="Horizontal">
+                <Button Style="{StaticResource BorderlessIconButton}" ToolTip="{DynamicResource ThemeToggleTooltip}" Command="{Binding ToggleThemeCommand}" Padding="0">
+                    <Viewbox>
+                        <!-- Using DynamicResource for foreground to ensure immediate update -->
+                        <TextBlock Text="{Binding CurrentThemeIcon.Glyph}" FontFamily="{StaticResource MaterialIcons}" Foreground="{DynamicResource TextBrush}" />
+                    </Viewbox>
+                </Button>
+            </StackPanel>
+        </Grid>
 
         <Grid Grid.Row="1" Margin="5,0,5,5">
             <Grid.ColumnDefinitions>

@@ -2,7 +2,7 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <ResourceDictionary.MergedDictionaries>
-        <ResourceDictionary Source="Colors.xaml"/>
+        <!-- Removed Colors.xaml -->
     </ResourceDictionary.MergedDictionaries>
 
     <Style x:Key="HeaderStackPanelStyle" TargetType="StackPanel">
@@ -13,32 +13,22 @@
     <Style TargetType="GroupBox">
         <Setter Property="Padding" Value="5"/>
         <Setter Property="Margin" Value="5"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
     </Style>
 
     <Style x:Key="FileCraftTabItemStyle" TargetType="{x:Type TabItem}">
         <Setter Property="Padding" Value="10,5"/>
-        <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type TabItem}">
-                    <ControlTemplate.Resources>
-                        <Storyboard x:Key="TabHoverIn">
-                            <ColorAnimation Storyboard.TargetName="mainBorder"
-                                            Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
-                                            To="{StaticResource TabHoverColor}" Duration="0:0:0.1" />
-                        </Storyboard>
-                        <Storyboard x:Key="TabHoverOut">
-                            <ColorAnimation Storyboard.TargetName="mainBorder"
-                                            Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
-                                            To="{StaticResource LightGrayColor}" Duration="0:0:0.1"
-                                            FillBehavior="Stop"/>
-                        </Storyboard>
-                    </ControlTemplate.Resources>
+                    <!-- Removed Storyboards causing freeze errors -->
                     <Grid x:Name="templateRoot" SnapsToDevicePixels="true">
                         <Border x:Name="mainBorder"
-                                BorderBrush="{StaticResource BorderBrush}"
+                                BorderBrush="{DynamicResource BorderBrush}"
                                 BorderThickness="1,1,1,1"
-                                Background="{StaticResource TabInactiveBackgroundBrush}"
+                                Background="{DynamicResource TabInactiveBackgroundBrush}"
                                 Margin="0,0,-1,0"
                                 CornerRadius="4,4,0,0">
                             <ContentPresenter x:Name="contentPresenter"
@@ -55,36 +45,14 @@
                             <Setter Property="Panel.ZIndex" Value="1"/>
                             <Setter TargetName="mainBorder" Property="BorderThickness" Value="1,1,1,0"/>
                             <Setter Property="Margin" Value="-4,-4,-4,0" />
-                            <Trigger.EnterActions>
-                                <BeginStoryboard>
-                                    <Storyboard>
-                                        <ColorAnimation Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
-                                                        Storyboard.TargetName="mainBorder"
-                                                        To="White" Duration="0:0:0.1" />
-                                    </Storyboard>
-                                </BeginStoryboard>
-                            </Trigger.EnterActions>
-                            <Trigger.ExitActions>
-                                <BeginStoryboard>
-                                    <Storyboard>
-                                        <ColorAnimation Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
-                                                        Storyboard.TargetName="mainBorder"
-                                                        To="{StaticResource LightGrayColor}" Duration="0:0:0.1" />
-                                    </Storyboard>
-                                </BeginStoryboard>
-                            </Trigger.ExitActions>
+                            <Setter TargetName="mainBorder" Property="Background" Value="{DynamicResource TabActiveBackgroundBrush}"/>
                         </Trigger>
                         <MultiTrigger>
                             <MultiTrigger.Conditions>
                                 <Condition Property="IsSelected" Value="false"/>
                                 <Condition Property="IsMouseOver" Value="true"/>
                             </MultiTrigger.Conditions>
-                            <MultiTrigger.EnterActions>
-                                <BeginStoryboard Storyboard="{StaticResource TabHoverIn}"/>
-                            </MultiTrigger.EnterActions>
-                            <MultiTrigger.ExitActions>
-                                <BeginStoryboard Storyboard="{StaticResource TabHoverOut}"/>
-                            </MultiTrigger.ExitActions>
+                            <Setter TargetName="mainBorder" Property="Background" Value="{DynamicResource TabHoverBrush}"/>
                         </MultiTrigger>
                         <Trigger Property="IsEnabled" Value="false">
                             <Setter Property="Opacity" Value="0.65"/>
@@ -114,9 +82,9 @@
                                   Panel.ZIndex="1"/>
                         <Border x:Name="ContentPanel"
                                 Grid.Row="1"
-                                BorderBrush="{StaticResource BorderBrush}"
+                                BorderBrush="{DynamicResource BorderBrush}"
                                 BorderThickness="1"
-                                Background="Transparent"
+                                Background="{DynamicResource TabActiveBackgroundBrush}"
                                 KeyboardNavigation.DirectionalNavigation="Contained"
                                 KeyboardNavigation.TabIndex="2"
                                 KeyboardNavigation.TabNavigation="Local">
@@ -132,7 +100,7 @@
     </Style>
 
     <Style x:Key="CustomSeparatorStyle" TargetType="Separator">
-        <Setter Property="Background" Value="{StaticResource BorderBrush}" />
+        <Setter Property="Background" Value="{DynamicResource BorderBrush}" />
         <Setter Property="Height" Value="1" />
         <Setter Property="Margin" Value="0,4" />
         <Setter Property="Template">

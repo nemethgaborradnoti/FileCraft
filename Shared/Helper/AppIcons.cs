@@ -38,5 +38,8 @@ namespace FileCraft.Shared.Helpers
         public static IconDefinition Error => new(MaterialIcons.error, ResourceKeys.DangerBrush);
         public static IconDefinition Success => new(MaterialIcons.check_circle, ResourceKeys.SuccessBrush);
         public static IconDefinition Info => new(MaterialIcons.info, ResourceKeys.PrimaryBrush);
+
+        public static IconDefinition LightMode => new(MaterialIcons.light_mode, ResourceKeys.TextBrush);
+        public static IconDefinition DarkMode => new(MaterialIcons.dark_mode, ResourceKeys.TextBrush);
     }
 }

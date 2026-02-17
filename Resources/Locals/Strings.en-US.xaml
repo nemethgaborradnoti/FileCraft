@@ -28,6 +28,7 @@
     <system:String x:Key="UndoTooltip">Undo</system:String>
     <system:String x:Key="RedoTooltip">Redo</system:String>
     <system:String x:Key="SaveSettingsTooltip">Save current settings</system:String>
+    <system:String x:Key="ThemeToggleTooltip">Toggle Light/Dark Theme</system:String>
 
     <system:String x:Key="SourceFolderHeader">Source folder</system:String>
     <system:String x:Key="DestinationFolderHeader">Destination folder</system:String>

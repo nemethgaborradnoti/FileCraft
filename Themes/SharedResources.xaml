@@ -2,7 +2,6 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <ResourceDictionary.MergedDictionaries>
-        <ResourceDictionary Source="/Themes/Styles/Colors.xaml" />
         <ResourceDictionary Source="/Themes/Styles/Buttons.xaml" />
         <ResourceDictionary Source="/Themes/Styles/Inputs.xaml" />
         <ResourceDictionary Source="/Themes/Styles/DataDisplay.xaml" />
