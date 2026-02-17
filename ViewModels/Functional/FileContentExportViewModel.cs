@@ -43,6 +43,8 @@ namespace FileCraft.ViewModels.Functional
         private string _ignoredFilesText = string.Empty;
         private HashSet<string> _ignoredCommentFilePaths = new(StringComparer.OrdinalIgnoreCase);
 
+        private FileContentExportSettings? _pendingSettings;
+
         public FullscreenManager<ExportFullscreenState> FullscreenManager { get; }
 
         public int TotalFilesCount
@@ -251,30 +253,12 @@ namespace FileCraft.ViewModels.Functional
 
         public void ApplySettings(FileContentExportSettings settings)
         {
+            _pendingSettings = settings;
+
             OutputFileName = settings.OutputFileName;
             AppendTimestamp = settings.AppendTimestamp;
 
-            var loadedSelectedExtensions = new HashSet<string>(settings.SelectedExtensions ?? new List<string>());
-            foreach (var extVM in AvailableExtensions)
-            {
-                extVM.IsSelected = loadedSelectedExtensions.Contains(extVM.Name);
-            }
-
-            UpdateSelectableFiles();
-
-            var loadedSelectedFilePaths = new HashSet<string>(settings.SelectedFilePaths ?? new List<string>());
-
-            foreach (var fileVM in _allSelectableFiles)
-            {
-                fileVM.IsSelected = loadedSelectedFilePaths.Contains(fileVM.FullPath);
-            }
-
-            _ignoredCommentFilePaths = new HashSet<string>(settings.IgnoredCommentFilePaths ?? new List<string>(), StringComparer.OrdinalIgnoreCase);
-
-            UpdateFileCounts();
-            UpdateExtensionMasterState();
-            ApplyFileFilter();
-            UpdateIgnoredFilesText();
+            OnFolderSelectionChanged();
         }
 
         public List<string> GetSelectedFilePaths()
@@ -401,7 +385,6 @@ namespace FileCraft.ViewModels.Functional
         private void OnFolderSelectionChanged()
         {
             UpdateAvailableExtensions();
-            UpdateSelectableFiles();
         }
 
         private void UpdateAvailableExtensions()
@@ -416,7 +399,16 @@ namespace FileCraft.ViewModels.Functional
 
                 Application.Current.Dispatcher.Invoke(() =>
                 {
-                    var previouslySelected = new HashSet<string>(GetSelectedExtensions());
+                    HashSet<string> extensionsToSelect;
+
+                    if (_pendingSettings != null)
+                    {
+                        extensionsToSelect = new HashSet<string>(_pendingSettings.SelectedExtensions ?? new List<string>(), StringComparer.OrdinalIgnoreCase);
+                    }
+                    else
+                    {
+                        extensionsToSelect = new HashSet<string>(GetSelectedExtensions(), StringComparer.OrdinalIgnoreCase);
+                    }
 
                     foreach (var ext in AvailableExtensions)
                         ext.PropertyChanged -= OnExtensionSelectionChanged;
@@ -424,14 +416,14 @@ namespace FileCraft.ViewModels.Functional
                     var newExtensionsList = new List<SelectableItemViewModel>();
                     foreach (var ext in extensions.Where(e => !string.IsNullOrEmpty(e)).OrderBy(e => e))
                     {
-                        var item = new SelectableItemViewModel(ext, previouslySelected.Contains(ext), this.OnStateChanging);
+                        var item = new SelectableItemViewModel(ext, extensionsToSelect.Contains(ext), this.OnStateChanging);
                         item.PropertyChanged += OnExtensionSelectionChanged;
                         newExtensionsList.Add(item);
                     }
 
                     AvailableExtensions.ReplaceAll(newExtensionsList);
                     UpdateExtensionMasterState();
-                    IsBusy = false;
+                    UpdateSelectableFiles();
                 });
             });
         }
@@ -456,6 +448,16 @@ namespace FileCraft.ViewModels.Functional
 
                 Application.Current.Dispatcher.Invoke(() =>
                 {
+                    HashSet<string>? pendingFilesToSelect = null;
+
+                    if (_pendingSettings != null)
+                    {
+                        pendingFilesToSelect = new HashSet<string>(_pendingSettings.SelectedFilePaths ?? new List<string>(), StringComparer.OrdinalIgnoreCase);
+
+                        _ignoredCommentFilePaths = new HashSet<string>(_pendingSettings.IgnoredCommentFilePaths ?? new List<string>(), StringComparer.OrdinalIgnoreCase);
+                        UpdateIgnoredFilesText();
+                    }
+
                     var previouslySelectedFiles = new HashSet<string>(_allSelectableFiles.Where(f => f.IsSelected).Select(f => f.FullPath));
 
                     foreach (var file in _allSelectableFiles)
@@ -465,14 +467,28 @@ namespace FileCraft.ViewModels.Functional
 
                     foreach (var file in newFileList.OrderBy(f => f.FullPath))
                     {
-                        if (previouslySelectedFiles.Contains(file.FullPath))
+                        bool isSelected = false;
+
+                        if (pendingFilesToSelect != null)
+                        {
+                            isSelected = pendingFilesToSelect.Contains(file.FullPath);
+                        }
+                        else
+                        {
+                            isSelected = previouslySelectedFiles.Contains(file.FullPath);
+                        }
+
+                        if (isSelected)
                         {
                             file.IsSelected = true;
                         }
+
                         file.SetStateChangingAction(this.OnStateChanging);
                         file.PropertyChanged += OnFileSelectionChanged;
                         _allSelectableFiles.Add(file);
                     }
+
+                    _pendingSettings = null;
 
                     ApplyFileFilter();
                     IsBusy = false;
@@ -572,12 +588,10 @@ namespace FileCraft.ViewModels.Functional
         {
             if (node.IsSelected == true)
             {
-                // Explicitly selected: Include and Recursive
                 configs.Add((node.FullPath, true));
             }
             else if (node.IsSelected == null)
             {
-                // Indeterminate: Include current folder (flat) to capture immediate files, and recurse children
                 configs.Add((node.FullPath, false));
 
                 foreach (var child in node.Children)
@@ -585,7 +599,6 @@ namespace FileCraft.ViewModels.Functional
                     CollectFolderConfigs(child, configs);
                 }
             }
-            // If false, do nothing
         }
 
         private async Task ExportFileContentAsync()
