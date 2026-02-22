@@ -121,7 +121,14 @@ namespace FileCraft.ViewModels.Functional
         private readonly ISharedStateService _sharedStateService;
         private readonly IFolderTreeLinkService _folderTreeLinkService;
 
-        public string Version => ResourceHelper.GetString("App_Version");
+        public string Version
+        {
+            get
+            {
+                var version = System.Reflection.Assembly.GetEntryAssembly()?.GetName().Version;
+                return version != null ? $"v{version.Major}.{version.Minor}.{version.Build}" : "Unknown Version";
+            }
+        }
 
         public FullscreenManager<OptionsFullscreenState> FullscreenManager { get; }
 
