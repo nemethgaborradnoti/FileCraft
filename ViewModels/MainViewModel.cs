@@ -17,7 +17,6 @@ namespace FileCraft.ViewModels
         private readonly IDialogService _dialogService;
         private readonly IUndoService _undoService;
         private readonly IFolderTreeLinkService _folderTreeLinkService;
-        private bool _isLoading = false;
 
         private bool _hasUnsavedChanges;
         public bool HasUnsavedChanges
@@ -114,9 +113,18 @@ namespace FileCraft.ViewModels
             UndoCommand = new RelayCommand(_ => Undo(), _ => CanUndo);
             RedoCommand = new RelayCommand(_ => Redo(), _ => CanRedo);
 
-            LoadData();
-            UpdateLinkedTabsVisuals();
             HasUnsavedChanges = false;
+        }
+
+        public async Task InitializeAsync()
+        {
+            IsBusy = true;
+            _undoService.Clear();
+            SaveData saveData = _saveService.LoadSaveData();
+            await ApplyAllData(saveData);
+            SelectedTabIndex = saveData.SelectedTabIndex;
+            UpdateLinkedTabsVisuals();
+            IsBusy = false;
         }
 
         private void OnIgnoredFoldersChanged()
@@ -145,23 +153,23 @@ namespace FileCraft.ViewModels
         private async void Undo()
         {
             if (!CanUndo) return;
-            _isLoading = true;
+            IsBusy = true;
             var currentState = GetCurrentSaveData();
             var previousState = _undoService.Undo(currentState);
             await ApplyAllData(previousState);
             HasUnsavedChanges = true;
-            _isLoading = false;
+            IsBusy = false;
         }
 
         private async void Redo()
         {
             if (!CanRedo) return;
-            _isLoading = true;
+            IsBusy = true;
             var currentState = GetCurrentSaveData();
             var nextState = _undoService.Redo(currentState);
             await ApplyAllData(nextState);
             HasUnsavedChanges = true;
-            _isLoading = false;
+            IsBusy = false;
         }
 
         private async void SelectPath(bool isSource)
@@ -222,16 +230,6 @@ namespace FileCraft.ViewModels
                     handledManagers.Add(peerId);
                 }
             }
-        }
-
-        private async void LoadData()
-        {
-            _isLoading = true;
-            _undoService.Clear();
-            SaveData saveData = _saveService.LoadSaveData();
-            await ApplyAllData(saveData);
-            SelectedTabIndex = saveData.SelectedTabIndex;
-            _isLoading = false;
         }
 
         public void Save()
@@ -320,7 +318,7 @@ namespace FileCraft.ViewModels
 
         private async Task ApplyAllData(SaveData saveData)
         {
-            _isLoading = true;
+            IsBusy = true;
             _sharedStateService.SourcePath = saveData.SourcePath;
             _sharedStateService.DestinationPath = saveData.DestinationPath;
             _sharedStateService.IgnoredFolders = saveData.SettingsPage.IgnoredFolders ?? new();
@@ -331,17 +329,15 @@ namespace FileCraft.ViewModels
             OnPropertyChanged(nameof(DestinationPath));
             OnPropertyChanged(nameof(CanClearPaths));
 
-            await UpdateAllManagersWithPath(SourcePath);
-
-            if (FileContentExportVM.FolderTreeManager.RootFolders.Any())
+            if (FileContentExportVM.FolderTreeManager.RootFolders.Any() || !string.IsNullOrWhiteSpace(SourcePath))
                 await ApplyStateToManager(FileContentExportVM.FolderTreeManager, saveData.FileContentExport.FolderTreeState);
             FileContentExportVM.ApplySettings(saveData.FileContentExport);
 
-            if (FolderContentExportVM.FolderTreeManager.RootFolders.Any())
+            if (FolderContentExportVM.FolderTreeManager.RootFolders.Any() || !string.IsNullOrWhiteSpace(SourcePath))
                 await ApplyStateToManager(FolderContentExportVM.FolderTreeManager, saveData.FolderContentExport.FolderTreeState);
             FolderContentExportVM.ApplySettings(saveData.FolderContentExport);
 
-            if (TreeGeneratorVM.FolderTreeManager.RootFolders.Any())
+            if (TreeGeneratorVM.FolderTreeManager.RootFolders.Any() || !string.IsNullOrWhiteSpace(SourcePath))
                 await ApplyStateToManager(TreeGeneratorVM.FolderTreeManager, saveData.TreeGenerator.FolderTreeState);
             TreeGeneratorVM.OutputFileName = saveData.TreeGenerator.OutputFileName;
             TreeGeneratorVM.AppendTimestamp = saveData.TreeGenerator.AppendTimestamp;
@@ -356,12 +352,12 @@ namespace FileCraft.ViewModels
             }
 
             SelectedTabIndex = saveData.SelectedTabIndex;
-            _isLoading = false;
+            IsBusy = false;
         }
 
         private async Task ApplyStateToManager(FolderTreeManager manager, List<FolderState> state)
         {
-            await manager.LoadTreeForPathAsync(manager.CurrentSourcePath, state);
+            await manager.LoadTreeForPathAsync(SourcePath, state);
         }
 
         private void OnPresetSaveRequested(int presetNumber)
@@ -566,7 +562,7 @@ namespace FileCraft.ViewModels
 
         private void OnStateChanging()
         {
-            if (_isLoading) return;
+            if (IsBusy) return;
             var currentState = GetCurrentSaveData();
             _undoService.RecordState(currentState);
             HasUnsavedChanges = true;

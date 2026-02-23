@@ -28,7 +28,10 @@ namespace FileCraft
             await _host.StartAsync();
 
             var mainWindow = _host.Services.GetRequiredService<MainWindow>();
+            var mainViewModel = _host.Services.GetRequiredService<MainViewModel>();
+
             mainWindow.Show();
+            await mainViewModel.InitializeAsync();
 
             base.OnStartup(e);
         }
