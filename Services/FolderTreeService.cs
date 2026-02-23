@@ -22,8 +22,6 @@ namespace FileCraft.Services
 
             var rootViewModel = CreateFolderViewModel(rootDirInfo.Name, rootDirInfo.FullName, null, onSelectionChanged, onStateChanging, LoadChildrenDelegate);
 
-            rootViewModel.IsExpanded = true;
-
             rootFolders.Add(rootViewModel);
             return rootFolders;
         }

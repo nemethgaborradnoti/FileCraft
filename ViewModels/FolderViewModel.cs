@@ -13,6 +13,7 @@ namespace FileCraft.ViewModels
         private readonly Action _onStateChanging;
         private readonly Func<string, FolderViewModel, Task<IEnumerable<FolderViewModel>>>? _loadChildren;
         private bool _isProcessingSelectionChange = false;
+        private bool _isLoadingChildren = false;
 
         public string Name { get; }
         public string FullPath { get; }
@@ -87,20 +88,30 @@ namespace FileCraft.ViewModels
 
         private async Task LoadChildrenAsync()
         {
+            if (_isLoadingChildren) return;
+
             if (_loadChildren != null)
             {
-                var loadedChildren = await _loadChildren(FullPath, this);
-
-                Children.Clear();
-                foreach (var child in loadedChildren)
+                _isLoadingChildren = true;
+                try
                 {
-                    if (IsSelected.HasValue)
+                    var loadedChildren = await _loadChildren(FullPath, this);
+
+                    Children.Clear();
+                    foreach (var child in loadedChildren)
                     {
-                        child.SetIsSelected(IsSelected.Value, updateChildren: true, updateParent: false);
+                        if (IsSelected.HasValue)
+                        {
+                            child.SetIsSelected(IsSelected.Value, updateChildren: true, updateParent: false);
+                        }
+                        Children.Add(child);
                     }
-                    Children.Add(child);
+                    VerifyCheckState();
                 }
-                VerifyCheckState();
+                finally
+                {
+                    _isLoadingChildren = false;
+                }
             }
         }
 

@@ -79,9 +79,16 @@ namespace FileCraft.ViewModels.Shared
 
             var newTree = _folderTreeService.BuildFolderTree(sourcePath, ignoredFoldersSet, HandleFolderStateChange, OnStateChanging);
 
-            if (folderState != null && newTree.Any())
+            if (newTree.Any())
             {
-                await ApplyStateToNodeAsync(newTree[0], folderState);
+                if (folderState != null)
+                {
+                    await ApplyStateToNodeAsync(newTree[0], folderState);
+                }
+                else
+                {
+                    newTree[0].IsExpanded = true;
+                }
             }
 
             RootFolders = newTree;
