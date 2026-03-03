@@ -14,6 +14,7 @@
     <system:String x:Key="Common_OkButton">OK</system:String>
     <system:String x:Key="Common_YesButton">Yes</system:String>
     <system:String x:Key="Common_DeleteButton">Delete</system:String>
+    <system:String x:Key="Common_CloseButton">Close</system:String>
 
     <system:String x:Key="Common_SelectAll">Select all</system:String>
     <system:String x:Key="Common_SavedTo">Saved to: {0}</system:String>
@@ -79,6 +80,7 @@
     <system:String x:Key="FileContent_IgnoredParts">Ignored parts:</system:String>
     <system:String x:Key="FileContent_IgnoredStats">{0} lines ({1} characters).</system:String>
     <system:String x:Key="FileContent_ExportErrorMessage">An unexpected error occurred during export:&#x0a;{0}</system:String>
+    <system:String x:Key="FileContent_ManagePathPresetsButton">Manage path presets</system:String>
 
     <!-- Added Result Keys -->
     <system:String x:Key="FileContent_Result_Header">Exported {0} files into:</system:String>
@@ -199,6 +201,31 @@
     <system:String x:Key="Options_OpenSaveError_Exception">An error occurred while trying to open the folder:&#x0a;{0}</system:String>
     <system:String x:Key="Options_LinkFolderTreesButton">Link folder trees</system:String>
     <system:String x:Key="Options_UnlinkTooltip">Click to unlink this group of folder trees.</system:String>
+
+    <!-- Path Preset Strings -->
+    <system:String x:Key="PathPreset_Title">Path Presets Manager</system:String>
+    <system:String x:Key="PathPreset_SaveCurrentButton">Save selection as new preset</system:String>
+    <system:String x:Key="PathPreset_LoadButton">Load selected preset</system:String>
+    <system:String x:Key="PathPreset_ViewButton">View content</system:String>
+    <system:String x:Key="PathPreset_DeleteConfirmTitle">Delete Path Preset</system:String>
+    <system:String x:Key="PathPreset_DeleteConfirmMessage">Are you sure you want to delete path preset '{0}'?</system:String>
+    <system:String x:Key="PathPreset_NamePrompt">Enter preset name:</system:String>
+    <system:String x:Key="PathPreset_NewPresetTitle">New Path Preset</system:String>
+    <system:String x:Key="PathPreset_RenameTitle">Rename Path Preset</system:String>
+    <system:String x:Key="PathPreset_RenamePrompt">Rename preset '{0}' to:</system:String>
+    <system:String x:Key="PathPreset_ViewTitle">Preset Content: {0}</system:String>
+    <system:String x:Key="PathPreset_TotalPaths">Total paths: {0}</system:String>
+    <system:String x:Key="PathPreset_NoSelectionError">Please select files in the main window first.</system:String>
+
+    <!-- Preset Summary Strings -->
+    <system:String x:Key="PresetSummary_Title">Preset Load Summary</system:String>
+    <system:String x:Key="PresetSummary_Total">Total paths:</system:String>
+    <system:String x:Key="PresetSummary_Loaded">Successfully loaded:</system:String>
+    <system:String x:Key="PresetSummary_Changed">Changed:</system:String>
+    <system:String x:Key="PresetSummary_Unchanged">Unchanged:</system:String>
+    <system:String x:Key="PresetSummary_NotFound">Not found:</system:String>
+    <system:String x:Key="PresetSummary_ShowMissingButton">Show missing files</system:String>
+    <system:String x:Key="PresetSummary_HideMissingButton">Hide missing files</system:String>
 
     <!-- Model Defaults -->
     <system:String x:Key="Model_DefaultExportedFileName">ExportedFile</system:String>

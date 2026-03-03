@@ -1,13 +1,22 @@
 ﻿using FileCraft.Models;
 using FileCraft.Services.Interfaces;
 using FileCraft.Shared.Helpers;
+using FileCraft.ViewModels.Functional;
 using FileCraft.ViewModels.Shared;
 using FileCraft.Views.Shared;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace FileCraft.Services
 {
     public class DialogService : IDialogService
     {
+        private readonly IServiceProvider _serviceProvider;
+
+        public DialogService(IServiceProvider serviceProvider)
+        {
+            _serviceProvider = serviceProvider;
+        }
+
         public string? SelectFolder(string description)
         {
             var dialog = new Microsoft.Win32.OpenFolderDialog
@@ -104,6 +113,7 @@ namespace FileCraft.Services
                 Title = ResourceHelper.GetString("RenamePreset_Title"),
                 Message = string.Format(ResourceHelper.GetString("RenamePreset_Prompt"), presetNumber),
                 IsInputVisible = true,
+                IsMultiline = false,
                 InputText = currentName,
                 PrimaryButtonText = ResourceHelper.GetString("Common_OkButton"),
                 PrimaryButtonStyle = ResourceKeys.PrimaryButton,
@@ -125,6 +135,7 @@ namespace FileCraft.Services
                 Title = ResourceHelper.GetString("EditIgnored_Title"),
                 Message = ResourceHelper.GetString("EditIgnored_Instruction"),
                 IsInputVisible = true,
+                IsMultiline = true,
                 InputText = currentFolders,
                 PrimaryButtonText = ResourceHelper.GetString("Common_OkButton"),
                 PrimaryButtonStyle = ResourceKeys.PrimaryButton,
@@ -156,6 +167,55 @@ namespace FileCraft.Services
                 return window.GetIgnoredFilePaths();
             }
             return null;
+        }
+
+        public void ShowPathPresetsManager(FileContentExportViewModel fileContentExportViewModel)
+        {
+            var viewModel = new PathPresetsViewModel(
+                _serviceProvider.GetRequiredService<IPathPresetService>(),
+                _serviceProvider.GetRequiredService<ISharedStateService>(),
+                this,
+                fileContentExportViewModel);
+
+            var window = new PathPresetsWindow(viewModel);
+            window.ShowDialog();
+        }
+
+        public string? ShowInputStringDialog(string title, string message, string defaultValue = "")
+        {
+            var viewModel = new GenericDialogViewModel
+            {
+                Title = title,
+                Message = message,
+                IsInputVisible = true,
+                IsMultiline = false,
+                InputText = defaultValue,
+                PrimaryButtonText = ResourceHelper.GetString("Common_OkButton"),
+                PrimaryButtonStyle = ResourceKeys.PrimaryButton,
+                SecondaryButtonText = ResourceHelper.GetString("Common_CancelButton")
+            };
+
+            var window = new GenericDialogWindow(viewModel);
+            if (window.ShowDialog() == true)
+            {
+                return viewModel.InputText;
+            }
+            return null;
+        }
+
+        public void ShowTextContentDialog(string title, string content)
+        {
+            var viewModel = new ViewContentViewModel(title, content);
+            var window = new ViewContentWindow(viewModel);
+            window.ShowDialog();
+        }
+
+        public void ShowPresetLoadSummary(PathPresetLoadResult result)
+        {
+            var sharedStateService = _serviceProvider.GetRequiredService<ISharedStateService>();
+            var viewModel = new PresetLoadSummaryViewModel(result, sharedStateService);
+            var window = new PresetLoadSummaryWindow(viewModel);
+            window.ShowDialog();
         }
 
         private IconDefinition GetAppIcon(DialogIconType iconType)
