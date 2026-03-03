@@ -3,6 +3,7 @@ using FileCraft.Services.Interfaces;
 using FileCraft.Shared.Commands;
 using FileCraft.Shared.Helpers;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Windows.Input;
 
 namespace FileCraft.ViewModels.Functional
@@ -10,6 +11,7 @@ namespace FileCraft.ViewModels.Functional
     public class PathPresetsViewModel : BaseViewModel
     {
         private readonly IPathPresetService _presetService;
+        private readonly ISharedStateService _sharedStateService;
         private readonly IDialogService _dialogService;
         private readonly FileContentExportViewModel _fileContentExportVM;
 
@@ -43,10 +45,12 @@ namespace FileCraft.ViewModels.Functional
 
         public PathPresetsViewModel(
             IPathPresetService presetService,
+            ISharedStateService sharedStateService,
             IDialogService dialogService,
             FileContentExportViewModel fileContentExportVM)
         {
             _presetService = presetService;
+            _sharedStateService = sharedStateService;
             _dialogService = dialogService;
             _fileContentExportVM = fileContentExportVM;
 
@@ -120,16 +124,8 @@ namespace FileCraft.ViewModels.Functional
         {
             if (SelectedPreset != null)
             {
-                // This triggers the batch loading logic implemented in Phase 2
                 var result = _fileContentExportVM.LoadPathPreset(SelectedPreset.FilePaths);
-
-                // For Phase 3, we just notify success. Phase 4 will introduce the detailed summary dialog.
-                string message = $"Loaded {result.SuccessfullyLoaded} paths.\nChanged: {result.Changed}\nUnchanged: {result.Unchanged}\nNot Found: {result.NotFoundPaths.Count}";
-
-                _dialogService.ShowNotification(
-                    ResourceHelper.GetString("Common_SuccessTitle"),
-                    message,
-                    DialogIconType.Success);
+                _dialogService.ShowPresetLoadSummary(result);
             }
         }
 
@@ -137,7 +133,21 @@ namespace FileCraft.ViewModels.Functional
         {
             if (SelectedPreset != null)
             {
-                string content = string.Join(Environment.NewLine, SelectedPreset.FilePaths);
+                string sourcePath = _sharedStateService.SourcePath;
+                List<string> displayPaths;
+
+                if (!string.IsNullOrWhiteSpace(sourcePath))
+                {
+                    displayPaths = SelectedPreset.FilePaths
+                        .Select(p => Path.GetRelativePath(sourcePath, p))
+                        .ToList();
+                }
+                else
+                {
+                    displayPaths = SelectedPreset.FilePaths.ToList();
+                }
+
+                string content = string.Join(Environment.NewLine, displayPaths);
                 string title = string.Format(ResourceHelper.GetString("PathPreset_ViewTitle"), SelectedPreset.Name);
                 _dialogService.ShowTextContentDialog(title, content);
             }

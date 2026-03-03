@@ -13,6 +13,7 @@ namespace FileCraft.ViewModels.Shared
         private Brush _iconBrush = Brushes.Black;
         private string _inputText = string.Empty;
         private bool _isInputVisible;
+        private bool _isMultiline; // New property
         private object? _customContent;
         private string _primaryButtonText = ResourceHelper.GetString("Common_OkButton");
         private string _secondaryButtonText = string.Empty;
@@ -52,6 +53,12 @@ namespace FileCraft.ViewModels.Shared
         {
             get => _isInputVisible;
             set { _isInputVisible = value; OnPropertyChanged(); }
+        }
+
+        public bool IsMultiline
+        {
+            get => _isMultiline;
+            set { _isMultiline = value; OnPropertyChanged(); }
         }
 
         public string InputText

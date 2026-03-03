@@ -113,6 +113,7 @@ namespace FileCraft.Services
                 Title = ResourceHelper.GetString("RenamePreset_Title"),
                 Message = string.Format(ResourceHelper.GetString("RenamePreset_Prompt"), presetNumber),
                 IsInputVisible = true,
+                IsMultiline = false,
                 InputText = currentName,
                 PrimaryButtonText = ResourceHelper.GetString("Common_OkButton"),
                 PrimaryButtonStyle = ResourceKeys.PrimaryButton,
@@ -134,6 +135,7 @@ namespace FileCraft.Services
                 Title = ResourceHelper.GetString("EditIgnored_Title"),
                 Message = ResourceHelper.GetString("EditIgnored_Instruction"),
                 IsInputVisible = true,
+                IsMultiline = true,
                 InputText = currentFolders,
                 PrimaryButtonText = ResourceHelper.GetString("Common_OkButton"),
                 PrimaryButtonStyle = ResourceKeys.PrimaryButton,
@@ -171,6 +173,7 @@ namespace FileCraft.Services
         {
             var viewModel = new PathPresetsViewModel(
                 _serviceProvider.GetRequiredService<IPathPresetService>(),
+                _serviceProvider.GetRequiredService<ISharedStateService>(),
                 this,
                 fileContentExportViewModel);
 
@@ -185,6 +188,7 @@ namespace FileCraft.Services
                 Title = title,
                 Message = message,
                 IsInputVisible = true,
+                IsMultiline = false,
                 InputText = defaultValue,
                 PrimaryButtonText = ResourceHelper.GetString("Common_OkButton"),
                 PrimaryButtonStyle = ResourceKeys.PrimaryButton,
@@ -201,17 +205,16 @@ namespace FileCraft.Services
 
         public void ShowTextContentDialog(string title, string content)
         {
-            var viewModel = new GenericDialogViewModel
-            {
-                Title = title,
-                Message = string.Empty,
-                IsInputVisible = true,
-                InputText = content,
-                PrimaryButtonText = ResourceHelper.GetString("Common_CloseButton"),
-                PrimaryButtonStyle = ResourceKeys.SecondaryButton
-            };
+            var viewModel = new ViewContentViewModel(title, content);
+            var window = new ViewContentWindow(viewModel);
+            window.ShowDialog();
+        }
 
-            var window = new GenericDialogWindow(viewModel);
+        public void ShowPresetLoadSummary(PathPresetLoadResult result)
+        {
+            var sharedStateService = _serviceProvider.GetRequiredService<ISharedStateService>();
+            var viewModel = new PresetLoadSummaryViewModel(result, sharedStateService);
+            var window = new PresetLoadSummaryWindow(viewModel);
             window.ShowDialog();
         }
 

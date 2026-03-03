@@ -217,6 +217,16 @@
     <system:String x:Key="PathPreset_TotalPaths">Total paths: {0}</system:String>
     <system:String x:Key="PathPreset_NoSelectionError">Please select files in the main window first.</system:String>
 
+    <!-- Preset Summary Strings -->
+    <system:String x:Key="PresetSummary_Title">Preset Load Summary</system:String>
+    <system:String x:Key="PresetSummary_Total">Total paths:</system:String>
+    <system:String x:Key="PresetSummary_Loaded">Successfully loaded:</system:String>
+    <system:String x:Key="PresetSummary_Changed">Changed:</system:String>
+    <system:String x:Key="PresetSummary_Unchanged">Unchanged:</system:String>
+    <system:String x:Key="PresetSummary_NotFound">Not found:</system:String>
+    <system:String x:Key="PresetSummary_ShowMissingButton">Show missing files</system:String>
+    <system:String x:Key="PresetSummary_HideMissingButton">Hide missing files</system:String>
+
     <!-- Model Defaults -->
     <system:String x:Key="Model_DefaultExportedFileName">ExportedFile</system:String>
     <system:String x:Key="Model_DefaultFileContentsName">FileContents</system:String>
