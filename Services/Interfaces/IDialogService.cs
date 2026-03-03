@@ -1,4 +1,5 @@
 ﻿using FileCraft.Models;
+using FileCraft.ViewModels.Functional;
 using FileCraft.ViewModels.Shared;
 
 namespace FileCraft.Services.Interfaces
@@ -16,5 +17,10 @@ namespace FileCraft.Services.Interfaces
         string? ShowEditIgnoredFoldersDialog(string currentFolders);
         bool ShowBulkSearchDialog(IEnumerable<SelectableFile> allFiles);
         IEnumerable<string>? ShowIgnoredCommentsDialog(IEnumerable<SelectableFile> selectedFiles, IEnumerable<string> previouslyIgnoredFiles);
+
+        void ShowPathPresetsManager(FileContentExportViewModel fileContentExportViewModel);
+        string? ShowInputStringDialog(string title, string message, string defaultValue = "");
+        void ShowTextContentDialog(string title, string content);
+        void ShowPresetLoadSummary(PathPresetLoadResult result);
     }
 }

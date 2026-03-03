@@ -103,6 +103,13 @@
                                 <DataTrigger Binding="{Binding Message}" Value="{x:Null}">
                                     <Setter Property="Margin" Value="0"/>
                                 </DataTrigger>
+                                <DataTrigger Binding="{Binding IsMultiline}" Value="True">
+                                    <Setter Property="MaxHeight" Value="300"/>
+                                    <Setter Property="VerticalScrollBarVisibility" Value="Auto"/>
+                                    <Setter Property="HorizontalScrollBarVisibility" Value="Auto"/>
+                                    <Setter Property="AcceptsReturn" Value="True"/>
+                                    <Setter Property="TextWrapping" Value="Wrap"/>
+                                </DataTrigger>
                             </Style.Triggers>
                         </Style>
                     </TextBox.Style>

@@ -174,6 +174,7 @@ namespace FileCraft.ViewModels.Functional
         public ICommand ClearFilterCommand { get; }
         public ICommand BulkSearchCommand { get; }
         public ICommand ConfigureIgnoredCommentsCommand { get; }
+        public ICommand ManagePathPresetsCommand { get; }
 
         public FileContentExportViewModel(
             ISharedStateService sharedStateService,
@@ -196,6 +197,7 @@ namespace FileCraft.ViewModels.Functional
             ClearFilterCommand = new RelayCommand(_ => ClearFilter());
             BulkSearchCommand = new RelayCommand(_ => BulkSearch(), _ => _allSelectableFiles.Any());
             ConfigureIgnoredCommentsCommand = new RelayCommand(_ => ConfigureIgnoredComments(), _ => _allSelectableFiles.Any(f => f.IsSelected));
+            ManagePathPresetsCommand = new RelayCommand(_ => ManagePathPresets());
 
             _selectedExtensionsText = ResourceHelper.GetString("FileContent_NoExtensionsSelected");
             _ignoredFilesText = ResourceHelper.GetString("FileContent_NoIgnoredFiles");
@@ -228,6 +230,11 @@ namespace FileCraft.ViewModels.Functional
                 OnStateChanging();
                 ApplyFileFilter();
             }
+        }
+
+        private void ManagePathPresets()
+        {
+            _dialogService.ShowPathPresetsManager(this);
         }
 
         private void ConfigureIgnoredComments()
@@ -279,6 +286,62 @@ namespace FileCraft.ViewModels.Functional
         public List<string> GetSelectedExtensions()
         {
             return AvailableExtensions.Where(e => e.IsSelected).Select(e => e.Name).ToList();
+        }
+
+        public PathPresetLoadResult LoadPathPreset(IEnumerable<string> presetPaths)
+        {
+            OnStateChanging();
+
+            var result = new PathPresetLoadResult();
+            var presetPathsList = presetPaths.ToList();
+            result.TotalPaths = presetPathsList.Count;
+
+            var fileLookup = _allSelectableFiles.ToDictionary(f => f.FullPath, f => f, StringComparer.OrdinalIgnoreCase);
+
+            foreach (var file in _allSelectableFiles)
+            {
+                file.PropertyChanged -= OnFileSelectionChanged;
+            }
+
+            try
+            {
+                foreach (var path in presetPathsList)
+                {
+                    if (fileLookup.TryGetValue(path, out var selectableFile))
+                    {
+                        if (!selectableFile.IsSelected)
+                        {
+                            selectableFile.SetIsSelectedInternal(true);
+                            result.Changed++;
+                        }
+                        else
+                        {
+                            result.Unchanged++;
+                        }
+                        result.SuccessfullyLoaded++;
+                    }
+                    else
+                    {
+                        result.NotFoundPaths.Add(path);
+                    }
+                }
+            }
+            finally
+            {
+                foreach (var file in _allSelectableFiles)
+                {
+                    file.PropertyChanged += OnFileSelectionChanged;
+                }
+            }
+
+            UpdateFileCounts();
+
+            if (IsShowingOnlySelected || IsShowingOnlyUnselected || !string.IsNullOrEmpty(SearchFilter))
+            {
+                ApplyFileFilter();
+            }
+
+            return result;
         }
 
         private void SetFilteredFilesSelectionState(bool isSelected)

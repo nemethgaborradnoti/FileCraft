@@ -46,8 +46,10 @@ namespace FileCraft
             services.AddSingleton<IFileQueryService, FileQueryService>();
             services.AddSingleton<IUndoService, UndoService>();
             services.AddSingleton<IFolderTreeLinkService, FolderTreeLinkService>();
+            services.AddSingleton<IPathPresetService, PathPresetService>();
 
             services.AddTransient<FolderTreeManager>();
+            services.AddTransient<PathPresetsViewModel>();
 
             services.AddSingleton<FileContentExportViewModel>();
             services.AddSingleton<TreeGeneratorViewModel>();
