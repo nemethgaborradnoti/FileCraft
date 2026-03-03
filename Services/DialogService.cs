@@ -1,13 +1,22 @@
 ﻿using FileCraft.Models;
 using FileCraft.Services.Interfaces;
 using FileCraft.Shared.Helpers;
+using FileCraft.ViewModels.Functional;
 using FileCraft.ViewModels.Shared;
 using FileCraft.Views.Shared;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace FileCraft.Services
 {
     public class DialogService : IDialogService
     {
+        private readonly IServiceProvider _serviceProvider;
+
+        public DialogService(IServiceProvider serviceProvider)
+        {
+            _serviceProvider = serviceProvider;
+        }
+
         public string? SelectFolder(string description)
         {
             var dialog = new Microsoft.Win32.OpenFolderDialog
@@ -156,6 +165,54 @@ namespace FileCraft.Services
                 return window.GetIgnoredFilePaths();
             }
             return null;
+        }
+
+        public void ShowPathPresetsManager(FileContentExportViewModel fileContentExportViewModel)
+        {
+            var viewModel = new PathPresetsViewModel(
+                _serviceProvider.GetRequiredService<IPathPresetService>(),
+                this,
+                fileContentExportViewModel);
+
+            var window = new PathPresetsWindow(viewModel);
+            window.ShowDialog();
+        }
+
+        public string? ShowInputStringDialog(string title, string message, string defaultValue = "")
+        {
+            var viewModel = new GenericDialogViewModel
+            {
+                Title = title,
+                Message = message,
+                IsInputVisible = true,
+                InputText = defaultValue,
+                PrimaryButtonText = ResourceHelper.GetString("Common_OkButton"),
+                PrimaryButtonStyle = ResourceKeys.PrimaryButton,
+                SecondaryButtonText = ResourceHelper.GetString("Common_CancelButton")
+            };
+
+            var window = new GenericDialogWindow(viewModel);
+            if (window.ShowDialog() == true)
+            {
+                return viewModel.InputText;
+            }
+            return null;
+        }
+
+        public void ShowTextContentDialog(string title, string content)
+        {
+            var viewModel = new GenericDialogViewModel
+            {
+                Title = title,
+                Message = string.Empty,
+                IsInputVisible = true,
+                InputText = content,
+                PrimaryButtonText = ResourceHelper.GetString("Common_CloseButton"),
+                PrimaryButtonStyle = ResourceKeys.SecondaryButton
+            };
+
+            var window = new GenericDialogWindow(viewModel);
+            window.ShowDialog();
         }
 
         private IconDefinition GetAppIcon(DialogIconType iconType)
