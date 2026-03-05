@@ -218,6 +218,13 @@ namespace FileCraft.Services
             window.ShowDialog();
         }
 
+        public void ShowPresetDetails(PresetItemViewModel preset)
+        {
+            var viewModel = new PresetDetailsViewModel(preset);
+            var window = new PresetDetailsWindow(viewModel);
+            window.ShowDialog();
+        }
+
         private IconDefinition GetAppIcon(DialogIconType iconType)
         {
             return iconType switch

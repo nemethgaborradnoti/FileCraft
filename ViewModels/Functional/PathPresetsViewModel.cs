@@ -30,12 +30,11 @@ namespace FileCraft.ViewModels.Functional
 
             ListViewModel = new PresetListViewModel();
 
-            // Hook up events from the reusable control
             ListViewModel.SaveNewRequested += OnSaveNewRequested;
             ListViewModel.LoadItemRequested += OnLoadRequested;
             ListViewModel.DeleteItemRequested += OnDeleteRequested;
             ListViewModel.RenameItemRequested += OnRenameRequested;
-            ListViewModel.ViewItemDetailsRequested += OnViewDetailsRequested;
+            ListViewModel.ViewItemDetailsRequested += OnViewDetailsRequested; // Replaced
 
             LoadPresets();
         }
@@ -48,7 +47,7 @@ namespace FileCraft.ViewModels.Functional
                 p.Name,
                 p.LastModified,
                 $"{p.FilePaths.Count} files",
-                p // Raw Data
+                p
             ));
 
             ListViewModel.SetItems(viewModels);
@@ -109,26 +108,8 @@ namespace FileCraft.ViewModels.Functional
 
         private void OnViewDetailsRequested(PresetItemViewModel item)
         {
-            if (item.RawData is PathPreset preset)
-            {
-                string sourcePath = _sharedStateService.SourcePath;
-                List<string> displayPaths;
-
-                if (!string.IsNullOrWhiteSpace(sourcePath))
-                {
-                    displayPaths = preset.FilePaths
-                        .Select(p => Path.GetRelativePath(sourcePath, p))
-                        .ToList();
-                }
-                else
-                {
-                    displayPaths = preset.FilePaths.ToList();
-                }
-
-                string content = string.Join(Environment.NewLine, displayPaths);
-                string title = string.Format(ResourceHelper.GetString("PathPreset_ViewTitle"), preset.Name);
-                _dialogService.ShowTextContentDialog(title, content);
-            }
+            // Now using the unified nice Details window
+            _dialogService.ShowPresetDetails(item);
         }
 
         private void OnRenameRequested(PresetItemViewModel item)

@@ -28,6 +28,20 @@ namespace FileCraft.ViewModels.Shared
             }
         }
 
+        private int _selectedFolderCount;
+        public int SelectedFolderCount
+        {
+            get => _selectedFolderCount;
+            private set
+            {
+                if (_selectedFolderCount != value)
+                {
+                    _selectedFolderCount = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
         public string Id { get; set; } = string.Empty;
 
         public string CurrentSourcePath => _currentSourcePath;
@@ -58,6 +72,7 @@ namespace FileCraft.ViewModels.Shared
             {
                 RootFolders = new ObservableCollection<FolderViewModel>();
                 _currentSourcePath = string.Empty;
+                SelectedFolderCount = 0;
                 return;
             }
 
@@ -65,6 +80,7 @@ namespace FileCraft.ViewModels.Shared
             {
                 RootFolders = new ObservableCollection<FolderViewModel>();
                 _currentSourcePath = string.Empty;
+                SelectedFolderCount = 0;
                 return;
             }
 
@@ -92,6 +108,7 @@ namespace FileCraft.ViewModels.Shared
             }
 
             RootFolders = newTree;
+            HandleFolderStateChange(); // Initial count update
         }
 
         public void SetSharedRootFolders(ObservableCollection<FolderViewModel> sharedFolders, string sourcePath)
@@ -113,6 +130,7 @@ namespace FileCraft.ViewModels.Shared
 
         private void HandleFolderStateChange()
         {
+            SelectedFolderCount = GetSelectedNodeCount();
             FolderSelectionChanged?.Invoke();
         }
 

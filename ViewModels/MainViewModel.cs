@@ -100,10 +100,10 @@ namespace FileCraft.ViewModels
             SubscribeToChanges();
 
             OptionsVM.IgnoredFoldersChanged += OnIgnoredFoldersChanged;
-            OptionsVM.PresetSaveRequested += OnPresetSaveRequested;
-            OptionsVM.PresetRenameRequested += OnPresetRenameRequested;
+
+            // New Event Hooks
+            OptionsVM.PresetCreateRequested += OnPresetCreateRequested;
             OptionsVM.PresetLoadRequested += OnPresetLoadRequested;
-            OptionsVM.PresetDeleteRequested += OnPresetDeleteRequested;
             OptionsVM.CurrentSaveDeleteRequested += OnCurrentSaveDeleteRequested;
 
             ClearPathsCommand = new RelayCommand(_ => ClearPaths(), _ => CanClearPaths);
@@ -360,7 +360,7 @@ namespace FileCraft.ViewModels
             await manager.LoadTreeForPathAsync(SourcePath, state);
         }
 
-        private void OnPresetSaveRequested(int presetNumber)
+        private void OnPresetCreateRequested()
         {
             if (string.IsNullOrWhiteSpace(SourcePath) || !Directory.Exists(SourcePath))
             {
@@ -371,19 +371,18 @@ namespace FileCraft.ViewModels
                 return;
             }
 
-            bool exists = _saveService.CheckPresetExists(presetNumber);
-            string presetName = exists ? _saveService.GetPresetName(presetNumber) : $"{ResourceHelper.GetString("Preset_DefaultNamePrefix")}{presetNumber:00}";
+            string? presetName = _dialogService.ShowInputStringDialog(
+                ResourceHelper.GetString("PathPreset_NewPresetTitle"),
+                ResourceHelper.GetString("PathPreset_NamePrompt"));
 
-            if (exists)
+            if (string.IsNullOrWhiteSpace(presetName)) return;
+
+            if (_saveService.PresetNameExists(presetName))
             {
-                string title = string.Format(ResourceHelper.GetString("Preset_OverwriteTitle"), presetNumber);
-                string message = string.Format(ResourceHelper.GetString("Preset_OverwriteMessage"), presetNumber, presetName);
-
                 bool confirmed = _dialogService.ShowConfirmation(
-                    title: title,
-                    message: message,
-                    iconType: DialogIconType.Info);
-
+                    ResourceHelper.GetString("Common_WarningTitle"),
+                    "A preset with this name already exists. Do you want to use a different name?",
+                    DialogIconType.Warning);
                 if (!confirmed) return;
             }
 
@@ -393,60 +392,26 @@ namespace FileCraft.ViewModels
                 currentSaveData.PresetName = presetName;
 
                 var relativeSaveData = MakePathsRelative(currentSaveData, SourcePath);
-                _saveService.SaveAsPreset(relativeSaveData, presetNumber);
 
-                OptionsVM.CheckForExistingPresets();
+                _saveService.SavePreset(presetName, "", relativeSaveData);
 
-                if (!exists)
-                {
-                    string? newName = _dialogService.ShowRenamePresetDialog(presetName, presetNumber);
-                    if (!string.IsNullOrWhiteSpace(newName) && newName != presetName)
-                    {
-                        _saveService.UpdatePresetName(presetNumber, newName);
-                        OptionsVM.CheckForExistingPresets();
-                        _dialogService.ShowNotification(
-                            ResourceHelper.GetString("Common_SuccessTitle"),
-                            string.Format(ResourceHelper.GetString("Preset_SavedAndRenamed"), newName),
-                            DialogIconType.Success);
-                        return;
-                    }
-                }
+                OptionsVM.RefreshPresetList();
 
                 _dialogService.ShowNotification(
                     ResourceHelper.GetString("Common_SuccessTitle"),
-                    string.Format(ResourceHelper.GetString("Preset_SavedSuccess"), presetName, presetNumber),
+                    string.Format(ResourceHelper.GetString("Preset_SavedSuccess"), presetName, "-"),
                     DialogIconType.Success);
             }
             catch (System.Exception ex)
             {
                 _dialogService.ShowNotification(
                     ResourceHelper.GetString("Common_ErrorTitle"),
-                    string.Format(ResourceHelper.GetString("Preset_SaveError"), presetNumber, ex.Message),
+                    string.Format(ResourceHelper.GetString("Preset_SaveError"), "DB", ex.Message),
                     DialogIconType.Error);
             }
         }
 
-        private void OnPresetRenameRequested(int presetNumber, string newName)
-        {
-            try
-            {
-                _saveService.UpdatePresetName(presetNumber, newName);
-                OptionsVM.CheckForExistingPresets();
-                _dialogService.ShowNotification(
-                    ResourceHelper.GetString("Common_SuccessTitle"),
-                    string.Format(ResourceHelper.GetString("Preset_RenamedSuccess"), presetNumber, newName),
-                    DialogIconType.Success);
-            }
-            catch (Exception ex)
-            {
-                _dialogService.ShowNotification(
-                    ResourceHelper.GetString("Common_ErrorTitle"),
-                    string.Format(ResourceHelper.GetString("Preset_RenameError"), presetNumber, ex.Message),
-                    DialogIconType.Error);
-            }
-        }
-
-        private async void OnPresetLoadRequested(int presetNumber)
+        private async void OnPresetLoadRequested(int presetId)
         {
             if (string.IsNullOrWhiteSpace(SourcePath) || !Directory.Exists(SourcePath))
             {
@@ -457,19 +422,15 @@ namespace FileCraft.ViewModels
                 return;
             }
 
-            var relativePresetData = _saveService.LoadFromPreset(presetNumber);
+            var relativePresetData = _saveService.LoadPresetData(presetId);
             if (relativePresetData == null)
             {
-                _dialogService.ShowNotification(
-                    ResourceHelper.GetString("Common_InfoTitle"),
-                    string.Format(ResourceHelper.GetString("Preset_NotExist"), presetNumber),
-                    DialogIconType.Info);
                 return;
             }
 
-            string message = string.Format(ResourceHelper.GetString("Preset_LoadConfirmMessage"), presetNumber, relativePresetData.PresetName);
+            string message = string.Format(ResourceHelper.GetString("Preset_LoadConfirmMessage"), "DB", relativePresetData.PresetName);
             bool confirmed = _dialogService.ShowConfirmation(
-                title: string.Format(ResourceHelper.GetString("Preset_LoadConfirmTitle"), presetNumber),
+                title: string.Format(ResourceHelper.GetString("Preset_LoadConfirmTitle"), "DB"),
                 message: message,
                 iconType: DialogIconType.Info);
 
@@ -483,50 +444,15 @@ namespace FileCraft.ViewModels
                 HasUnsavedChanges = true;
                 _dialogService.ShowNotification(
                     ResourceHelper.GetString("Common_SuccessTitle"),
-                    string.Format(ResourceHelper.GetString("Preset_LoadedSuccess"), presetNumber, relativePresetData.PresetName),
+                    string.Format(ResourceHelper.GetString("Preset_LoadedSuccess"), "DB", relativePresetData.PresetName),
                     DialogIconType.Success);
             }
             catch (System.Exception ex)
             {
                 _dialogService.ShowNotification(
                     ResourceHelper.GetString("Common_ErrorTitle"),
-                    string.Format(ResourceHelper.GetString("Preset_LoadError"), presetNumber, ex.Message),
+                    string.Format(ResourceHelper.GetString("Preset_LoadError"), "DB", ex.Message),
                     DialogIconType.Error);
-            }
-        }
-
-        private void OnPresetDeleteRequested(int presetNumber)
-        {
-            string presetName = _saveService.GetPresetName(presetNumber);
-            if (string.IsNullOrWhiteSpace(presetName))
-            {
-                presetName = string.Format(ResourceHelper.GetString("Preset_DefaultNamePrefix") + " ({0})", presetNumber);
-            }
-
-            string message = string.Format(ResourceHelper.GetString("Preset_DeleteConfirmMessage"), presetNumber, presetName);
-            bool confirmed = _dialogService.ShowConfirmation(
-                title: string.Format(ResourceHelper.GetString("Preset_DeleteConfirmTitle"), presetNumber),
-                message: message,
-                iconType: DialogIconType.Warning);
-
-            if (confirmed)
-            {
-                try
-                {
-                    _saveService.DeletePreset(presetNumber);
-                    OptionsVM.CheckForExistingPresets();
-                    _dialogService.ShowNotification(
-                        ResourceHelper.GetString("Common_SuccessTitle"),
-                        string.Format(ResourceHelper.GetString("Preset_DeletedSuccess"), presetNumber, presetName),
-                        DialogIconType.Success);
-                }
-                catch (System.Exception ex)
-                {
-                    _dialogService.ShowNotification(
-                        ResourceHelper.GetString("Common_ErrorTitle"),
-                        string.Format(ResourceHelper.GetString("Preset_DeleteError"), presetNumber, ex.Message),
-                        DialogIconType.Error);
-                }
             }
         }
 

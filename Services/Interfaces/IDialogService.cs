@@ -22,5 +22,7 @@ namespace FileCraft.Services.Interfaces
         string? ShowInputStringDialog(string title, string message, string defaultValue = "");
         void ShowTextContentDialog(string title, string content);
         void ShowPresetLoadSummary(PathPresetLoadResult result);
+
+        void ShowPresetDetails(PresetItemViewModel preset);
     }
 }

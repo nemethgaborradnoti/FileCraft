@@ -26,15 +26,15 @@ namespace FileCraft.ViewModels.Functional
         public Brush? IconBrush { get; }
         public FolderTreeManager? FolderTreeManager { get; }
 
-        private bool _isSelectable = true;
-        public bool IsSelectable
+        private bool _isLinked;
+        public bool IsLinked
         {
-            get => _isSelectable;
+            get => _isLinked;
             set
             {
-                if (_isSelectable != value)
+                if (_isLinked != value)
                 {
-                    _isSelectable = value;
+                    _isLinked = value;
                     OnPropertyChanged();
                 }
             }
@@ -47,58 +47,6 @@ namespace FileCraft.ViewModels.Functional
             Icon = icon;
             IconBrush = iconBrush;
             FolderTreeManager = folderTreeManager;
-        }
-    }
-
-    public class PresetSlotViewModel : BaseViewModel
-    {
-        public int PresetNumber { get; }
-
-        private bool _exists;
-        public bool Exists
-        {
-            get => _exists;
-            set
-            {
-                if (_exists != value)
-                {
-                    _exists = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
-
-        private string _presetName = string.Empty;
-        public string PresetName
-        {
-            get => _presetName;
-            set
-            {
-                if (_presetName != value)
-                {
-                    _presetName = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
-
-        private DateTime? _lastModified;
-        public DateTime? LastModified
-        {
-            get => _lastModified;
-            set
-            {
-                if (_lastModified != value)
-                {
-                    _lastModified = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
-
-        public PresetSlotViewModel(int number)
-        {
-            PresetNumber = number;
         }
     }
 
@@ -132,17 +80,13 @@ namespace FileCraft.ViewModels.Functional
 
         public FullscreenManager<OptionsFullscreenState> FullscreenManager { get; }
 
+        // Events for MainViewModel
         public event Action? IgnoredFoldersChanged;
-        public event Action<int>? PresetSaveRequested;
-        public event Action<int, string>? PresetRenameRequested;
+        public event Action? PresetCreateRequested;
         public event Action<int>? PresetLoadRequested;
-        public event Action<int>? PresetDeleteRequested;
         public event Action? CurrentSaveDeleteRequested;
 
-        public ICommand SavePresetCommand { get; }
-        public ICommand EditPresetCommand { get; }
-        public ICommand DeletePresetCommand { get; }
-        public ICommand LoadPresetCommand { get; }
+        // Commands
         public ICommand DeleteCurrentSaveCommand { get; }
         public ICommand OpenSaveFolderCommand { get; }
         public ICommand CopyFolderTreeCommand { get; }
@@ -150,7 +94,8 @@ namespace FileCraft.ViewModels.Functional
         public ICommand LinkFolderTreesCommand { get; }
         public ICommand UnlinkFolderTreeGroupCommand { get; }
 
-        public ObservableCollection<PresetSlotViewModel> PresetSlots { get; } = new();
+        // Collections
+        public PresetListViewModel PresetListViewModel { get; }
         public ObservableCollection<TabItemViewModel> AllTabs { get; } = new();
         public ObservableCollection<LinkGroupViewModel> ActiveLinkGroups { get; } = new();
 
@@ -223,52 +168,17 @@ namespace FileCraft.ViewModels.Functional
 
             FullscreenManager = new FullscreenManager<OptionsFullscreenState>(OptionsFullscreenState.None);
 
-            SavePresetCommand = new RelayCommand(
-                execute: slot =>
-                {
-                    if (slot is PresetSlotViewModel vm)
-                    {
-                        PresetSaveRequested?.Invoke(vm.PresetNumber);
-                    }
-                });
+            // Initialize Preset List Logic
+            PresetListViewModel = new PresetListViewModel();
+            PresetListViewModel.SaveNewRequested += () => PresetCreateRequested?.Invoke();
+            PresetListViewModel.LoadItemRequested += OnPresetLoadItemRequested;
+            PresetListViewModel.DeleteItemRequested += OnPresetDeleteItemRequested;
+            PresetListViewModel.RenameItemRequested += OnPresetRenameItemRequested;
+            PresetListViewModel.ViewItemDetailsRequested += OnPresetViewItemDetailsRequested;
 
-            EditPresetCommand = new RelayCommand(
-                execute: slot =>
-                {
-                    if (slot is PresetSlotViewModel vm)
-                    {
-                        string? newName = _dialogService.ShowRenamePresetDialog(vm.PresetName, vm.PresetNumber);
-                        if (!string.IsNullOrWhiteSpace(newName))
-                        {
-                            PresetRenameRequested?.Invoke(vm.PresetNumber, newName);
-                        }
-                    }
-                },
-                canExecute: slot => slot is PresetSlotViewModel vm && vm.Exists);
+            RefreshPresetList();
 
-            DeletePresetCommand = new RelayCommand(
-                execute: slot =>
-                {
-                    if (slot is PresetSlotViewModel vm)
-                    {
-                        PresetDeleteRequested?.Invoke(vm.PresetNumber);
-                    }
-                },
-                canExecute: slot => slot is PresetSlotViewModel vm && vm.Exists);
-
-            LoadPresetCommand = new RelayCommand(
-                execute: slot =>
-                {
-                    if (slot is PresetSlotViewModel vm)
-                    {
-                        PresetLoadRequested?.Invoke(vm.PresetNumber);
-                    }
-                },
-                canExecute: slot => slot is PresetSlotViewModel vm && vm.Exists);
-
-
-            DeleteCurrentSaveCommand = new RelayCommand(
-                _ => CurrentSaveDeleteRequested?.Invoke());
+            DeleteCurrentSaveCommand = new RelayCommand(_ => CurrentSaveDeleteRequested?.Invoke());
 
             OpenSaveFolderCommand = new RelayCommand(_ => OpenSaveFolder());
             CopyFolderTreeCommand = new RelayCommand(async _ => await CopyFolderTree(), _ => CanCopyFolderTree());
@@ -276,12 +186,6 @@ namespace FileCraft.ViewModels.Functional
 
             LinkFolderTreesCommand = new RelayCommand(_ => LinkFolderTrees(), _ => CanLinkFolderTrees());
             UnlinkFolderTreeGroupCommand = new RelayCommand(p => UnlinkFolderTreeGroup(p));
-
-            for (int i = 1; i <= 5; i++)
-            {
-                PresetSlots.Add(new PresetSlotViewModel(i));
-            }
-            CheckForExistingPresets();
 
             _folderTreeLinkService.OnLinksChanged += UpdateLinkRelatedState;
 
@@ -294,6 +198,80 @@ namespace FileCraft.ViewModels.Functional
             SelectedDestinationTab = AllTabs[0];
 
             UpdateIgnoredFoldersText();
+        }
+
+        public void RefreshPresetList()
+        {
+            var presets = _saveService.LoadPresets();
+            var viewModels = presets.Select(p => new PresetItemViewModel(
+                p.Id,
+                p.Name,
+                p.LastModified,
+                p.Description,
+                p
+            ));
+            PresetListViewModel.SetItems(viewModels);
+        }
+
+        private void OnPresetViewItemDetailsRequested(PresetItemViewModel item)
+        {
+            _dialogService.ShowPresetDetails(item);
+        }
+
+        private void OnPresetLoadItemRequested(PresetItemViewModel item)
+        {
+            if (item.Id is int id)
+            {
+                PresetLoadRequested?.Invoke(id);
+            }
+        }
+
+        private void OnPresetDeleteItemRequested(PresetItemViewModel item)
+        {
+            if (item.Id is int id)
+            {
+                bool confirm = _dialogService.ShowConfirmation(
+                    ResourceHelper.GetString("Preset_DeleteConfirmTitle"),
+                    string.Format(ResourceHelper.GetString("Preset_DeleteConfirmMessage"), id, item.Name),
+                    DialogIconType.Warning);
+
+                if (confirm)
+                {
+                    _saveService.DeletePreset(id);
+                    PresetListViewModel.RemoveItem(item);
+
+                    _dialogService.ShowNotification(
+                         ResourceHelper.GetString("Common_SuccessTitle"),
+                         string.Format(ResourceHelper.GetString("Preset_DeletedSuccess"), id, item.Name),
+                         DialogIconType.Success);
+                }
+            }
+        }
+
+        private void OnPresetRenameItemRequested(PresetItemViewModel item)
+        {
+            if (item.Id is int id)
+            {
+                string? newName = _dialogService.ShowInputStringDialog(
+                    ResourceHelper.GetString("RenamePreset_Title"),
+                    string.Format(ResourceHelper.GetString("RenamePreset_Prompt"), item.Name),
+                    item.Name);
+
+                if (!string.IsNullOrWhiteSpace(newName) && newName != item.Name)
+                {
+                    if (_saveService.PresetNameExists(newName))
+                    {
+                        _dialogService.ShowNotification(
+                           ResourceHelper.GetString("Common_ErrorTitle"),
+                           "A preset with this name already exists.",
+                           DialogIconType.Error);
+                        return;
+                    }
+
+                    _saveService.UpdatePreset(id, newName, item.Description);
+                    RefreshPresetList();
+                }
+            }
         }
 
         private void UpdateIgnoredFoldersText()
@@ -334,7 +312,8 @@ namespace FileCraft.ViewModels.Functional
             return SelectedSourceTab?.FolderTreeManager != null &&
                    SelectedDestinationTab?.FolderTreeManager != null &&
                    SelectedSourceTab.Id != SelectedDestinationTab.Id &&
-                   !string.IsNullOrWhiteSpace(_sharedStateService.SourcePath);
+                   !string.IsNullOrWhiteSpace(_sharedStateService.SourcePath) &&
+                   !SelectedSourceTab.IsLinked;
         }
 
         private async Task CopyFolderTree()
@@ -411,39 +390,16 @@ namespace FileCraft.ViewModels.Functional
             }
         }
 
-        public void CheckForExistingPresets()
-        {
-            foreach (var slot in PresetSlots)
-            {
-                slot.Exists = _saveService.CheckPresetExists(slot.PresetNumber);
-                if (slot.Exists)
-                {
-                    slot.PresetName = _saveService.GetPresetName(slot.PresetNumber);
-                    slot.LastModified = _saveService.GetPresetLastModifiedDate(slot.PresetNumber);
-                    if (string.IsNullOrWhiteSpace(slot.PresetName))
-                    {
-                        slot.PresetName = ResourceHelper.GetString("Options_UnnamedPreset");
-                    }
-                }
-                else
-                {
-                    slot.PresetName = ResourceHelper.GetString("Options_EmptyPreset");
-                    slot.LastModified = null;
-                }
-            }
-        }
-
         private void UpdateLinkRelatedState()
         {
             var allLinkGroups = _folderTreeLinkService.GetLinkGroups();
             var linkedIds = allLinkGroups.SelectMany(g => g).ToHashSet();
-            var currentlySelectedSourceId = SelectedSourceTab?.Id;
 
             foreach (var tab in AllTabs)
             {
                 if (tab.FolderTreeManager != null)
                 {
-                    tab.IsSelectable = !linkedIds.Contains(tab.Id) && tab.Id != currentlySelectedSourceId;
+                    tab.IsLinked = linkedIds.Contains(tab.Id);
                 }
             }
 
@@ -464,17 +420,25 @@ namespace FileCraft.ViewModels.Functional
                 ActiveLinkGroups.Add(groupVm);
             }
 
-            if (SelectedDestinationTab != null && !SelectedDestinationTab.IsSelectable)
-            {
-                SelectedDestinationTab = AllTabs.First(t => t.Id == "None");
-            }
+            // Removed check for SelectedDestinationTab.IsSelectable as property was removed
         }
 
         private bool CanLinkFolderTrees()
         {
-            return SelectedSourceTab?.FolderTreeManager != null &&
-                   SelectedDestinationTab?.FolderTreeManager != null &&
-                   SelectedSourceTab.Id != SelectedDestinationTab.Id;
+            if (SelectedSourceTab?.FolderTreeManager == null ||
+                SelectedDestinationTab?.FolderTreeManager == null ||
+                SelectedSourceTab.Id == SelectedDestinationTab.Id)
+            {
+                return false;
+            }
+
+            var peers = _folderTreeLinkService.GetLinkedPeers(SelectedSourceTab.Id);
+            if (peers.Contains(SelectedDestinationTab.Id))
+            {
+                return false;
+            }
+
+            return true;
         }
 
         private void LinkFolderTrees()
