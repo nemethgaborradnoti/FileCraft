@@ -1,10 +1,10 @@
 ﻿using FileCraft.Models;
 using FileCraft.Services.Interfaces;
+using FileCraft.Shared.Helpers; // ResourceHelper miatt
 using FileCraft.Shared.Validation;
 using LiteDB;
 using System.IO;
 using System.Text.Json;
-using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace FileCraft.Services
 {
@@ -48,7 +48,7 @@ namespace FileCraft.Services
             try
             {
                 string json = File.ReadAllText(_saveFilePath);
-                var saveData = JsonSerializer.Deserialize<SaveData>(json);
+                var saveData = System.Text.Json.JsonSerializer.Deserialize<SaveData>(json);
                 return saveData ?? new SaveData();
             }
             catch (Exception)
@@ -64,7 +64,7 @@ namespace FileCraft.Services
             try
             {
                 var options = new JsonSerializerOptions { WriteIndented = true };
-                string json = JsonSerializer.Serialize(saveData, options);
+                string json = System.Text.Json.JsonSerializer.Serialize(saveData, options);
                 File.WriteAllText(_saveFilePath, json);
             }
             catch (Exception ex)
@@ -94,12 +94,17 @@ namespace FileCraft.Services
 
         public void SavePreset(string name, string description, SaveData data)
         {
+            // Internal logic shared with migration
+            SavePresetInternal(name, description, data, DateTime.Now);
+        }
+
+        private void SavePresetInternal(string name, string description, SaveData data, DateTime modifiedDate)
+        {
             Guard.AgainstNullOrWhiteSpace(name, nameof(name));
             Guard.AgainstNull(data, nameof(data));
 
             var col = GetCollection();
 
-            // Basic statistics calculation
             var stats = new PresetStatistics
             {
                 FolderCount = data.FileContentExport.FolderTreeState.Count +
@@ -112,8 +117,8 @@ namespace FileCraft.Services
             {
                 Name = name,
                 Description = description,
-                CreatedAt = DateTime.Now,
-                LastModified = DateTime.Now,
+                CreatedAt = modifiedDate,
+                LastModified = modifiedDate,
                 AppVersion = System.Reflection.Assembly.GetEntryAssembly()?.GetName().Version?.ToString() ?? "1.0.0",
                 Data = data,
                 Statistics = stats
@@ -156,6 +161,52 @@ namespace FileCraft.Services
         {
             if (string.IsNullOrWhiteSpace(name)) return false;
             return GetCollection().Exists(p => p.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+        }
+
+        public void ImportLegacyPresets()
+        {
+            try
+            {
+                for (int i = 1; i <= 5; i++)
+                {
+                    string legacyPath = Path.Combine(_appDirectory, $"save_preset_{i:00}.json");
+                    if (File.Exists(legacyPath))
+                    {
+                        try
+                        {
+                            string json = File.ReadAllText(legacyPath);
+                            var saveData = System.Text.Json.JsonSerializer.Deserialize<SaveData>(json);
+
+                            if (saveData != null)
+                            {
+                                // Determine Name
+                                string name = saveData.PresetName;
+                                if (string.IsNullOrWhiteSpace(name))
+                                {
+                                    name = $"{ResourceHelper.GetString("Preset_DefaultNamePrefix")} {i:00}";
+                                }
+
+                                // Check if already imported
+                                if (!PresetNameExists(name))
+                                {
+                                    // Use file date as modification date
+                                    DateTime fileDate = File.GetLastWriteTime(legacyPath);
+
+                                    SavePresetInternal(name, "Imported from legacy JSON", saveData, fileDate);
+                                }
+                            }
+                        }
+                        catch
+                        {
+                            // Ignore corrupted legacy files
+                        }
+                    }
+                }
+            }
+            catch
+            {
+                // Safety catch for any IO/DB errors during migration
+            }
         }
 
         #endregion

@@ -30,6 +30,10 @@ namespace FileCraft
             var dbService = _host.Services.GetRequiredService<IDatabaseService>();
             dbService.Initialize();
 
+            // Run Migration for Legacy JSON Presets
+            var saveService = _host.Services.GetRequiredService<ISaveService>();
+            saveService.ImportLegacyPresets();
+
             var mainWindow = _host.Services.GetRequiredService<MainWindow>();
             var mainViewModel = _host.Services.GetRequiredService<MainViewModel>();
 
@@ -50,7 +54,6 @@ namespace FileCraft
             services.AddSingleton<IUndoService, UndoService>();
             services.AddSingleton<IFolderTreeLinkService, FolderTreeLinkService>();
             services.AddSingleton<IPathPresetService, PathPresetService>();
-
             services.AddSingleton<IDatabaseService, DatabaseService>();
 
             services.AddTransient<FolderTreeManager>();

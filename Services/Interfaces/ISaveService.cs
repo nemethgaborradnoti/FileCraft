@@ -17,5 +17,8 @@ namespace FileCraft.Services.Interfaces
         void DeletePreset(int id);
         void UpdatePreset(int id, string name, string description);
         bool PresetNameExists(string name);
+
+        // Migration
+        void ImportLegacyPresets();
     }
 }
