@@ -1,10 +1,8 @@
 ﻿using FileCraft.Models;
 using FileCraft.Services.Interfaces;
-using FileCraft.Shared.Commands;
 using FileCraft.Shared.Helpers;
-using System.Collections.ObjectModel;
+using FileCraft.ViewModels.Shared;
 using System.IO;
-using System.Windows.Input;
 
 namespace FileCraft.ViewModels.Functional
 {
@@ -15,31 +13,7 @@ namespace FileCraft.ViewModels.Functional
         private readonly IDialogService _dialogService;
         private readonly FileContentExportViewModel _fileContentExportVM;
 
-        public ObservableCollection<PathPreset> Presets { get; } = new();
-
-        private PathPreset? _selectedPreset;
-        public PathPreset? SelectedPreset
-        {
-            get => _selectedPreset;
-            set
-            {
-                if (_selectedPreset != value)
-                {
-                    _selectedPreset = value;
-                    OnPropertyChanged();
-                    OnPropertyChanged(nameof(IsPresetSelected));
-                }
-            }
-        }
-
-        public bool IsPresetSelected => SelectedPreset != null;
-
-        public ICommand SaveCurrentCommand { get; }
-        public ICommand LoadSelectedCommand { get; }
-        public ICommand ViewContentCommand { get; }
-        public ICommand RenameCommand { get; }
-        public ICommand DeleteCommand { get; }
-        public ICommand CloseCommand { get; }
+        public PresetListViewModel ListViewModel { get; }
 
         public event Action? RequestClose;
 
@@ -54,27 +28,33 @@ namespace FileCraft.ViewModels.Functional
             _dialogService = dialogService;
             _fileContentExportVM = fileContentExportVM;
 
-            SaveCurrentCommand = new RelayCommand(_ => SaveCurrent(), _ => true);
-            LoadSelectedCommand = new RelayCommand(_ => LoadSelected(), _ => IsPresetSelected);
-            ViewContentCommand = new RelayCommand(_ => ViewContent(), _ => IsPresetSelected);
-            RenameCommand = new RelayCommand(_ => RenameSelected(), _ => IsPresetSelected);
-            DeleteCommand = new RelayCommand(_ => DeleteSelected(), _ => IsPresetSelected);
-            CloseCommand = new RelayCommand(_ => RequestClose?.Invoke());
+            ListViewModel = new PresetListViewModel();
+
+            // Hook up events from the reusable control
+            ListViewModel.SaveNewRequested += OnSaveNewRequested;
+            ListViewModel.LoadItemRequested += OnLoadRequested;
+            ListViewModel.DeleteItemRequested += OnDeleteRequested;
+            ListViewModel.RenameItemRequested += OnRenameRequested;
+            ListViewModel.ViewItemDetailsRequested += OnViewDetailsRequested;
 
             LoadPresets();
         }
 
         private void LoadPresets()
         {
-            Presets.Clear();
-            var loaded = _presetService.LoadPresets().OrderBy(p => p.Name);
-            foreach (var preset in loaded)
-            {
-                Presets.Add(preset);
-            }
+            var presets = _presetService.LoadPresets();
+            var viewModels = presets.Select(p => new PresetItemViewModel(
+                p.Id,
+                p.Name,
+                p.LastModified,
+                $"{p.FilePaths.Count} files",
+                p // Raw Data
+            ));
+
+            ListViewModel.SetItems(viewModels);
         }
 
-        private void SaveCurrent()
+        private void OnSaveNewRequested()
         {
             var selectedPaths = _fileContentExportVM.GetSelectedFilePaths();
             if (!selectedPaths.Any())
@@ -105,13 +85,11 @@ namespace FileCraft.ViewModels.Functional
                 var preset = new PathPreset
                 {
                     Name = name,
-                    FilePaths = selectedPaths,
-                    LastModified = DateTime.Now
+                    FilePaths = selectedPaths
                 };
 
                 _presetService.SavePreset(preset);
                 LoadPresets();
-                SelectedPreset = Presets.FirstOrDefault(p => p.Name == name);
 
                 _dialogService.ShowNotification(
                     ResourceHelper.GetString("Common_SuccessTitle"),
@@ -120,72 +98,64 @@ namespace FileCraft.ViewModels.Functional
             }
         }
 
-        private void LoadSelected()
+        private void OnLoadRequested(PresetItemViewModel item)
         {
-            if (SelectedPreset != null)
+            if (item.RawData is PathPreset preset)
             {
-                var result = _fileContentExportVM.LoadPathPreset(SelectedPreset.FilePaths);
+                var result = _fileContentExportVM.LoadPathPreset(preset.FilePaths);
                 _dialogService.ShowPresetLoadSummary(result);
             }
         }
 
-        private void ViewContent()
+        private void OnViewDetailsRequested(PresetItemViewModel item)
         {
-            if (SelectedPreset != null)
+            if (item.RawData is PathPreset preset)
             {
                 string sourcePath = _sharedStateService.SourcePath;
                 List<string> displayPaths;
 
                 if (!string.IsNullOrWhiteSpace(sourcePath))
                 {
-                    displayPaths = SelectedPreset.FilePaths
+                    displayPaths = preset.FilePaths
                         .Select(p => Path.GetRelativePath(sourcePath, p))
                         .ToList();
                 }
                 else
                 {
-                    displayPaths = SelectedPreset.FilePaths.ToList();
+                    displayPaths = preset.FilePaths.ToList();
                 }
 
                 string content = string.Join(Environment.NewLine, displayPaths);
-                string title = string.Format(ResourceHelper.GetString("PathPreset_ViewTitle"), SelectedPreset.Name);
+                string title = string.Format(ResourceHelper.GetString("PathPreset_ViewTitle"), preset.Name);
                 _dialogService.ShowTextContentDialog(title, content);
             }
         }
 
-        private void RenameSelected()
+        private void OnRenameRequested(PresetItemViewModel item)
         {
-            if (SelectedPreset != null)
-            {
-                string? newName = _dialogService.ShowInputStringDialog(
-                    ResourceHelper.GetString("PathPreset_RenameTitle"),
-                    string.Format(ResourceHelper.GetString("PathPreset_RenamePrompt"), SelectedPreset.Name),
-                    SelectedPreset.Name);
+            string? newName = _dialogService.ShowInputStringDialog(
+                ResourceHelper.GetString("PathPreset_RenameTitle"),
+                string.Format(ResourceHelper.GetString("PathPreset_RenamePrompt"), item.Name),
+                item.Name);
 
-                if (!string.IsNullOrWhiteSpace(newName) && newName != SelectedPreset.Name)
-                {
-                    _presetService.RenamePreset(SelectedPreset.Name, newName);
-                    LoadPresets();
-                    SelectedPreset = Presets.FirstOrDefault(p => p.Name == newName);
-                }
+            if (!string.IsNullOrWhiteSpace(newName) && newName != item.Name)
+            {
+                _presetService.RenamePreset(item.Name, newName);
+                LoadPresets();
             }
         }
 
-        private void DeleteSelected()
+        private void OnDeleteRequested(PresetItemViewModel item)
         {
-            if (SelectedPreset != null)
-            {
-                bool confirm = _dialogService.ShowConfirmation(
-                    ResourceHelper.GetString("PathPreset_DeleteConfirmTitle"),
-                    string.Format(ResourceHelper.GetString("PathPreset_DeleteConfirmMessage"), SelectedPreset.Name),
-                    DialogIconType.Warning);
+            bool confirm = _dialogService.ShowConfirmation(
+                ResourceHelper.GetString("PathPreset_DeleteConfirmTitle"),
+                string.Format(ResourceHelper.GetString("PathPreset_DeleteConfirmMessage"), item.Name),
+                DialogIconType.Warning);
 
-                if (confirm)
-                {
-                    _presetService.DeletePreset(SelectedPreset.Name);
-                    LoadPresets();
-                    SelectedPreset = null;
-                }
+            if (confirm)
+            {
+                _presetService.DeletePreset(item.Name);
+                ListViewModel.RemoveItem(item);
             }
         }
     }

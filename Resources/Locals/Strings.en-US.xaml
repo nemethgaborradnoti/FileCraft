@@ -233,4 +233,13 @@
     <system:String x:Key="Model_DefaultFolderContentsName">FolderContents</system:String>
     <system:String x:Key="Model_DefaultTreeStructureName">TreeStructure</system:String>
 
+    <!-- Preset List Control Strings -->
+    <system:String x:Key="PresetList_SortByLabel">Sort by:</system:String>
+    <system:String x:Key="PresetList_SortName">Name</system:String>
+    <system:String x:Key="PresetList_SortDate">Date</system:String>
+    <system:String x:Key="PresetList_SearchPlaceholder">Search presets...</system:String>
+    <system:String x:Key="PresetList_DetailsButton">Details</system:String>
+    <system:String x:Key="PresetList_AscendingTooltip">Ascending</system:String>
+    <system:String x:Key="PresetList_DescendingTooltip">Descending</system:String>
+
 </ResourceDictionary>

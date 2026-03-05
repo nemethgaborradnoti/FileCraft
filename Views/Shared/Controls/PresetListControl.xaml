@@ -1,0 +1,243 @@
+﻿<UserControl x:Class="FileCraft.Views.Shared.Controls.PresetListControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:vm="clr-namespace:FileCraft.ViewModels.Shared"
+             xmlns:icons="clr-namespace:Fonts"
+             xmlns:system="clr-namespace:System;assembly=mscorlib"
+             mc:Ignorable="d" 
+             d:DataContext="{d:DesignInstance Type=vm:PresetListViewModel, IsDesignTimeCreatable=False}"
+             d:DesignHeight="450" d:DesignWidth="350">
+
+    <UserControl.Resources>
+        <ObjectDataProvider x:Key="SortOptionsEnum" MethodName="GetValues" ObjectType="{x:Type system:Enum}">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="vm:PresetSortOption"/>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Grid Grid.Row="0" Margin="0,0,0,10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <TextBox Grid.Column="0" 
+                     Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                     Padding="5">
+                <TextBox.Tag>
+                    <system:String>Search presets...</system:String>
+                </TextBox.Tag>
+                <TextBox.Resources>
+                    <VisualBrush x:Key="CueBannerBrush" AlignmentX="Left" AlignmentY="Center" Stretch="None">
+                        <VisualBrush.Visual>
+                            <TextBlock Text="{DynamicResource PresetList_SearchPlaceholder}" Foreground="Gray" FontStyle="Italic"/>
+                        </VisualBrush.Visual>
+                    </VisualBrush>
+                </TextBox.Resources>
+                <TextBox.Style>
+                    <Style TargetType="TextBox" BasedOn="{StaticResource ModernTextBoxStyle}">
+                        <Style.Triggers>
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="Text" Value="{x:Null}"/>
+                                </MultiTrigger.Conditions>
+                                <Setter Property="Background" Value="{StaticResource CueBannerBrush}"/>
+                            </MultiTrigger>
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="Text" Value=""/>
+                                </MultiTrigger.Conditions>
+                                <Setter Property="Background" Value="{StaticResource CueBannerBrush}"/>
+                            </MultiTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </TextBox.Style>
+            </TextBox>
+
+            <Button Grid.Column="1"
+                    Command="{Binding SaveNewCommand}"
+                    Style="{StaticResource SuccessButton}"
+                    ToolTip="{DynamicResource PathPreset_SaveCurrentButton}"
+                    Margin="5,0,0,0"
+                    Padding="10,5">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="{x:Static icons:MaterialIcons.add}" FontFamily="{StaticResource MaterialIcons}" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                    <TextBlock Text="{DynamicResource Common_SaveButton}" VerticalAlignment="Center" FontWeight="Bold"/>
+                </StackPanel>
+            </Button>
+        </Grid>
+
+        <!-- Sorting -->
+        <Grid Grid.Row="1" Margin="0,0,0,5">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <TextBlock Text="{DynamicResource PresetList_SortByLabel}" VerticalAlignment="Center" Margin="0,0,5,0" Foreground="{StaticResource GrayTextBrush}"/>
+
+            <ComboBox Grid.Column="1"
+                      ItemsSource="{Binding Source={StaticResource SortOptionsEnum}}"
+                      SelectedItem="{Binding SortBy}"
+                      VerticalAlignment="Center">
+            </ComboBox>
+
+            <Button Grid.Column="2" 
+                    Command="{Binding ToggleSortDirectionCommand}"
+                    Margin="5,0,0,0">
+                <Button.Style>
+                    <Style TargetType="Button" BasedOn="{StaticResource BorderlessIconButton}">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsAscending}" Value="True">
+                                <Setter Property="ToolTip" Value="{DynamicResource PresetList_AscendingTooltip}"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding IsAscending}" Value="False">
+                                <Setter Property="ToolTip" Value="{DynamicResource PresetList_DescendingTooltip}"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+                <Viewbox Width="16" Height="16">
+                    <TextBlock FontFamily="{StaticResource MaterialIcons}" Foreground="{StaticResource TextBrush}">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Text" Value="{x:Static icons:MaterialIcons.arrow_downward}"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsAscending}" Value="True">
+                                        <Setter Property="Text" Value="{x:Static icons:MaterialIcons.arrow_upward}"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                </Viewbox>
+            </Button>
+        </Grid>
+
+        <!-- List -->
+        <Border Grid.Row="2" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="4" Background="{StaticResource TextBoxBackgroundBrush}">
+            <ListBox ItemsSource="{Binding ItemsView}" 
+                     SelectedItem="{Binding SelectedPreset}"
+                     BorderThickness="0" 
+                     Background="Transparent"
+                     VirtualizingStackPanel.IsVirtualizing="True"
+                     VirtualizingStackPanel.VirtualizationMode="Recycling"
+                     HorizontalContentAlignment="Stretch">
+                <ListBox.ItemContainerStyle>
+                    <Style TargetType="ListBoxItem">
+                        <Setter Property="Padding" Value="5"/>
+                        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                        <Setter Property="Cursor" Value="Hand"/>
+                        <Style.Triggers>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter Property="Background" Value="#E3F2FD"/>
+                                <Setter Property="BorderBrush" Value="{StaticResource PrimaryBrush}"/>
+                                <Setter Property="BorderThickness" Value="1"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </ListBox.ItemContainerStyle>
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding Name}" 
+                                           FontWeight="Bold" 
+                                           FontSize="14" 
+                                           TextTrimming="CharacterEllipsis" 
+                                           ToolTip="{Binding Name}"/>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="{Binding LastModified, StringFormat='{}{0:yyyy-MM-dd HH:mm}'}" 
+                                               Foreground="{StaticResource GrayTextBrush}" 
+                                               FontSize="11"
+                                               Margin="0,0,10,0"/>
+                                    <TextBlock Text="{Binding Description}" 
+                                               Foreground="{StaticResource GrayTextBrush}" 
+                                               FontSize="11" 
+                                               FontStyle="Italic"
+                                               TextTrimming="CharacterEllipsis"/>
+                                </StackPanel>
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                                <StackPanel.Style>
+                                    <Style TargetType="StackPanel">
+                                        <Setter Property="Visibility" Value="Hidden"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType=ListBoxItem}}" Value="True">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </StackPanel.Style>
+
+                                <Button Command="{Binding LoadCommand}"
+                                        Style="{StaticResource PrimaryButton}"
+                                        Content="{DynamicResource Common_LoadButton}"
+                                        Padding="8,2"
+                                        FontSize="11"
+                                        Height="24"
+                                        Margin="0,0,5,0"/>
+
+                                <Button Command="{Binding ViewDetailsCommand}"
+                                        Style="{StaticResource BorderlessIconButton}"
+                                        ToolTip="{DynamicResource PresetList_DetailsButton}"
+                                        Width="24" Height="24">
+                                    <Viewbox>
+                                        <TextBlock Text="{x:Static icons:MaterialIcons.visibility}" FontFamily="{StaticResource MaterialIcons}" Foreground="{StaticResource PrimaryBrush}"/>
+                                    </Viewbox>
+                                </Button>
+
+                                <Button Command="{Binding RenameCommand}"
+                                        Style="{StaticResource BorderlessIconButton}"
+                                        ToolTip="{DynamicResource RenamePreset_Title}"
+                                        Width="24" Height="24">
+                                    <Viewbox>
+                                        <TextBlock Text="{x:Static icons:MaterialIcons.edit}" FontFamily="{StaticResource MaterialIcons}" Foreground="{StaticResource TextBrush}"/>
+                                    </Viewbox>
+                                </Button>
+
+                                <Button Command="{Binding DeleteCommand}"
+                                        Style="{StaticResource BorderlessIconButton}"
+                                        ToolTip="{DynamicResource DeletePresetTooltip}"
+                                        Width="24" Height="24">
+                                    <Viewbox>
+                                        <TextBlock Text="{x:Static icons:MaterialIcons.delete}" FontFamily="{StaticResource MaterialIcons}" Foreground="{StaticResource DangerBrush}"/>
+                                    </Viewbox>
+                                </Button>
+                            </StackPanel>
+                        </Grid>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </Border>
+
+        <TextBlock Grid.Row="3" 
+                   Text="{Binding ItemsView.Count, StringFormat='Count: {0}'}" 
+                   Foreground="{StaticResource GrayTextBrush}" 
+                   FontSize="10" 
+                   HorizontalAlignment="Right" 
+                   Margin="0,2,0,0"/>
+    </Grid>
+</UserControl>

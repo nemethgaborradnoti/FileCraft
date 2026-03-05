@@ -27,6 +27,9 @@ namespace FileCraft
         {
             await _host.StartAsync();
 
+            var dbService = _host.Services.GetRequiredService<IDatabaseService>();
+            dbService.Initialize();
+
             var mainWindow = _host.Services.GetRequiredService<MainWindow>();
             var mainViewModel = _host.Services.GetRequiredService<MainViewModel>();
 
@@ -47,6 +50,8 @@ namespace FileCraft
             services.AddSingleton<IUndoService, UndoService>();
             services.AddSingleton<IFolderTreeLinkService, FolderTreeLinkService>();
             services.AddSingleton<IPathPresetService, PathPresetService>();
+
+            services.AddSingleton<IDatabaseService, DatabaseService>();
 
             services.AddTransient<FolderTreeManager>();
             services.AddTransient<PathPresetsViewModel>();
