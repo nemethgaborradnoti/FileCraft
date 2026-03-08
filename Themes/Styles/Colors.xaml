@@ -61,4 +61,15 @@
     <SolidColorBrush x:Key="TabInactiveBackgroundBrush" Color="{StaticResource LightGrayColor}"/>
     <SolidColorBrush x:Key="TabActiveBackgroundBrush" Color="White"/>
 
+    <!-- Badge Colors -->
+    <Color x:Key="BadgeBackgroundColor">#F8F9FA</Color>
+    <Color x:Key="BadgeHoverColor">#E9ECEF</Color>
+    <Color x:Key="BadgePressedColor">#DEE2E6</Color>
+    <Color x:Key="BadgeInactiveColor">#E0E0E0</Color>
+
+    <SolidColorBrush x:Key="BadgeBackgroundBrush" Color="{StaticResource BadgeBackgroundColor}"/>
+    <SolidColorBrush x:Key="BadgeHoverBackgroundBrush" Color="{StaticResource BadgeHoverColor}"/>
+    <SolidColorBrush x:Key="BadgePressedBackgroundBrush" Color="{StaticResource BadgePressedColor}"/>
+    <SolidColorBrush x:Key="BadgeInactiveBackgroundBrush" Color="{StaticResource BadgeInactiveColor}"/>
+
 </ResourceDictionary>

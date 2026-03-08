@@ -288,13 +288,20 @@ namespace FileCraft.ViewModels.Functional
             return AvailableExtensions.Where(e => e.IsSelected).Select(e => e.Name).ToList();
         }
 
-        public PathPresetLoadResult LoadPathPreset(IEnumerable<string> presetPaths)
+        public PathPresetLoadResult LoadPathPreset(IEnumerable<string> presetRelativePaths)
         {
             OnStateChanging();
 
             var result = new PathPresetLoadResult();
-            var presetPathsList = presetPaths.ToList();
+            var presetPathsList = presetRelativePaths.ToList();
             result.TotalPaths = presetPathsList.Count;
+
+            var sourcePath = _sharedStateService.SourcePath;
+            if (string.IsNullOrWhiteSpace(sourcePath))
+            {
+                // Cannot convert relative paths without source
+                return result;
+            }
 
             var fileLookup = _allSelectableFiles.ToDictionary(f => f.FullPath, f => f, StringComparer.OrdinalIgnoreCase);
 
@@ -305,9 +312,20 @@ namespace FileCraft.ViewModels.Functional
 
             try
             {
-                foreach (var path in presetPathsList)
+                foreach (var relativePath in presetPathsList)
                 {
-                    if (fileLookup.TryGetValue(path, out var selectableFile))
+                    string fullPath;
+                    try
+                    {
+                        fullPath = Path.GetFullPath(Path.Combine(sourcePath, relativePath));
+                    }
+                    catch
+                    {
+                        result.NotFoundPaths.Add(relativePath);
+                        continue;
+                    }
+
+                    if (fileLookup.TryGetValue(fullPath, out var selectableFile))
                     {
                         if (!selectableFile.IsSelected)
                         {
@@ -322,7 +340,7 @@ namespace FileCraft.ViewModels.Functional
                     }
                     else
                     {
-                        result.NotFoundPaths.Add(path);
+                        result.NotFoundPaths.Add(fullPath);
                     }
                 }
             }

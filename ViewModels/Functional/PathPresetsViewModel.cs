@@ -34,7 +34,7 @@ namespace FileCraft.ViewModels.Functional
             ListViewModel.LoadItemRequested += OnLoadRequested;
             ListViewModel.DeleteItemRequested += OnDeleteRequested;
             ListViewModel.RenameItemRequested += OnRenameRequested;
-            ListViewModel.ViewItemDetailsRequested += OnViewDetailsRequested; // Replaced
+            ListViewModel.ViewItemDetailsRequested += OnViewDetailsRequested;
 
             LoadPresets();
         }
@@ -55,6 +55,16 @@ namespace FileCraft.ViewModels.Functional
 
         private void OnSaveNewRequested()
         {
+            var sourcePath = _sharedStateService.SourcePath;
+            if (string.IsNullOrWhiteSpace(sourcePath) || !Directory.Exists(sourcePath))
+            {
+                _dialogService.ShowNotification(
+                    ResourceHelper.GetString("Common_WarningTitle"),
+                    ResourceHelper.GetString("Preset_SelectSourceFirst"),
+                    DialogIconType.Warning);
+                return;
+            }
+
             var selectedPaths = _fileContentExportVM.GetSelectedFilePaths();
             if (!selectedPaths.Any())
             {
@@ -81,10 +91,14 @@ namespace FileCraft.ViewModels.Functional
                     if (!overwrite) return;
                 }
 
+                var relativePaths = selectedPaths
+                    .Select(p => Path.GetRelativePath(sourcePath, p))
+                    .ToList();
+
                 var preset = new PathPreset
                 {
                     Name = name,
-                    FilePaths = selectedPaths
+                    FilePaths = relativePaths
                 };
 
                 _presetService.SavePreset(preset);
@@ -108,7 +122,6 @@ namespace FileCraft.ViewModels.Functional
 
         private void OnViewDetailsRequested(PresetItemViewModel item)
         {
-            // Now using the unified nice Details window
             _dialogService.ShowPresetDetails(item);
         }
 
