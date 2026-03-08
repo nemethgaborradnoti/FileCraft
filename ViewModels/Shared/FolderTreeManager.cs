@@ -108,7 +108,7 @@ namespace FileCraft.ViewModels.Shared
             }
 
             RootFolders = newTree;
-            HandleFolderStateChange(); // Initial count update
+            HandleFolderStateChange();
         }
 
         public void SetSharedRootFolders(ObservableCollection<FolderViewModel> sharedFolders, string sourcePath)
@@ -128,7 +128,7 @@ namespace FileCraft.ViewModels.Shared
             _ = LoadTreeForPathAsync(currentPath, clonedStates);
         }
 
-        private void HandleFolderStateChange()
+        public void HandleFolderStateChange()
         {
             SelectedFolderCount = GetSelectedNodeCount();
             FolderSelectionChanged?.Invoke();

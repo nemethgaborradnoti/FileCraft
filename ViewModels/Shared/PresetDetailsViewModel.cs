@@ -54,7 +54,7 @@ namespace FileCraft.ViewModels.Shared
 
         private void LoadPathPreset(PathPreset preset)
         {
-            Statistics.Add(new DetailItem { Label = "Total Files", Value = preset.FilePaths.Count.ToString(), Icon = "\ue24d" }); // file icon
+            Statistics.Add(new DetailItem { Label = "Total Files", Value = preset.FilePaths.Count.ToString(), Icon = "\ue24d" });
 
             ContentHeader = "Included Files";
             foreach (var path in preset.FilePaths.OrderBy(x => x))
@@ -68,13 +68,18 @@ namespace FileCraft.ViewModels.Shared
             var data = preset.Data;
             var stats = preset.Statistics;
 
-            Statistics.Add(new DetailItem { Label = "App Version", Value = preset.AppVersion, Icon = "\ue88e" });
+            string displayVersion = preset.AppVersion;
+            if (System.Version.TryParse(displayVersion, out var parsedVersion))
+            {
+                displayVersion = $"{parsedVersion.Major}.{parsedVersion.Minor}.{parsedVersion.Build}";
+            }
+
+            Statistics.Add(new DetailItem { Label = "App Version", Value = displayVersion, Icon = "\ue88e" });
             Statistics.Add(new DetailItem { Label = "Folders Configured", Value = stats.FolderCount.ToString(), Icon = "\ue2c7" });
             Statistics.Add(new DetailItem { Label = "Explicit Files", Value = stats.FileCount.ToString(), Icon = "\ue24d" });
 
             ContentHeader = "Configuration Summary";
 
-            // Summarize File Content Export
             if (data.FileContentExport.SelectedFilePaths.Any() || data.FileContentExport.FolderTreeState.Any(x => x.IsSelected == true))
             {
                 ContentList.Add("--- File Content Export ---");
@@ -87,7 +92,6 @@ namespace FileCraft.ViewModels.Shared
                 ContentList.Add("");
             }
 
-            // Summarize Tree Generator
             if (data.TreeGenerator.FolderTreeState.Any(x => x.IsSelected == true))
             {
                 ContentList.Add("--- Tree Generator ---");
@@ -96,7 +100,6 @@ namespace FileCraft.ViewModels.Shared
                 ContentList.Add("");
             }
 
-            // Summarize Folder Content
             if (data.FolderContentExport.FolderTreeState.Any(x => x.IsSelected == true))
             {
                 ContentList.Add("--- Folder Content Export ---");

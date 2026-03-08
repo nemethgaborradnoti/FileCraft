@@ -1,10 +1,11 @@
 ﻿using FileCraft.Models;
 using FileCraft.Services.Interfaces;
-using FileCraft.Shared.Helpers; // ResourceHelper miatt
+using FileCraft.Shared.Helpers;
 using FileCraft.Shared.Validation;
 using LiteDB;
 using System.IO;
 using System.Text.Json;
+using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace FileCraft.Services
 {
@@ -31,8 +32,6 @@ namespace FileCraft.Services
             return _databaseService.GetCollection<PresetEntity>(PresetCollectionName);
         }
 
-        #region Current State (JSON)
-
         public string GetSaveDirectory()
         {
             return _appDirectory;
@@ -48,7 +47,7 @@ namespace FileCraft.Services
             try
             {
                 string json = File.ReadAllText(_saveFilePath);
-                var saveData = System.Text.Json.JsonSerializer.Deserialize<SaveData>(json);
+                var saveData = JsonSerializer.Deserialize<SaveData>(json);
                 return saveData ?? new SaveData();
             }
             catch (Exception)
@@ -64,12 +63,11 @@ namespace FileCraft.Services
             try
             {
                 var options = new JsonSerializerOptions { WriteIndented = true };
-                string json = System.Text.Json.JsonSerializer.Serialize(saveData, options);
+                string json = JsonSerializer.Serialize(saveData, options);
                 File.WriteAllText(_saveFilePath, json);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                Console.WriteLine($"Error saving data: {ex.Message}");
             }
         }
 
@@ -81,20 +79,15 @@ namespace FileCraft.Services
                 {
                     File.Delete(_saveFilePath);
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
-                    Console.WriteLine($"Error deleting save data: {ex.Message}");
                     throw;
                 }
             }
         }
-        #endregion
-
-        #region Dynamic Presets (LiteDB)
 
         public void SavePreset(string name, string description, SaveData data)
         {
-            // Internal logic shared with migration
             SavePresetInternal(name, description, data, DateTime.Now);
         }
 
@@ -113,13 +106,16 @@ namespace FileCraft.Services
                 FileCount = data.FileContentExport.SelectedFilePaths.Count
             };
 
+            var version = System.Reflection.Assembly.GetEntryAssembly()?.GetName().Version;
+            string versionString = version != null ? $"{version.Major}.{version.Minor}.{version.Build}" : "1.0.0";
+
             var entity = new PresetEntity
             {
                 Name = name,
                 Description = description,
                 CreatedAt = modifiedDate,
                 LastModified = modifiedDate,
-                AppVersion = System.Reflection.Assembly.GetEntryAssembly()?.GetName().Version?.ToString() ?? "1.0.0",
+                AppVersion = versionString,
                 Data = data,
                 Statistics = stats
             };
@@ -175,40 +171,32 @@ namespace FileCraft.Services
                         try
                         {
                             string json = File.ReadAllText(legacyPath);
-                            var saveData = System.Text.Json.JsonSerializer.Deserialize<SaveData>(json);
+                            var saveData = JsonSerializer.Deserialize<SaveData>(json);
 
                             if (saveData != null)
                             {
-                                // Determine Name
                                 string name = saveData.PresetName;
                                 if (string.IsNullOrWhiteSpace(name))
                                 {
                                     name = $"{ResourceHelper.GetString("Preset_DefaultNamePrefix")} {i:00}";
                                 }
 
-                                // Check if already imported
                                 if (!PresetNameExists(name))
                                 {
-                                    // Use file date as modification date
                                     DateTime fileDate = File.GetLastWriteTime(legacyPath);
-
                                     SavePresetInternal(name, "Imported from legacy JSON", saveData, fileDate);
                                 }
                             }
                         }
                         catch
                         {
-                            // Ignore corrupted legacy files
                         }
                     }
                 }
             }
             catch
             {
-                // Safety catch for any IO/DB errors during migration
             }
         }
-
-        #endregion
     }
 }

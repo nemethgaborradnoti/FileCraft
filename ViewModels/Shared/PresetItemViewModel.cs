@@ -27,6 +27,37 @@ namespace FileCraft.ViewModels.Shared
             }
         }
 
+        public string DisplayDateString
+        {
+            get
+            {
+                var timeSpan = DateTime.Now - LastModified;
+                string relativeTime;
+
+                if (timeSpan.TotalMinutes < 1)
+                {
+                    relativeTime = "Just now";
+                }
+                else if (timeSpan.TotalHours < 1)
+                {
+                    int minutes = (int)timeSpan.TotalMinutes;
+                    relativeTime = $"{minutes} minute{(minutes != 1 ? "s" : "")} ago";
+                }
+                else if (timeSpan.TotalDays < 1)
+                {
+                    int hours = (int)timeSpan.TotalHours;
+                    relativeTime = $"{hours} hour{(hours != 1 ? "s" : "")} ago";
+                }
+                else
+                {
+                    int days = (int)timeSpan.TotalDays;
+                    relativeTime = $"{days} day{(days != 1 ? "s" : "")} ago";
+                }
+
+                return $"{LastModified:yyyy.MM.dd HH:mm} • {relativeTime}";
+            }
+        }
+
         public ICommand LoadCommand { get; }
         public ICommand DeleteCommand { get; }
         public ICommand RenameCommand { get; }
