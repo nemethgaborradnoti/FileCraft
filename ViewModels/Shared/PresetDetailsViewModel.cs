@@ -1,6 +1,7 @@
 ﻿using FileCraft.Models;
 using FileCraft.Shared.Commands;
 using FileCraft.Shared.Helpers;
+using Fonts;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
 
@@ -54,7 +55,7 @@ namespace FileCraft.ViewModels.Shared
 
         private void LoadPathPreset(PathPreset preset)
         {
-            Statistics.Add(new DetailItem { Label = "Total Files", Value = preset.FilePaths.Count.ToString(), Icon = "\ue24d" });
+            Statistics.Add(new DetailItem { Label = "Total Files", Value = preset.FilePaths.Count.ToString(), Icon = MaterialIcons.description });
 
             ContentHeader = "Included Files";
             foreach (var path in preset.FilePaths.OrderBy(x => x))
@@ -74,9 +75,9 @@ namespace FileCraft.ViewModels.Shared
                 displayVersion = $"{parsedVersion.Major}.{parsedVersion.Minor}.{parsedVersion.Build}";
             }
 
-            Statistics.Add(new DetailItem { Label = "App Version", Value = displayVersion, Icon = "\ue88e" });
-            Statistics.Add(new DetailItem { Label = "Folders Configured", Value = stats.FolderCount.ToString(), Icon = "\ue2c7" });
-            Statistics.Add(new DetailItem { Label = "Explicit Files", Value = stats.FileCount.ToString(), Icon = "\ue24d" });
+            Statistics.Add(new DetailItem { Label = "App Version", Value = displayVersion, Icon = MaterialIcons.info });
+            Statistics.Add(new DetailItem { Label = "Folders Configured", Value = stats.FolderCount.ToString(), Icon = MaterialIcons.folder });
+            Statistics.Add(new DetailItem { Label = "Explicit Files", Value = stats.FileCount.ToString(), Icon = MaterialIcons.description });
 
             ContentHeader = "Configuration Summary";
 

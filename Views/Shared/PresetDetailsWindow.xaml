@@ -15,7 +15,9 @@
     <Window.Resources>
         <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
         <Style TargetType="ListBoxItem">
-            <Setter Property="Padding" Value="5,2"/>
+            <Setter Property="Padding" Value="5,0"/>
+            <Setter Property="MinHeight" Value="0"/>
+            <Setter Property="Margin" Value="0"/>
         </Style>
     </Window.Resources>
 
@@ -27,22 +29,20 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <!-- Header -->
         <StackPanel Grid.Row="0" Margin="0,0,0,20">
             <TextBlock Text="{Binding PresetName}" FontSize="24" FontWeight="Bold" Foreground="{StaticResource PrimaryBrush}"/>
             <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
                 <TextBlock Text="Last Modified:" Foreground="{StaticResource GrayTextBrush}" Margin="0,0,5,0"/>
                 <TextBlock Text="{Binding LastModified, StringFormat='{}{0:yyyy-MM-dd HH:mm:ss}'}" FontWeight="SemiBold"/>
             </StackPanel>
-            <TextBlock Text="{Binding Description}" 
-                       FontStyle="Italic" 
-                       Foreground="{StaticResource GrayTextBrush}" 
-                       Margin="0,5,0,0" 
+            <TextBlock Text="{Binding Description}"
+                       FontStyle="Italic"
+                       Foreground="{StaticResource GrayTextBrush}"
+                       Margin="0,5,0,0"
                        TextWrapping="Wrap"
                        Visibility="{Binding Description, Converter={StaticResource NullToVisibilityConverter}}"/>
         </StackPanel>
 
-        <!-- Statistics Cards -->
         <ItemsControl Grid.Row="1" ItemsSource="{Binding Statistics}" Margin="0,0,0,20">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
@@ -68,10 +68,9 @@
             </ItemsControl.ItemTemplate>
         </ItemsControl>
 
-        <!-- Content List -->
         <GroupBox Grid.Row="2" Header="{Binding ContentHeader}">
-            <ListBox ItemsSource="{Binding ContentList}" 
-                     BorderThickness="0" 
+            <ListBox ItemsSource="{Binding ContentList}"
+                     BorderThickness="0"
                      Background="Transparent"
                      FontFamily="Consolas"
                      ScrollViewer.HorizontalScrollBarVisibility="Disabled">
@@ -83,13 +82,12 @@
             </ListBox>
         </GroupBox>
 
-        <!-- Footer -->
-        <Button Grid.Row="3" 
-                Content="{DynamicResource Common_CloseButton}" 
-                Command="{Binding CloseCommand}" 
-                Style="{StaticResource SecondaryButton}" 
-                HorizontalAlignment="Right" 
-                MinWidth="80" 
+        <Button Grid.Row="3"
+                Content="{DynamicResource Common_CloseButton}"
+                Command="{Binding CloseCommand}"
+                Style="{StaticResource SecondaryButton}"
+                HorizontalAlignment="Right"
+                MinWidth="80"
                 Margin="0,15,0,0"
                 IsCancel="True"/>
     </Grid>
