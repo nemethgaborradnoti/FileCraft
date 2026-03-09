@@ -2,19 +2,38 @@
 using FileCraft.Shared.Commands;
 using FileCraft.Shared.Helpers;
 using Fonts;
+using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace FileCraft.ViewModels.Shared
 {
-    public class DetailItem
+    public class DetailItem : BaseViewModel
     {
+        private bool _isSelected;
+
         public string Label { get; set; } = string.Empty;
         public string Value { get; set; } = string.Empty;
         public string Icon { get; set; } = string.Empty;
         public ICommand? Command { get; set; }
         public bool IsInteractive { get; set; }
+
+        public bool IsSelected
+        {
+            get => _isSelected;
+            set
+            {
+                if (_isSelected != value)
+                {
+                    _isSelected = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
     }
 
     public class PresetDetailsViewModel : BaseViewModel
@@ -287,20 +306,20 @@ namespace FileCraft.ViewModels.Shared
         private void ShowFolders()
         {
             if (!_storedFolderPaths.Any()) return;
-
             _currentDetailPaths = _storedFolderPaths;
             DetailTitle = ResourceHelper.GetString("Details_FoldersTitle");
             IsTreeMode = false;
+            UpdateBadgeSelection(ShowFoldersCommand);
             SwitchToDetailView();
         }
 
         private void ShowFiles()
         {
             if (!_storedFilePaths.Any()) return;
-
             _currentDetailPaths = _storedFilePaths;
             DetailTitle = ResourceHelper.GetString("Details_FilesTitle");
             IsTreeMode = false;
+            UpdateBadgeSelection(ShowFilesCommand);
             SwitchToDetailView();
         }
 
@@ -315,6 +334,15 @@ namespace FileCraft.ViewModels.Shared
         {
             IsContentDetailVisible = false;
             IsSummaryVisible = true;
+            UpdateBadgeSelection(null);
+        }
+
+        private void UpdateBadgeSelection(ICommand? activeCommand)
+        {
+            foreach (var item in Statistics)
+            {
+                item.IsSelected = item.Command == activeCommand && activeCommand != null;
+            }
         }
 
         private async Task ToggleViewMode()
@@ -357,6 +385,7 @@ namespace FileCraft.ViewModels.Shared
         private string GenerateTreeText(List<string> paths)
         {
             var rootNode = new TreeNode(".");
+
             foreach (var path in paths)
             {
                 var cleanPath = path.Replace('\\', '/');
@@ -366,6 +395,7 @@ namespace FileCraft.ViewModels.Shared
 
             var sb = new StringBuilder();
             sb.AppendLine(".");
+
             foreach (var child in rootNode.Children)
             {
                 PrintTree(child, "", sb, child == rootNode.Children.Last());
@@ -377,6 +407,7 @@ namespace FileCraft.ViewModels.Shared
         private void PrintTree(TreeNode node, string indent, StringBuilder sb, bool isLast)
         {
             sb.AppendLine($"{indent}{(isLast ? "└── " : "├── ")}{node.Name}");
+
             var childIndent = indent + (isLast ? "    " : "│   ");
 
             for (int i = 0; i < node.Children.Count; i++)

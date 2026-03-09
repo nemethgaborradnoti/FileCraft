@@ -21,14 +21,14 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border x:Name="border" 
-                                Background="{StaticResource BadgeBackgroundBrush}" 
-                                BorderBrush="{StaticResource BorderBrush}" 
-                                BorderThickness="1" 
-                                CornerRadius="4" 
-                                Padding="15,10" 
-                                Margin="0,0,10,0" 
-                                MinWidth="120" 
+                        <Border x:Name="border"
+                                Background="{StaticResource BadgeBackgroundBrush}"
+                                BorderBrush="{StaticResource BorderBrush}"
+                                BorderThickness="1"
+                                CornerRadius="4"
+                                Padding="15,10"
+                                Margin="0,0,10,0"
+                                MinWidth="120"
                                 Cursor="Hand">
                             <ContentPresenter/>
                         </Border>
@@ -40,6 +40,11 @@
                             <Trigger Property="IsPressed" Value="True">
                                 <Setter TargetName="border" Property="Background" Value="{StaticResource BadgePressedBackgroundBrush}"/>
                             </Trigger>
+                            <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="{StaticResource BadgePressedBackgroundBrush}"/>
+                                <Setter TargetName="border" Property="BorderBrush" Value="{StaticResource PrimaryBrush}"/>
+                                <Setter TargetName="border" Property="BorderThickness" Value="2"/>
+                            </DataTrigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
@@ -101,9 +106,7 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <!-- Header -->
         <Grid Grid.Row="0" Margin="0,0,0,20">
-            <!-- Summary Header -->
             <StackPanel Visibility="{Binding IsSummaryVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
                 <TextBlock Text="{Binding PresetName}" FontSize="24" FontWeight="Bold" Foreground="{StaticResource PrimaryBrush}"/>
                 <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
@@ -118,7 +121,6 @@
                            Visibility="{Binding Description, Converter={StaticResource NullToVisibilityConverter}}"/>
             </StackPanel>
 
-            <!-- Detail Header -->
             <StackPanel Orientation="Horizontal" Visibility="{Binding IsContentDetailVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
                 <Button Command="{Binding BackCommand}"
                         Style="{StaticResource BorderlessIconButton}"
@@ -134,7 +136,6 @@
             </StackPanel>
         </Grid>
 
-        <!-- Statistics Badges -->
         <ItemsControl Grid.Row="1" ItemsSource="{Binding Statistics}" Margin="0,0,0,20">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
@@ -175,9 +176,7 @@
             </ItemsControl.ItemTemplate>
         </ItemsControl>
 
-        <!-- Main Content Area -->
         <Grid Grid.Row="2">
-            <!-- Summary View -->
             <GroupBox Header="{Binding ContentHeader}" Visibility="{Binding IsSummaryVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
                 <TextBox Text="{Binding SummaryText, Mode=OneWay}"
                          Style="{StaticResource ModernTextBoxStyle}"
@@ -193,7 +192,6 @@
                          Padding="0"/>
             </GroupBox>
 
-            <!-- Detail View -->
             <GroupBox Visibility="{Binding IsContentDetailVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
                 <GroupBox.Header>
                     <Grid>
@@ -202,8 +200,8 @@
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         <TextBlock Text="{Binding DetailTitle}" FontWeight="SemiBold" VerticalAlignment="Center"/>
-                        <Button Grid.Column="1" 
-                                Content="{Binding ToggleViewButtonText}" 
+                        <Button Grid.Column="1"
+                                Content="{Binding ToggleViewButtonText}"
                                 Command="{Binding ToggleViewModeCommand}"
                                 Style="{StaticResource SecondaryButton}"
                                 Padding="8,2"
@@ -227,7 +225,6 @@
             </GroupBox>
         </Grid>
 
-        <!-- Footer -->
         <Button Grid.Row="3"
                 Content="{DynamicResource Common_CloseButton}"
                 Command="{Binding CloseCommand}"
