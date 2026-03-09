@@ -543,7 +543,7 @@ namespace FileCraft.ViewModels
                 var peerIds = _folderTreeLinkService.GetLinkedPeers(item.Id);
                 foreach (var peerId in peerIds)
                 {
-                    var tabInfo = OptionsVM.AllTabs.FirstOrDefault(t => t.Id == peerId);
+                    var tabInfo = OptionsVM.TreeToolsVM.AllTabs.FirstOrDefault(t => t.Id == peerId);
                     if (tabInfo != null && tabInfo.Icon != null && tabInfo.IconBrush != null)
                     {
                         item.VM.LinkedTabs.Add(new TabIconViewModel(tabInfo.Name, tabInfo.Icon, tabInfo.IconBrush));

@@ -62,6 +62,10 @@ namespace FileCraft
             services.AddSingleton<FileContentExportViewModel>();
             services.AddSingleton<TreeGeneratorViewModel>();
             services.AddSingleton<FolderContentExportViewModel>();
+
+            services.AddSingleton<OptionsPresetsViewModel>();
+            services.AddSingleton<OptionsTreeToolsViewModel>();
+            services.AddSingleton<OptionsGeneralViewModel>();
             services.AddSingleton<OptionsViewModel>();
 
             services.AddSingleton<MainViewModel>();
