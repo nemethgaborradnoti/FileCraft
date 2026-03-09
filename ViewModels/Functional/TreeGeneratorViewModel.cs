@@ -120,6 +120,7 @@ namespace FileCraft.ViewModels.Functional
         {
             var allNodes = RootFolders.Any() ? RootFolders[0].GetAllNodes() : Enumerable.Empty<FolderViewModel>();
             IncludedFoldersCount = allNodes.Count(n => n.IsSelected != false);
+            CommandManager.InvalidateRequerySuggested();
         }
 
         private async Task GenerateTreeStructure()

@@ -68,6 +68,9 @@ namespace FileCraft
             services.AddSingleton<OptionsGeneralViewModel>();
             services.AddSingleton<OptionsViewModel>();
 
+            services.AddSingleton<PathSelectionViewModel>();
+            services.AddSingleton<SessionHistoryViewModel>();
+
             services.AddSingleton<MainViewModel>();
 
             services.AddTransient<MainWindow>();

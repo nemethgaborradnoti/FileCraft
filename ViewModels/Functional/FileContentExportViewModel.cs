@@ -299,7 +299,6 @@ namespace FileCraft.ViewModels.Functional
             var sourcePath = _sharedStateService.SourcePath;
             if (string.IsNullOrWhiteSpace(sourcePath))
             {
-                // Cannot convert relative paths without source
                 return result;
             }
 
@@ -610,6 +609,7 @@ namespace FileCraft.ViewModels.Functional
                 _areAllFilesSelected = newSelectionState;
                 OnPropertyChanged(nameof(AreAllFilesSelected));
             }
+            CommandManager.InvalidateRequerySuggested();
         }
 
         private void UpdateExtensionMasterState()
@@ -621,6 +621,7 @@ namespace FileCraft.ViewModels.Functional
                 OnPropertyChanged(nameof(AreAllExtensionsSelected));
             }
             UpdateSelectedExtensionsText();
+            CommandManager.InvalidateRequerySuggested();
         }
 
         private void UpdateSelectedExtensionsText()
