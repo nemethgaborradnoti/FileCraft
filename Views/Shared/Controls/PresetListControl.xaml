@@ -17,6 +17,44 @@
                 <x:Type TypeName="models:PresetSortCriteria"/>
             </ObjectDataProvider.MethodParameters>
         </ObjectDataProvider>
+
+        <Style x:Key="ListActionPrimaryButton" TargetType="Button" BasedOn="{StaticResource ModernButtonBase}">
+            <Setter Property="Background" Value="{StaticResource PrimaryBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource PrimaryDarkerBrush}"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="{StaticResource PrimaryDarkerBrush}"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="ListActionIconButton" TargetType="Button">
+            <Setter Property="Width" Value="28"/>
+            <Setter Property="Height" Value="28"/>
+            <Setter Property="Margin" Value="2,0"/>
+            <Setter Property="Padding" Value="4"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="ToolTipService.ShowOnDisabled" Value="True"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" Background="{TemplateBinding Background}" CornerRadius="3">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.5"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#adadad"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </UserControl.Resources>
 
     <Grid>
@@ -192,7 +230,7 @@
 
                             <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
                                 <Button Command="{Binding LoadCommand}"
-                                        Style="{StaticResource PrimaryButton}"
+                                        Style="{StaticResource ListActionPrimaryButton}"
                                         Content="{DynamicResource Common_LoadButton}"
                                         Padding="8,2"
                                         FontSize="11"
@@ -200,7 +238,7 @@
                                         Margin="0,0,5,0"/>
 
                                 <Button Command="{Binding ViewDetailsCommand}"
-                                        Style="{StaticResource BorderlessIconButton}"
+                                        Style="{StaticResource ListActionIconButton}"
                                         ToolTip="{DynamicResource PresetList_DetailsButton}"
                                         Width="24" Height="24">
                                     <Viewbox>
@@ -209,7 +247,7 @@
                                 </Button>
 
                                 <Button Command="{Binding RenameCommand}"
-                                        Style="{StaticResource BorderlessIconButton}"
+                                        Style="{StaticResource ListActionIconButton}"
                                         ToolTip="{DynamicResource RenamePreset_Title}"
                                         Width="24" Height="24">
                                     <Viewbox>
@@ -218,7 +256,7 @@
                                 </Button>
 
                                 <Button Command="{Binding DeleteCommand}"
-                                        Style="{StaticResource BorderlessIconButton}"
+                                        Style="{StaticResource ListActionIconButton}"
                                         ToolTip="{DynamicResource DeletePresetTooltip}"
                                         Width="24" Height="24">
                                     <Viewbox>
