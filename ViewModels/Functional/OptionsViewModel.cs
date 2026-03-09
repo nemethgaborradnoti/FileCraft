@@ -3,10 +3,14 @@ using FileCraft.Services.Interfaces;
 using FileCraft.Shared.Commands;
 using FileCraft.Shared.Helpers;
 using FileCraft.ViewModels.Shared;
+using System;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Input;
+using System.Windows.Media;
 
 namespace FileCraft.ViewModels.Functional
 {
@@ -80,13 +84,11 @@ namespace FileCraft.ViewModels.Functional
 
         public FullscreenManager<OptionsFullscreenState> FullscreenManager { get; }
 
-        // Events for MainViewModel
         public event Action? IgnoredFoldersChanged;
         public event Action? PresetCreateRequested;
         public event Action<int>? PresetLoadRequested;
         public event Action? CurrentSaveDeleteRequested;
 
-        // Commands
         public ICommand DeleteCurrentSaveCommand { get; }
         public ICommand OpenSaveFolderCommand { get; }
         public ICommand CopyFolderTreeCommand { get; }
@@ -94,7 +96,6 @@ namespace FileCraft.ViewModels.Functional
         public ICommand LinkFolderTreesCommand { get; }
         public ICommand UnlinkFolderTreeGroupCommand { get; }
 
-        // Collections
         public PresetListViewModel PresetListViewModel { get; }
         public ObservableCollection<TabItemViewModel> AllTabs { get; } = new();
         public ObservableCollection<LinkGroupViewModel> ActiveLinkGroups { get; } = new();
@@ -168,22 +169,24 @@ namespace FileCraft.ViewModels.Functional
 
             FullscreenManager = new FullscreenManager<OptionsFullscreenState>(OptionsFullscreenState.None);
 
-            // Initialize Preset List Logic
             PresetListViewModel = new PresetListViewModel();
+
+            var saveData = _saveService.LoadSaveData();
+            PresetListViewModel.InitializeSort(saveData.SavePresetSortBy, saveData.SavePresetIsDescending);
+
             PresetListViewModel.SaveNewRequested += () => PresetCreateRequested?.Invoke();
             PresetListViewModel.LoadItemRequested += OnPresetLoadItemRequested;
             PresetListViewModel.DeleteItemRequested += OnPresetDeleteItemRequested;
             PresetListViewModel.RenameItemRequested += OnPresetRenameItemRequested;
             PresetListViewModel.ViewItemDetailsRequested += OnPresetViewItemDetailsRequested;
+            PresetListViewModel.SortChanged += OnSortChanged;
 
             RefreshPresetList();
 
             DeleteCurrentSaveCommand = new RelayCommand(_ => CurrentSaveDeleteRequested?.Invoke());
-
             OpenSaveFolderCommand = new RelayCommand(_ => OpenSaveFolder());
             CopyFolderTreeCommand = new RelayCommand(async _ => await CopyFolderTree(), _ => CanCopyFolderTree());
             EditIgnoredFoldersCommand = new RelayCommand(_ => EditIgnoredFolders());
-
             LinkFolderTreesCommand = new RelayCommand(_ => LinkFolderTrees(), _ => CanLinkFolderTrees());
             UnlinkFolderTreeGroupCommand = new RelayCommand(p => UnlinkFolderTreeGroup(p));
 
@@ -198,6 +201,14 @@ namespace FileCraft.ViewModels.Functional
             SelectedDestinationTab = AllTabs[0];
 
             UpdateIgnoredFoldersText();
+        }
+
+        private void OnSortChanged()
+        {
+            var saveData = _saveService.LoadSaveData();
+            saveData.SavePresetSortBy = PresetListViewModel.SortBy;
+            saveData.SavePresetIsDescending = PresetListViewModel.IsDescending;
+            _saveService.Save(saveData);
         }
 
         public void RefreshPresetList()
@@ -302,7 +313,6 @@ namespace FileCraft.ViewModels.Functional
                     .Distinct(StringComparer.OrdinalIgnoreCase)
                     .OrderBy(name => name)
                     .ToList();
-
                 IgnoredFoldersChanged?.Invoke();
             }
         }
@@ -404,6 +414,7 @@ namespace FileCraft.ViewModels.Functional
             }
 
             ActiveLinkGroups.Clear();
+
             foreach (var group in allLinkGroups)
             {
                 if (!group.Any()) continue;
@@ -419,8 +430,6 @@ namespace FileCraft.ViewModels.Functional
                 }
                 ActiveLinkGroups.Add(groupVm);
             }
-
-            // Removed check for SelectedDestinationTab.IsSelectable as property was removed
         }
 
         private bool CanLinkFolderTrees()

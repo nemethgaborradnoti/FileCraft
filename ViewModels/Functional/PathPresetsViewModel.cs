@@ -2,7 +2,9 @@
 using FileCraft.Services.Interfaces;
 using FileCraft.Shared.Helpers;
 using FileCraft.ViewModels.Shared;
+using System;
 using System.IO;
+using System.Linq;
 
 namespace FileCraft.ViewModels.Functional
 {
@@ -11,6 +13,7 @@ namespace FileCraft.ViewModels.Functional
         private readonly IPathPresetService _presetService;
         private readonly ISharedStateService _sharedStateService;
         private readonly IDialogService _dialogService;
+        private readonly ISaveService _saveService;
         private readonly FileContentExportViewModel _fileContentExportVM;
 
         public PresetListViewModel ListViewModel { get; }
@@ -21,22 +24,36 @@ namespace FileCraft.ViewModels.Functional
             IPathPresetService presetService,
             ISharedStateService sharedStateService,
             IDialogService dialogService,
+            ISaveService saveService,
             FileContentExportViewModel fileContentExportVM)
         {
             _presetService = presetService;
             _sharedStateService = sharedStateService;
             _dialogService = dialogService;
+            _saveService = saveService;
             _fileContentExportVM = fileContentExportVM;
 
             ListViewModel = new PresetListViewModel();
+
+            var saveData = _saveService.LoadSaveData();
+            ListViewModel.InitializeSort(saveData.PathPresetSortBy, saveData.PathPresetIsDescending);
 
             ListViewModel.SaveNewRequested += OnSaveNewRequested;
             ListViewModel.LoadItemRequested += OnLoadRequested;
             ListViewModel.DeleteItemRequested += OnDeleteRequested;
             ListViewModel.RenameItemRequested += OnRenameRequested;
             ListViewModel.ViewItemDetailsRequested += OnViewDetailsRequested;
+            ListViewModel.SortChanged += OnSortChanged;
 
             LoadPresets();
+        }
+
+        private void OnSortChanged()
+        {
+            var saveData = _saveService.LoadSaveData();
+            saveData.PathPresetSortBy = ListViewModel.SortBy;
+            saveData.PathPresetIsDescending = ListViewModel.IsDescending;
+            _saveService.Save(saveData);
         }
 
         private void LoadPresets()
@@ -49,7 +66,6 @@ namespace FileCraft.ViewModels.Functional
                 $"{p.FilePaths.Count} files",
                 p
             ));
-
             ListViewModel.SetItems(viewModels);
         }
 
@@ -87,7 +103,6 @@ namespace FileCraft.ViewModels.Functional
                         ResourceHelper.GetString("Common_WarningTitle"),
                         string.Format(ResourceHelper.GetString("Preset_OverwriteMessage"), "-", name),
                         DialogIconType.Warning);
-
                     if (!overwrite) return;
                 }
 

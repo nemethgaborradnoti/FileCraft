@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:vm="clr-namespace:FileCraft.ViewModels.Shared"
+             xmlns:models="clr-namespace:FileCraft.Models"
              xmlns:icons="clr-namespace:Fonts"
              xmlns:system="clr-namespace:System;assembly=mscorlib"
              mc:Ignorable="d"
@@ -13,7 +14,7 @@
     <UserControl.Resources>
         <ObjectDataProvider x:Key="SortOptionsEnum" MethodName="GetValues" ObjectType="{x:Type system:Enum}">
             <ObjectDataProvider.MethodParameters>
-                <x:Type TypeName="vm:PresetSortOption"/>
+                <x:Type TypeName="models:PresetSortCriteria"/>
             </ObjectDataProvider.MethodParameters>
         </ObjectDataProvider>
     </UserControl.Resources>
@@ -91,10 +92,10 @@
                 <Button.Style>
                     <Style TargetType="Button" BasedOn="{StaticResource BorderlessIconButton}">
                         <Style.Triggers>
-                            <DataTrigger Binding="{Binding IsAscending}" Value="True">
+                            <DataTrigger Binding="{Binding IsDescending}" Value="False">
                                 <Setter Property="ToolTip" Value="{DynamicResource PresetList_AscendingTooltip}"/>
                             </DataTrigger>
-                            <DataTrigger Binding="{Binding IsAscending}" Value="False">
+                            <DataTrigger Binding="{Binding IsDescending}" Value="True">
                                 <Setter Property="ToolTip" Value="{DynamicResource PresetList_DescendingTooltip}"/>
                             </DataTrigger>
                         </Style.Triggers>
@@ -104,10 +105,10 @@
                     <TextBlock FontFamily="{StaticResource MaterialIcons}" Foreground="{StaticResource TextBrush}">
                         <TextBlock.Style>
                             <Style TargetType="TextBlock">
-                                <Setter Property="Text" Value="{x:Static icons:MaterialIcons.arrow_downward}"/>
+                                <Setter Property="Text" Value="{x:Static icons:MaterialIcons.arrow_upward}"/>
                                 <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsAscending}" Value="True">
-                                        <Setter Property="Text" Value="{x:Static icons:MaterialIcons.arrow_upward}"/>
+                                    <DataTrigger Binding="{Binding IsDescending}" Value="True">
+                                        <Setter Property="Text" Value="{x:Static icons:MaterialIcons.arrow_downward}"/>
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>

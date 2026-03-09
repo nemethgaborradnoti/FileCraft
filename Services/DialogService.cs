@@ -5,6 +5,8 @@ using FileCraft.ViewModels.Functional;
 using FileCraft.ViewModels.Shared;
 using FileCraft.Views.Shared;
 using Microsoft.Extensions.DependencyInjection;
+using System;
+using System.Collections.Generic;
 
 namespace FileCraft.Services
 {
@@ -175,6 +177,7 @@ namespace FileCraft.Services
                 _serviceProvider.GetRequiredService<IPathPresetService>(),
                 _serviceProvider.GetRequiredService<ISharedStateService>(),
                 this,
+                _serviceProvider.GetRequiredService<ISaveService>(),
                 fileContentExportViewModel);
 
             var window = new PathPresetsWindow(viewModel);

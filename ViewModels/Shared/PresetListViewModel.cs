@@ -1,5 +1,8 @@
-﻿using FileCraft.Shared.Commands;
+﻿using FileCraft.Models;
+using FileCraft.Shared.Commands;
 using FileCraft.Shared.Helpers;
+using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows.Data;
@@ -7,19 +10,13 @@ using System.Windows.Input;
 
 namespace FileCraft.ViewModels.Shared
 {
-    public enum PresetSortOption
-    {
-        Name,
-        Date
-    }
-
     public class PresetListViewModel : BaseViewModel
     {
         private readonly ObservableCollection<PresetItemViewModel> _itemsSource;
         private readonly Debouncer _filterDebouncer;
         private string _searchText = string.Empty;
-        private PresetSortOption _sortBy = PresetSortOption.Name;
-        private bool _isAscending = true;
+        private PresetSortCriteria _sortBy = PresetSortCriteria.DateModified;
+        private bool _isDescending = true;
 
         public ICollectionView ItemsView { get; }
 
@@ -37,7 +34,7 @@ namespace FileCraft.ViewModels.Shared
             }
         }
 
-        public PresetSortOption SortBy
+        public PresetSortCriteria SortBy
         {
             get => _sortBy;
             set
@@ -47,20 +44,22 @@ namespace FileCraft.ViewModels.Shared
                     _sortBy = value;
                     OnPropertyChanged();
                     ApplySort();
+                    SortChanged?.Invoke();
                 }
             }
         }
 
-        public bool IsAscending
+        public bool IsDescending
         {
-            get => _isAscending;
+            get => _isDescending;
             set
             {
-                if (_isAscending != value)
+                if (_isDescending != value)
                 {
-                    _isAscending = value;
+                    _isDescending = value;
                     OnPropertyChanged();
                     ApplySort();
+                    SortChanged?.Invoke();
                 }
             }
         }
@@ -75,6 +74,7 @@ namespace FileCraft.ViewModels.Shared
         public event Action<PresetItemViewModel>? DeleteItemRequested;
         public event Action<PresetItemViewModel>? RenameItemRequested;
         public event Action<PresetItemViewModel>? ViewItemDetailsRequested;
+        public event Action? SortChanged;
 
         public PresetListViewModel()
         {
@@ -84,9 +84,18 @@ namespace FileCraft.ViewModels.Shared
 
             _filterDebouncer = new Debouncer(RefreshView);
 
-            ToggleSortDirectionCommand = new RelayCommand(_ => IsAscending = !IsAscending);
+            ToggleSortDirectionCommand = new RelayCommand(_ => IsDescending = !IsDescending);
             SaveNewCommand = new RelayCommand(_ => SaveNewRequested?.Invoke());
 
+            ApplySort();
+        }
+
+        public void InitializeSort(PresetSortCriteria sortBy, bool isDescending)
+        {
+            _sortBy = sortBy;
+            _isDescending = isDescending;
+            OnPropertyChanged(nameof(SortBy));
+            OnPropertyChanged(nameof(IsDescending));
             ApplySort();
         }
 
@@ -160,14 +169,14 @@ namespace FileCraft.ViewModels.Shared
         private void ApplySort()
         {
             ItemsView.SortDescriptions.Clear();
-            var direction = IsAscending ? ListSortDirection.Ascending : ListSortDirection.Descending;
+            var direction = IsDescending ? ListSortDirection.Descending : ListSortDirection.Ascending;
 
             switch (SortBy)
             {
-                case PresetSortOption.Name:
+                case PresetSortCriteria.Name:
                     ItemsView.SortDescriptions.Add(new SortDescription(nameof(PresetItemViewModel.Name), direction));
                     break;
-                case PresetSortOption.Date:
+                case PresetSortCriteria.DateModified:
                     ItemsView.SortDescriptions.Add(new SortDescription(nameof(PresetItemViewModel.LastModified), direction));
                     break;
             }
