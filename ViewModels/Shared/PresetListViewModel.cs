@@ -20,7 +20,6 @@ namespace FileCraft.ViewModels.Shared
         private string _searchText = string.Empty;
         private PresetSortOption _sortBy = PresetSortOption.Name;
         private bool _isAscending = true;
-        private PresetItemViewModel? _selectedPreset;
 
         public ICollectionView ItemsView { get; }
 
@@ -65,24 +64,6 @@ namespace FileCraft.ViewModels.Shared
                 }
             }
         }
-
-        public PresetItemViewModel? SelectedPreset
-        {
-            get => _selectedPreset;
-            set
-            {
-                if (_selectedPreset != value)
-                {
-                    if (_selectedPreset != null) _selectedPreset.IsSelected = false;
-                    _selectedPreset = value;
-                    if (_selectedPreset != null) _selectedPreset.IsSelected = true;
-                    OnPropertyChanged();
-                    OnPropertyChanged(nameof(IsPresetSelected));
-                }
-            }
-        }
-
-        public bool IsPresetSelected => SelectedPreset != null;
 
         public ObservableCollection<SelectableItemViewModel> SortOptions { get; } = new();
 
@@ -134,7 +115,6 @@ namespace FileCraft.ViewModels.Shared
 
         public void UpdateItem(PresetItemViewModel item)
         {
-            // Trigger sort/filter re-eval if needed
             ItemsView.Refresh();
         }
 
