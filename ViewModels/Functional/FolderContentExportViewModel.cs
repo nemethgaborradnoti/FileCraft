@@ -111,6 +111,7 @@ namespace FileCraft.ViewModels.Functional
                 _areAllColumnsSelected = newSelectionState;
                 OnPropertyChanged(nameof(AreAllColumnsSelected));
             }
+            CommandManager.InvalidateRequerySuggested();
         }
 
         public void ApplySettings(FolderContentExportSettings settings)
@@ -146,6 +147,7 @@ namespace FileCraft.ViewModels.Functional
             {
                 AffectedFilesCount = 0;
             }
+            CommandManager.InvalidateRequerySuggested();
         }
 
         private List<string> GetSelectedFolderPaths()

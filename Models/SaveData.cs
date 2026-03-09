@@ -1,4 +1,6 @@
 ﻿using FileCraft.Shared.Helpers;
+using System;
+using System.Collections.Generic;
 
 namespace FileCraft.Models
 {
@@ -13,6 +15,10 @@ namespace FileCraft.Models
         public FolderContentExportSettings FolderContentExport { get; set; } = new();
         public TreeGeneratorSettings TreeGenerator { get; set; } = new();
         public SettingsPageSettings SettingsPage { get; set; } = new();
+        public PresetSortCriteria PathPresetSortBy { get; set; } = PresetSortCriteria.DateModified;
+        public bool PathPresetIsDescending { get; set; } = true;
+        public PresetSortCriteria SavePresetSortBy { get; set; } = PresetSortCriteria.DateModified;
+        public bool SavePresetIsDescending { get; set; } = true;
     }
 
     public abstract class ExportSettingsBase
@@ -38,6 +44,7 @@ namespace FileCraft.Models
     {
         public List<string> SelectedColumns { get; set; } = new();
         public List<FolderState> FolderTreeState { get; set; } = new();
+
         public FolderContentExportSettings()
         {
             OutputFileName = ResourceHelper.GetString("Model_DefaultFolderContentsName");

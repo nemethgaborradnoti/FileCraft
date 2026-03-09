@@ -150,10 +150,10 @@
             </StackPanel>
 
             <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
-                <Button Content="{DynamicResource BulkSearch_ApplyButton}" 
+                <Button Content="{DynamicResource BulkSearch_ApplyButton}"
                         Command="{Binding ApplyCommand}"
                         IsDefault="True" Height="32" MinWidth="{StaticResource DefaultButtonMinWidth}" Margin="{StaticResource RightMargin}"/>
-                <Button Content="{DynamicResource Common_CancelButton}" 
+                <Button Content="{DynamicResource Common_CancelButton}"
                         Command="{Binding CancelCommand}"
                         IsCancel="True" Height="32" MinWidth="{StaticResource DefaultButtonMinWidth}" Style="{StaticResource SecondaryButton}"/>
             </StackPanel>

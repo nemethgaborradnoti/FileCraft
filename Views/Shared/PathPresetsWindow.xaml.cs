@@ -11,10 +11,22 @@ namespace FileCraft.Views.Shared
             DataContext = viewModel;
             Owner = Application.Current.MainWindow;
 
-            viewModel.RequestClose += () =>
+            viewModel.RequestClose += OnRequestClose;
+        }
+
+        private void OnRequestClose()
+        {
+            DialogResult = true;
+            Close();
+        }
+
+        protected override void OnClosed(EventArgs e)
+        {
+            if (DataContext is PathPresetsViewModel vm)
             {
-                Close();
-            };
+                vm.RequestClose -= OnRequestClose;
+            }
+            base.OnClosed(e);
         }
     }
 }

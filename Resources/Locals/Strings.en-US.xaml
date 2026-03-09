@@ -2,7 +2,6 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:system="clr-namespace:System;assembly=mscorlib">
 
-    <!-- Common Strings -->
     <system:String x:Key="Common_SuccessTitle">Success</system:String>
     <system:String x:Key="Common_ErrorTitle">Error</system:String>
     <system:String x:Key="Common_InfoTitle">Information</system:String>
@@ -82,7 +81,6 @@
     <system:String x:Key="FileContent_ExportErrorMessage">An unexpected error occurred during export:&#x0a;{0}</system:String>
     <system:String x:Key="FileContent_ManagePathPresetsButton">Manage path presets</system:String>
 
-    <!-- Added Result Keys -->
     <system:String x:Key="FileContent_Result_Header">Exported {0} files into:</system:String>
     <system:String x:Key="FileContent_Result_Path">{0}</system:String>
     <system:String x:Key="FileContent_Result_Chars">Characters: {0}</system:String>
@@ -202,7 +200,6 @@
     <system:String x:Key="Options_LinkFolderTreesButton">Link folder trees</system:String>
     <system:String x:Key="Options_UnlinkTooltip">Click to unlink this group of folder trees.</system:String>
 
-    <!-- Path Preset Strings -->
     <system:String x:Key="PathPreset_Title">Path Presets Manager</system:String>
     <system:String x:Key="PathPreset_SaveCurrentButton">Save selection as new preset</system:String>
     <system:String x:Key="PathPreset_LoadButton">Load selected preset</system:String>
@@ -217,7 +214,6 @@
     <system:String x:Key="PathPreset_TotalPaths">Total paths: {0}</system:String>
     <system:String x:Key="PathPreset_NoSelectionError">Please select files in the main window first.</system:String>
 
-    <!-- Preset Summary Strings -->
     <system:String x:Key="PresetSummary_Title">Preset Load Summary</system:String>
     <system:String x:Key="PresetSummary_Total">Total paths:</system:String>
     <system:String x:Key="PresetSummary_Loaded">Successfully loaded:</system:String>
@@ -227,10 +223,23 @@
     <system:String x:Key="PresetSummary_ShowMissingButton">Show missing files</system:String>
     <system:String x:Key="PresetSummary_HideMissingButton">Hide missing files</system:String>
 
-    <!-- Model Defaults -->
     <system:String x:Key="Model_DefaultExportedFileName">ExportedFile</system:String>
     <system:String x:Key="Model_DefaultFileContentsName">FileContents</system:String>
     <system:String x:Key="Model_DefaultFolderContentsName">FolderContents</system:String>
     <system:String x:Key="Model_DefaultTreeStructureName">TreeStructure</system:String>
+
+    <system:String x:Key="PresetList_SortByLabel">Sort by:</system:String>
+    <system:String x:Key="PresetList_SortName">Name</system:String>
+    <system:String x:Key="PresetList_SortDate">Date</system:String>
+    <system:String x:Key="PresetList_SearchPlaceholder">Search presets...</system:String>
+    <system:String x:Key="PresetList_DetailsButton">Details</system:String>
+    <system:String x:Key="PresetList_AscendingTooltip">Ascending</system:String>
+    <system:String x:Key="PresetList_DescendingTooltip">Descending</system:String>
+
+    <system:String x:Key="Details_Back">Back</system:String>
+    <system:String x:Key="Details_SwitchToTree">Switch to Tree view</system:String>
+    <system:String x:Key="Details_SwitchToList">Switch to List view</system:String>
+    <system:String x:Key="Details_FoldersTitle">Included Folders</system:String>
+    <system:String x:Key="Details_FilesTitle">Included Files</system:String>
 
 </ResourceDictionary>

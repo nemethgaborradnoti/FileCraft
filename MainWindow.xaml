@@ -22,17 +22,17 @@
         </Grid.RowDefinitions>
 
         <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Left" Margin="5,0,5,5">
-            <Button Style="{StaticResource BorderlessIconButton}" ToolTip="{DynamicResource UndoTooltip}" Command="{Binding UndoCommand}" IsEnabled="{Binding CanUndo}" Padding="0">
+            <Button Style="{StaticResource BorderlessIconButton}" ToolTip="{DynamicResource UndoTooltip}" Command="{Binding SessionHistoryVM.UndoCommand}" IsEnabled="{Binding SessionHistoryVM.CanUndo}" Padding="0">
                 <Viewbox>
                     <TextBlock Text="{Binding Source={x:Static helpers:AppIcons.Undo}, Path=Glyph}" FontFamily="{StaticResource MaterialIcons}" Foreground="{Binding Source={x:Static helpers:AppIcons.Undo}, Path=Brush}" />
                 </Viewbox>
             </Button>
-            <Button Style="{StaticResource BorderlessIconButton}" ToolTip="{DynamicResource RedoTooltip}" Command="{Binding RedoCommand}" IsEnabled="{Binding CanRedo}" Padding="0">
+            <Button Style="{StaticResource BorderlessIconButton}" ToolTip="{DynamicResource RedoTooltip}" Command="{Binding SessionHistoryVM.RedoCommand}" IsEnabled="{Binding SessionHistoryVM.CanRedo}" Padding="0">
                 <Viewbox>
                     <TextBlock Text="{Binding Source={x:Static helpers:AppIcons.Redo}, Path=Glyph}" FontFamily="{StaticResource MaterialIcons}" Foreground="{Binding Source={x:Static helpers:AppIcons.Redo}, Path=Brush}" />
                 </Viewbox>
             </Button>
-            <Button Style="{StaticResource BorderlessIconButton}" ToolTip="{DynamicResource SaveSettingsTooltip}" Command="{Binding SaveCommand}" IsEnabled="{Binding HasUnsavedChanges}" Padding="0">
+            <Button Style="{StaticResource BorderlessIconButton}" ToolTip="{DynamicResource SaveSettingsTooltip}" Command="{Binding SessionHistoryVM.SaveCommand}" IsEnabled="{Binding SessionHistoryVM.HasUnsavedChanges}" Padding="0">
                 <Viewbox>
                     <TextBlock Text="{Binding Source={x:Static helpers:AppIcons.Save}, Path=Glyph}" FontFamily="{StaticResource MaterialIcons}" Foreground="{Binding Source={x:Static helpers:AppIcons.Save}, Path=Brush}" />
                 </Viewbox>
@@ -54,10 +54,10 @@
 
                     <TextBox Grid.Column="0" Margin="0,0,10,0"
                              Style="{StaticResource ModernPathTextBoxStyle}"
-                             Text="{Binding SourcePath, Mode=OneWay}"
-                             ToolTip="{Binding SourcePath}"/>
+                             Text="{Binding PathSelectionVM.SourcePath, Mode=OneWay}"
+                             ToolTip="{Binding PathSelectionVM.SourcePath}"/>
 
-                    <Button Grid.Column="1" Content="{DynamicResource BrowseButton}" Command="{Binding SelectSourcePathCommand}"/>
+                    <Button Grid.Column="1" Content="{DynamicResource BrowseButton}" Command="{Binding PathSelectionVM.SelectSourcePathCommand}"/>
                 </Grid>
             </GroupBox>
 
@@ -71,11 +71,11 @@
 
                     <TextBox Grid.Column="0" Margin="0,0,10,0"
                              Style="{StaticResource ModernPathTextBoxStyle}"
-                             Text="{Binding DestinationPath, Mode=OneWay}"
-                             ToolTip="{Binding DestinationPath}"/>
+                             Text="{Binding PathSelectionVM.DestinationPath, Mode=OneWay}"
+                             ToolTip="{Binding PathSelectionVM.DestinationPath}"/>
 
-                    <Button Grid.Column="1" Content="{DynamicResource BrowseButton}" Command="{Binding SelectDestinationPathCommand}" Margin="{StaticResource RightMargin}"/>
-                    <Button Grid.Column="2" Content="{DynamicResource ClearButton}" Command="{Binding ClearPathsCommand}" ToolTip="{DynamicResource ClearPathsTooltip}" Style="{StaticResource WarningButton}"/>
+                    <Button Grid.Column="1" Content="{DynamicResource BrowseButton}" Command="{Binding PathSelectionVM.SelectDestinationPathCommand}" Margin="{StaticResource RightMargin}"/>
+                    <Button Grid.Column="2" Content="{DynamicResource ClearButton}" Command="{Binding PathSelectionVM.ClearPathsCommand}" ToolTip="{DynamicResource ClearPathsTooltip}" Style="{StaticResource WarningButton}"/>
                 </Grid>
             </GroupBox>
         </Grid>

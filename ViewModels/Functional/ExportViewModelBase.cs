@@ -1,7 +1,9 @@
 ﻿using FileCraft.Services.Interfaces;
 using FileCraft.ViewModels.Shared;
+using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Windows.Input;
 
 namespace FileCraft.ViewModels.Functional
 {
@@ -29,6 +31,7 @@ namespace FileCraft.ViewModels.Functional
                     OnStateChanging();
                     _outputFileName = value;
                     OnPropertyChanged();
+                    CommandManager.InvalidateRequerySuggested();
                 }
             }
         }
@@ -43,6 +46,7 @@ namespace FileCraft.ViewModels.Functional
                     OnStateChanging();
                     _appendTimestamp = value;
                     OnPropertyChanged();
+                    CommandManager.InvalidateRequerySuggested();
                 }
             }
         }

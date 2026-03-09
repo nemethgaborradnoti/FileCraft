@@ -3,7 +3,6 @@ using FileCraft.Services.Interfaces;
 using FileCraft.Shared.Commands;
 using FileCraft.Shared.Helpers;
 using FileCraft.ViewModels.Shared;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Globalization;
 using System.IO;
@@ -234,7 +233,7 @@ namespace FileCraft.ViewModels.Functional
 
         private void ManagePathPresets()
         {
-            _dialogService.ShowPathPresetsManager(this);
+            _dialogService.ShowPathPresetsManager();
         }
 
         private void ConfigureIgnoredComments()
@@ -288,13 +287,19 @@ namespace FileCraft.ViewModels.Functional
             return AvailableExtensions.Where(e => e.IsSelected).Select(e => e.Name).ToList();
         }
 
-        public PathPresetLoadResult LoadPathPreset(IEnumerable<string> presetPaths)
+        public PathPresetLoadResult LoadPathPreset(IEnumerable<string> presetRelativePaths)
         {
             OnStateChanging();
 
             var result = new PathPresetLoadResult();
-            var presetPathsList = presetPaths.ToList();
+            var presetPathsList = presetRelativePaths.ToList();
             result.TotalPaths = presetPathsList.Count;
+
+            var sourcePath = _sharedStateService.SourcePath;
+            if (string.IsNullOrWhiteSpace(sourcePath))
+            {
+                return result;
+            }
 
             var fileLookup = _allSelectableFiles.ToDictionary(f => f.FullPath, f => f, StringComparer.OrdinalIgnoreCase);
 
@@ -305,9 +310,20 @@ namespace FileCraft.ViewModels.Functional
 
             try
             {
-                foreach (var path in presetPathsList)
+                foreach (var relativePath in presetPathsList)
                 {
-                    if (fileLookup.TryGetValue(path, out var selectableFile))
+                    string fullPath;
+                    try
+                    {
+                        fullPath = Path.GetFullPath(Path.Combine(sourcePath, relativePath));
+                    }
+                    catch
+                    {
+                        result.NotFoundPaths.Add(relativePath);
+                        continue;
+                    }
+
+                    if (fileLookup.TryGetValue(fullPath, out var selectableFile))
                     {
                         if (!selectableFile.IsSelected)
                         {
@@ -322,7 +338,7 @@ namespace FileCraft.ViewModels.Functional
                     }
                     else
                     {
-                        result.NotFoundPaths.Add(path);
+                        result.NotFoundPaths.Add(fullPath);
                     }
                 }
             }
@@ -592,6 +608,7 @@ namespace FileCraft.ViewModels.Functional
                 _areAllFilesSelected = newSelectionState;
                 OnPropertyChanged(nameof(AreAllFilesSelected));
             }
+            CommandManager.InvalidateRequerySuggested();
         }
 
         private void UpdateExtensionMasterState()
@@ -603,6 +620,7 @@ namespace FileCraft.ViewModels.Functional
                 OnPropertyChanged(nameof(AreAllExtensionsSelected));
             }
             UpdateSelectedExtensionsText();
+            CommandManager.InvalidateRequerySuggested();
         }
 
         private void UpdateSelectedExtensionsText()

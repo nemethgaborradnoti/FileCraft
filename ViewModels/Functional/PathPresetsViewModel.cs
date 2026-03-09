@@ -1,10 +1,10 @@
 ﻿using FileCraft.Models;
 using FileCraft.Services.Interfaces;
-using FileCraft.Shared.Commands;
 using FileCraft.Shared.Helpers;
-using System.Collections.ObjectModel;
+using FileCraft.ViewModels.Shared;
+using System;
 using System.IO;
-using System.Windows.Input;
+using System.Linq;
 
 namespace FileCraft.ViewModels.Functional
 {
@@ -13,33 +13,10 @@ namespace FileCraft.ViewModels.Functional
         private readonly IPathPresetService _presetService;
         private readonly ISharedStateService _sharedStateService;
         private readonly IDialogService _dialogService;
+        private readonly ISaveService _saveService;
         private readonly FileContentExportViewModel _fileContentExportVM;
 
-        public ObservableCollection<PathPreset> Presets { get; } = new();
-
-        private PathPreset? _selectedPreset;
-        public PathPreset? SelectedPreset
-        {
-            get => _selectedPreset;
-            set
-            {
-                if (_selectedPreset != value)
-                {
-                    _selectedPreset = value;
-                    OnPropertyChanged();
-                    OnPropertyChanged(nameof(IsPresetSelected));
-                }
-            }
-        }
-
-        public bool IsPresetSelected => SelectedPreset != null;
-
-        public ICommand SaveCurrentCommand { get; }
-        public ICommand LoadSelectedCommand { get; }
-        public ICommand ViewContentCommand { get; }
-        public ICommand RenameCommand { get; }
-        public ICommand DeleteCommand { get; }
-        public ICommand CloseCommand { get; }
+        public PresetListViewModel ListViewModel { get; }
 
         public event Action? RequestClose;
 
@@ -47,35 +24,63 @@ namespace FileCraft.ViewModels.Functional
             IPathPresetService presetService,
             ISharedStateService sharedStateService,
             IDialogService dialogService,
+            ISaveService saveService,
             FileContentExportViewModel fileContentExportVM)
         {
             _presetService = presetService;
             _sharedStateService = sharedStateService;
             _dialogService = dialogService;
+            _saveService = saveService;
             _fileContentExportVM = fileContentExportVM;
 
-            SaveCurrentCommand = new RelayCommand(_ => SaveCurrent(), _ => true);
-            LoadSelectedCommand = new RelayCommand(_ => LoadSelected(), _ => IsPresetSelected);
-            ViewContentCommand = new RelayCommand(_ => ViewContent(), _ => IsPresetSelected);
-            RenameCommand = new RelayCommand(_ => RenameSelected(), _ => IsPresetSelected);
-            DeleteCommand = new RelayCommand(_ => DeleteSelected(), _ => IsPresetSelected);
-            CloseCommand = new RelayCommand(_ => RequestClose?.Invoke());
+            ListViewModel = new PresetListViewModel();
+
+            var saveData = _saveService.LoadSaveData();
+            ListViewModel.InitializeSort(saveData.PathPresetSortBy, saveData.PathPresetIsDescending);
+
+            ListViewModel.SaveNewRequested += OnSaveNewRequested;
+            ListViewModel.LoadItemRequested += OnLoadRequested;
+            ListViewModel.DeleteItemRequested += OnDeleteRequested;
+            ListViewModel.RenameItemRequested += OnRenameRequested;
+            ListViewModel.ViewItemDetailsRequested += OnViewDetailsRequested;
+            ListViewModel.SortChanged += OnSortChanged;
 
             LoadPresets();
         }
 
-        private void LoadPresets()
+        private void OnSortChanged()
         {
-            Presets.Clear();
-            var loaded = _presetService.LoadPresets().OrderBy(p => p.Name);
-            foreach (var preset in loaded)
-            {
-                Presets.Add(preset);
-            }
+            var saveData = _saveService.LoadSaveData();
+            saveData.PathPresetSortBy = ListViewModel.SortBy;
+            saveData.PathPresetIsDescending = ListViewModel.IsDescending;
+            _saveService.Save(saveData);
         }
 
-        private void SaveCurrent()
+        private void LoadPresets()
         {
+            var presets = _presetService.LoadPresets();
+            var viewModels = presets.Select(p => new PresetItemViewModel(
+                p.Id,
+                p.Name,
+                p.LastModified,
+                $"{p.FilePaths.Count} files",
+                p
+            ));
+            ListViewModel.SetItems(viewModels);
+        }
+
+        private void OnSaveNewRequested()
+        {
+            var sourcePath = _sharedStateService.SourcePath;
+            if (string.IsNullOrWhiteSpace(sourcePath) || !Directory.Exists(sourcePath))
+            {
+                _dialogService.ShowNotification(
+                    ResourceHelper.GetString("Common_WarningTitle"),
+                    ResourceHelper.GetString("Preset_SelectSourceFirst"),
+                    DialogIconType.Warning);
+                return;
+            }
+
             var selectedPaths = _fileContentExportVM.GetSelectedFilePaths();
             if (!selectedPaths.Any())
             {
@@ -98,20 +103,21 @@ namespace FileCraft.ViewModels.Functional
                         ResourceHelper.GetString("Common_WarningTitle"),
                         string.Format(ResourceHelper.GetString("Preset_OverwriteMessage"), "-", name),
                         DialogIconType.Warning);
-
                     if (!overwrite) return;
                 }
+
+                var relativePaths = selectedPaths
+                    .Select(p => Path.GetRelativePath(sourcePath, p))
+                    .ToList();
 
                 var preset = new PathPreset
                 {
                     Name = name,
-                    FilePaths = selectedPaths,
-                    LastModified = DateTime.Now
+                    FilePaths = relativePaths
                 };
 
                 _presetService.SavePreset(preset);
                 LoadPresets();
-                SelectedPreset = Presets.FirstOrDefault(p => p.Name == name);
 
                 _dialogService.ShowNotification(
                     ResourceHelper.GetString("Common_SuccessTitle"),
@@ -120,72 +126,45 @@ namespace FileCraft.ViewModels.Functional
             }
         }
 
-        private void LoadSelected()
+        private void OnLoadRequested(PresetItemViewModel item)
         {
-            if (SelectedPreset != null)
+            if (item.RawData is PathPreset preset)
             {
-                var result = _fileContentExportVM.LoadPathPreset(SelectedPreset.FilePaths);
+                var result = _fileContentExportVM.LoadPathPreset(preset.FilePaths);
                 _dialogService.ShowPresetLoadSummary(result);
             }
         }
 
-        private void ViewContent()
+        private void OnViewDetailsRequested(PresetItemViewModel item)
         {
-            if (SelectedPreset != null)
+            _dialogService.ShowPresetDetails(item);
+        }
+
+        private void OnRenameRequested(PresetItemViewModel item)
+        {
+            string? newName = _dialogService.ShowInputStringDialog(
+                ResourceHelper.GetString("PathPreset_RenameTitle"),
+                string.Format(ResourceHelper.GetString("PathPreset_RenamePrompt"), item.Name),
+                item.Name);
+
+            if (!string.IsNullOrWhiteSpace(newName) && newName != item.Name)
             {
-                string sourcePath = _sharedStateService.SourcePath;
-                List<string> displayPaths;
-
-                if (!string.IsNullOrWhiteSpace(sourcePath))
-                {
-                    displayPaths = SelectedPreset.FilePaths
-                        .Select(p => Path.GetRelativePath(sourcePath, p))
-                        .ToList();
-                }
-                else
-                {
-                    displayPaths = SelectedPreset.FilePaths.ToList();
-                }
-
-                string content = string.Join(Environment.NewLine, displayPaths);
-                string title = string.Format(ResourceHelper.GetString("PathPreset_ViewTitle"), SelectedPreset.Name);
-                _dialogService.ShowTextContentDialog(title, content);
+                _presetService.RenamePreset(item.Name, newName);
+                LoadPresets();
             }
         }
 
-        private void RenameSelected()
+        private void OnDeleteRequested(PresetItemViewModel item)
         {
-            if (SelectedPreset != null)
+            bool confirm = _dialogService.ShowConfirmation(
+                ResourceHelper.GetString("PathPreset_DeleteConfirmTitle"),
+                string.Format(ResourceHelper.GetString("PathPreset_DeleteConfirmMessage"), item.Name),
+                DialogIconType.Warning);
+
+            if (confirm)
             {
-                string? newName = _dialogService.ShowInputStringDialog(
-                    ResourceHelper.GetString("PathPreset_RenameTitle"),
-                    string.Format(ResourceHelper.GetString("PathPreset_RenamePrompt"), SelectedPreset.Name),
-                    SelectedPreset.Name);
-
-                if (!string.IsNullOrWhiteSpace(newName) && newName != SelectedPreset.Name)
-                {
-                    _presetService.RenamePreset(SelectedPreset.Name, newName);
-                    LoadPresets();
-                    SelectedPreset = Presets.FirstOrDefault(p => p.Name == newName);
-                }
-            }
-        }
-
-        private void DeleteSelected()
-        {
-            if (SelectedPreset != null)
-            {
-                bool confirm = _dialogService.ShowConfirmation(
-                    ResourceHelper.GetString("PathPreset_DeleteConfirmTitle"),
-                    string.Format(ResourceHelper.GetString("PathPreset_DeleteConfirmMessage"), SelectedPreset.Name),
-                    DialogIconType.Warning);
-
-                if (confirm)
-                {
-                    _presetService.DeletePreset(SelectedPreset.Name);
-                    LoadPresets();
-                    SelectedPreset = null;
-                }
+                _presetService.DeletePreset(item.Name);
+                ListViewModel.RemoveItem(item);
             }
         }
     }
