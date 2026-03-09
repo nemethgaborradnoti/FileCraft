@@ -4,19 +4,44 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:viewmodels="clr-namespace:FileCraft.ViewModels.Shared"
+        xmlns:icons="clr-namespace:Fonts"
         mc:Ignorable="d"
         Title="{Binding Title}"
-        Height="500" Width="600"
-        MinHeight="400" MinWidth="400"
+        Height="550" Width="600"
+        MinHeight="450" MinWidth="450"
         WindowStartupLocation="CenterOwner"
         WindowStyle="SingleBorderWindow"
         ResizeMode="CanResize">
 
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+
+        <Style x:Key="SummaryLabelStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="10,0,0,0"/>
+        </Style>
+
+        <Style x:Key="SummaryValueStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="18"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="HorizontalAlignment" Value="Right"/>
+            <Setter Property="Margin" Value="0,0,10,0"/>
+        </Style>
+
+        <Style x:Key="SummaryRowBorder" TargetType="Border">
+            <Setter Property="Background" Value="{StaticResource BadgeBackgroundBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="Padding" Value="10"/>
+            <Setter Property="Margin" Value="0,0,0,8"/>
+        </Style>
     </Window.Resources>
 
-    <Grid Margin="15">
+    <Grid Margin="20">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
@@ -24,65 +49,97 @@
         </Grid.RowDefinitions>
 
         <StackPanel Grid.Row="0" Margin="0,0,0,15">
-            <TextBlock FontSize="16" FontWeight="SemiBold" Text="{Binding Title}" Margin="0,0,0,10"/>
+            <TextBlock FontSize="24" FontWeight="Bold" Text="{Binding Title}" Foreground="{StaticResource PrimaryBrush}" Margin="0,0,0,20"/>
 
-            <Grid Margin="0,2">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-                <TextBlock Text="{DynamicResource PresetSummary_Total}"/>
-                <TextBlock Grid.Column="1" Text="{Binding Result.TotalPaths}" FontWeight="Bold"/>
-            </Grid>
-            <Separator Margin="0,5"/>
+            <!-- Stats Container -->
+            <StackPanel>
+                <!-- Total -->
+                <Border Style="{StaticResource SummaryRowBorder}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="{x:Static icons:MaterialIcons.functions}" FontFamily="{StaticResource MaterialIcons}" FontSize="24" Foreground="{StaticResource PrimaryBrush}" VerticalAlignment="Center"/>
+                            <TextBlock Text="{DynamicResource PresetSummary_Total}" Style="{StaticResource SummaryLabelStyle}"/>
+                        </StackPanel>
+                        <TextBlock Grid.Column="1" Text="{Binding Result.TotalPaths}" Style="{StaticResource SummaryValueStyle}"/>
+                    </Grid>
+                </Border>
 
-            <Grid Margin="0,2">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-                <TextBlock Text="{DynamicResource PresetSummary_Loaded}" Foreground="{StaticResource SuccessBrush}"/>
-                <TextBlock Grid.Column="1" Text="{Binding Result.SuccessfullyLoaded}" FontWeight="Bold" Foreground="{StaticResource SuccessBrush}"/>
-            </Grid>
+                <!-- Loaded -->
+                <Border Style="{StaticResource SummaryRowBorder}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="{x:Static icons:MaterialIcons.check_circle}" FontFamily="{StaticResource MaterialIcons}" FontSize="24" Foreground="{StaticResource SuccessBrush}" VerticalAlignment="Center"/>
+                            <TextBlock Text="{DynamicResource PresetSummary_Loaded}" Style="{StaticResource SummaryLabelStyle}"/>
+                        </StackPanel>
+                        <TextBlock Grid.Column="1" Text="{Binding Result.SuccessfullyLoaded}" Style="{StaticResource SummaryValueStyle}" Foreground="{StaticResource SuccessBrush}"/>
+                    </Grid>
+                </Border>
 
-            <Grid Margin="0,2">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-                <TextBlock Text="{DynamicResource PresetSummary_Changed}" Margin="10,0,0,0"/>
-                <TextBlock Grid.Column="1" Text="{Binding Result.Changed}"/>
-            </Grid>
+                <Grid Margin="0,5,0,5">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
 
-            <Grid Margin="0,2">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-                <TextBlock Text="{DynamicResource PresetSummary_Unchanged}" Margin="10,0,0,0" Foreground="{StaticResource GrayTextBrush}"/>
-                <TextBlock Grid.Column="1" Text="{Binding Result.Unchanged}" Foreground="{StaticResource GrayTextBrush}"/>
-            </Grid>
+                    <!-- Changed -->
+                    <Border Grid.Column="0" Style="{StaticResource SummaryRowBorder}" Margin="0,0,5,0">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <TextBlock Text="{DynamicResource PresetSummary_Changed}" FontSize="12" Foreground="{StaticResource GrayTextBrush}"/>
+                            <TextBlock Grid.Row="1" Text="{Binding Result.Changed}" FontSize="20" FontWeight="Bold" Margin="0,5,0,0"/>
+                        </Grid>
+                    </Border>
 
-            <Separator Margin="0,5"/>
+                    <!-- Unchanged -->
+                    <Border Grid.Column="1" Style="{StaticResource SummaryRowBorder}" Margin="5,0,0,0">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <TextBlock Text="{DynamicResource PresetSummary_Unchanged}" FontSize="12" Foreground="{StaticResource GrayTextBrush}"/>
+                            <TextBlock Grid.Row="1" Text="{Binding Result.Unchanged}" FontSize="20" FontWeight="Bold" Foreground="{StaticResource GrayTextBrush}" Margin="0,5,0,0"/>
+                        </Grid>
+                    </Border>
+                </Grid>
 
-            <Grid Margin="0,2">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-                <TextBlock Text="{DynamicResource PresetSummary_NotFound}" Foreground="{StaticResource DangerBrush}"/>
-                <TextBlock Grid.Column="1" Text="{Binding Result.NotFoundPaths.Count}" FontWeight="Bold" Foreground="{StaticResource DangerBrush}"/>
-            </Grid>
+                <!-- Not Found -->
+                <Border Style="{StaticResource SummaryRowBorder}" BorderBrush="{StaticResource DangerBrush}" BorderThickness="1" Background="{StaticResource DangerLightBackgroundBrush}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="{x:Static icons:MaterialIcons.error}" FontFamily="{StaticResource MaterialIcons}" FontSize="24" Foreground="{StaticResource DangerBrush}" VerticalAlignment="Center"/>
+                            <TextBlock Text="{DynamicResource PresetSummary_NotFound}" Style="{StaticResource SummaryLabelStyle}" Foreground="{StaticResource DangerBrush}"/>
+                        </StackPanel>
+                        <TextBlock Grid.Column="1" Text="{Binding Result.NotFoundPaths.Count}" Style="{StaticResource SummaryValueStyle}" Foreground="{StaticResource DangerBrush}"/>
+                    </Grid>
+                </Border>
+            </StackPanel>
         </StackPanel>
 
-        <Grid Grid.Row="1" Visibility="{Binding HasNotFoundPaths, Converter={StaticResource BooleanToVisibilityConverter}}">
+        <!-- Missing Files List -->
+        <Grid Grid.Row="1" Visibility="{Binding HasNotFoundPaths, Converter={StaticResource BooleanToVisibilityConverter}}" Margin="0,10,0,0">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
             <Button Grid.Row="0"
-                    Content="{Binding ToggleNotFoundButtonText}" 
+                    Content="{Binding ToggleNotFoundButtonText}"
                     Command="{Binding ToggleNotFoundCommand}"
                     Style="{StaticResource SecondaryButton}"
                     Margin="0,0,0,5"
@@ -96,17 +153,21 @@
                      Visibility="{Binding IsNotFoundVisible, Converter={StaticResource BooleanToVisibilityConverter}}"
                      Margin="0,0,0,10"
                      FontFamily="Consolas"
-                     FontSize="12"
+                     FontSize="13"
+                     Padding="8"
                      Style="{StaticResource ModernTextBoxStyle}"/>
         </Grid>
 
-        <Button Grid.Row="2" 
-                Content="{DynamicResource Common_CloseButton}" 
-                Command="{Binding CloseCommand}" 
+        <!-- Footer -->
+        <Button Grid.Row="2"
+                Content="{DynamicResource Common_CloseButton}"
+                Command="{Binding CloseCommand}"
                 IsDefault="True"
                 IsCancel="True"
                 Style="{StaticResource PrimaryButton}"
                 HorizontalAlignment="Right"
-                MinWidth="80"/>
+                MinWidth="100"
+                Height="35"
+                FontSize="14"/>
     </Grid>
 </Window>

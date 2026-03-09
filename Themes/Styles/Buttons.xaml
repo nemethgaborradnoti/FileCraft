@@ -170,7 +170,7 @@
         <Setter Property="Margin" Value="2,0"/>
         <Setter Property="Padding" Value="4"/>
         <Setter Property="Cursor" Value="Hand"/>
-        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Background" Value="{StaticResource TransparentBrush}"/>
         <Setter Property="BorderThickness" Value="0"/>
         <Setter Property="ToolTipService.ShowOnDisabled" Value="True"/>
         <Setter Property="Template">
@@ -192,7 +192,7 @@
                 <BeginStoryboard>
                     <Storyboard>
                         <ColorAnimation Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
-                                        To="#E0E0E0" Duration="0:0:0.1"/>
+                                        To="{StaticResource IconButtonHoverColor}" Duration="0:0:0.1"/>
                     </Storyboard>
                 </BeginStoryboard>
             </EventTrigger>
@@ -200,7 +200,7 @@
                 <BeginStoryboard>
                     <Storyboard>
                         <ColorAnimation Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
-                                        To="Transparent" Duration="0:0:0.1"/>
+                                        To="{StaticResource TransparentColor}" Duration="0:0:0.1"/>
                     </Storyboard>
                 </BeginStoryboard>
             </EventTrigger>
@@ -212,8 +212,8 @@
         <Setter Property="Height" Value="28"/>
         <Setter Property="Margin" Value="10,0,0,0"/>
         <Setter Property="Cursor" Value="Hand"/>
-        <Setter Property="Background" Value="Transparent"/>
-        <Setter Property="BorderBrush" Value="Transparent"/>
+        <Setter Property="Background" Value="{StaticResource TransparentBrush}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource TransparentBrush}"/>
         <Setter Property="BorderThickness" Value="0"/>
         <Setter Property="Foreground" Value="{Binding Source={x:Static helpers:AppIcons.Fullscreen}, Path=Brush}"/>
         <Setter Property="Padding" Value="0"/>
@@ -236,10 +236,10 @@
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="border" Property="Background" Value="#E0E0E0"/>
+                            <Setter TargetName="border" Property="Background" Value="{StaticResource IconButtonHoverBrush}"/>
                         </Trigger>
                         <Trigger Property="IsPressed" Value="True">
-                            <Setter TargetName="border" Property="Background" Value="#C0C0C0"/>
+                            <Setter TargetName="border" Property="Background" Value="{StaticResource IconButtonPressedBrush}"/>
                         </Trigger>
                         <Trigger Property="Tag" Value="Active">
                             <Setter Property="Content" Value="{Binding Source={x:Static helpers:AppIcons.FullscreenExit}, Path=Glyph}"/>

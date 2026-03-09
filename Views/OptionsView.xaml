@@ -12,6 +12,7 @@
              d:DesignHeight="450" d:DesignWidth="800">
 
     <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
         <Style x:Key="UnlinkButtonStyle" TargetType="Button" BasedOn="{StaticResource BorderlessIconButton}">
             <Setter Property="ContentTemplate">
                 <Setter.Value>
@@ -115,139 +116,26 @@
                                                          TargetState="{x:Static viewmodels:OptionsFullscreenState.Presets}"/>
                     </StackPanel>
                 </GroupBox.Header>
-                <StackPanel>
-                    <ItemsControl ItemsSource="{Binding PresetSlots}">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <StackPanel>
-                                    <Grid Margin="0,8,0,2">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="Auto"/>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="Auto"/>
-                                            <ColumnDefinition Width="Auto"/>
-                                        </Grid.ColumnDefinitions>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
 
-                                        <Button Grid.Column="0"
-                                                Content="{DynamicResource Common_SaveButton}"
-                                                Style="{StaticResource SuccessButton}"
-                                                ToolTip="{DynamicResource SavePresetTooltip}"
-                                                Command="{Binding DataContext.SavePresetCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                CommandParameter="{Binding}"
-                                                Width="50" Height="32"/>
+                    <controls:PresetListControl Grid.Row="0" DataContext="{Binding PresetsVM.PresetListViewModel}"/>
 
-                                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="10,0">
-                                            <Border x:Name="PresetNameBorder" Background="Transparent" CornerRadius="4" Padding="5,2">
-                                                <TextBlock Text="{Binding PresetName}" ToolTip="{Binding PresetName}">
-                                                    <TextBlock.InputBindings>
-                                                        <MouseBinding MouseAction="LeftClick"
-                                                                      Command="{Binding DataContext.EditPresetCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                                      CommandParameter="{Binding}"/>
-                                                    </TextBlock.InputBindings>
-                                                    <TextBlock.Style>
-                                                        <Style TargetType="TextBlock">
-                                                            <Setter Property="FontSize" Value="14"/>
-                                                            <Setter Property="FontStyle" Value="Italic"/>
-                                                            <Setter Property="FontWeight" Value="Normal"/>
-                                                            <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
-                                                            <Style.Triggers>
-                                                                <DataTrigger Binding="{Binding Exists}" Value="True">
-                                                                    <Setter Property="FontStyle" Value="Normal"/>
-                                                                    <Setter Property="FontWeight" Value="Bold"/>
-                                                                    <Setter Property="Cursor" Value="Hand"/>
-                                                                </DataTrigger>
-                                                            </Style.Triggers>
-                                                        </Style>
-                                                    </TextBlock.Style>
-                                                </TextBlock>
-                                            </Border>
-                                            <TextBlock FontStyle="Italic"
-                                                       FontSize="11"
-                                                       Foreground="{StaticResource GrayTextBrush}"
-                                                       Margin="5,0,0,0">
-                                                <Run Text="{DynamicResource LastModifiedLabel}"/>
-                                                <Run Text="{Binding LastModified, StringFormat='{}{0:yyyy-MM-dd HH:mm}'}"/>
-                                                <TextBlock.Style>
-                                                    <Style TargetType="TextBlock">
-                                                        <Setter Property="Visibility" Value="Collapsed"/>
-                                                        <Style.Triggers>
-                                                            <DataTrigger Binding="{Binding Exists}" Value="True">
-                                                                <Setter Property="Visibility" Value="Visible"/>
-                                                            </DataTrigger>
-                                                        </Style.Triggers>
-                                                    </Style>
-                                                </TextBlock.Style>
-                                            </TextBlock>
-                                        </StackPanel>
+                    <StackPanel Grid.Row="1" Margin="0,10,0,0">
+                        <Button Content="{DynamicResource OpenSaveFolderButton}"
+                                Command="{Binding GeneralVM.OpenSaveFolderCommand}"
+                                Margin="0,0,0,5"
+                                Style="{StaticResource WarningButton}"/>
 
-                                        <Button Grid.Column="2"
-                                                Content="{DynamicResource Common_LoadButton}"
-                                                Command="{Binding DataContext.LoadPresetCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                CommandParameter="{Binding}"
-                                                IsEnabled="{Binding Exists}"
-                                                Width="50" Height="32" Margin="5,0,0,0"/>
-
-                                        <Button Grid.Column="3"
-                                                Style="{StaticResource BorderlessIconButton}"
-                                                ToolTip="{DynamicResource DeletePresetTooltip}"
-                                                Command="{Binding DataContext.DeletePresetCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                CommandParameter="{Binding}"
-                                                IsEnabled="{Binding Exists}"
-                                                Width="32" Height="32" Margin="5,0,0,0">
-                                            <Viewbox>
-                                                <TextBlock Text="{Binding Source={x:Static helpers:AppIcons.Delete}, Path=Glyph}" FontFamily="{StaticResource MaterialIcons}" Foreground="{Binding Source={x:Static helpers:AppIcons.Delete}, Path=Brush}" />
-                                            </Viewbox>
-                                        </Button>
-                                    </Grid>
-                                    <Separator/>
-                                </StackPanel>
-                                <DataTemplate.Triggers>
-                                    <MultiDataTrigger>
-                                        <MultiDataTrigger.Conditions>
-                                            <Condition Binding="{Binding IsMouseOver, ElementName=PresetNameBorder}" Value="True" />
-                                            <Condition Binding="{Binding Exists}" Value="True" />
-                                        </MultiDataTrigger.Conditions>
-                                        <MultiDataTrigger.EnterActions>
-                                            <BeginStoryboard>
-                                                <Storyboard>
-                                                    <ColorAnimation Storyboard.TargetName="PresetNameBorder"
-                                                                    Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
-                                                                    To="{StaticResource PrimaryColor}" Duration="0:0:0.1"/>
-                                                </Storyboard>
-                                            </BeginStoryboard>
-                                        </MultiDataTrigger.EnterActions>
-                                        <MultiDataTrigger.ExitActions>
-                                            <BeginStoryboard>
-                                                <Storyboard>
-                                                    <ColorAnimation Storyboard.TargetName="PresetNameBorder"
-                                                                    Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
-                                                                    To="Transparent" Duration="0:0:0.1"/>
-                                                </Storyboard>
-                                            </BeginStoryboard>
-                                        </MultiDataTrigger.ExitActions>
-                                    </MultiDataTrigger>
-                                    <MultiDataTrigger>
-                                        <MultiDataTrigger.Conditions>
-                                            <Condition Binding="{Binding IsMouseOver, ElementName=PresetNameBorder}" Value="True" />
-                                            <Condition Binding="{Binding Exists}" Value="True" />
-                                        </MultiDataTrigger.Conditions>
-                                        <Setter TargetName="PresetNameBorder" Property="TextBlock.Foreground" Value="{StaticResource ButtonTextBrush}"/>
-                                    </MultiDataTrigger>
-                                </DataTemplate.Triggers>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-
-                    <Button Content="{DynamicResource OpenSaveFolderButton}"
-                            Command="{Binding OpenSaveFolderCommand}"
-                            Margin="0,20,0,5"
-                            Style="{StaticResource WarningButton}"/>
-
-                    <Button Content="{DynamicResource DeleteCurrentSaveButton}"
-                            Command="{Binding DeleteCurrentSaveCommand}"
-                            Margin="0,0,0,0"
-                            Style="{StaticResource DangerButton}"/>
-                </StackPanel>
+                        <Button Content="{DynamicResource DeleteCurrentSaveButton}"
+                                Command="{Binding GeneralVM.DeleteCurrentSaveCommand}"
+                                Margin="0,0,0,0"
+                                Style="{StaticResource DangerButton}"/>
+                    </StackPanel>
+                </Grid>
             </GroupBox>
 
             <Grid Grid.Column="1">
@@ -294,7 +182,7 @@
                         </StackPanel>
                     </GroupBox.Header>
                     <StackPanel>
-                        <ItemsControl ItemsSource="{Binding ActiveLinkGroups}" Margin="0,0,0,10">
+                        <ItemsControl ItemsSource="{Binding TreeToolsVM.ActiveLinkGroups}" Margin="0,0,0,10">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate DataType="{x:Type viewmodels:LinkGroupViewModel}">
                                     <Border BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="4" Padding="8,5" Margin="0,2">
@@ -307,7 +195,7 @@
 
                                             <Button Style="{StaticResource UnlinkButtonStyle}"
                                                     ToolTip="{DynamicResource Options_UnlinkTooltip}"
-                                                    Command="{Binding DataContext.UnlinkFolderTreeGroupCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                    Command="{Binding DataContext.TreeToolsVM.UnlinkFolderTreeGroupCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                     CommandParameter="{Binding GroupId}"
                                                     VerticalAlignment="Center"
                                                     Margin="5,0"/>
@@ -335,8 +223,8 @@
                         </ItemsControl>
 
                         <TextBlock Text="{DynamicResource CopyFromTabLabel}" Margin="0,0,0,2"/>
-                        <ComboBox ItemsSource="{Binding AllTabs}"
-                                  SelectedItem="{Binding SelectedSourceTab}">
+                        <ComboBox ItemsSource="{Binding TreeToolsVM.AllTabs}"
+                                  SelectedItem="{Binding TreeToolsVM.SelectedSourceTab}">
                             <ComboBox.ItemTemplate>
                                 <DataTemplate>
                                     <StackPanel Orientation="Horizontal">
@@ -356,19 +244,20 @@
                                             </TextBlock.Style>
                                         </TextBlock>
                                         <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
+                                        <TextBlock Text="{x:Static icons:MaterialIcons.link}"
+                                                   FontFamily="{StaticResource MaterialIcons}"
+                                                   Foreground="{StaticResource PrimaryBrush}"
+                                                   FontSize="16" Margin="5,0,0,0" VerticalAlignment="Center"
+                                                   ToolTip="Linked to other tabs"
+                                                   Visibility="{Binding IsLinked, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                                     </StackPanel>
                                 </DataTemplate>
                             </ComboBox.ItemTemplate>
-                            <ComboBox.ItemContainerStyle>
-                                <Style TargetType="ComboBoxItem" BasedOn="{StaticResource ModernComboBoxItem}">
-                                    <Setter Property="IsEnabled" Value="{Binding IsSelectable}"/>
-                                </Style>
-                            </ComboBox.ItemContainerStyle>
                         </ComboBox>
 
                         <TextBlock Text="{DynamicResource CopyToTabLabel}" Margin="0,10,0,2"/>
-                        <ComboBox ItemsSource="{Binding AllTabs}"
-                                  SelectedItem="{Binding SelectedDestinationTab}">
+                        <ComboBox ItemsSource="{Binding TreeToolsVM.AllTabs}"
+                                  SelectedItem="{Binding TreeToolsVM.SelectedDestinationTab}">
                             <ComboBox.ItemTemplate>
                                 <DataTemplate>
                                     <StackPanel Orientation="Horizontal">
@@ -388,23 +277,24 @@
                                             </TextBlock.Style>
                                         </TextBlock>
                                         <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
+                                        <TextBlock Text="{x:Static icons:MaterialIcons.link}"
+                                                   FontFamily="{StaticResource MaterialIcons}"
+                                                   Foreground="{StaticResource PrimaryBrush}"
+                                                   FontSize="16" Margin="5,0,0,0" VerticalAlignment="Center"
+                                                   ToolTip="Linked to other tabs"
+                                                   Visibility="{Binding IsLinked, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                                     </StackPanel>
                                 </DataTemplate>
                             </ComboBox.ItemTemplate>
-                            <ComboBox.ItemContainerStyle>
-                                <Style TargetType="ComboBoxItem" BasedOn="{StaticResource ModernComboBoxItem}">
-                                    <Setter Property="IsEnabled" Value="{Binding IsSelectable}"/>
-                                </Style>
-                            </ComboBox.ItemContainerStyle>
                         </ComboBox>
 
                         <StackPanel Orientation="Horizontal" Margin="0,15,0,0">
                             <Button Content="{DynamicResource CopyFolderTreeButton}"
-                                Command="{Binding CopyFolderTreeCommand}"
+                                Command="{Binding TreeToolsVM.CopyFolderTreeCommand}"
                                 HorizontalAlignment="Left"
                                 Margin="0,0,5,0"/>
                             <Button Content="{DynamicResource Options_LinkFolderTreesButton}"
-                                Command="{Binding LinkFolderTreesCommand}"
+                                Command="{Binding TreeToolsVM.LinkFolderTreesCommand}"
                                 Style="{StaticResource SuccessButton}"
                                 HorizontalAlignment="Left"/>
                         </StackPanel>
@@ -422,12 +312,12 @@
                     </GroupBox.Header>
                     <DockPanel>
                         <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Margin="0,10,0,0">
-                            <Button Content="{DynamicResource EditFoldersButton}" Command="{Binding EditIgnoredFoldersCommand}" Margin="0,0,5,0"/>
+                            <Button Content="{DynamicResource EditFoldersButton}" Command="{Binding GeneralVM.EditIgnoredFoldersCommand}" Margin="0,0,5,0"/>
                         </StackPanel>
 
                         <Border BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="4" Background="{StaticResource TextBoxBackgroundBrush}">
                             <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="5">
-                                <TextBlock Text="{Binding IgnoredFoldersText}" TextWrapping="Wrap" Foreground="{StaticResource GrayTextBrush}"/>
+                                <TextBlock Text="{Binding GeneralVM.IgnoredFoldersText}" TextWrapping="Wrap" Foreground="{StaticResource GrayTextBrush}"/>
                             </ScrollViewer>
                         </Border>
                     </DockPanel>
@@ -439,10 +329,10 @@
                    HorizontalAlignment="Center"
                    VerticalAlignment="Bottom"
                    FontSize="12"
-                   Foreground="Gray"
+                   Foreground="{StaticResource GrayTextBrush}"
                    Margin="10">
             <Run Text="{DynamicResource Common_VersionLabel}"/>
-            <Run Text="{Binding Version, Mode=OneWay}"/>
+            <Run Text="{Binding GeneralVM.Version, Mode=OneWay}"/>
         </TextBlock>
     </Grid>
 </UserControl>

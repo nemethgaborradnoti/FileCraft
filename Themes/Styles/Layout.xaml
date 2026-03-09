@@ -60,7 +60,7 @@
                                     <Storyboard>
                                         <ColorAnimation Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
                                                         Storyboard.TargetName="mainBorder"
-                                                        To="White" Duration="0:0:0.1" />
+                                                        To="{StaticResource WhiteColor}" Duration="0:0:0.1" />
                                     </Storyboard>
                                 </BeginStoryboard>
                             </Trigger.EnterActions>
@@ -116,7 +116,7 @@
                                 Grid.Row="1"
                                 BorderBrush="{StaticResource BorderBrush}"
                                 BorderThickness="1"
-                                Background="Transparent"
+                                Background="{StaticResource TransparentBrush}"
                                 KeyboardNavigation.DirectionalNavigation="Contained"
                                 KeyboardNavigation.TabIndex="2"
                                 KeyboardNavigation.TabNavigation="Local">

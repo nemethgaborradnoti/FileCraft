@@ -78,7 +78,10 @@
             <GroupBox Grid.Column="0">
                 <GroupBox.Header>
                     <StackPanel Style="{StaticResource HeaderStackPanelStyle}">
-                        <TextBlock Text="{DynamicResource Common_FoldersHeader}" VerticalAlignment="Center" FontWeight="SemiBold"/>
+                        <TextBlock VerticalAlignment="Center" FontWeight="SemiBold">
+                            <Run Text="{DynamicResource Common_FoldersHeader}"/>
+                            <Run Text="{Binding FolderTreeManager.SelectedFolderCount, StringFormat='({0})', Mode=OneWay}"/>
+                        </TextBlock>
                         <TextBlock Text="{x:Static icons:MaterialIcons.link}"
                                    FontFamily="{StaticResource MaterialIcons}"
                                    Foreground="{StaticResource PrimaryBrush}"

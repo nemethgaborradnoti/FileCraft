@@ -1,20 +1,23 @@
 ﻿using FileCraft.Models;
 using FileCraft.Services.Interfaces;
 using FileCraft.Shared.Validation;
-using System.IO;
-using System.Text.Json;
+using LiteDB;
 
 namespace FileCraft.Services
 {
     public class PathPresetService : IPathPresetService
     {
-        private readonly string _presetsDirectory;
+        private readonly IDatabaseService _databaseService;
+        private const string CollectionName = "PathPresets";
 
-        public PathPresetService()
+        public PathPresetService(IDatabaseService databaseService)
         {
-            string appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-            _presetsDirectory = Path.Combine(appDataPath, "FileCraft", "PathPresets");
-            Directory.CreateDirectory(_presetsDirectory);
+            _databaseService = databaseService;
+        }
+
+        private ILiteCollection<PathPreset> GetCollection()
+        {
+            return _databaseService.GetCollection<PathPreset>(CollectionName);
         }
 
         public void SavePreset(PathPreset preset)
@@ -23,48 +26,37 @@ namespace FileCraft.Services
             Guard.AgainstNullOrWhiteSpace(preset.Name, nameof(preset.Name));
 
             preset.LastModified = DateTime.Now;
-            string filePath = GetPresetFilePath(preset.Name);
+            var col = GetCollection();
 
-            var options = new JsonSerializerOptions { WriteIndented = true };
-            string json = JsonSerializer.Serialize(preset, options);
-            File.WriteAllText(filePath, json);
+            var existing = col.FindOne(p => p.Name.Equals(preset.Name, StringComparison.OrdinalIgnoreCase));
+            if (existing != null)
+            {
+                preset.Id = existing.Id;
+                col.Update(preset);
+            }
+            else
+            {
+                col.Insert(preset);
+            }
+
+            // Ensure index on Name for faster lookups
+            col.EnsureIndex(x => x.Name);
         }
 
         public IEnumerable<PathPreset> LoadPresets()
         {
-            if (!Directory.Exists(_presetsDirectory))
-            {
-                yield break;
-            }
-
-            foreach (var filePath in Directory.EnumerateFiles(_presetsDirectory, "*.json"))
-            {
-                PathPreset? preset = null;
-                try
-                {
-                    string json = File.ReadAllText(filePath);
-                    preset = JsonSerializer.Deserialize<PathPreset>(json);
-                }
-                catch
-                {
-                    continue;
-                }
-
-                if (preset != null)
-                {
-                    yield return preset;
-                }
-            }
+            return GetCollection().FindAll();
         }
 
         public void DeletePreset(string name)
         {
             Guard.AgainstNullOrWhiteSpace(name, nameof(name));
-            string filePath = GetPresetFilePath(name);
+            var col = GetCollection();
+            var existing = col.FindOne(p => p.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
 
-            if (File.Exists(filePath))
+            if (existing != null)
             {
-                File.Delete(filePath);
+                col.Delete(existing.Id);
             }
         }
 
@@ -73,61 +65,31 @@ namespace FileCraft.Services
             Guard.AgainstNullOrWhiteSpace(oldName, nameof(oldName));
             Guard.AgainstNullOrWhiteSpace(newName, nameof(newName));
 
-            string oldPath = GetPresetFilePath(oldName);
-            string newPath = GetPresetFilePath(newName);
+            var col = GetCollection();
+            var preset = col.FindOne(p => p.Name.Equals(oldName, StringComparison.OrdinalIgnoreCase));
 
-            if (File.Exists(oldPath))
+            if (preset != null)
             {
-                if (File.Exists(newPath))
+                // Check if target name exists
+                var targetExists = col.Exists(p => p.Name.Equals(newName, StringComparison.OrdinalIgnoreCase));
+                if (targetExists)
                 {
-                    File.Delete(newPath);
+                    // If target exists, delete it (overwrite behavior logic should be handled by UI confirmation, 
+                    // but here we ensure consistency)
+                    var target = col.FindOne(p => p.Name.Equals(newName, StringComparison.OrdinalIgnoreCase));
+                    col.Delete(target.Id);
                 }
 
-                var preset = LoadPresetFromFile(oldPath);
-                if (preset != null)
-                {
-                    preset.Name = newName;
-                    preset.LastModified = DateTime.Now;
-
-                    var options = new JsonSerializerOptions { WriteIndented = true };
-                    string json = JsonSerializer.Serialize(preset, options);
-                    File.WriteAllText(newPath, json);
-
-                    File.Delete(oldPath);
-                }
-                else
-                {
-                    File.Move(oldPath, newPath);
-                }
+                preset.Name = newName;
+                preset.LastModified = DateTime.Now;
+                col.Update(preset);
             }
         }
 
         public bool PresetExists(string name)
         {
             if (string.IsNullOrWhiteSpace(name)) return false;
-            return File.Exists(GetPresetFilePath(name));
-        }
-
-        private string GetPresetFilePath(string name)
-        {
-            foreach (char c in Path.GetInvalidFileNameChars())
-            {
-                name = name.Replace(c, '_');
-            }
-            return Path.Combine(_presetsDirectory, $"{name}.json");
-        }
-
-        private PathPreset? LoadPresetFromFile(string filePath)
-        {
-            try
-            {
-                string json = File.ReadAllText(filePath);
-                return JsonSerializer.Deserialize<PathPreset>(json);
-            }
-            catch
-            {
-                return null;
-            }
+            return GetCollection().Exists(p => p.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
         }
     }
 }

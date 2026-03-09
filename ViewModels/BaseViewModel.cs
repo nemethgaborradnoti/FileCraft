@@ -1,5 +1,7 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Windows.Input;
 
 namespace FileCraft.ViewModels
 {
@@ -28,6 +30,7 @@ namespace FileCraft.ViewModels
                 {
                     _isBusy = value;
                     OnPropertyChanged();
+                    CommandManager.InvalidateRequerySuggested();
                 }
             }
         }

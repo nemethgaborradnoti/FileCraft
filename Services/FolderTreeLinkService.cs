@@ -11,8 +11,10 @@ namespace FileCraft.Services
         private readonly Dictionary<string, FolderTreeManager> _registeredManagers = new();
         private List<List<string>> _linkGroups = new();
         private readonly Dictionary<string, ObservableCollection<FolderViewModel>> _sharedStates = new();
+        private readonly Dictionary<string, Action> _selectionHandlers = new();
 
         private bool _isPropagating = false;
+        private bool _isPropagatingSelection = false;
 
         public event Action? OnLinksChanged;
 
@@ -20,11 +22,44 @@ namespace FileCraft.Services
         {
             if (_registeredManagers.ContainsKey(id))
             {
-                _registeredManagers[id].PropertyChanged -= OnManagerPropertyChanged;
+                var oldManager = _registeredManagers[id];
+                oldManager.PropertyChanged -= OnManagerPropertyChanged;
+                if (_selectionHandlers.TryGetValue(id, out var oldHandler))
+                {
+                    oldManager.FolderSelectionChanged -= oldHandler;
+                }
             }
 
             _registeredManagers[id] = manager;
             manager.PropertyChanged += OnManagerPropertyChanged;
+
+            Action handler = () => OnManagerFolderSelectionChanged(id);
+            _selectionHandlers[id] = handler;
+            manager.FolderSelectionChanged += handler;
+        }
+
+        private void OnManagerFolderSelectionChanged(string sourceId)
+        {
+            if (_isPropagatingSelection) return;
+
+            var group = _linkGroups.FirstOrDefault(g => g.Contains(sourceId));
+            if (group == null || group.Count < 2) return;
+
+            _isPropagatingSelection = true;
+            try
+            {
+                foreach (var peerId in group)
+                {
+                    if (peerId != sourceId && _registeredManagers.TryGetValue(peerId, out var peerManager))
+                    {
+                        peerManager.HandleFolderStateChange();
+                    }
+                }
+            }
+            finally
+            {
+                _isPropagatingSelection = false;
+            }
         }
 
         private void OnManagerPropertyChanged(object? sender, PropertyChangedEventArgs e)

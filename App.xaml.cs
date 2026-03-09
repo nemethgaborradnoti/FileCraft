@@ -27,6 +27,12 @@ namespace FileCraft
         {
             await _host.StartAsync();
 
+            var dbService = _host.Services.GetRequiredService<IDatabaseService>();
+            dbService.Initialize();
+
+            var saveService = _host.Services.GetRequiredService<ISaveService>();
+            saveService.ImportLegacyPresets();
+
             var mainWindow = _host.Services.GetRequiredService<MainWindow>();
             var mainViewModel = _host.Services.GetRequiredService<MainViewModel>();
 
@@ -38,6 +44,8 @@ namespace FileCraft
 
         private void ConfigureServices(IServiceCollection services)
         {
+            services.AddSingleton<IAppPathProvider, AppPathProvider>();
+            services.AddSingleton<IWindowFactory, WindowFactory>();
             services.AddSingleton<IDialogService, DialogService>();
             services.AddSingleton<IFileOperationService, FileOperationService>();
             services.AddSingleton<IFolderTreeService, FolderTreeService>();
@@ -47,6 +55,7 @@ namespace FileCraft
             services.AddSingleton<IUndoService, UndoService>();
             services.AddSingleton<IFolderTreeLinkService, FolderTreeLinkService>();
             services.AddSingleton<IPathPresetService, PathPresetService>();
+            services.AddSingleton<IDatabaseService, DatabaseService>();
 
             services.AddTransient<FolderTreeManager>();
             services.AddTransient<PathPresetsViewModel>();
@@ -54,7 +63,14 @@ namespace FileCraft
             services.AddSingleton<FileContentExportViewModel>();
             services.AddSingleton<TreeGeneratorViewModel>();
             services.AddSingleton<FolderContentExportViewModel>();
+
+            services.AddSingleton<OptionsPresetsViewModel>();
+            services.AddSingleton<OptionsTreeToolsViewModel>();
+            services.AddSingleton<OptionsGeneralViewModel>();
             services.AddSingleton<OptionsViewModel>();
+
+            services.AddSingleton<PathSelectionViewModel>();
+            services.AddSingleton<SessionHistoryViewModel>();
 
             services.AddSingleton<MainViewModel>();
 

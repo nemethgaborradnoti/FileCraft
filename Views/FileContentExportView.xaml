@@ -134,7 +134,10 @@
             <GroupBox Grid.Column="0">
                 <GroupBox.Header>
                     <StackPanel Style="{StaticResource HeaderStackPanelStyle}">
-                        <TextBlock Text="{DynamicResource Common_FoldersHeader}" VerticalAlignment="Center" FontWeight="SemiBold"/>
+                        <TextBlock VerticalAlignment="Center" FontWeight="SemiBold">
+                            <Run Text="{DynamicResource Common_FoldersHeader}"/>
+                            <Run Text="{Binding FolderTreeManager.SelectedFolderCount, StringFormat='({0})', Mode=OneWay}"/>
+                        </TextBlock>
                         <TextBlock Text="{x:Static icons:MaterialIcons.link}"
                                    FontFamily="{StaticResource MaterialIcons}"
                                    Foreground="{StaticResource PrimaryBrush}"
@@ -229,7 +232,7 @@
                                           Margin="2"
                                           HorizontalAlignment="Stretch"
                                           VerticalAlignment="Stretch"
-                                          Background="Transparent"/>
+                                          Background="{StaticResource TransparentBrush}"/>
                                 </DataTemplate>
                             </ComboBox.ItemTemplate>
                         </ComboBox>
@@ -323,15 +326,15 @@
                                           IsChecked="{Binding IsShowingOnlySelected}"
                                           Margin="0,0,0,2">
                                 <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="{DynamicResource FileContent_ShowOnlySelected}" VerticalAlignment="Center" Margin="0,0,5,0" Foreground="White" FontWeight="SemiBold"/>
-                                    <TextBlock Text="{x:Static icons:MaterialIcons.check_box}" FontFamily="{StaticResource MaterialIcons}" VerticalAlignment="Center" Foreground="White"/>
+                                    <TextBlock Text="{DynamicResource FileContent_ShowOnlySelected}" VerticalAlignment="Center" Margin="0,0,5,0" Foreground="{StaticResource ButtonTextBrush}" FontWeight="SemiBold"/>
+                                    <TextBlock Text="{x:Static icons:MaterialIcons.check_box}" FontFamily="{StaticResource MaterialIcons}" VerticalAlignment="Center" Foreground="{StaticResource ButtonTextBrush}"/>
                                 </StackPanel>
                             </ToggleButton>
                             <ToggleButton Style="{StaticResource BadgeToggleButtonStyle}"
                                           IsChecked="{Binding IsShowingOnlyUnselected}">
                                 <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="{DynamicResource FileContent_ShowOnlyUnselected}" VerticalAlignment="Center" Margin="0,0,5,0" Foreground="White" FontWeight="SemiBold"/>
-                                    <TextBlock Text="{x:Static icons:MaterialIcons.check_box_outline_blank}" FontFamily="{StaticResource MaterialIcons}" VerticalAlignment="Center" Foreground="White"/>
+                                    <TextBlock Text="{DynamicResource FileContent_ShowOnlyUnselected}" VerticalAlignment="Center" Margin="0,0,5,0" Foreground="{StaticResource ButtonTextBrush}" FontWeight="SemiBold"/>
+                                    <TextBlock Text="{x:Static icons:MaterialIcons.check_box_outline_blank}" FontFamily="{StaticResource MaterialIcons}" VerticalAlignment="Center" Foreground="{StaticResource ButtonTextBrush}"/>
                                 </StackPanel>
                             </ToggleButton>
                         </StackPanel>

@@ -1,11 +1,13 @@
 ﻿using FileCraft.Models;
 using FileCraft.Services.Interfaces;
-using FileCraft.Shared.Commands;
 using FileCraft.Shared.Helpers;
 using FileCraft.ViewModels.Functional;
 using FileCraft.ViewModels.Shared;
 using System.ComponentModel;
 using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Collections.Generic;
 using System.Windows.Input;
 
 namespace FileCraft.ViewModels
@@ -15,29 +17,10 @@ namespace FileCraft.ViewModels
         private readonly ISaveService _saveService;
         private readonly ISharedStateService _sharedStateService;
         private readonly IDialogService _dialogService;
-        private readonly IUndoService _undoService;
         private readonly IFolderTreeLinkService _folderTreeLinkService;
 
-        private bool _hasUnsavedChanges;
-        public bool HasUnsavedChanges
-        {
-            get => _hasUnsavedChanges;
-            set
-            {
-                if (_hasUnsavedChanges != value)
-                {
-                    _hasUnsavedChanges = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
-
-        public bool CanUndo => _undoService.CanUndo;
-        public bool CanRedo => _undoService.CanRedo;
-        public bool CanClearPaths => !string.IsNullOrWhiteSpace(SourcePath) || !string.IsNullOrWhiteSpace(DestinationPath);
-
-        public string SourcePath => _sharedStateService.SourcePath;
-        public string DestinationPath => _sharedStateService.DestinationPath;
+        public PathSelectionViewModel PathSelectionVM { get; }
+        public SessionHistoryViewModel SessionHistoryVM { get; }
 
         private int _selectedTabIndex;
         public int SelectedTabIndex
@@ -58,34 +41,29 @@ namespace FileCraft.ViewModels
         public FolderContentExportViewModel FolderContentExportVM { get; }
         public OptionsViewModel OptionsVM { get; }
 
-        public ICommand ClearPathsCommand { get; }
-        public ICommand SelectSourcePathCommand { get; }
-        public ICommand SelectDestinationPathCommand { get; }
-        public ICommand SaveCommand { get; }
-        public ICommand UndoCommand { get; }
-        public ICommand RedoCommand { get; }
-
         public MainViewModel(
             ISaveService saveService,
             ISharedStateService sharedStateService,
             IDialogService dialogService,
-            IUndoService undoService,
             IFolderTreeLinkService folderTreeLinkService,
             FileContentExportViewModel fileContentExportVM,
             TreeGeneratorViewModel treeGeneratorVM,
             FolderContentExportViewModel folderContentExportVM,
-            OptionsViewModel optionsVM)
+            OptionsViewModel optionsVM,
+            PathSelectionViewModel pathSelectionVM,
+            SessionHistoryViewModel sessionHistoryVM)
         {
             _saveService = saveService;
             _sharedStateService = sharedStateService;
             _dialogService = dialogService;
-            _undoService = undoService;
             _folderTreeLinkService = folderTreeLinkService;
 
             FileContentExportVM = fileContentExportVM;
             TreeGeneratorVM = treeGeneratorVM;
             FolderContentExportVM = folderContentExportVM;
             OptionsVM = optionsVM;
+            PathSelectionVM = pathSelectionVM;
+            SessionHistoryVM = sessionHistoryVM;
 
             FileContentExportVM.FolderTreeManager.Id = "FileContentExport";
             TreeGeneratorVM.FolderTreeManager.Id = "TreeGenerator";
@@ -97,29 +75,25 @@ namespace FileCraft.ViewModels
 
             _folderTreeLinkService.OnLinksChanged += UpdateLinkedTabsVisuals;
 
+            SessionHistoryVM.GetCurrentStateFunc = GetCurrentSaveData;
+            SessionHistoryVM.ApplyStateFuncAsync = ApplyAllData;
+
+            PathSelectionVM.SourcePathUpdated += async (path) => await UpdateAllManagersWithPath(path);
+            PathSelectionVM.PathsCleared += async () => await UpdateAllManagersWithPath(string.Empty);
+
             SubscribeToChanges();
 
             OptionsVM.IgnoredFoldersChanged += OnIgnoredFoldersChanged;
-            OptionsVM.PresetSaveRequested += OnPresetSaveRequested;
-            OptionsVM.PresetRenameRequested += OnPresetRenameRequested;
+
+            OptionsVM.PresetCreateRequested += OnPresetCreateRequested;
             OptionsVM.PresetLoadRequested += OnPresetLoadRequested;
-            OptionsVM.PresetDeleteRequested += OnPresetDeleteRequested;
             OptionsVM.CurrentSaveDeleteRequested += OnCurrentSaveDeleteRequested;
-
-            ClearPathsCommand = new RelayCommand(_ => ClearPaths(), _ => CanClearPaths);
-            SelectSourcePathCommand = new RelayCommand(_ => SelectPath(isSource: true));
-            SelectDestinationPathCommand = new RelayCommand(_ => SelectPath(isSource: false));
-            SaveCommand = new RelayCommand(_ => Save(), _ => HasUnsavedChanges);
-            UndoCommand = new RelayCommand(_ => Undo(), _ => CanUndo);
-            RedoCommand = new RelayCommand(_ => Redo(), _ => CanRedo);
-
-            HasUnsavedChanges = false;
         }
 
         public async Task InitializeAsync()
         {
             IsBusy = true;
-            _undoService.Clear();
+            SessionHistoryVM.ClearHistory();
             SaveData saveData = _saveService.LoadSaveData();
             await ApplyAllData(saveData);
             SelectedTabIndex = saveData.SelectedTabIndex;
@@ -140,75 +114,12 @@ namespace FileCraft.ViewModels
             TreeGeneratorVM.StateChanging += OnStateChanging;
             FolderContentExportVM.StateChanging += OnStateChanging;
             OptionsVM.StateChanging += OnStateChanging;
-
-            _undoService.HistoryChanged += OnHistoryChanged;
-        }
-
-        private void OnHistoryChanged()
-        {
-            OnPropertyChanged(nameof(CanUndo));
-            OnPropertyChanged(nameof(CanRedo));
-        }
-
-        private async void Undo()
-        {
-            if (!CanUndo) return;
-            IsBusy = true;
-            var currentState = GetCurrentSaveData();
-            var previousState = _undoService.Undo(currentState);
-            await ApplyAllData(previousState);
-            HasUnsavedChanges = true;
-            IsBusy = false;
-        }
-
-        private async void Redo()
-        {
-            if (!CanRedo) return;
-            IsBusy = true;
-            var currentState = GetCurrentSaveData();
-            var nextState = _undoService.Redo(currentState);
-            await ApplyAllData(nextState);
-            HasUnsavedChanges = true;
-            IsBusy = false;
-        }
-
-        private async void SelectPath(bool isSource)
-        {
-            OnStateChanging();
-            var title = isSource ? ResourceHelper.GetString("MainVM_SelectSourceFolder") : ResourceHelper.GetString("MainVM_SelectDestFolder");
-            var selectedPath = _dialogService.SelectFolder(title);
-            if (!string.IsNullOrEmpty(selectedPath))
-            {
-                if (isSource)
-                {
-                    _sharedStateService.SourcePath = selectedPath;
-                    await UpdateAllManagersWithPath(selectedPath);
-                }
-                else
-                {
-                    _sharedStateService.DestinationPath = selectedPath;
-                }
-                OnPropertyChanged(isSource ? nameof(SourcePath) : nameof(DestinationPath));
-                OnPropertyChanged(nameof(CanClearPaths));
-            }
-        }
-
-        private async void ClearPaths()
-        {
-            OnStateChanging();
-            _sharedStateService.SourcePath = string.Empty;
-            _sharedStateService.DestinationPath = string.Empty;
-
-            await UpdateAllManagersWithPath(string.Empty);
-
-            OnPropertyChanged(nameof(SourcePath));
-            OnPropertyChanged(nameof(DestinationPath));
-            OnPropertyChanged(nameof(CanClearPaths));
+            PathSelectionVM.StateChanging += OnStateChanging;
         }
 
         private async Task UpdateAllManagersWithPath(string path)
         {
-            var managers = new[]
+            var managers = new List<FolderTreeManager>
             {
                 FileContentExportVM.FolderTreeManager,
                 TreeGeneratorVM.FolderTreeManager,
@@ -232,31 +143,9 @@ namespace FileCraft.ViewModels
             }
         }
 
-        public void Save()
-        {
-            var saveData = GetCurrentSaveData();
-            var dataToPersist = new SaveData
-            {
-                SourcePath = saveData.SourcePath,
-                DestinationPath = saveData.DestinationPath,
-                SelectedTabIndex = saveData.SelectedTabIndex,
-                FileContentExport = saveData.FileContentExport,
-                FolderContentExport = saveData.FolderContentExport,
-                TreeGenerator = saveData.TreeGenerator,
-                SettingsPage = saveData.SettingsPage
-            };
-
-            _saveService.Save(dataToPersist);
-            HasUnsavedChanges = false;
-            _dialogService.ShowNotification(
-                ResourceHelper.GetString("Common_SuccessTitle"),
-                ResourceHelper.GetString("MainVM_SettingsSaved"),
-                DialogIconType.Success);
-        }
-
         public void RequestClose(CancelEventArgs e)
         {
-            if (!HasUnsavedChanges)
+            if (!SessionHistoryVM.HasUnsavedChanges)
             {
                 return;
             }
@@ -268,7 +157,7 @@ namespace FileCraft.ViewModels
             switch (result)
             {
                 case ExitConfirmationResult.Save:
-                    Save();
+                    SessionHistoryVM.Save();
                     break;
                 case ExitConfirmationResult.DontSave:
                     break;
@@ -282,8 +171,8 @@ namespace FileCraft.ViewModels
         {
             return new SaveData
             {
-                SourcePath = this.SourcePath,
-                DestinationPath = this.DestinationPath,
+                SourcePath = PathSelectionVM.SourcePath,
+                DestinationPath = PathSelectionVM.DestinationPath,
                 SelectedTabIndex = this.SelectedTabIndex,
                 FileContentExport = new FileContentExportSettings
                 {
@@ -325,19 +214,15 @@ namespace FileCraft.ViewModels
 
             _folderTreeLinkService.LoadLinkGroups(saveData.SettingsPage.LinkedFolderTreeGroups);
 
-            OnPropertyChanged(nameof(SourcePath));
-            OnPropertyChanged(nameof(DestinationPath));
-            OnPropertyChanged(nameof(CanClearPaths));
-
-            if (FileContentExportVM.FolderTreeManager.RootFolders.Any() || !string.IsNullOrWhiteSpace(SourcePath))
+            if (FileContentExportVM.FolderTreeManager.RootFolders.Any() || !string.IsNullOrWhiteSpace(PathSelectionVM.SourcePath))
                 await ApplyStateToManager(FileContentExportVM.FolderTreeManager, saveData.FileContentExport.FolderTreeState);
             FileContentExportVM.ApplySettings(saveData.FileContentExport);
 
-            if (FolderContentExportVM.FolderTreeManager.RootFolders.Any() || !string.IsNullOrWhiteSpace(SourcePath))
+            if (FolderContentExportVM.FolderTreeManager.RootFolders.Any() || !string.IsNullOrWhiteSpace(PathSelectionVM.SourcePath))
                 await ApplyStateToManager(FolderContentExportVM.FolderTreeManager, saveData.FolderContentExport.FolderTreeState);
             FolderContentExportVM.ApplySettings(saveData.FolderContentExport);
 
-            if (TreeGeneratorVM.FolderTreeManager.RootFolders.Any() || !string.IsNullOrWhiteSpace(SourcePath))
+            if (TreeGeneratorVM.FolderTreeManager.RootFolders.Any() || !string.IsNullOrWhiteSpace(PathSelectionVM.SourcePath))
                 await ApplyStateToManager(TreeGeneratorVM.FolderTreeManager, saveData.TreeGenerator.FolderTreeState);
             TreeGeneratorVM.OutputFileName = saveData.TreeGenerator.OutputFileName;
             TreeGeneratorVM.AppendTimestamp = saveData.TreeGenerator.AppendTimestamp;
@@ -353,16 +238,18 @@ namespace FileCraft.ViewModels
 
             SelectedTabIndex = saveData.SelectedTabIndex;
             IsBusy = false;
+
+            CommandManager.InvalidateRequerySuggested();
         }
 
         private async Task ApplyStateToManager(FolderTreeManager manager, List<FolderState> state)
         {
-            await manager.LoadTreeForPathAsync(SourcePath, state);
+            await manager.LoadTreeForPathAsync(PathSelectionVM.SourcePath, state);
         }
 
-        private void OnPresetSaveRequested(int presetNumber)
+        private void OnPresetCreateRequested()
         {
-            if (string.IsNullOrWhiteSpace(SourcePath) || !Directory.Exists(SourcePath))
+            if (string.IsNullOrWhiteSpace(PathSelectionVM.SourcePath) || !Directory.Exists(PathSelectionVM.SourcePath))
             {
                 _dialogService.ShowNotification(
                     ResourceHelper.GetString("Common_WarningTitle"),
@@ -371,19 +258,18 @@ namespace FileCraft.ViewModels
                 return;
             }
 
-            bool exists = _saveService.CheckPresetExists(presetNumber);
-            string presetName = exists ? _saveService.GetPresetName(presetNumber) : $"{ResourceHelper.GetString("Preset_DefaultNamePrefix")}{presetNumber:00}";
+            string? presetName = _dialogService.ShowInputStringDialog(
+                ResourceHelper.GetString("PathPreset_NewPresetTitle"),
+                ResourceHelper.GetString("PathPreset_NamePrompt"));
 
-            if (exists)
+            if (string.IsNullOrWhiteSpace(presetName)) return;
+
+            if (_saveService.PresetNameExists(presetName))
             {
-                string title = string.Format(ResourceHelper.GetString("Preset_OverwriteTitle"), presetNumber);
-                string message = string.Format(ResourceHelper.GetString("Preset_OverwriteMessage"), presetNumber, presetName);
-
                 bool confirmed = _dialogService.ShowConfirmation(
-                    title: title,
-                    message: message,
-                    iconType: DialogIconType.Info);
-
+                    ResourceHelper.GetString("Common_WarningTitle"),
+                    "A preset with this name already exists. Do you want to use a different name?",
+                    DialogIconType.Warning);
                 if (!confirmed) return;
             }
 
@@ -392,63 +278,29 @@ namespace FileCraft.ViewModels
                 var currentSaveData = GetCurrentSaveData();
                 currentSaveData.PresetName = presetName;
 
-                var relativeSaveData = MakePathsRelative(currentSaveData, SourcePath);
-                _saveService.SaveAsPreset(relativeSaveData, presetNumber);
+                var relativeSaveData = SaveDataPathConverter.ConvertPaths(currentSaveData, PathSelectionVM.SourcePath, toRelative: true);
 
-                OptionsVM.CheckForExistingPresets();
+                _saveService.SavePreset(presetName, "", relativeSaveData);
 
-                if (!exists)
-                {
-                    string? newName = _dialogService.ShowRenamePresetDialog(presetName, presetNumber);
-                    if (!string.IsNullOrWhiteSpace(newName) && newName != presetName)
-                    {
-                        _saveService.UpdatePresetName(presetNumber, newName);
-                        OptionsVM.CheckForExistingPresets();
-                        _dialogService.ShowNotification(
-                            ResourceHelper.GetString("Common_SuccessTitle"),
-                            string.Format(ResourceHelper.GetString("Preset_SavedAndRenamed"), newName),
-                            DialogIconType.Success);
-                        return;
-                    }
-                }
+                OptionsVM.RefreshPresetList();
 
                 _dialogService.ShowNotification(
                     ResourceHelper.GetString("Common_SuccessTitle"),
-                    string.Format(ResourceHelper.GetString("Preset_SavedSuccess"), presetName, presetNumber),
+                    string.Format(ResourceHelper.GetString("Preset_SavedSuccess"), presetName, "-"),
                     DialogIconType.Success);
             }
             catch (System.Exception ex)
             {
                 _dialogService.ShowNotification(
                     ResourceHelper.GetString("Common_ErrorTitle"),
-                    string.Format(ResourceHelper.GetString("Preset_SaveError"), presetNumber, ex.Message),
+                    string.Format(ResourceHelper.GetString("Preset_SaveError"), "DB", ex.Message),
                     DialogIconType.Error);
             }
         }
 
-        private void OnPresetRenameRequested(int presetNumber, string newName)
+        private async void OnPresetLoadRequested(int presetId)
         {
-            try
-            {
-                _saveService.UpdatePresetName(presetNumber, newName);
-                OptionsVM.CheckForExistingPresets();
-                _dialogService.ShowNotification(
-                    ResourceHelper.GetString("Common_SuccessTitle"),
-                    string.Format(ResourceHelper.GetString("Preset_RenamedSuccess"), presetNumber, newName),
-                    DialogIconType.Success);
-            }
-            catch (Exception ex)
-            {
-                _dialogService.ShowNotification(
-                    ResourceHelper.GetString("Common_ErrorTitle"),
-                    string.Format(ResourceHelper.GetString("Preset_RenameError"), presetNumber, ex.Message),
-                    DialogIconType.Error);
-            }
-        }
-
-        private async void OnPresetLoadRequested(int presetNumber)
-        {
-            if (string.IsNullOrWhiteSpace(SourcePath) || !Directory.Exists(SourcePath))
+            if (string.IsNullOrWhiteSpace(PathSelectionVM.SourcePath) || !Directory.Exists(PathSelectionVM.SourcePath))
             {
                 _dialogService.ShowNotification(
                     ResourceHelper.GetString("Common_WarningTitle"),
@@ -457,19 +309,15 @@ namespace FileCraft.ViewModels
                 return;
             }
 
-            var relativePresetData = _saveService.LoadFromPreset(presetNumber);
+            var relativePresetData = _saveService.LoadPresetData(presetId);
             if (relativePresetData == null)
             {
-                _dialogService.ShowNotification(
-                    ResourceHelper.GetString("Common_InfoTitle"),
-                    string.Format(ResourceHelper.GetString("Preset_NotExist"), presetNumber),
-                    DialogIconType.Info);
                 return;
             }
 
-            string message = string.Format(ResourceHelper.GetString("Preset_LoadConfirmMessage"), presetNumber, relativePresetData.PresetName);
+            string message = string.Format(ResourceHelper.GetString("Preset_LoadConfirmMessage"), "DB", relativePresetData.PresetName);
             bool confirmed = _dialogService.ShowConfirmation(
-                title: string.Format(ResourceHelper.GetString("Preset_LoadConfirmTitle"), presetNumber),
+                title: string.Format(ResourceHelper.GetString("Preset_LoadConfirmTitle"), "DB"),
                 message: message,
                 iconType: DialogIconType.Info);
 
@@ -478,55 +326,20 @@ namespace FileCraft.ViewModels
             OnStateChanging();
             try
             {
-                var absolutePresetData = MakePathsAbsolute(relativePresetData, SourcePath);
+                var absolutePresetData = SaveDataPathConverter.ConvertPaths(relativePresetData, PathSelectionVM.SourcePath, toRelative: false);
                 await ApplyAllData(absolutePresetData);
-                HasUnsavedChanges = true;
+                SessionHistoryVM.HasUnsavedChanges = true;
                 _dialogService.ShowNotification(
                     ResourceHelper.GetString("Common_SuccessTitle"),
-                    string.Format(ResourceHelper.GetString("Preset_LoadedSuccess"), presetNumber, relativePresetData.PresetName),
+                    string.Format(ResourceHelper.GetString("Preset_LoadedSuccess"), "DB", relativePresetData.PresetName),
                     DialogIconType.Success);
             }
             catch (System.Exception ex)
             {
                 _dialogService.ShowNotification(
                     ResourceHelper.GetString("Common_ErrorTitle"),
-                    string.Format(ResourceHelper.GetString("Preset_LoadError"), presetNumber, ex.Message),
+                    string.Format(ResourceHelper.GetString("Preset_LoadError"), "DB", ex.Message),
                     DialogIconType.Error);
-            }
-        }
-
-        private void OnPresetDeleteRequested(int presetNumber)
-        {
-            string presetName = _saveService.GetPresetName(presetNumber);
-            if (string.IsNullOrWhiteSpace(presetName))
-            {
-                presetName = string.Format(ResourceHelper.GetString("Preset_DefaultNamePrefix") + " ({0})", presetNumber);
-            }
-
-            string message = string.Format(ResourceHelper.GetString("Preset_DeleteConfirmMessage"), presetNumber, presetName);
-            bool confirmed = _dialogService.ShowConfirmation(
-                title: string.Format(ResourceHelper.GetString("Preset_DeleteConfirmTitle"), presetNumber),
-                message: message,
-                iconType: DialogIconType.Warning);
-
-            if (confirmed)
-            {
-                try
-                {
-                    _saveService.DeletePreset(presetNumber);
-                    OptionsVM.CheckForExistingPresets();
-                    _dialogService.ShowNotification(
-                        ResourceHelper.GetString("Common_SuccessTitle"),
-                        string.Format(ResourceHelper.GetString("Preset_DeletedSuccess"), presetNumber, presetName),
-                        DialogIconType.Success);
-                }
-                catch (System.Exception ex)
-                {
-                    _dialogService.ShowNotification(
-                        ResourceHelper.GetString("Common_ErrorTitle"),
-                        string.Format(ResourceHelper.GetString("Preset_DeleteError"), presetNumber, ex.Message),
-                        DialogIconType.Error);
-                }
             }
         }
 
@@ -544,7 +357,7 @@ namespace FileCraft.ViewModels
                 {
                     _saveService.DeleteSaveData();
                     await ApplyAllData(new SaveData());
-                    HasUnsavedChanges = false;
+                    SessionHistoryVM.HasUnsavedChanges = false;
                     _dialogService.ShowNotification(
                         ResourceHelper.GetString("Common_SuccessTitle"),
                         ResourceHelper.GetString("Reset_SuccessMessage"),
@@ -563,48 +376,12 @@ namespace FileCraft.ViewModels
         private void OnStateChanging()
         {
             if (IsBusy) return;
-            var currentState = GetCurrentSaveData();
-            _undoService.RecordState(currentState);
-            HasUnsavedChanges = true;
-        }
-
-        private SaveData MakePathsRelative(SaveData absoluteData, string basePath)
-        {
-            var relativeData = GetCurrentSaveData();
-            relativeData.PresetName = absoluteData.PresetName;
-
-            relativeData.SourcePath = ".";
-            relativeData.DestinationPath = string.IsNullOrWhiteSpace(absoluteData.DestinationPath) ? "" : Path.GetRelativePath(basePath, absoluteData.DestinationPath);
-
-            relativeData.FileContentExport.FolderTreeState = absoluteData.FileContentExport.FolderTreeState.Select(s => new FolderState { FullPath = Path.GetRelativePath(basePath, s.FullPath), IsSelected = s.IsSelected, IsExpanded = s.IsExpanded }).ToList();
-            relativeData.FileContentExport.SelectedFilePaths = absoluteData.FileContentExport.SelectedFilePaths.Select(p => Path.GetRelativePath(basePath, p)).ToList();
-            relativeData.FileContentExport.IgnoredCommentFilePaths = absoluteData.FileContentExport.IgnoredCommentFilePaths.Select(p => Path.GetRelativePath(basePath, p)).ToList();
-
-            relativeData.FolderContentExport.FolderTreeState = absoluteData.FolderContentExport.FolderTreeState.Select(s => new FolderState { FullPath = Path.GetRelativePath(basePath, s.FullPath), IsSelected = s.IsSelected, IsExpanded = s.IsExpanded }).ToList();
-            relativeData.TreeGenerator.FolderTreeState = absoluteData.TreeGenerator.FolderTreeState.Select(s => new FolderState { FullPath = Path.GetRelativePath(basePath, s.FullPath), IsSelected = s.IsSelected, IsExpanded = s.IsExpanded }).ToList();
-
-            return relativeData;
-        }
-
-        private SaveData MakePathsAbsolute(SaveData relativeData, string basePath)
-        {
-            var absoluteData = relativeData;
-            absoluteData.SourcePath = basePath;
-            absoluteData.DestinationPath = string.IsNullOrWhiteSpace(relativeData.DestinationPath) ? "" : Path.GetFullPath(Path.Combine(basePath, relativeData.DestinationPath));
-
-            absoluteData.FileContentExport.FolderTreeState = relativeData.FileContentExport.FolderTreeState.Select(s => new FolderState { FullPath = Path.GetFullPath(Path.Combine(basePath, s.FullPath)), IsSelected = s.IsSelected, IsExpanded = s.IsExpanded }).ToList();
-            absoluteData.FileContentExport.SelectedFilePaths = relativeData.FileContentExport.SelectedFilePaths.Select(p => Path.GetFullPath(Path.Combine(basePath, p))).ToList();
-            absoluteData.FileContentExport.IgnoredCommentFilePaths = relativeData.FileContentExport.IgnoredCommentFilePaths.Select(p => Path.GetFullPath(Path.Combine(basePath, p))).ToList();
-
-            absoluteData.FolderContentExport.FolderTreeState = relativeData.FolderContentExport.FolderTreeState.Select(s => new FolderState { FullPath = Path.GetFullPath(Path.Combine(basePath, s.FullPath)), IsSelected = s.IsSelected, IsExpanded = s.IsExpanded }).ToList();
-            absoluteData.TreeGenerator.FolderTreeState = relativeData.TreeGenerator.FolderTreeState.Select(s => new FolderState { FullPath = Path.GetFullPath(Path.Combine(basePath, s.FullPath)), IsSelected = s.IsSelected, IsExpanded = s.IsExpanded }).ToList();
-
-            return absoluteData;
+            SessionHistoryVM.RecordState();
         }
 
         private void UpdateLinkedTabsVisuals()
         {
-            var vms = new[]
+            var vms = new[ /*a*/ ]
             {
                 new { Id = FileContentExportVM.FolderTreeManager.Id, VM = (ExportViewModelBase)FileContentExportVM },
                 new { Id = TreeGeneratorVM.FolderTreeManager.Id, VM = (ExportViewModelBase)TreeGeneratorVM },
@@ -617,7 +394,7 @@ namespace FileCraft.ViewModels
                 var peerIds = _folderTreeLinkService.GetLinkedPeers(item.Id);
                 foreach (var peerId in peerIds)
                 {
-                    var tabInfo = OptionsVM.AllTabs.FirstOrDefault(t => t.Id == peerId);
+                    var tabInfo = OptionsVM.TreeToolsVM.AllTabs.FirstOrDefault(t => t.Id == peerId);
                     if (tabInfo != null && tabInfo.Icon != null && tabInfo.IconBrush != null)
                     {
                         item.VM.LinkedTabs.Add(new TabIconViewModel(tabInfo.Name, tabInfo.Icon, tabInfo.IconBrush));
