@@ -12,7 +12,7 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="ToggleButton">
-                    <Border Background="Transparent" Padding="4">
+                    <Border Background="{StaticResource TransparentBrush}" Padding="4">
                         <Path x:Name="Arrow"
                               Stroke="{StaticResource TextBrush}"
                               StrokeThickness="1.5"

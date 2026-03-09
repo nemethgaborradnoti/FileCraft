@@ -107,7 +107,6 @@
                 </ColumnDefinition>
             </Grid.ColumnDefinitions>
 
-            <!-- New Preset List Control -->
             <GroupBox Grid.Column="0" Margin="5" Padding="10">
                 <GroupBox.Header>
                     <StackPanel Style="{StaticResource HeaderStackPanelStyle}">
@@ -245,7 +244,6 @@
                                             </TextBlock.Style>
                                         </TextBlock>
                                         <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
-                                        <!-- Link Icon -->
                                         <TextBlock Text="{x:Static icons:MaterialIcons.link}"
                                                    FontFamily="{StaticResource MaterialIcons}"
                                                    Foreground="{StaticResource PrimaryBrush}"
@@ -279,7 +277,6 @@
                                             </TextBlock.Style>
                                         </TextBlock>
                                         <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
-                                        <!-- Link Icon -->
                                         <TextBlock Text="{x:Static icons:MaterialIcons.link}"
                                                    FontFamily="{StaticResource MaterialIcons}"
                                                    Foreground="{StaticResource PrimaryBrush}"
@@ -332,7 +329,7 @@
                    HorizontalAlignment="Center"
                    VerticalAlignment="Bottom"
                    FontSize="12"
-                   Foreground="Gray"
+                   Foreground="{StaticResource GrayTextBrush}"
                    Margin="10">
             <Run Text="{DynamicResource Common_VersionLabel}"/>
             <Run Text="{Binding Version, Mode=OneWay}"/>

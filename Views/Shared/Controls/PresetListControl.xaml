@@ -34,7 +34,7 @@
             <Setter Property="Margin" Value="2,0"/>
             <Setter Property="Padding" Value="4"/>
             <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Background" Value="{StaticResource TransparentBrush}"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="ToolTipService.ShowOnDisabled" Value="True"/>
             <Setter Property="Template">
@@ -48,7 +48,7 @@
                                 <Setter Property="Opacity" Value="0.5"/>
                             </Trigger>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="#adadad"/>
+                                <Setter TargetName="border" Property="Background" Value="{StaticResource ListActionIconHoverBrush}"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -159,7 +159,7 @@
         <Border Grid.Row="2" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="4" Background="{StaticResource TextBoxBackgroundBrush}">
             <ListBox ItemsSource="{Binding ItemsView}"
                      BorderThickness="0"
-                     Background="Transparent"
+                     Background="{StaticResource TransparentBrush}"
                      VirtualizingStackPanel.IsVirtualizing="True"
                      VirtualizingStackPanel.VirtualizationMode="Recycling"
                      HorizontalContentAlignment="Stretch"
@@ -169,7 +169,7 @@
                         <Setter Property="Padding" Value="5"/>
                         <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
                         <Setter Property="Focusable" Value="False"/>
-                        <Setter Property="Background" Value="Transparent"/>
+                        <Setter Property="Background" Value="{StaticResource TransparentBrush}"/>
                         <Setter Property="Template">
                             <Setter.Value>
                                 <ControlTemplate TargetType="ListBoxItem">

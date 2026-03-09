@@ -1,6 +1,9 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
+    <Color x:Key="WhiteColor">#FFFFFF</Color>
+    <Color x:Key="TransparentColor">#00FFFFFF</Color>
+
     <Color x:Key="LightGrayColor">#EEEEEE</Color>
     <Color x:Key="MediumGrayColor">#B0B0B0</Color>
     <Color x:Key="DarkGrayColor">#666666</Color>
@@ -8,11 +11,12 @@
 
     <Color x:Key="ListHoverColor">#DDDDDD</Color>
 
+    <SolidColorBrush x:Key="WhiteBrush" Color="{StaticResource WhiteColor}"/>
     <SolidColorBrush x:Key="TextBoxBackgroundBrush" Color="{StaticResource LightGrayColor}"/>
     <SolidColorBrush x:Key="BorderBrush" Color="{StaticResource MediumGrayColor}"/>
     <SolidColorBrush x:Key="TextBrush" Color="{StaticResource TextColor}"/>
     <SolidColorBrush x:Key="GrayTextBrush" Color="{StaticResource DarkGrayColor}"/>
-    <SolidColorBrush x:Key="TransparentBrush" Color="Transparent"/>
+    <SolidColorBrush x:Key="TransparentBrush" Color="{StaticResource TransparentColor}"/>
     <SolidColorBrush x:Key="ListHoverBackgroundBrush" Color="{StaticResource ListHoverColor}"/>
 
     <Color x:Key="PrimaryColor">#007BFF</Color>
@@ -23,6 +27,7 @@
 
     <Color x:Key="DangerColor">#DC3545</Color>
     <Color x:Key="DangerDarkerColor">#C82333</Color>
+    <Color x:Key="DangerLightColor">#FFF5F5</Color>
 
     <Color x:Key="WarningColor">#FFC107</Color>
     <Color x:Key="WarningDarkerColor">#E0A800</Color>
@@ -35,6 +40,10 @@
 
     <Color x:Key="ButtonTextColor">#FFFFFF</Color>
 
+    <Color x:Key="IconButtonHoverColor">#E0E0E0</Color>
+    <Color x:Key="IconButtonPressedColor">#C0C0C0</Color>
+    <Color x:Key="ListActionIconHoverColor">#ADADAD</Color>
+
     <SolidColorBrush x:Key="PrimaryBrush" Color="{StaticResource PrimaryColor}"/>
     <SolidColorBrush x:Key="PrimaryDarkerBrush" Color="{StaticResource PrimaryDarkerColor}"/>
 
@@ -43,6 +52,7 @@
 
     <SolidColorBrush x:Key="DangerBrush" Color="{StaticResource DangerColor}"/>
     <SolidColorBrush x:Key="DangerDarkerBrush" Color="{StaticResource DangerDarkerColor}"/>
+    <SolidColorBrush x:Key="DangerLightBackgroundBrush" Color="{StaticResource DangerLightColor}"/>
 
     <SolidColorBrush x:Key="WarningBrush" Color="{StaticResource WarningColor}"/>
     <SolidColorBrush x:Key="WarningDarkerBrush" Color="{StaticResource WarningDarkerColor}"/>
@@ -55,13 +65,18 @@
 
     <SolidColorBrush x:Key="ButtonTextBrush" Color="{StaticResource ButtonTextColor}"/>
 
+    <SolidColorBrush x:Key="IconButtonHoverBrush" Color="{StaticResource IconButtonHoverColor}"/>
+    <SolidColorBrush x:Key="IconButtonPressedBrush" Color="{StaticResource IconButtonPressedColor}"/>
+    <SolidColorBrush x:Key="ListActionIconHoverBrush" Color="{StaticResource ListActionIconHoverColor}"/>
+
+    <Color x:Key="ComboBoxItemHighlightColor">#E6F2FF</Color>
+    <SolidColorBrush x:Key="ComboBoxItemHighlightBrush" Color="{StaticResource ComboBoxItemHighlightColor}"/>
     <SolidColorBrush x:Key="TextBoxFocusBorderBrush" Color="{StaticResource PrimaryColor}"/>
-    <SolidColorBrush x:Key="ComboBoxItemHighlightBrush" Color="#E6F2FF"/>
 
     <Color x:Key="TabHoverColor">#D0D0D0</Color>
     <SolidColorBrush x:Key="TabHoverBrush" Color="{StaticResource TabHoverColor}"/>
     <SolidColorBrush x:Key="TabInactiveBackgroundBrush" Color="{StaticResource LightGrayColor}"/>
-    <SolidColorBrush x:Key="TabActiveBackgroundBrush" Color="White"/>
+    <SolidColorBrush x:Key="TabActiveBackgroundBrush" Color="{StaticResource WhiteColor}"/>
 
     <Color x:Key="BadgeBackgroundColor">#F8F9FA</Color>
     <Color x:Key="BadgeHoverColor">#E9ECEF</Color>

@@ -188,7 +188,7 @@
                          HorizontalScrollBarVisibility="Auto"
                          VerticalContentAlignment="Top"
                          BorderThickness="0"
-                         Background="Transparent"
+                         Background="{StaticResource TransparentBrush}"
                          Padding="0"/>
             </GroupBox>
 
@@ -220,7 +220,7 @@
                          HorizontalScrollBarVisibility="Auto"
                          VerticalContentAlignment="Top"
                          BorderThickness="0"
-                         Background="Transparent"
+                         Background="{StaticResource TransparentBrush}"
                          Padding="0"/>
             </GroupBox>
         </Grid>

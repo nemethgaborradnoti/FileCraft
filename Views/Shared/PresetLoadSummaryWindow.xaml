@@ -32,7 +32,7 @@
         </Style>
 
         <Style x:Key="SummaryRowBorder" TargetType="Border">
-            <Setter Property="Background" Value="#F8F9FA"/>
+            <Setter Property="Background" Value="{StaticResource BadgeBackgroundBrush}"/>
             <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="CornerRadius" Value="4"/>
@@ -115,7 +115,7 @@
                 </Grid>
 
                 <!-- Not Found -->
-                <Border Style="{StaticResource SummaryRowBorder}" BorderBrush="{StaticResource DangerBrush}" BorderThickness="1" Background="#FFF5F5">
+                <Border Style="{StaticResource SummaryRowBorder}" BorderBrush="{StaticResource DangerBrush}" BorderThickness="1" Background="{StaticResource DangerLightBackgroundBrush}">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
