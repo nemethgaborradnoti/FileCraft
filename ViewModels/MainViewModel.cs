@@ -278,7 +278,7 @@ namespace FileCraft.ViewModels
                 var currentSaveData = GetCurrentSaveData();
                 currentSaveData.PresetName = presetName;
 
-                var relativeSaveData = MakePathsRelative(currentSaveData, PathSelectionVM.SourcePath);
+                var relativeSaveData = SaveDataPathConverter.ConvertPaths(currentSaveData, PathSelectionVM.SourcePath, toRelative: true);
 
                 _saveService.SavePreset(presetName, "", relativeSaveData);
 
@@ -326,7 +326,7 @@ namespace FileCraft.ViewModels
             OnStateChanging();
             try
             {
-                var absolutePresetData = MakePathsAbsolute(relativePresetData, PathSelectionVM.SourcePath);
+                var absolutePresetData = SaveDataPathConverter.ConvertPaths(relativePresetData, PathSelectionVM.SourcePath, toRelative: false);
                 await ApplyAllData(absolutePresetData);
                 SessionHistoryVM.HasUnsavedChanges = true;
                 _dialogService.ShowNotification(
@@ -377,40 +377,6 @@ namespace FileCraft.ViewModels
         {
             if (IsBusy) return;
             SessionHistoryVM.RecordState();
-        }
-
-        private SaveData MakePathsRelative(SaveData absoluteData, string basePath)
-        {
-            var relativeData = GetCurrentSaveData();
-            relativeData.PresetName = absoluteData.PresetName;
-
-            relativeData.SourcePath = ".";
-            relativeData.DestinationPath = string.IsNullOrWhiteSpace(absoluteData.DestinationPath) ? "" : Path.GetRelativePath(basePath, absoluteData.DestinationPath);
-
-            relativeData.FileContentExport.FolderTreeState = absoluteData.FileContentExport.FolderTreeState.Select(s => new FolderState { FullPath = Path.GetRelativePath(basePath, s.FullPath), IsSelected = s.IsSelected, IsExpanded = s.IsExpanded }).ToList();
-            relativeData.FileContentExport.SelectedFilePaths = absoluteData.FileContentExport.SelectedFilePaths.Select(p => Path.GetRelativePath(basePath, p)).ToList();
-            relativeData.FileContentExport.IgnoredCommentFilePaths = absoluteData.FileContentExport.IgnoredCommentFilePaths.Select(p => Path.GetRelativePath(basePath, p)).ToList();
-
-            relativeData.FolderContentExport.FolderTreeState = absoluteData.FolderContentExport.FolderTreeState.Select(s => new FolderState { FullPath = Path.GetRelativePath(basePath, s.FullPath), IsSelected = s.IsSelected, IsExpanded = s.IsExpanded }).ToList();
-            relativeData.TreeGenerator.FolderTreeState = absoluteData.TreeGenerator.FolderTreeState.Select(s => new FolderState { FullPath = Path.GetRelativePath(basePath, s.FullPath), IsSelected = s.IsSelected, IsExpanded = s.IsExpanded }).ToList();
-
-            return relativeData;
-        }
-
-        private SaveData MakePathsAbsolute(SaveData relativeData, string basePath)
-        {
-            var absoluteData = relativeData;
-            absoluteData.SourcePath = basePath;
-            absoluteData.DestinationPath = string.IsNullOrWhiteSpace(relativeData.DestinationPath) ? "" : Path.GetFullPath(Path.Combine(basePath, relativeData.DestinationPath));
-
-            absoluteData.FileContentExport.FolderTreeState = relativeData.FileContentExport.FolderTreeState.Select(s => new FolderState { FullPath = Path.GetFullPath(Path.Combine(basePath, s.FullPath)), IsSelected = s.IsSelected, IsExpanded = s.IsExpanded }).ToList();
-            absoluteData.FileContentExport.SelectedFilePaths = relativeData.FileContentExport.SelectedFilePaths.Select(p => Path.GetFullPath(Path.Combine(basePath, p))).ToList();
-            absoluteData.FileContentExport.IgnoredCommentFilePaths = relativeData.FileContentExport.IgnoredCommentFilePaths.Select(p => Path.GetFullPath(Path.Combine(basePath, p))).ToList();
-
-            absoluteData.FolderContentExport.FolderTreeState = relativeData.FolderContentExport.FolderTreeState.Select(s => new FolderState { FullPath = Path.GetFullPath(Path.Combine(basePath, s.FullPath)), IsSelected = s.IsSelected, IsExpanded = s.IsExpanded }).ToList();
-            absoluteData.TreeGenerator.FolderTreeState = relativeData.TreeGenerator.FolderTreeState.Select(s => new FolderState { FullPath = Path.GetFullPath(Path.Combine(basePath, s.FullPath)), IsSelected = s.IsSelected, IsExpanded = s.IsExpanded }).ToList();
-
-            return absoluteData;
         }
 
         private void UpdateLinkedTabsVisuals()

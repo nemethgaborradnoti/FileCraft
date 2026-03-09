@@ -3,7 +3,6 @@ using FileCraft.Services.Interfaces;
 using FileCraft.Shared.Commands;
 using FileCraft.Shared.Helpers;
 using FileCraft.ViewModels.Shared;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Globalization;
 using System.IO;
@@ -234,7 +233,7 @@ namespace FileCraft.ViewModels.Functional
 
         private void ManagePathPresets()
         {
-            _dialogService.ShowPathPresetsManager(this);
+            _dialogService.ShowPathPresetsManager();
         }
 
         private void ConfigureIgnoredComments()

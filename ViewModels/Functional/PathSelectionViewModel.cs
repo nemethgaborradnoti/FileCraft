@@ -1,7 +1,6 @@
 ﻿using FileCraft.Services.Interfaces;
 using FileCraft.Shared.Commands;
 using FileCraft.Shared.Helpers;
-using System;
 using System.Windows.Input;
 
 namespace FileCraft.ViewModels.Functional

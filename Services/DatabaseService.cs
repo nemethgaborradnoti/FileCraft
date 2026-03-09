@@ -1,6 +1,7 @@
 ﻿using FileCraft.Models;
 using FileCraft.Services.Interfaces;
 using LiteDB;
+using System;
 using System.IO;
 using System.Reflection;
 
@@ -13,18 +14,14 @@ namespace FileCraft.Services
         private LiteDatabase? _database;
         private readonly string _currentVersion;
 
-        public DatabaseService()
+        public DatabaseService(IAppPathProvider appPathProvider)
         {
-            string appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-            string appFolder = Path.Combine(appData, "FileCraft");
+            string appFolder = appPathProvider.GetAppDirectory();
+            _backupDirectory = appPathProvider.GetBackupDirectory();
             _databasePath = Path.Combine(appFolder, "FileCraft.db");
-            _backupDirectory = Path.Combine(appFolder, "Backups");
 
             var assembly = Assembly.GetEntryAssembly();
             _currentVersion = assembly?.GetName().Version?.ToString() ?? "1.0.0";
-
-            Directory.CreateDirectory(appFolder);
-            Directory.CreateDirectory(_backupDirectory);
         }
 
         public void Initialize()
@@ -95,7 +92,6 @@ namespace FileCraft.Services
             }
             catch
             {
-                // Ignore backup errors to allow app startup, or log if care lmao
             }
         }
 

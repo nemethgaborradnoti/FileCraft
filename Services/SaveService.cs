@@ -17,13 +17,10 @@ namespace FileCraft.Services
 
         private const string PresetCollectionName = "SavePresets";
 
-        public SaveService(IDatabaseService databaseService)
+        public SaveService(IDatabaseService databaseService, IAppPathProvider appPathProvider)
         {
             _databaseService = databaseService;
-
-            string appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-            _appDirectory = Path.Combine(appDataPath, "FileCraft");
-            Directory.CreateDirectory(_appDirectory);
+            _appDirectory = appPathProvider.GetAppDirectory();
             _saveFilePath = Path.Combine(_appDirectory, "save.json");
         }
 

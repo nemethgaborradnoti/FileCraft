@@ -4,7 +4,6 @@ using FileCraft.Shared.Helpers;
 using FileCraft.ViewModels.Functional;
 using FileCraft.ViewModels.Shared;
 using FileCraft.Views.Shared;
-using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 
@@ -12,11 +11,11 @@ namespace FileCraft.Services
 {
     public class DialogService : IDialogService
     {
-        private readonly IServiceProvider _serviceProvider;
+        private readonly IWindowFactory _windowFactory;
 
-        public DialogService(IServiceProvider serviceProvider)
+        public DialogService(IWindowFactory windowFactory)
         {
-            _serviceProvider = serviceProvider;
+            _windowFactory = windowFactory;
         }
 
         public string? SelectFolder(string description)
@@ -171,17 +170,9 @@ namespace FileCraft.Services
             return null;
         }
 
-        public void ShowPathPresetsManager(FileContentExportViewModel fileContentExportViewModel)
+        public void ShowPathPresetsManager()
         {
-            var viewModel = new PathPresetsViewModel(
-                _serviceProvider.GetRequiredService<IPathPresetService>(),
-                _serviceProvider.GetRequiredService<ISharedStateService>(),
-                this,
-                _serviceProvider.GetRequiredService<ISaveService>(),
-                fileContentExportViewModel);
-
-            var window = new PathPresetsWindow(viewModel);
-            window.ShowDialog();
+            _windowFactory.ShowPathPresetsManagerDialog();
         }
 
         public string? ShowInputStringDialog(string title, string message, string defaultValue = "")
@@ -215,10 +206,7 @@ namespace FileCraft.Services
 
         public void ShowPresetLoadSummary(PathPresetLoadResult result)
         {
-            var sharedStateService = _serviceProvider.GetRequiredService<ISharedStateService>();
-            var viewModel = new PresetLoadSummaryViewModel(result, sharedStateService);
-            var window = new PresetLoadSummaryWindow(viewModel);
-            window.ShowDialog();
+            _windowFactory.ShowPresetLoadSummaryDialog(result);
         }
 
         public void ShowPresetDetails(PresetItemViewModel preset)
