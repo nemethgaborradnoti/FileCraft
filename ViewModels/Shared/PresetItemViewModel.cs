@@ -45,11 +45,13 @@ namespace FileCraft.ViewModels.Shared
         }
 
         public ICommand LoadCommand { get; }
+        public ICommand OverwriteCommand { get; }
         public ICommand DeleteCommand { get; }
         public ICommand RenameCommand { get; }
         public ICommand ViewDetailsCommand { get; }
 
         public event Action<PresetItemViewModel>? LoadRequested;
+        public event Action<PresetItemViewModel>? OverwriteRequested;
         public event Action<PresetItemViewModel>? DeleteRequested;
         public event Action<PresetItemViewModel>? RenameRequested;
         public event Action<PresetItemViewModel>? ViewDetailsRequested;
@@ -63,6 +65,7 @@ namespace FileCraft.ViewModels.Shared
             RawData = rawData;
 
             LoadCommand = new RelayCommand(_ => LoadRequested?.Invoke(this));
+            OverwriteCommand = new RelayCommand(_ => OverwriteRequested?.Invoke(this));
             DeleteCommand = new RelayCommand(_ => DeleteRequested?.Invoke(this));
             RenameCommand = new RelayCommand(_ => RenameRequested?.Invoke(this));
             ViewDetailsCommand = new RelayCommand(_ => ViewDetailsRequested?.Invoke(this));

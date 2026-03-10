@@ -14,6 +14,7 @@ namespace FileCraft.ViewModels.Functional
 
         public event Action? PresetCreateRequested;
         public event Action<int>? PresetLoadRequested;
+        public event Action<int, string>? PresetOverwriteRequested;
 
         public PresetListViewModel PresetListViewModel { get; }
 
@@ -29,6 +30,7 @@ namespace FileCraft.ViewModels.Functional
 
             PresetListViewModel.SaveNewRequested += () => PresetCreateRequested?.Invoke();
             PresetListViewModel.LoadItemRequested += OnPresetLoadItemRequested;
+            PresetListViewModel.OverwriteItemRequested += OnPresetOverwriteItemRequested;
             PresetListViewModel.DeleteItemRequested += OnPresetDeleteItemRequested;
             PresetListViewModel.RenameItemRequested += OnPresetRenameItemRequested;
             PresetListViewModel.ViewItemDetailsRequested += OnPresetViewItemDetailsRequested;
@@ -68,6 +70,14 @@ namespace FileCraft.ViewModels.Functional
             if (item.Id is int id)
             {
                 PresetLoadRequested?.Invoke(id);
+            }
+        }
+
+        private void OnPresetOverwriteItemRequested(PresetItemViewModel item)
+        {
+            if (item.Id is int id)
+            {
+                PresetOverwriteRequested?.Invoke(id, item.Name);
             }
         }
 

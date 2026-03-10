@@ -10,14 +10,17 @@ namespace FileCraft.ViewModels.Shared
     public class PresetLoadSummaryViewModel : BaseViewModel
     {
         private bool _isNotFoundVisible;
+        private bool _isLoadedVisible;
 
         public PathPresetLoadResult Result { get; }
 
         public string Title => ResourceHelper.GetString("PresetSummary_Title");
 
         public string NotFoundPathsText { get; }
+        public string LoadedPathsText { get; }
 
         public bool HasNotFoundPaths => Result.NotFoundPaths.Count > 0;
+        public bool HasLoadedPaths => Result.LoadedPaths.Count > 0;
 
         public bool IsNotFoundVisible
         {
@@ -28,16 +31,25 @@ namespace FileCraft.ViewModels.Shared
                 {
                     _isNotFoundVisible = value;
                     OnPropertyChanged();
-                    OnPropertyChanged(nameof(ToggleNotFoundButtonText));
                 }
             }
         }
 
-        public string ToggleNotFoundButtonText => IsNotFoundVisible
-            ? ResourceHelper.GetString("PresetSummary_HideMissingButton")
-            : ResourceHelper.GetString("PresetSummary_ShowMissingButton");
+        public bool IsLoadedVisible
+        {
+            get => _isLoadedVisible;
+            set
+            {
+                if (_isLoadedVisible != value)
+                {
+                    _isLoadedVisible = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
 
         public ICommand ToggleNotFoundCommand { get; }
+        public ICommand ToggleLoadedCommand { get; }
         public ICommand CloseCommand { get; }
 
         public event Action? RequestClose;
@@ -47,22 +59,28 @@ namespace FileCraft.ViewModels.Shared
             Result = result;
 
             string sourcePath = sharedStateService.SourcePath;
-            List<string> displayPaths;
+            List<string> displayNotFoundPaths;
+            List<string> displayLoadedPaths;
 
             if (!string.IsNullOrWhiteSpace(sourcePath))
             {
-                displayPaths = result.NotFoundPaths
+                displayNotFoundPaths = result.NotFoundPaths
                     .Select(p => Path.GetRelativePath(sourcePath, p))
                     .ToList();
+
+                displayLoadedPaths = result.LoadedPaths;
             }
             else
             {
-                displayPaths = result.NotFoundPaths;
+                displayNotFoundPaths = result.NotFoundPaths;
+                displayLoadedPaths = result.LoadedPaths;
             }
 
-            NotFoundPathsText = string.Join(Environment.NewLine, displayPaths);
+            NotFoundPathsText = string.Join(Environment.NewLine, displayNotFoundPaths);
+            LoadedPathsText = string.Join(Environment.NewLine, displayLoadedPaths);
 
-            ToggleNotFoundCommand = new RelayCommand(_ => IsNotFoundVisible = !IsNotFoundVisible);
+            ToggleNotFoundCommand = new RelayCommand(_ => { if (HasNotFoundPaths) IsNotFoundVisible = !IsNotFoundVisible; });
+            ToggleLoadedCommand = new RelayCommand(_ => { if (HasLoadedPaths) IsLoadedVisible = !IsLoadedVisible; });
             CloseCommand = new RelayCommand(_ => RequestClose?.Invoke());
         }
     }

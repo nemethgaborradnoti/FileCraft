@@ -242,4 +242,9 @@
     <system:String x:Key="Details_FoldersTitle">Included Folders</system:String>
     <system:String x:Key="Details_FilesTitle">Included Files</system:String>
 
+    <system:String x:Key="PresetList_OverwriteButton">Save current settings to this preset</system:String>
+    <system:String x:Key="Preset_OverwriteCurrentConfirmTitle">Overwrite Preset</system:String>
+    <system:String x:Key="Preset_OverwriteCurrentConfirmMessage">Are you sure you want to overwrite preset '{0}' with your current settings?</system:String>
+    <system:String x:Key="PathPreset_LoadConfirmTitle">Load Path Preset</system:String>
+    <system:String x:Key="PathPreset_LoadConfirmMessage">Are you sure you want to load paths from preset '{0}'?</system:String>
 </ResourceDictionary>

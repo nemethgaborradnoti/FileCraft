@@ -21,6 +21,7 @@ namespace FileCraft.ViewModels.Functional
         public event Action? IgnoredFoldersChanged;
         public event Action? PresetCreateRequested;
         public event Action<int>? PresetLoadRequested;
+        public event Action<int, string>? PresetOverwriteRequested;
         public event Action? CurrentSaveDeleteRequested;
 
         public OptionsViewModel(
@@ -37,6 +38,7 @@ namespace FileCraft.ViewModels.Functional
             GeneralVM.CurrentSaveDeleteRequested += () => CurrentSaveDeleteRequested?.Invoke();
             PresetsVM.PresetCreateRequested += () => PresetCreateRequested?.Invoke();
             PresetsVM.PresetLoadRequested += (id) => PresetLoadRequested?.Invoke(id);
+            PresetsVM.PresetOverwriteRequested += (id, name) => PresetOverwriteRequested?.Invoke(id, name);
 
             PresetsVM.StateChanging += OnStateChangingDelegate;
             TreeToolsVM.StateChanging += OnStateChangingDelegate;

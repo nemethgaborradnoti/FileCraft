@@ -42,7 +42,7 @@
 
     <Color x:Key="IconButtonHoverColor">#E0E0E0</Color>
     <Color x:Key="IconButtonPressedColor">#C0C0C0</Color>
-    <Color x:Key="ListActionIconHoverColor">#ADADAD</Color>
+    <Color x:Key="ListActionIconHoverColor">#bfbfbf</Color>
 
     <SolidColorBrush x:Key="PrimaryBrush" Color="{StaticResource PrimaryColor}"/>
     <SolidColorBrush x:Key="PrimaryDarkerBrush" Color="{StaticResource PrimaryDarkerColor}"/>

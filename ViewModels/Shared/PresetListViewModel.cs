@@ -71,6 +71,7 @@ namespace FileCraft.ViewModels.Shared
 
         public event Action? SaveNewRequested;
         public event Action<PresetItemViewModel>? LoadItemRequested;
+        public event Action<PresetItemViewModel>? OverwriteItemRequested;
         public event Action<PresetItemViewModel>? DeleteItemRequested;
         public event Action<PresetItemViewModel>? RenameItemRequested;
         public event Action<PresetItemViewModel>? ViewItemDetailsRequested;
@@ -130,6 +131,7 @@ namespace FileCraft.ViewModels.Shared
         private void HookItemEvents(PresetItemViewModel item)
         {
             item.LoadRequested += OnItemLoadRequested;
+            item.OverwriteRequested += OnItemOverwriteRequested;
             item.DeleteRequested += OnItemDeleteRequested;
             item.RenameRequested += OnItemRenameRequested;
             item.ViewDetailsRequested += OnItemViewDetailsRequested;
@@ -138,12 +140,14 @@ namespace FileCraft.ViewModels.Shared
         private void UnhookItemEvents(PresetItemViewModel item)
         {
             item.LoadRequested -= OnItemLoadRequested;
+            item.OverwriteRequested -= OnItemOverwriteRequested;
             item.DeleteRequested -= OnItemDeleteRequested;
             item.RenameRequested -= OnItemRenameRequested;
             item.ViewDetailsRequested -= OnItemViewDetailsRequested;
         }
 
         private void OnItemLoadRequested(PresetItemViewModel item) => LoadItemRequested?.Invoke(item);
+        private void OnItemOverwriteRequested(PresetItemViewModel item) => OverwriteItemRequested?.Invoke(item);
         private void OnItemDeleteRequested(PresetItemViewModel item) => DeleteItemRequested?.Invoke(item);
         private void OnItemRenameRequested(PresetItemViewModel item) => RenameItemRequested?.Invoke(item);
         private void OnItemViewDetailsRequested(PresetItemViewModel item) => ViewItemDetailsRequested?.Invoke(item);

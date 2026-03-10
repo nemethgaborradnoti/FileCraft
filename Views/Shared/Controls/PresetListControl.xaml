@@ -237,12 +237,21 @@
                                         Height="24"
                                         Margin="0,0,5,0"/>
 
+                                <Button Command="{Binding OverwriteCommand}"
+                                        Style="{StaticResource ListActionIconButton}"
+                                        ToolTip="{DynamicResource PresetList_OverwriteButton}"
+                                        Width="24" Height="24">
+                                    <Viewbox>
+                                        <TextBlock Text="{x:Static icons:MaterialIcons.save}" FontFamily="{StaticResource MaterialIcons}" Foreground="{StaticResource SuccessBrush}"/>
+                                    </Viewbox>
+                                </Button>
+
                                 <Button Command="{Binding ViewDetailsCommand}"
                                         Style="{StaticResource ListActionIconButton}"
                                         ToolTip="{DynamicResource PresetList_DetailsButton}"
                                         Width="24" Height="24">
                                     <Viewbox>
-                                        <TextBlock Text="{x:Static icons:MaterialIcons.visibility}" FontFamily="{StaticResource MaterialIcons}" Foreground="{StaticResource PrimaryBrush}"/>
+                                        <TextBlock Text="{x:Static icons:MaterialIcons.visibility}" FontFamily="{StaticResource MaterialIcons}" Foreground="{StaticResource GrayTextBrush}"/>
                                     </Viewbox>
                                 </Button>
 
@@ -251,7 +260,7 @@
                                         ToolTip="{DynamicResource RenamePreset_Title}"
                                         Width="24" Height="24">
                                     <Viewbox>
-                                        <TextBlock Text="{x:Static icons:MaterialIcons.edit}" FontFamily="{StaticResource MaterialIcons}" Foreground="{StaticResource TextBrush}"/>
+                                        <TextBlock Text="{x:Static icons:MaterialIcons.edit}" FontFamily="{StaticResource MaterialIcons}" Foreground="{StaticResource PrimaryBrush}"/>
                                     </Viewbox>
                                 </Button>
 

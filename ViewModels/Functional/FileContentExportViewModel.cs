@@ -335,6 +335,7 @@ namespace FileCraft.ViewModels.Functional
                             result.Unchanged++;
                         }
                         result.SuccessfullyLoaded++;
+                        result.LoadedPaths.Add(relativePath);
                     }
                     else
                     {

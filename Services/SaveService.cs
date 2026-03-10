@@ -150,6 +150,29 @@ namespace FileCraft.Services
             }
         }
 
+        public void UpdatePresetData(int id, SaveData data)
+        {
+            var col = GetCollection();
+            var entity = col.FindById(id);
+            if (entity != null)
+            {
+                entity.Data = data;
+                entity.LastModified = DateTime.Now;
+                entity.Statistics = new PresetStatistics
+                {
+                    FolderCount = data.FileContentExport.FolderTreeState.Count +
+                                  data.FolderContentExport.FolderTreeState.Count +
+                                  data.TreeGenerator.FolderTreeState.Count,
+                    FileCount = data.FileContentExport.SelectedFilePaths.Count
+                };
+
+                var version = System.Reflection.Assembly.GetEntryAssembly()?.GetName().Version;
+                entity.AppVersion = version != null ? $"{version.Major}.{version.Minor}.{version.Build}" : "1.0.0";
+
+                col.Update(entity);
+            }
+        }
+
         public bool PresetNameExists(string name)
         {
             if (string.IsNullOrWhiteSpace(name)) return false;
