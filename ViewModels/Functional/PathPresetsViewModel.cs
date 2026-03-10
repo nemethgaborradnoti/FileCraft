@@ -40,6 +40,7 @@ namespace FileCraft.ViewModels.Functional
 
             ListViewModel.SaveNewRequested += OnSaveNewRequested;
             ListViewModel.LoadItemRequested += OnLoadRequested;
+            ListViewModel.OverwriteItemRequested += OnOverwriteRequested;
             ListViewModel.DeleteItemRequested += OnDeleteRequested;
             ListViewModel.RenameItemRequested += OnRenameRequested;
             ListViewModel.ViewItemDetailsRequested += OnViewDetailsRequested;
@@ -130,8 +131,65 @@ namespace FileCraft.ViewModels.Functional
         {
             if (item.RawData is PathPreset preset)
             {
-                var result = _fileContentExportVM.LoadPathPreset(preset.FilePaths);
-                _dialogService.ShowPresetLoadSummary(result);
+                bool confirm = _dialogService.ShowConfirmation(
+                    ResourceHelper.GetString("PathPreset_LoadConfirmTitle"),
+                    string.Format(ResourceHelper.GetString("PathPreset_LoadConfirmMessage"), item.Name),
+                    DialogIconType.Info);
+
+                if (confirm)
+                {
+                    var result = _fileContentExportVM.LoadPathPreset(preset.FilePaths);
+                    _dialogService.ShowPresetLoadSummary(result);
+                }
+            }
+        }
+
+        private void OnOverwriteRequested(PresetItemViewModel item)
+        {
+            var sourcePath = _sharedStateService.SourcePath;
+            if (string.IsNullOrWhiteSpace(sourcePath) || !Directory.Exists(sourcePath))
+            {
+                _dialogService.ShowNotification(
+                    ResourceHelper.GetString("Common_WarningTitle"),
+                    ResourceHelper.GetString("Preset_SelectSourceFirst"),
+                    DialogIconType.Warning);
+                return;
+            }
+
+            var selectedPaths = _fileContentExportVM.GetSelectedFilePaths();
+            if (!selectedPaths.Any())
+            {
+                _dialogService.ShowNotification(
+                    ResourceHelper.GetString("Common_WarningTitle"),
+                    ResourceHelper.GetString("PathPreset_NoSelectionError"),
+                    DialogIconType.Warning);
+                return;
+            }
+
+            bool confirm = _dialogService.ShowConfirmation(
+                ResourceHelper.GetString("Preset_OverwriteCurrentConfirmTitle"),
+                string.Format(ResourceHelper.GetString("Preset_OverwriteCurrentConfirmMessage"), item.Name),
+                DialogIconType.Warning);
+
+            if (confirm)
+            {
+                var relativePaths = selectedPaths
+                    .Select(p => Path.GetRelativePath(sourcePath, p))
+                    .ToList();
+
+                var preset = new PathPreset
+                {
+                    Name = item.Name,
+                    FilePaths = relativePaths
+                };
+
+                _presetService.SavePreset(preset);
+                LoadPresets();
+
+                _dialogService.ShowNotification(
+                    ResourceHelper.GetString("Common_SuccessTitle"),
+                    string.Format(ResourceHelper.GetString("Common_SavedTo"), item.Name),
+                    DialogIconType.Success);
             }
         }
 

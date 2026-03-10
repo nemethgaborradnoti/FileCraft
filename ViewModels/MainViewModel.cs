@@ -87,6 +87,7 @@ namespace FileCraft.ViewModels
 
             OptionsVM.PresetCreateRequested += OnPresetCreateRequested;
             OptionsVM.PresetLoadRequested += OnPresetLoadRequested;
+            OptionsVM.PresetOverwriteRequested += OnPresetOverwriteRequested;
             OptionsVM.CurrentSaveDeleteRequested += OnCurrentSaveDeleteRequested;
         }
 
@@ -339,6 +340,49 @@ namespace FileCraft.ViewModels
                 _dialogService.ShowNotification(
                     ResourceHelper.GetString("Common_ErrorTitle"),
                     string.Format(ResourceHelper.GetString("Preset_LoadError"), "DB", ex.Message),
+                    DialogIconType.Error);
+            }
+        }
+
+        private void OnPresetOverwriteRequested(int presetId, string presetName)
+        {
+            if (string.IsNullOrWhiteSpace(PathSelectionVM.SourcePath) || !Directory.Exists(PathSelectionVM.SourcePath))
+            {
+                _dialogService.ShowNotification(
+                    ResourceHelper.GetString("Common_WarningTitle"),
+                    ResourceHelper.GetString("Preset_SelectSourceFirst"),
+                    DialogIconType.Warning);
+                return;
+            }
+
+            bool confirmed = _dialogService.ShowConfirmation(
+                ResourceHelper.GetString("Preset_OverwriteCurrentConfirmTitle"),
+                string.Format(ResourceHelper.GetString("Preset_OverwriteCurrentConfirmMessage"), presetName),
+                DialogIconType.Warning);
+
+            if (!confirmed) return;
+
+            try
+            {
+                var currentSaveData = GetCurrentSaveData();
+                currentSaveData.PresetName = presetName;
+
+                var relativeSaveData = SaveDataPathConverter.ConvertPaths(currentSaveData, PathSelectionVM.SourcePath, toRelative: true);
+
+                _saveService.UpdatePresetData(presetId, relativeSaveData);
+
+                OptionsVM.RefreshPresetList();
+
+                _dialogService.ShowNotification(
+                    ResourceHelper.GetString("Common_SuccessTitle"),
+                    string.Format(ResourceHelper.GetString("Preset_SavedSuccess"), presetName, "-"),
+                    DialogIconType.Success);
+            }
+            catch (System.Exception ex)
+            {
+                _dialogService.ShowNotification(
+                    ResourceHelper.GetString("Common_ErrorTitle"),
+                    string.Format(ResourceHelper.GetString("Preset_SaveError"), "DB", ex.Message),
                     DialogIconType.Error);
             }
         }
