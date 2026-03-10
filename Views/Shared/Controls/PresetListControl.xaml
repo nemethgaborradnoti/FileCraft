@@ -242,7 +242,7 @@
                                         ToolTip="{DynamicResource PresetList_OverwriteButton}"
                                         Width="24" Height="24">
                                     <Viewbox>
-                                        <TextBlock Text="{x:Static icons:MaterialIcons.save}" FontFamily="{StaticResource MaterialIcons}" Foreground="{StaticResource PrimaryBrush}"/>
+                                        <TextBlock Text="{x:Static icons:MaterialIcons.save}" FontFamily="{StaticResource MaterialIcons}" Foreground="{StaticResource SuccessBrush}"/>
                                     </Viewbox>
                                 </Button>
 
@@ -251,7 +251,7 @@
                                         ToolTip="{DynamicResource PresetList_DetailsButton}"
                                         Width="24" Height="24">
                                     <Viewbox>
-                                        <TextBlock Text="{x:Static icons:MaterialIcons.visibility}" FontFamily="{StaticResource MaterialIcons}" Foreground="{StaticResource PrimaryBrush}"/>
+                                        <TextBlock Text="{x:Static icons:MaterialIcons.visibility}" FontFamily="{StaticResource MaterialIcons}" Foreground="{StaticResource GrayTextBrush}"/>
                                     </Viewbox>
                                 </Button>
 
@@ -260,7 +260,7 @@
                                         ToolTip="{DynamicResource RenamePreset_Title}"
                                         Width="24" Height="24">
                                     <Viewbox>
-                                        <TextBlock Text="{x:Static icons:MaterialIcons.edit}" FontFamily="{StaticResource MaterialIcons}" Foreground="{StaticResource TextBrush}"/>
+                                        <TextBlock Text="{x:Static icons:MaterialIcons.edit}" FontFamily="{StaticResource MaterialIcons}" Foreground="{StaticResource PrimaryBrush}"/>
                                     </Viewbox>
                                 </Button>
 
